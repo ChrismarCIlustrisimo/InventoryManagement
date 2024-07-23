@@ -1,7 +1,11 @@
 import express from 'express';
 import Customer from '../models/customerModel.js';
+import requireAuth from '../middleware/requireAuth.js';
 
 const router = express.Router();
+
+// requireAuth for all customer routes
+router.use(requireAuth)
 
 // Add Customer
 router.post('/', async (request, response) => {

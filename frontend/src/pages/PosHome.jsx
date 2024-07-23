@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Navbar from '../components/Navbar';
 import ProductCard from '../components/ProductCard';
-import demoImage from '../assets/Demo.png'; // Adjust the path as per your actual file location
-import demo2 from '../assets/demo2.jpg'; // Adjust the path as per your actual file location
+import demoImage from '../assets/Demo.png';
+import demo2 from '../assets/demo2.jpg';
 import { IoIosCloseCircle } from "react-icons/io";
 import { RiFileList3Fill } from "react-icons/ri";
 import { GrTechnology } from "react-icons/gr";
@@ -12,15 +13,42 @@ import { MdTableRestaurant } from "react-icons/md";
 import { CgSoftwareDownload } from "react-icons/cg";
 import { PiPlusBold } from "react-icons/pi";
 import '../scrollbar.css';
+import { useAuthContext } from '../hooks/useAuthContext'
+
 
 const PosHome = () => {
-  const [activeButton, setActiveButton] = useState(0); // State to track active button
-  const [productQuantities, setProductQuantities] = useState([1, 1, 1, 1]); // Array to store quantities for each product
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All Products'); // State to track selected category
+  const [productQuantities, setProductQuantities] = useState([1, 1, 1, 1]);
+  const baseURL = 'http://localhost:5555';
+  const { user } = useAuthContext(); // Assuming useAuthContext provides user object
+
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://localhost:5555/product', {
+          headers: {
+            'Authorization': `Bearer ${user.token}` // Add JWT token to headers if authenticated
+          }
+        });
+        setProducts(response.data.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if(user){
+      fetchProducts();
+    }
+  }, [user]);
 
   const handleProductValue = (index, e) => {
-    // Allow only positive numbers
     const value = Math.max(1, parseInt(e.target.value) || 1);
-    // Update the specific index in productQuantities array
     const updatedQuantities = [...productQuantities];
     updatedQuantities[index] = value.toString();
     setProductQuantities(updatedQuantities);
@@ -36,10 +64,16 @@ const PosHome = () => {
     { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: '9706' },
   ];
 
-  // Function to handle button click
-  const handleClick = (index) => {
-    setActiveButton(index);
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
   };
+
+  const filteredProducts = products.filter((product) => {
+    if (selectedCategory === 'All Products') {
+      return true;
+    }
+    return product.category === selectedCategory;
+  });
 
   return (
     <>
@@ -85,26 +119,23 @@ const PosHome = () => {
           </div>
 
           <div className='flex flex-col w-full px-4 py-1'>
+            <div className='flex w-full justify-between items-center py-2'>
+              <p>Discount</p>
+              <button className='bg-[#7a3724] border-none text-white outline-none py-1 px-2 rounded-lg flex gap-2 items-center'>
+               <PiPlusBold />
+                Add
+              </button>
+            </div>
 
-              <div className='flex w-full justify-between items-center py-2'>
-                <p>Discount</p>
-                <button className='bg-[#7a3724] border-none text-white outline-none py-1 px-2 rounded-lg flex gap-2 items-center'>
-                 <PiPlusBold />
-                  Add
-                </button>
-              </div>
-              
             <div className='flex w-full'>
               <div className='flex flex-col gap-2 w-[50%] flex-start'>
                 <p>Anouunt</p>
-                <p>TAX</p>
                 <p>Total Amount</p>
                 <p>Total Amount Paid</p>
                 <p>Change</p>
               </div>
               <div className='flex flex-col gap-3 w-[50%] items-end'>
                 <p>63,000</p>
-                <p>923.00</p>
                 <p>63,923.00</p>
                 <p>64,000</p>
                 <p>77.00</p>
@@ -132,8 +163,8 @@ const PosHome = () => {
             {buttons.map((button, index) => (
               <button
                 key={index}
-                onClick={() => handleClick(index)}
-                className={`bg-bgContainer text-primary flex items-center justify-center w-[15%] h-[80%] rounded-xl ${activeButton === index ? 'border-primary border-2' : 'border-transparent'} transition-all duration-200`}
+                onClick={() => handleCategoryChange(button.label)}
+                className={`bg-bgContainer text-primary flex items-center justify-center w-[15%] h-[80%] rounded-xl ${selectedCategory === button.label ? 'border-primary border-2' : 'border-transparent'} transition-all duration-200`}
               >
                 <div className='w-[30%]'>
                   {button.icon}
@@ -146,19 +177,22 @@ const PosHome = () => {
             ))}
           </div>
           <div className='w-full p-5 grid grid-cols-5 gap-3'>
-          {Array(7).fill(0).map((_, index) => (
-            <ProductCard
-              key={index}
-              product={{
-                image: demo2,
-                title: 'NVIDIA GeForce RTX 3060 Ti',
-                price: '35,000.00',
-                stock: '10',
-              }}
-            />
-          ))}
-        </div>
-
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              filteredProducts.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={{
+                    image: `${baseURL}/images/${product.image.substring(14)}`,
+                    title: product.name,
+                    price: product.selling_price.toFixed(2),
+                    stock: product.quantity_in_stock,
+                  }}
+                />
+              ))
+            )}
+          </div>
         </div>
       </div>
     </>

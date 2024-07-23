@@ -1,23 +1,29 @@
-// index.js
+// Import required modules
 import express from 'express';
 import mongoose from 'mongoose';
 import productRoutes from './routes/productRoute.js';
 import customerRoutes from './routes/customerRoute.js';
 import transactionRoutes from './routes/transactionRoute.js';
-import Counter from './models/counterModel.js'; // Import Counter model
+import userRoute from './routes/userRoute.js';
+
+import Counter from './models/counterModel.js';
 import { mongoDBURL, PORT } from './config.js';
+
+
 import cors from 'cors';
 
 const app = express();
 
 app.use(express.json());
-
 app.use(cors());
+app.use(express.static('public')); // Serve static files from public folder
 
-// Routes
+// Mount routes
 app.use('/product', productRoutes);
 app.use('/customer', customerRoutes);
 app.use('/transaction', transactionRoutes);
+app.use('/user', userRoute);
+
 
 // Function to initialize the counter
 const initializeCounter = async () => {
@@ -32,11 +38,11 @@ const initializeCounter = async () => {
 };
 
 // MongoDB connection
-mongoose.connect(mongoDBURL)
+mongoose
+  .connect(mongoDBURL)
   .then(() => {
     console.log('Connected to MongoDB');
-    // Initialize the counter after connecting to MongoDB
-    initializeCounter();
+    initializeCounter(); // Initialize counter after MongoDB connection is established
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

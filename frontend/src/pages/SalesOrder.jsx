@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Use useNavigate instead of useHistory
 import Navbar from '../components/Navbar';
 import Spinner from '../components/Spinner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
-import { FaFilter } from "react-icons/fa";
-import { FiRefreshCcw } from "react-icons/fi";
+import { useAuthContext } from '../hooks/useAuthContext'
 
 const SalesOrder = () => {
   const [startDate, setStartDate] = useState(null);
@@ -16,10 +16,15 @@ const SalesOrder = () => {
   const [sortBy, setSortBy] = useState('');
   const [salesOrder, setSalesOrder] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate
+  const { user } = useAuthContext(); // Assuming useAuthContext provides user object
+
 
   useEffect(() => {
-    fetchSalesOrders();
-  }, [startDate, endDate, minPrice, maxPrice, sortBy]);
+    if(user){
+      fetchSalesOrders();
+    }
+  }, [startDate, endDate, minPrice, maxPrice, sortBy, user]);
 
   const fetchSalesOrders = async () => {
     setLoading(true);
@@ -31,6 +36,9 @@ const SalesOrder = () => {
           minPrice,
           maxPrice,
           sortBy
+        },
+        headers: {
+          'Authorization': `Bearer ${user.token}` // Add JWT token to headers if authenticated
         }
       });
       setSalesOrder(response.data.data);
@@ -39,6 +47,10 @@ const SalesOrder = () => {
       console.error('Error fetching sales orders:', error);
       setLoading(false);
     }
+  };
+
+  const handleTransactionClick = (transactionId) => {
+    navigate(`/transaction/${transactionId}`);
   };
 
   const handleDateFilter = (e) => {
@@ -97,13 +109,7 @@ const SalesOrder = () => {
   };
   
 
-  const handleSearch = () => {
-    // Check if any filter is applied
-    if (startDate || endDate || minPrice || maxPrice || sortBy) {
-      fetchSalesOrders();
-    }
-  };
-  
+
   const handleResetFilters = () => {
     setStartDate(undefined);
     setEndDate(undefined);
@@ -113,10 +119,7 @@ const SalesOrder = () => {
     fetchSalesOrders();
   };
   
-  const handleRefresh = () => {
-    fetchSalesOrders();
-  };
-  
+
 
   return (
     <div>
@@ -227,24 +230,7 @@ const SalesOrder = () => {
 
             </div>
             <div className='flex flex-col gap-2'>
-              <button
-                className='bg-[#1b2c34] text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide
-                              hover:bg-[#283c49] hover:text-gray-200 hover:shadow-md
-                              active:bg-[#0f1e23] active:text-gray-300 active:shadow-none'
-                onClick={handleRefresh}
-              >
-                <FiRefreshCcw className='mr-2' />
-                <p>Refresh</p>
-              </button>
-              <button
-                className='bg-[#1b2c34] text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide
-                              hover:bg-[#283c49] hover:text-gray-200 hover:shadow-md
-                              active:bg-[#0f1e23] active:text-gray-300 active:shadow-none'
-                onClick={handleSearch}
-              >
-                <FaFilter className='mr-2' />
-                <p>Filter</p>
-              </button>
+
               <button
                 className='bg-[#1b2c34] text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide
                               hover:bg-[#283c49] hover:text-gray-200 hover:shadow-md
@@ -257,12 +243,17 @@ const SalesOrder = () => {
             </div>
           </div>
 
+          {/* Main Content */}
           {loading ? (
             <Spinner />
           ) : (
             <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
               {salesOrder.map((transaction) => (
-                <div key={transaction._id} className='bg-[#17262e] rounded-lg p-4 flex gap-4'>
+                <div
+                  key={transaction._id}
+                  className='bg-[#17262e] rounded-lg p-4 flex gap-4 cursor-pointer'
+                  onClick={() => handleTransactionClick(transaction.transaction_id)}
+                >
                   <div className='flex items-center justify-center p-4 w-[15%] border-r-2 border-primary'>
                     <h1>{transaction.transaction_id}</h1>
                   </div>

@@ -3,9 +3,12 @@ import Transaction from '../models/transactionModel.js';
 import Product from '../models/productModel.js';
 import Customer from '../models/customerModel.js';
 import Counter from '../models/counterModel.js';
+import requireAuth from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
+// requireAuth for all transactions routes
+router.use(requireAuth)
 
 // Function to generate a new transaction ID
 const generateTransactionId = async () => {
@@ -25,14 +28,13 @@ const generateTransactionId = async () => {
     throw new Error('Error generating transaction ID');
   }
 };
-
 // Add Transaction
 router.post('/', async (request, response) => {
   try {
-    const { products, customer, total_price, transaction_date } = request.body;
+    const { products, customer, total_price, transaction_date, total_amount_paid } = request.body;
 
-    if (!products || !customer || !total_price || !transaction_date) {
-      return response.status(400).send({ message: 'Products, customer, total_price, and transaction_date are required' });
+    if (!products ||!customer ||!total_price ||!transaction_date ||!total_amount_paid) {
+      return response.status(400).send({ message: 'Products, customer, total_price, transaction_date, and total_amount_paid are required' });
     }
 
     const productItems = await Promise.all(products.map(async (item) => {
@@ -53,7 +55,7 @@ router.post('/', async (request, response) => {
       return acc + productPrice;
     }, 0);
 
-    if (total_price !== totalPrice) {
+    if (total_price!== totalPrice) {
       throw new Error(`Total price mismatch. Expected ${totalPrice}, received ${total_price}`);
     }
 
@@ -64,6 +66,7 @@ router.post('/', async (request, response) => {
       products: productItems,
       customer,
       total_price,
+      total_amount_paid,
       transaction_date
     });
 
@@ -137,14 +140,34 @@ router.get('/', async (request, response) => {
   }
 });
 
+//Get Single Transaction
+router.get('/:transactionId', async (request, response) => {
+  try {
+    const { transactionId } = request.params;
+    const transaction = await Transaction.findOne({ transaction_id: transactionId })
+      .populate('products.product')
+      .populate('customer');
+
+    if (!transaction) {
+      return response.status(404).json({ message: 'Transaction not found' });
+    }
+
+    return response.status(200).json(transaction);
+  } catch (error) {
+    console.error(error);
+    return response.status(500).send('Server Error');
+  }
+});
+
+
 // Update Transaction
 router.put('/:id', async (request, response) => {
   try {
-    const { products, customer } = request.body;
+    const { products, customer, total_amount_paid } = request.body;
     const { id } = request.params;
 
-    if (!products || !customer) {
-      return response.status(400).send({ message: 'Products and customer are required' });
+    if (!products ||!customer ||!total_amount_paid) {
+      return response.status(400).send({ message: 'Products, customer, and total_amount_paid are required' });
     }
 
     const productItems = await Promise.all(products.map(async (item) => {
@@ -168,6 +191,7 @@ router.put('/:id', async (request, response) => {
       products: productItems,
       customer,
       total_price,
+      total_amount_paid,
     }, { new: true });
 
     if (!transaction) {

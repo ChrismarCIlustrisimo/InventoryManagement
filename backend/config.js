@@ -1,3 +1,6 @@
-export const PORT = 5555;
+// config.js
+import dotenv from 'dotenv';
+dotenv.config();
 
-export const mongoDBURL = 'mongodb+srv://root:Ssh5dg9rbtvZKVus@inventory-management.rcf5gza.mongodb.net/product?retryWrites=true&w=majority&appName=Inventory-Management';
+export const PORT = process.env.PORT || 5555;
+export const mongoDBURL = process.env.MONGODB_URL;

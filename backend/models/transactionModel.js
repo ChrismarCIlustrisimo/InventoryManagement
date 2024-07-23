@@ -11,6 +11,7 @@ const TransactionSchema = new mongoose.Schema(
     products: [ProductItemSchema], // Array of products with quantity
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
     total_price: { type: Number, required: true },
+    total_amount_paid: { type: Number}, // Added total amount paid
     transaction_date: { type: Date, default: Date.now }
   },
   {

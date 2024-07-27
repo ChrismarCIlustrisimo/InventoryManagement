@@ -1,40 +1,88 @@
+// PosHome.jsx
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import ProductCard from '../components/ProductCard';
-import demoImage from '../assets/Demo.png';
-import demo2 from '../assets/demo2.jpg';
-import { IoIosCloseCircle } from "react-icons/io";
 import { RiFileList3Fill } from "react-icons/ri";
 import { GrTechnology } from "react-icons/gr";
 import { FaMouse } from "react-icons/fa";
-import { MdCable } from "react-icons/md";
-import { MdTableRestaurant } from "react-icons/md";
+import { MdCable, MdTableRestaurant } from "react-icons/md";
 import { CgSoftwareDownload } from "react-icons/cg";
-import { PiPlusBold } from "react-icons/pi";
 import '../scrollbar.css';
-import { useAuthContext } from '../hooks/useAuthContext'
-
+import { useAuthContext } from '../hooks/useAuthContext';
+import { useTheme } from '../context/ThemeContext';
+import SearchBar from '../components/SearchBar';
+import demoImage from '../assets/Demo.png';
+import { IoIosCloseCircle } from "react-icons/io";
+import ProceedToPayment from '../components/ProceedToPayment';
 
 const PosHome = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('All Products'); // State to track selected category
-  const [productQuantities, setProductQuantities] = useState([1, 1, 1, 1]);
+  const [selectedCategory, setSelectedCategory] = useState('All Products');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryCounts, setCategoryCounts] = useState({
+    'All Products': 0,
+    'Components': 0,
+    'Peripherals': 0,
+    'Accessories': 0,
+    'PC Furniture': 0,
+    'OS & Software': 0
+  });
+  const [cart, setCart] = useState([]);
   const baseURL = 'http://localhost:5555';
-  const { user } = useAuthContext(); // Assuming useAuthContext provides user object
+  const { user } = useAuthContext();
+  const { darkMode } = useTheme();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const calculateTotal = () => {
+    return cart.reduce((total, item) => {
+      // Ensure selling_price is a number and handle cases where it might be undefined or null
+      const price = parseFloat(item.product.selling_price) || 0;
+      const quantity = item.quantity || 0;
+      return total + (price * quantity);
+    }, 0);
+  };
+  
+  const handlePayButton = () => {
+    setIsModalOpen(true);
+  };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5555/product', {
+        const response = await axios.get(`${baseURL}/product`, {
           headers: {
-            'Authorization': `Bearer ${user.token}` // Add JWT token to headers if authenticated
+            'Authorization': `Bearer ${user.token}`
           }
         });
-        setProducts(response.data.data);
+
+        const productData = response.data.data;
+        setProducts(productData);
+
+        const counts = productData.reduce((acc, product) => {
+          const category = product.category || 'Uncategorized';
+          if (!acc[category]) acc[category] = 0;
+          acc[category] += product.quantity_in_stock;
+          acc['All Products'] += product.quantity_in_stock;
+          return acc;
+        }, {
+          'All Products': 0,
+          'Components': 0,
+          'Peripherals': 0,
+          'Accessories': 0,
+          'PC Furniture': 0,
+          'OS & Software': 0
+        });
+
+        setCategoryCounts(counts);
+
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
@@ -42,160 +90,140 @@ const PosHome = () => {
       }
     };
 
-    if(user){
+    if (user) {
       fetchProducts();
     }
   }, [user]);
-
-  const handleProductValue = (index, e) => {
-    const value = Math.max(1, parseInt(e.target.value) || 1);
-    const updatedQuantities = [...productQuantities];
-    updatedQuantities[index] = value.toString();
-    setProductQuantities(updatedQuantities);
-  };
-
-  // Button data
-  const buttons = [
-    { icon: <RiFileList3Fill className='w-8 h-8' />, label: 'All Products', count: '9706' },
-    { icon: <GrTechnology className='w-8 h-8' />, label: 'Components', count: '9706' },
-    { icon: <FaMouse className='w-8 h-8' />, label: 'Peripherals', count: '9706' },
-    { icon: <MdCable className='w-8 h-8' />, label: 'Accessories', count: '9706' },
-    { icon: <MdTableRestaurant className='w-8 h-8' />, label: 'PC Furniture', count: '9706' },
-    { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: '9706' },
-  ];
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
   };
 
   const filteredProducts = products.filter((product) => {
-    if (selectedCategory === 'All Products') {
-      return true;
-    }
-    return product.category === selectedCategory;
+    const isInCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
+    const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return isInCategory && matchesSearchQuery;
   });
 
+  const handleAddToCart = (product) => {
+    setCart((prevCart) => {
+      const existingProduct = prevCart.find(item => item.product._id === product._id);
+      if (existingProduct) {
+        return prevCart.map(item =>
+          item.product._id === product._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prevCart, { product, quantity: 1 }];
+    });
+  };
+
+  const buttons = [
+    { icon: <RiFileList3Fill className='w-8 h-8' />, label: 'All Products', count: categoryCounts['All Products'] || 0 },
+    { icon: <GrTechnology className='w-8 h-8' />, label: 'Components', count: categoryCounts['Components'] || 0 },
+    { icon: <FaMouse className='w-8 h-8' />, label: 'Peripherals', count: categoryCounts['Peripherals'] || 0 },
+    { icon: <MdCable className='w-8 h-8' />, label: 'Accessories', count: categoryCounts['Accessories'] || 0 },
+    { icon: <MdTableRestaurant className='w-8 h-8' />, label: 'PC Furniture', count: categoryCounts['PC Furniture'] || 0 },
+    { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: categoryCounts['OS & Software'] || 0 }
+  ];
+
+  const safeToFixed = (value, decimals = 2) => {
+    if (typeof value !== 'number' || isNaN(value)) {
+      return '0.00';
+    }
+    return value.toFixed(decimals);
+  };
+
   return (
-    <>
+    <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
       <Navbar />
-      <div className='flex h-[95vh] w-[100vw] pr-[18px] pt-[70px]'>
-        <div className='flex items-center flex-col bg-[#120e0d] h-[103vh] w-[25%] gap-4'>
-          <div className='flex items-center flex-col gap-2 p-4'>
-            <h2 className='font-bold'>Invoice Number: TH20240419001</h2>
-            <p>12:30 PM, Tue, 2 Apr</p>
-          </div>
-
-          <div className='flex justify-start flex-col w-full gap-2 px-2'>
-            <p>Bill To:</p>
-            <input className='py-2 px-3 bg-inputBgColor' type='text' placeholder='Customer Name' />
-            <input className='py-2 px-3 bg-inputBgColor' type='text' placeholder='Customer Address' />
-            <input className='py-2 px-3 bg-inputBgColor' type='text' placeholder='Contact #' />
-          </div>
-
-          <div className='flex flex-col items-start w-full px-2'>
-            <p>Order:</p>
-            <div className='flex flex-col items-center justify-center gap-2 w-full h-[164px] w-full'>
-              <div className='overflow-y-auto h-full w-full scrollbar-custom'>
-                {productQuantities.map((quantity, index) => (
-                  <div key={index} className='flex items-center justify-center gap-3 border-b border-gray-200 p-2 w-full'>
-                    <img src={demoImage} alt='Demo' className='w-16 h-16 object-cover rounded-lg' />
-                    <div className='flex flex-col gap-2 flex-1'>
-                      <p className='text-sm'>NVIDIA GeForce RTX 3060 Ti</p>
-                      <div className='flex justify-between items-center'>
-                        <p className='text-base'>35,000.00</p>
-                        <input
-                          type='number'
-                          className='w-16 pl-4 text-black text-center'
-                          value={quantity}
-                          onChange={(e) => handleProductValue(index, e)}
-                        />
-                      </div>
-                    </div>
-                    <IoIosCloseCircle className='text-gray-400 text-2xl' />
-                  </div>
-                ))}
+      <div className='h-[100vh] pt-[70px] px-2'>
+        <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-4'>
+          <p className={`font-bold text-3xl pt-6 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Cashier</p>
+          {buttons.map((button, index) => (
+            <button
+              key={index}
+              onClick={() => handleCategoryChange(button.label)}
+              className={`${darkMode ? 'bg-light-CARD text-light-ACCENT' : 'dark:bg-dark-CARD dark:text-dark-ACCENT'} flex items-center justify-center w-[100%] h-[40%] rounded-xl ${selectedCategory === button.label ? 'border-light-ACCENT dark:border-dark-ACCENT border-2' : 'border-transparent'} transition-all duration-200`}
+            >
+              <div className='w-[30%]'>
+                {button.icon}
               </div>
-            </div>
-          </div>
-
-          <div className='flex flex-col w-full px-4 py-1'>
-            <div className='flex w-full justify-between items-center py-2'>
-              <p>Discount</p>
-              <button className='bg-[#7a3724] border-none text-white outline-none py-1 px-2 rounded-lg flex gap-2 items-center'>
-               <PiPlusBold />
-                Add
-              </button>
-            </div>
-
-            <div className='flex w-full'>
-              <div className='flex flex-col gap-2 w-[50%] flex-start'>
-                <p>Anouunt</p>
-                <p>Total Amount</p>
-                <p>Total Amount Paid</p>
-                <p>Change</p>
+              <div className={`w-70% flex flex-col ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                <p className='w-full text-sm'>{button.label}</p>
+                <p className='w-full text-xs text-start'>{button.count}</p>
               </div>
-              <div className='flex flex-col gap-3 w-[50%] items-end'>
-                <p>63,000</p>
-                <p>63,923.00</p>
-                <p>64,000</p>
-                <p>77.00</p>
-              </div>
-            </div>
-
-            <div className='flex gap-3 justify-between pt-6 w-full'>
-              <button className='border border-red-600 w-[50%] py-3 rounded font-semibold text-red-600 
-                                hover:bg-red-600 hover:text-white 
-                                active:bg-red-700 active:text-red-200'>
-                Cancel Order
-              </button>
-
-              <button className='bg-primary w-[50%] py-3 rounded text-black font-semibold 
-                              hover:bg-primary-opacity hover:text-black-opacity 
-                              active:bg-primary-active'>
-                Pay
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className='w-[75%] h-[91vh] bg-transparent'>
-          <div className='w-full h-[12vh] flex items-center justify-center gap-4'>
-            {buttons.map((button, index) => (
-              <button
-                key={index}
-                onClick={() => handleCategoryChange(button.label)}
-                className={`bg-bgContainer text-primary flex items-center justify-center w-[15%] h-[80%] rounded-xl ${selectedCategory === button.label ? 'border-primary border-2' : 'border-transparent'} transition-all duration-200`}
-              >
-                <div className='w-[30%]'>
-                  {button.icon}
-                </div>
-                <div className='w-70% flex flex-col'>
-                  <p className='text-white w-full text-sm'>{button.label}</p>
-                  <p className='text-gray-500 w-full text-xs text-start'>{button.count}</p>
-                </div>
-              </button>
-            ))}
-          </div>
-          <div className='w-full p-5 grid grid-cols-5 gap-3'>
-            {loading ? (
-              <p>Loading...</p>
-            ) : (
-              filteredProducts.map((product) => (
-                <ProductCard
-                  key={product._id}
-                  product={{
-                    image: `${baseURL}/images/${product.image.substring(14)}`,
-                    title: product.name,
-                    price: product.selling_price.toFixed(2),
-                    stock: product.quantity_in_stock,
-                  }}
-                />
-              ))
-            )}
-          </div>
+            </button>
+          ))}
         </div>
       </div>
-    </>
+
+      <div className='flex flex-col w-[80%] pt-[90px] p-5 gap-4 items-end'>
+        <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+        <div className='w-full grid grid-cols-4 gap-3 h-[78vh] overflow-auto'>
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            filteredProducts.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={{
+                  image: `${baseURL}/images/${product.image.substring(14)}`,
+                  name: product.name,
+                  price: parseFloat(product.selling_price) || 0, // Ensure price is a number
+                  stock: product.quantity_in_stock,
+                }}
+                onClick={() => handleAddToCart(product)}
+              />
+            ))
+          )}
+        </div>
+      </div>
+
+      <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[120px] pb-4 px-4 ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'} rounded-xl`}>
+        <div className={`overflow-y-auto h-[500px] w-full rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
+          <table className='m-w-full border-collapse table-fixed h-auto'>
+            <thead>
+              <tr className='border-b border-primary'>
+                <th className={`sticky top-0 px-4 py-2 text-left w-3/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Product</th>
+                <th className={`sticky top-0 px-1 py-2 text-left w-1/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Price</th>
+                <th className={`sticky top-0 px-4 py-2 text-left w-1/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Quantity</th>
+                <th className={`sticky top-0 px-4 py-2 text-left w-1/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cart.map((item, idx) => (  
+                <tr key={idx} className='border-b border-dark-ACCENT gap-2 text-xs '>
+                  <td className='flex gap-2 items-center justify-center p-2'>
+                    <img src={`${baseURL}/images/${item.product.image.substring(14)}`} className='w-16 h-16 object-cover rounded-lg'/>
+                  <p className='w-full'>{item.product.name}</p>
+                  </td>
+                  <td className=''>₱ {((item.product.selling_price).toLocaleString()) || 0}</td>
+                  <td className='text-center'>{item.quantity}</td>
+                  <td className='tracking-wide'>  ₱ {((item.quantity * item.product.selling_price).toLocaleString())}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className='flex flex-col gap-3 justify-center items-center pt-6 w-full'>
+          <div className='flex flex-col gap-2 tracking-wider items-center justify-center'>
+            <p className='text-gray-400'>Subtotal</p>
+            <p className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>₱ {calculateTotal().toLocaleString()}</p>
+          </div>
+
+          <button
+            className={`w-[80%] py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
+            onClick={handlePayButton}
+          >
+            Proceed to Payment
+          </button>
+          <ProceedToPayment isOpen={isModalOpen} onClose={handleCloseModal} />
+        </div>
+      </div>
+    </div>
   );
 };
 

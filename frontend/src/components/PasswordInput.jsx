@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa6';
 import { RiLockPasswordLine } from 'react-icons/ri'; // Importing padlock icon from react-icons
+import { useTheme } from '../context/ThemeContext';
 
 const PasswordInput = ({ value, onChange, placeholder }) => {
   const [isShowPassword, setIsShowPassword] = useState(false);
+  const { darkMode } = useTheme(); // Access darkMode from context
+
 
   const toggleShowPassword = () => {
     setIsShowPassword(!isShowPassword);
   };
 
-  return (
-    <div className='px-4 w-[100%] input-box flex gap-1 items-center rounded-xl p-0 m-0 mt-2'>
+  return (                
+
+    <div className={`${darkMode ? 'border-dark-ACCENT' : 'border-light-ACCENT'} px-4 w-[100%] input-box flex gap-1 items-center rounded-xl p-0 m-0 mt-2`}>
       <RiLockPasswordLine className="text-lg" />
       <input 
         type={isShowPassword ? 'text' : 'password'}
@@ -22,13 +26,13 @@ const PasswordInput = ({ value, onChange, placeholder }) => {
       {isShowPassword ? (
         <FaRegEyeSlash
           size={22}
-          className='text-primary cursor-pointer'
+          className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' } cursor-pointer`}
           onClick={toggleShowPassword}
         />
       ) : (
         <FaRegEye
           size={22}
-          className='text-primary cursor-pointer'
+          className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' } cursor-pointer`}
           onClick={toggleShowPassword}
         />
       )}

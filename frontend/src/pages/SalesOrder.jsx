@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
 import { useAuthContext } from '../hooks/useAuthContext'
+import { useTheme } from '../context/ThemeContext';
 
 const SalesOrder = () => {
   const [startDate, setStartDate] = useState(null);
@@ -18,6 +19,8 @@ const SalesOrder = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate
   const { user } = useAuthContext(); // Assuming useAuthContext provides user object
+  const { darkMode } = useTheme(); // Access darkMode from context
+
 
 
   useEffect(() => {
@@ -122,19 +125,19 @@ const SalesOrder = () => {
 
 
   return (
-    <div>
+    <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG' }`}>
       <Navbar />
       <div className='h-full px-6 pt-[70px]'>
-        <h1 className='w-full py-5 text-3xl font-bold mt-5'>Sales Order</h1>
+        <h1 className={`w-full py-5 text-3xl font-bold mt-5 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>Sales Order</h1>
         <div className='flex gap-4'>
-          <div className='h-[76vh] w-[22%] bg-[#17262e] rounded-2xl p-4 flex flex-col justify-between'>
-            <div className='flex flex-col space-y-4'>
+          <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' }`}>
+            <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>
               <div className='flex flex-col'>
                 <label htmlFor='startDate'>Date</label>
                 <select
                     id='startDate'
                     onChange={handleDateFilter}
-                    className='border rounded p-2 my-1 bg-[#7a3724] border-none text-primary outline-none'
+                    className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT' }`}
                   >
                     <option value=''>Select Option</option>
                     <option value='today'>Today</option>
@@ -147,8 +150,8 @@ const SalesOrder = () => {
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
-                  <div className='w-[130px] border-primary border rounded bg-transparent border-3 pl-1 '>
-                    <DatePicker
+                 <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
+                   <DatePicker
                       selected={startDate}
                       onChange={handleStartDateChange}
                       dateFormat='MM-dd-yyyy'
@@ -161,8 +164,8 @@ const SalesOrder = () => {
                 <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                 <div className='flex flex-col'>
-                  <div className='w-[130px] border-primary border rounded bg-transparent border-3 pl-1'>
-                    <DatePicker
+                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
+                   <DatePicker
                       selected={endDate}
                       onChange={handleEndDateChange}
                       dateFormat='MM-dd-yyyy'
@@ -178,8 +181,8 @@ const SalesOrder = () => {
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
-                  <div className='w-[130px] border-primary border rounded bg-transparent border-3 pl-1'>
-                    <input
+                <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
+                <input
                       type='number'
                       id='minPrice'
                       value={minPrice}
@@ -194,7 +197,7 @@ const SalesOrder = () => {
                 <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                 <div className='flex flex-col'>
-                  <div className='w-[130px] border-primary border rounded bg-transparent border-3 pl-1'>
+                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
                     <input
                       type='number'
                       id='maxPrice'
@@ -214,8 +217,8 @@ const SalesOrder = () => {
                   id='sortBy'
                   value={sortBy}
                   onChange={handleSortByChange}
-                  className='order rounded p-2 my-1 bg-[#7a3724] border-none text-primary outline-none'
-                >
+                  className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT' }`}
+                  >
                   <option value=''>Select Option</option>
                   <option value='price_asc'>Price Lowest to Highest</option>
                   <option value='price_desc'>Price Highest to Lowest</option>
@@ -232,9 +235,7 @@ const SalesOrder = () => {
             <div className='flex flex-col gap-2'>
 
               <button
-                className='bg-[#1b2c34] text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide
-                              hover:bg-[#283c49] hover:text-gray-200 hover:shadow-md
-                              active:bg-[#0f1e23] active:text-gray-300 active:shadow-none'
+                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide ${darkMode ? 'bg-light-TABLE text-dark-TEXT' : 'dark:bg-dark-TABLE light:text-light-TEXT' }`}
                 onClick={handleResetFilters}
               >
                 <GrPowerReset className='mr-2' />
@@ -251,27 +252,27 @@ const SalesOrder = () => {
               {salesOrder.map((transaction) => (
                 <div
                   key={transaction._id}
-                  className='bg-[#17262e] rounded-lg p-4 flex gap-4 cursor-pointer'
+                  className={`rounded-lg p-4 flex gap-4 cursor-pointer ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' }`}
                   onClick={() => handleTransactionClick(transaction.transaction_id)}
                 >
-                  <div className='flex items-center justify-center p-4 w-[15%] border-r-2 border-primary'>
-                    <h1>{transaction.transaction_id}</h1>
+                  <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT' }`} >
+                    <h1 className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>{transaction.transaction_id}</h1>
                   </div>
                   <div className='flex justify-between items-center w-[85%]'>
                     <div className='p-4 w-[70%] flex flex-col gap-1'>
                       {transaction.products.map((item, idx) => (
-                        <p key={idx}>
+                        <p key={idx} className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>
                           ({item.quantity}) {item.product.name}
                         </p>
                       ))}
                     </div>
-                    <div className='flex gap-6 w-[30%]'>
+                    <div className={`flex gap-6 w-[30%] ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE' }`}>
                       <div className='flex flex-col gap-1'>
                         <p className='text-gray-400'>DATE</p>
                         <p className='text-gray-400'>CUSTOMER</p>
                         <p className='text-gray-400'>TOTAL AMOUNT</p>
                       </div>
-                      <div className='flex flex-col gap-1'>
+                      <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`} >
                         <p className='ml-auto'>{new Date(transaction.transaction_date).toLocaleDateString()}</p>
                         <p className='ml-auto'>{transaction.customer.name}</p>
                         <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>

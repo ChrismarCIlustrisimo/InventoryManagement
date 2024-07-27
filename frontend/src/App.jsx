@@ -7,22 +7,27 @@ import Transaction from './pages/Transaction.jsx'
 import AddProduct from './components/AddProduct.jsx'
 import SignUp from './pages/SignUp.jsx'
 import { useAuthContext } from './hooks/useAuthContext.js'
-
+import { ThemeProvider } from './context/ThemeContext.jsx'
+import Navbar from './components/Navbar.jsx'
 const App = () => {
   
   const { user } = useAuthContext()
 
   return (
+    <ThemeProvider>
         <Routes>
-          <Route path="/" element={<SignUp />} />
+          <Route path="/" element={!user ? <PosLogin /> : <Navigate to='/cashier'/>} />
           <Route path="/transaction/:id" element={user ? <Transaction /> : <Navigate to='/login' />} />
           <Route path="/AddProduct" element={<AddProduct />} />
-          <Route path="/pos" element={user ? <PosHome /> : <Navigate to='/login' />} /> {/*This will check if the user is login or not */}
+          <Route path="/cashier" element={user ? <PosHome /> : <Navigate to='/login' />} /> {/*This will check if the user is login or not */}
           <Route path="/orders" element={user ? <SalesOrder /> : <Navigate to='/login' />} />
-          <Route path="/login" element={!user ? <PosLogin /> : <Navigate to='/pos'/>} />
-         {/*<Route path="/transaction" element={<Transaction />} />*/}
+          <Route path="/login" element={!user ? <PosLogin /> : <Navigate to='/cashier'/>} />
+         {/*<Route path="/transaction" element={<Transaction />} />
+            <Route path="/" element={<SignUp />} />*/}
           <Route path="*" element={<h1>Page Not Found</h1>} />
         </Routes>
+     </ThemeProvider>
+
   )
 }
 

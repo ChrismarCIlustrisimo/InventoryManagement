@@ -53,7 +53,7 @@ const ProfileInfo = () => {
     <div className='flex items-center gap-3'>
       <p className='text-[#7f8284] min-w-max'>{currentDate}</p>
       <div className='flex items-center justify-center'>
-      <p className={`text-m font-medium ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`} style={{ textTransform: 'uppercase' }}>John William</p>
+      <p className={`text-m font-medium ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`} style={{ textTransform: 'uppercase' }}>John William</p>
         <button
           className={`text-sm p-2 mr-2 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}
           onClick={handleToggleButtons}

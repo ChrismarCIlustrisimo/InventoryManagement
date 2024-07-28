@@ -1,5 +1,4 @@
 // ProductCard.jsx
-
 import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 
@@ -29,6 +28,7 @@ const ProductCard = ({ product, onClick }) => {
           <p className='text-xs text-gray-400'>{product.stock} in stock</p>
         </div>
       </div>
+      
     </div>
   );
 };

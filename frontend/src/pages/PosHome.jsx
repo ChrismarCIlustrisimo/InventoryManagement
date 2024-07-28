@@ -1,5 +1,4 @@
-// PosHome.jsx
-
+import { IoCloseCircle } from "react-icons/io5";
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
@@ -35,16 +34,15 @@ const PosHome = () => {
   const { user } = useAuthContext();
   const { darkMode } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const calculateTotal = () => {
     return cart.reduce((total, item) => {
-      // Ensure selling_price is a number and handle cases where it might be undefined or null
       const price = parseFloat(item.product.selling_price) || 0;
       const quantity = item.quantity || 0;
       return total + (price * quantity);
     }, 0);
   };
-  
+
   const handlePayButton = () => {
     setIsModalOpen(true);
   };
@@ -119,6 +117,10 @@ const PosHome = () => {
     });
   };
 
+  const handleRemoveFromCart = (productId) => {
+    setCart((prevCart) => prevCart.filter(item => item.product._id !== productId));
+  };
+
   const buttons = [
     { icon: <RiFileList3Fill className='w-8 h-8' />, label: 'All Products', count: categoryCounts['All Products'] || 0 },
     { icon: <GrTechnology className='w-8 h-8' />, label: 'Components', count: categoryCounts['Components'] || 0 },
@@ -171,7 +173,7 @@ const PosHome = () => {
                 product={{
                   image: `${baseURL}/images/${product.image.substring(14)}`,
                   name: product.name,
-                  price: parseFloat(product.selling_price) || 0, // Ensure price is a number
+                  price: parseFloat(product.selling_price) || 0,
                   stock: product.quantity_in_stock,
                 }}
                 onClick={() => handleAddToCart(product)}
@@ -183,29 +185,41 @@ const PosHome = () => {
 
       <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[120px] pb-4 px-4 ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'} rounded-xl`}>
         <div className={`overflow-y-auto h-[500px] w-full rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
-          <table className='m-w-full border-collapse table-fixed h-auto'>
-            <thead>
-              <tr className='border-b border-primary'>
-                <th className={`sticky top-0 px-4 py-2 text-left w-3/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Product</th>
-                <th className={`sticky top-0 px-1 py-2 text-left w-1/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Price</th>
-                <th className={`sticky top-0 px-4 py-2 text-left w-1/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Quantity</th>
-                <th className={`sticky top-0 px-4 py-2 text-left w-1/5 ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cart.map((item, idx) => (  
-                <tr key={idx} className='border-b border-dark-ACCENT gap-2 text-xs '>
-                  <td className='flex gap-2 items-center justify-center p-2'>
-                    <img src={`${baseURL}/images/${item.product.image.substring(14)}`} className='w-16 h-16 object-cover rounded-lg'/>
-                  <p className='w-full'>{item.product.name}</p>
-                  </td>
-                  <td className=''>₱ {((item.product.selling_price).toLocaleString()) || 0}</td>
-                  <td className='text-center'>{item.quantity}</td>
-                  <td className='tracking-wide'>  ₱ {((item.quantity * item.product.selling_price).toLocaleString())}</td>
+          <div style={{ width: '100%' }}> {/* Adjust this container width if needed */}
+            <table className='border-collapse table-fixed h-auto w-full'>
+              <thead>
+                <tr className='border-b border-primary'>
+                  <th style={{ width: '40%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Product</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Price</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Quantity</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Total</th>
+                  <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {cart.map((item, idx) => (
+                  <tr key={idx} className='border-b border-dark-ACCENT gap-2 text-xs'>
+                    <td className='flex gap-2 items-center justify-center p-2'>
+                      <img
+                        src={`${baseURL}/images/${item.product.image.substring(14)}`}
+                        className='w-16 h-16 object-cover rounded-lg'
+                      />
+                      <p className='w-full'>{item.product.name}</p>
+                    </td>
+                    <td>₱ {((item.product.selling_price).toLocaleString()) || 0}</td>
+                    <td className='text-center'>{item.quantity}</td>
+                    <td className='tracking-wide'>₱ {((item.quantity * item.product.selling_price).toLocaleString())}</td>
+                    <td>
+                      <IoCloseCircle 
+                        className="text-lg cursor-pointer" 
+                        onClick={() => handleRemoveFromCart(item.product._id)} 
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className='flex flex-col gap-3 justify-center items-center pt-6 w-full'>
@@ -220,7 +234,11 @@ const PosHome = () => {
           >
             Proceed to Payment
           </button>
-          <ProceedToPayment isOpen={isModalOpen} onClose={handleCloseModal} />
+          <ProceedToPayment
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              totalAmount={calculateTotal()}
+            />
         </div>
       </div>
     </div>

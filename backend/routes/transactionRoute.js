@@ -28,14 +28,11 @@ const generateTransactionId = async () => {
     throw new Error('Error generating transaction ID');
   }
 };
+
 // Add Transaction
 router.post('/', async (request, response) => {
   try {
-    const { products, customer, total_price, transaction_date, total_amount_paid } = request.body;
-
-    if (!products ||!customer ||!total_price ||!transaction_date ||!total_amount_paid) {
-      return response.status(400).send({ message: 'Products, customer, total_price, transaction_date, and total_amount_paid are required' });
-    }
+    const { products, customer, total_price, transaction_date, total_amount_paid, source } = request.body;
 
     const productItems = await Promise.all(products.map(async (item) => {
       const { product: productId, quantity } = item;
@@ -55,19 +52,22 @@ router.post('/', async (request, response) => {
       return acc + productPrice;
     }, 0);
 
-    if (total_price!== totalPrice) {
+    if (total_price !== totalPrice) {
       throw new Error(`Total price mismatch. Expected ${totalPrice}, received ${total_price}`);
     }
 
     const transaction_id = await generateTransactionId(); // Generate transaction_id here
 
-    const newTransaction = new Transaction({ 
-      transaction_id, 
+    const payment_status = source === 'pos' ? 'paid' : 'unpaid'; // Set payment_status based on source
+
+    const newTransaction = new Transaction({
+      transaction_id,
       products: productItems,
       customer,
       total_price,
       total_amount_paid,
-      transaction_date
+      transaction_date,
+      payment_status // Set payment_status here
     });
 
     const transaction = await newTransaction.save();
@@ -79,11 +79,15 @@ router.post('/', async (request, response) => {
   }
 });
 
-//Get All Transaction
 
+// Get All Transactions
 router.get('/', async (request, response) => {
   try {
     let query = {};
+
+    if (request.query.payment_status) {
+      query.payment_status = request.query.payment_status;
+    }
 
     if (request.query.startDate && request.query.endDate) {
       query.transaction_date = {
@@ -109,7 +113,6 @@ router.get('/', async (request, response) => {
 
     let sort = {};
 
-
     if (request.query.sortBy === 'price_asc') {
       sort = { total_price: 1 };
     } else if (request.query.sortBy === 'price_desc') {
@@ -123,7 +126,6 @@ router.get('/', async (request, response) => {
     } else if (request.query.sortBy === 'transaction_id_asc') {
       sort = { transaction_id: 1 };
     } else {
-      // Default to sorting by transaction_id in ascending order (lowest to highest)
       sort = { transaction_id: 1 };
     }
 
@@ -139,6 +141,7 @@ router.get('/', async (request, response) => {
     return response.status(500).send('Server Error');
   }
 });
+
 
 //Get Single Transaction
 router.get('/:transactionId', async (request, response) => {
@@ -163,10 +166,10 @@ router.get('/:transactionId', async (request, response) => {
 // Update Transaction
 router.put('/:id', async (request, response) => {
   try {
-    const { products, customer, total_amount_paid } = request.body;
+    const { products, customer, total_amount_paid, source } = request.body;
     const { id } = request.params;
 
-    if (!products ||!customer ||!total_amount_paid) {
+    if (!products || !customer || !total_amount_paid) {
       return response.status(400).send({ message: 'Products, customer, and total_amount_paid are required' });
     }
 
@@ -187,11 +190,15 @@ router.put('/:id', async (request, response) => {
       return acc + productPrice;
     }, 0);
 
+    // Optionally handle payment_status update if source is included in the update request
+    const payment_status = source ? (source === 'pos' ? 'paid' : 'unpaid') : undefined;
+
     const transaction = await Transaction.findByIdAndUpdate(id, {
       products: productItems,
       customer,
       total_price,
       total_amount_paid,
+      payment_status // Update payment_status if present
     }, { new: true });
 
     if (!transaction) {
@@ -205,6 +212,7 @@ router.put('/:id', async (request, response) => {
     return response.status(500).send('Server Error');
   }
 });
+
 
 // Delete Transaction
 router.delete('/:id', async (request, response) => {

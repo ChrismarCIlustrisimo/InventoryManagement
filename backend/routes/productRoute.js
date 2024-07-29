@@ -91,6 +91,17 @@ router.get('/', async (request, response) => {
   }
 });
 
+router.put('/bulk-update', async (request, response) => {
+  try {
+    const updates = request.body;
+    await Product.bulkWrite(updates);
+    return response.status(200).send({ message: 'Products updated successfully' });
+  } catch (error) {
+    console.error(error);
+    return response.status(500).send('Server Error');
+  }
+});
+
 // Get Single Product
 router.get('/:id', async (request, response) => {
   try {

@@ -10,6 +10,9 @@ const Transaction = () => {
   const { id } = useParams();
   const [transaction, setTransaction] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [discountType, setDiscountType] = useState('percentage');
+  const [discountValue, setDiscountValue] = useState(0);
+  const [paymentAmount, setPaymentAmount] = useState('');
   const baseURL = 'http://localhost:5555';
   const { darkMode } = useTheme(); // Access darkMode from context
   const { user } = useAuthContext(); // Assuming useAuthContext provides user object
@@ -33,7 +36,6 @@ const Transaction = () => {
     fetchTransaction();
   }, [id, user.token]);
 
-  // Helper function to format date
   const formatDate = (date) => {
     try {
       const parsedDate = new Date(date);
@@ -53,7 +55,27 @@ const Transaction = () => {
       return 'Invalid date'; // Return a fallback value
     }
   };
-  
+
+  const formatNumber = (value) => {
+    if (value === '' || isNaN(value)) return '';
+    const number = Number(value.replace(/,/g, ''));
+    return number.toLocaleString();
+  };
+
+  const parseNumber = (value) => {
+    return value.replace(/,/g, '');
+  };
+
+  const calculateDiscount = () => {
+    if (!transaction) return 0;
+    if (discountType === 'percentage') {
+      return transaction.total_price * (discountValue / 100);
+    }
+    return discountValue; // Assumes discountValue is a fixed amount
+  };
+
+  const finalAmount = transaction ? transaction.total_price - calculateDiscount() : 0;
+  const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
   if (loading) {
     return <Spinner />;
@@ -71,7 +93,7 @@ const Transaction = () => {
 
   return (
     <div className={`pt-20 px-20 pb-5 h-screen w-full ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
-      <BackNavbar id={transaction._id}/>
+      <BackNavbar id={transaction._id} />
       <div className='flex justify-center items-center h-full gap-6'>
         {/* Left Section */}
         <div className='flex flex-col items-end justify-start h-full w-[40%] p-4 gap-6'>
@@ -100,10 +122,10 @@ const Transaction = () => {
                 <p>ADDRESS</p>
               </div>
               <div className='flex items-start justify-between text-l flex-col gap-3'>
-                <p className='tracking-wider'>{transaction.customer.name}</p>
-                <p className='tracking-wider'>{transaction.customer.phone}</p>
-                <p className='tracking-wider'>{transaction.customer.email}</p>
-                <p className='tracking-wider'>{transaction.customer.address}</p>
+                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
               </div>
             </div>
           </div>
@@ -114,7 +136,7 @@ const Transaction = () => {
           {/* Invoices */}
           <div className='flex flex-col gap-2'>
             <p className='text-2xl'>Invoices</p>
-            <div className='overflow-y-auto h-[280px] w-full'>
+            <div className='overflow-y-auto h-[160px] w-full'>
               <table className='m-w-full border-collapse table-fixed h-[120px]'>
                 <thead>
                   <tr className='border-b border-primary'>
@@ -128,7 +150,6 @@ const Transaction = () => {
                   {transaction.products.map((item, idx) => (
                     <tr key={idx} className='border-b border-dark-ACCENT gap-2'>
                       <td className='px-4 py-1 flex gap-4 items-center justify-start'>
-                        {/* Ensure the image path is correctly constructed */}
                         <img
                           src={`${baseURL}/images/${item.product.image.substring(14)}`}
                           className='w-16 h-16 object-cover rounded-lg'
@@ -145,30 +166,57 @@ const Transaction = () => {
             </div>
             <div className={`flex flex-col w-full px-4 py-4 rounded-2xl gap-6 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
               <div className='flex w-full justify-between items-center'>
-                <div className='flex gap-3 flex-col'>
-                  <p>Discount</p>
+                <div className='flex gap-3 flex-col w-[50%]'>
+                  <p>Add Discount</p>
                   <p>Amount</p>
                   <p>Total Amount</p>
                 </div>
                 <div className='flex gap-3 flex-col items-end'>
-                  <p className={`border w-[140px] rounded-md font-semibold flex items-center justify-center ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ 6333</p>
-                  <p>6333</p>
-                  <p>6333</p>
+                  <div className={`flex items-end w-[80%] border ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'dark:bg-dark-CARD1  dark:border-dark-ACCENT'}`}>
+                    <select
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value)}
+                      className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}
+                    >
+                      <option value="percentage">Percentage</option>
+                      <option value="amount">Fixed Amount</option>
+                    </select>
+                    <input
+                      type="number"
+                      value={discountValue}
+                      onChange={(e) => setDiscountValue(Number(e.target.value))}
+                      placeholder={discountType === 'percentage' ? "0%" : "₱ 0"}
+                      className={`p-2 ml-2 w-[80%] ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}
+                    />
+                  </div>
+                  <p className={`${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ {transaction.total_price.toLocaleString()}</p>
+                  <p>₱ {finalAmount.toLocaleString()}</p>
                 </div>
               </div>
+
               <div className='flex w-full justify-between items-center'>
-                <div className='flex gap-3 flex-col'>
+                <div className='flex gap-4 flex-col'>
+                  <p>Add Payment</p>
                   <p>Total Amount Paid</p>
                   <p>Discount</p>
                   <p>Change</p>
                 </div>
-                <div className='flex gap-3 flex-col items-end'>
-                  <p className={`border w-[140px] rounded-md font-semibold flex items-center justify-center ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ {(transaction.total_price - (transaction.total_price * 0.12)).toFixed(2)}</p>
-                  <p>₱ {transaction.total_amount_paid}</p>
-                  <p>₱ {(transaction.total_amount_paid - (transaction.total_price)).toFixed(2)}</p>
+                <div className='flex gap-4 flex-col items-end'>
+                  <input
+                    type="text"
+                    value={formatNumber(paymentAmount)}
+                    onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
+                    placeholder="₱ 0"
+                    className={`border p-2 w-[40%] ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'dark:bg-dark-CARD1  dark:border-dark-ACCENT'}`}
+                    />
+                  <p className={`${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ {formatNumber(paymentAmount)}</p>
+                  <p>₱ {calculateDiscount().toLocaleString()}</p>
+                  <p>{change < 0 ? '₱ 0.00' : change.toLocaleString()}</p>
                 </div>
               </div>
-              <button className={`w-full py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}>
+              <button
+                className={`w-full py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
+              >
                 Pay
               </button>
             </div>

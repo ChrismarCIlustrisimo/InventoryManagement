@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { IoIosClose } from "react-icons/io";
+import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
-// Function to format number with commas
 const formatNumber = (value) => {
   if (value === '' || isNaN(value)) return '';
   const number = Number(value.replace(/,/g, ''));
   return number.toLocaleString();
 };
 
-// Function to parse number removing commas
 const parseNumber = (value) => {
   return value.replace(/,/g, '');
 };
 
-const ProceedToPayment = ({ isOpen, onClose, totalAmount }) => {
+const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess, onPaymentError }) => {
   if (!isOpen) return null;
-
+  const baseURL = 'http://localhost:5555';
   const { darkMode } = useTheme();
   const [discountType, setDiscountType] = useState('percentage');
   const [discountValue, setDiscountValue] = useState(0);
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [address, setAddress] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [email, setEmail] = useState('');
+
+
+  const { user } = useContext(AuthContext);
 
   const calculateDiscount = () => {
     if (discountType === 'percentage') {
@@ -35,6 +42,73 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount }) => {
 
   const finalAmount = totalAmount - calculateDiscount();
   const change = (parseNumber(paymentAmount) || 0) - finalAmount;
+
+  const handlePayButton = async () => {
+    try {
+        // Step 1: Create or Find the Customer
+        const customerResponse = await axios.post(`${baseURL}/customer`, {
+            name: customerName,
+            email: email,
+            phone: phoneNumber,
+            address: address,
+        }, {
+            headers: {
+                'Authorization': `Bearer ${user.token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const customerId = customerResponse.data._id;
+        console.log("Customer ID:", customerId);
+
+        // Step 2: Prepare Transaction Data
+        const transactionData = {
+            products: cart.map(item => ({
+                product: item.product._id,
+                quantity: item.quantity
+            })),
+            customer: customerId,
+            total_price: totalAmount,
+            total_amount_paid: parseNumber(paymentAmount) || 0,
+            transaction_date: new Date().toISOString(),
+            source: 'pos' // or based on your logic
+        };
+
+        console.log("Transaction Data:", transactionData); // Log the transaction data for verification
+
+        // Step 3: Create the Transaction
+        const transactionResponse = await axios.post(`${baseURL}/transaction`, transactionData, {
+            headers: {
+                'Authorization': `Bearer ${user.token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        // Step 4: Update Product Quantities
+        const updates = cart.map(item => ({
+            updateOne: {
+                filter: { _id: item.product._id },
+                update: { $inc: { quantity_in_stock: -item.quantity } }
+            }
+        }));
+
+        await axios.put(`${baseURL}/product/bulk-update`, updates, {
+            headers: {
+                'Authorization': `Bearer ${user.token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        onClose(); // Close the modal
+        onPaymentSuccess(); // Call the onPaymentSuccess prop
+
+    } catch (error) {
+        console.error('Payment error:', error.response ? error.response.data : error.message);
+        onPaymentError(); // Call the onPaymentError prop
+    }
+};
+
+  
 
   return (
     <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md"
@@ -52,9 +126,34 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount }) => {
           <div className='w-[40%] h-full'>
             <p className='mb-2'>Bill To:</p>
             <div className='flex flex-col gap-4'>
-              <input type="text" placeholder='Customer Name' className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`} />
-              <input type="text" placeholder='Address' className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`} />
-              <input type="text" placeholder='Phone Number' className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`} />
+              <input
+                type="text"
+                placeholder='Customer Name'
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+              />
+              <input
+                type="text"
+                placeholder='Address'
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+              />
+              <input
+                type="text"
+                placeholder='Phone Number'
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+              />
+                <input
+                type="text"
+                placeholder='Email'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+              />
             </div>
           </div>
 
@@ -78,12 +177,12 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount }) => {
                       <option value="amount">Fixed Amount</option>
                     </select>
                     <input
-                      type="number"
-                      value={discountValue}
-                      onChange={(e) => setDiscountValue(e.target.value)}
-                      placeholder={discountType === 'percentage' ? "0%" : "₱ 0"}
-                      className={`p-2 ml-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}
-                    />
+                        type="number"
+                        value={discountValue}
+                        onChange={(e) => setDiscountValue(Number(e.target.value))}
+                        placeholder={discountType === 'percentage' ? "0%" : "₱ 0"}
+                        className={`p-2 ml-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}
+                      />
                   </div>
                   <p>₱ {calculateDiscount().toLocaleString()}</p>
                   <p className={`border w-[140px] rounded-md font-semibold flex items-center justify-center ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ {totalAmount.toLocaleString()}</p>
@@ -111,16 +210,18 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount }) => {
                   <p>{change < 0 ? '₱ 0.00' : change.toLocaleString()}</p>
                 </div>
               </div>
-
-              <button className={`w-full py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}>
-                Pay
+              <button
+                className={`mt-4 p-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT text-dark-TEXT hover:bg-dark-ACCENT' : 'bg-dark-ACCENT text-light-TEXT hover:bg-light-ACCENT'}`}
+                onClick={handlePayButton}
+              >
+                Proceed to Pay
               </button>
             </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default ProceedToPayment;

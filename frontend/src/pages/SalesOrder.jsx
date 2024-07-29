@@ -38,10 +38,11 @@ const SalesOrder = () => {
           endDate: endDate ? endDate.toISOString() : undefined,
           minPrice,
           maxPrice,
-          sortBy
+          sortBy,
+          payment_status: 'unpaid'  // Add payment_status filter here
         },
         headers: {
-          'Authorization': `Bearer ${user.token}` // Add JWT token to headers if authenticated
+          'Authorization': `Bearer ${user.token}`
         }
       });
       setSalesOrder(response.data.data);
@@ -51,6 +52,7 @@ const SalesOrder = () => {
       setLoading(false);
     }
   };
+  
 
   const handleTransactionClick = (transactionId) => {
     navigate(`/transaction/${transactionId}`);
@@ -266,7 +268,7 @@ const SalesOrder = () => {
                         </p>
                       ))}
                     </div>
-                    <div className={`flex gap-6 w-[30%] ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE' }`}>
+                    <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE' }`}>
                       <div className='flex flex-col gap-1'>
                         <p className='text-gray-400'>DATE</p>
                         <p className='text-gray-400'>CUSTOMER</p>
@@ -274,7 +276,7 @@ const SalesOrder = () => {
                       </div>
                       <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`} >
                         <p className='ml-auto'>{new Date(transaction.transaction_date).toLocaleDateString()}</p>
-                        <p className='ml-auto'>{transaction.customer.name}</p>
+                        <p className='ml-auto'>{transaction.customer ? transaction.customer.name : 'None'}</p>
                         <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
                       </div>
                     </div>

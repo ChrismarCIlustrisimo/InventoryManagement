@@ -5,16 +5,12 @@ import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router();
 
 // requireAuth for all customer routes
-router.use(requireAuth)
+//router.use(requireAuth)
 
 // Add Customer
 router.post('/', async (request, response) => {
     try {
         const { name, email, phone, address } = request.body;
-
-        if (!name || !email || !phone || !address) {
-            return response.status(400).send({ message: 'All fields are required' });
-        }
 
         const newCustomer = new Customer({ name, email, phone, address });
         const customer = await Customer.create(newCustomer);

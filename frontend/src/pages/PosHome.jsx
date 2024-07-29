@@ -15,6 +15,9 @@ import SearchBar from '../components/SearchBar';
 import demoImage from '../assets/Demo.png';
 import { IoIosCloseCircle } from "react-icons/io";
 import ProceedToPayment from '../components/ProceedToPayment';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const PosHome = () => {
   const [products, setProducts] = useState([]);
@@ -50,6 +53,19 @@ const PosHome = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+
+  const handlePaymentSuccess = () => {
+    console.log('Payment success called');
+    toast.success('Payment successful!');
+    setCart([]); // Clear the cart
+  };
+  
+  const handlePaymentError = () => {
+    console.log('Payment error called');
+    toast.error('Payment failed!');
+  };
+  
+  
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -139,6 +155,7 @@ const PosHome = () => {
 
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
+      <ToastContainer />
       <Navbar />
       <div className='h-[100vh] pt-[70px] px-2'>
         <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-4'>
@@ -235,10 +252,13 @@ const PosHome = () => {
             Proceed to Payment
           </button>
           <ProceedToPayment
-              isOpen={isModalOpen}
-              onClose={handleCloseModal}
-              totalAmount={calculateTotal()}
-            />
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            totalAmount={calculateTotal()}
+            cart={cart}
+            onPaymentSuccess={handlePaymentSuccess}
+            onPaymentError={handlePaymentError}
+          />
         </div>
       </div>
     </div>

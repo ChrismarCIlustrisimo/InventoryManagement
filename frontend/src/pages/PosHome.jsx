@@ -12,8 +12,6 @@ import '../scrollbar.css';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useTheme } from '../context/ThemeContext';
 import SearchBar from '../components/SearchBar';
-import demoImage from '../assets/Demo.png';
-import { IoIosCloseCircle } from "react-icons/io";
 import ProceedToPayment from '../components/ProceedToPayment';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -24,6 +22,11 @@ const PosHome = () => {
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [searchQuery, setSearchQuery] = useState('');
+  const [cart, setCart] = useState([]);
+  const baseURL = 'http://localhost:5555';
+  const { user } = useAuthContext();
+  const { darkMode } = useTheme();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [categoryCounts, setCategoryCounts] = useState({
     'All Products': 0,
     'Components': 0,
@@ -32,11 +35,6 @@ const PosHome = () => {
     'PC Furniture': 0,
     'OS & Software': 0
   });
-  const [cart, setCart] = useState([]);
-  const baseURL = 'http://localhost:5555';
-  const { user } = useAuthContext();
-  const { darkMode } = useTheme();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const calculateTotal = () => {
     return cart.reduce((total, item) => {
@@ -58,11 +56,17 @@ const PosHome = () => {
     console.log('Payment success called');
     toast.success('Payment successful!');
     setCart([]); // Clear the cart
-  };
+    
+    setTimeout(() => {
+      window.location.reload();
+    }, 5000); 
+};
   
   const handlePaymentError = () => {
     console.log('Payment error called');
-    toast.error('Payment failed!');
+    toast.error('Payment failed!', {
+      background: 'toastify-color-dark'
+    });
   };
   
   
@@ -155,7 +159,9 @@ const PosHome = () => {
 
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
-      <ToastContainer />
+      <ToastContainer
+        theme="dark"
+      />
       <Navbar />
       <div className='h-[100vh] pt-[70px] px-2'>
         <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-4'>

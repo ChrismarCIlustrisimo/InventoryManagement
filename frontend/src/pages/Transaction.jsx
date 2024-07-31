@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import BackNavbar from '../components/BackNavbar';
 import Spinner from '../components/Spinner';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const Transaction = () => {
   const { id } = useParams();
@@ -16,43 +19,44 @@ const Transaction = () => {
   const baseURL = 'http://localhost:5555';
   const { darkMode } = useTheme(); // Access darkMode from context
   const { user } = useAuthContext(); // Assuming useAuthContext provides user object
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const fetchTransaction = async () => {
       try {
-        const response = await axios.get(`http://localhost:5555/transaction/${id}`, {
+        const response = await axios.get(`${baseURL}/transaction/${id}`, {
           headers: {
-            Authorization: `Bearer ${user.token}`  // Replace with your actual authentication token
-          }
+            Authorization: `Bearer ${user.token}`, // Replace with your actual authentication token
+          },
         });
         setTransaction(response.data);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching transaction:', error);
+        toast.error('Failed to fetch transaction. Please try again.');
         setLoading(false);
       }
     };
-  
+
     fetchTransaction();
   }, [id, user.token]);
 
   const formatDate = (date) => {
     try {
       const parsedDate = new Date(date);
-      if (isNaN(parsedDate.getTime())) { // Check if date is valid
-        return 'Invalid date'; // Return a fallback value
+      if (isNaN(parsedDate.getTime())) {
+        return 'Invalid date';
       }
-      
-      // Options for formatting the month and day
+
       const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric' }).format(parsedDate);
       const month = new Intl.DateTimeFormat('en-GB', { month: 'long' }).format(parsedDate);
       const year = new Intl.DateTimeFormat('en-GB', { year: 'numeric' }).format(parsedDate);
-      
-      // Construct the formatted date string with comma
+
       return `${day} ${month}, ${year}`;
     } catch (error) {
       console.error('Error formatting date:', error);
-      return 'Invalid date'; // Return a fallback value
+      return 'Invalid date';
     }
   };
 
@@ -77,15 +81,54 @@ const Transaction = () => {
   const finalAmount = transaction ? transaction.total_price - calculateDiscount() : 0;
   const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
+  const handlePayment = () => {
+    const payment = parseNumber(paymentAmount);
+
+    if (!paymentAmount) {
+      toast.warning('Payment amount cannot be empty.');
+      return;
+    }
+
+    if (payment < finalAmount) {
+      toast.warning('Payment amount is less than the total amount due.');
+      return;
+    }
+
+    // Process the payment
+    processPayment(payment);
+  };
+
+  const processPayment = async (amount) => {
+    try {
+      await axios.put(`${baseURL}/transaction/${id}`, {
+        total_amount_paid: amount,
+        payment_status: 'paid',
+        cashier: user.username
+      }, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      toast.success('Payment processed successfully.');
+      
+      // Set a timer to navigate to /orders after 5 seconds
+      setTimeout(() => {
+        navigate('/orders');
+      }, 5000); // 5000ms = 5 seconds
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      toast.error('Failed to process payment. Please try again.');
+    }
+  };
+
   if (loading) {
     return <Spinner />;
   }
 
   if (!transaction) {
     return (
-      <div
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center"
-      >
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
         Transaction not found
       </div>
     );
@@ -208,13 +251,14 @@ const Transaction = () => {
                     onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
                     placeholder="₱ 0"
                     className={`border p-2 w-[40%] ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'dark:bg-dark-CARD1  dark:border-dark-ACCENT'}`}
-                    />
+                  />
                   <p className={`${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ {formatNumber(paymentAmount)}</p>
                   <p>₱ {calculateDiscount().toLocaleString()}</p>
                   <p>{change < 0 ? '₱ 0.00' : change.toLocaleString()}</p>
                 </div>
               </div>
               <button
+                onClick={handlePayment}
                 className={`w-full py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
               >
                 Pay
@@ -223,6 +267,10 @@ const Transaction = () => {
           </div>
         </div>
       </div>
+
+      <ToastContainer
+        theme="dark"
+      />
     </div>
   );
 };

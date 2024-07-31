@@ -9,6 +9,8 @@ import SignUp from './pages/SignUp.jsx'
 import { useAuthContext } from './hooks/useAuthContext.js'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import Navbar from './components/Navbar.jsx'
+import PosTransaction from './pages/dashboardPos.jsx'
+
 const App = () => {
   
   const { user } = useAuthContext()
@@ -18,6 +20,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={!user ? <PosLogin /> : <Navigate to='/cashier'/>} />
           <Route path="/transaction/:id" element={user ? <Transaction /> : <Navigate to='/login' />} />
+          <Route path="/transaction" element={user ? <PosTransaction /> : <Navigate to='/login' />} />
           <Route path="/AddProduct" element={<AddProduct />} />
           <Route path="/cashier" element={user ? <PosHome /> : <Navigate to='/login' />} /> {/*This will check if the user is login or not */}
           <Route path="/orders" element={user ? <SalesOrder /> : <Navigate to='/login' />} />

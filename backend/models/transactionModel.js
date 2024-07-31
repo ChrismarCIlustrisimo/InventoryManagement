@@ -8,12 +8,13 @@ const ProductItemSchema = new mongoose.Schema({
 const TransactionSchema = new mongoose.Schema(
   {
     transaction_id: { type: String, required: true, unique: true },
-    products: [ProductItemSchema], // Array of products with quantity
+    products: [ProductItemSchema], 
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
     total_price: { type: Number, required: true },
-    total_amount_paid: { type: Number }, // Added total amount paid
+    total_amount_paid: { type: Number },
     transaction_date: { type: Date, default: Date.now },
-    payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' } // New field for payment status
+    payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
+    cashier: { type: String }
   },
   {
     timestamps: true

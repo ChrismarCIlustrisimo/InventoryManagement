@@ -3,6 +3,7 @@ import { useTheme } from '../context/ThemeContext';
 import { IoIosClose } from "react-icons/io";
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 const formatNumber = (value) => {
   if (value === '' || isNaN(value)) return '';
@@ -26,7 +27,6 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
   const [phoneNumber, setPhoneNumber] = useState('');
   const [email, setEmail] = useState('');
 
-
   const { user } = useContext(AuthContext);
 
   const calculateDiscount = () => {
@@ -44,6 +44,17 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
   const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
   const handlePayButton = async () => {
+    // Validate paymentAmount
+    if (paymentAmount.trim() === '') {
+      toast.warning('Please enter a payment amount.');
+      return;
+    }
+
+    if (parseNumber(paymentAmount) < finalAmount) {
+      toast.warning('Payment amount is less than the total amount.');
+      return;
+    }
+
     try {
         // Step 1: Create or Find the Customer
         const customerResponse = await axios.post(`${baseURL}/customer`, {
@@ -71,7 +82,8 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
             total_price: totalAmount,
             total_amount_paid: parseNumber(paymentAmount) || 0,
             transaction_date: new Date().toISOString(),
-            source: 'pos' // or based on your logic
+            source: 'pos',
+            cashier: user.username
         };
 
         console.log("Transaction Data:", transactionData); // Log the transaction data for verification
@@ -106,9 +118,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         console.error('Payment error:', error.response ? error.response.data : error.message);
         onPaymentError(); // Call the onPaymentError prop
     }
-};
-
-  
+  };
 
   return (
     <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md"

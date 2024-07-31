@@ -8,7 +8,7 @@ import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router();
 
 // requireAuth for all transactions routes
-router.use(requireAuth)
+// router.use(requireAuth)
 
 // Function to generate a new transaction ID
 const generateTransactionId = async () => {
@@ -16,7 +16,7 @@ const generateTransactionId = async () => {
     const counter = await Counter.findByIdAndUpdate(
       { _id: 'transaction_id' },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true } 
+      { new: true, upsert: true }
     );
 
     if (!counter) {
@@ -30,10 +30,16 @@ const generateTransactionId = async () => {
 };
 
 // Add Transaction
-router.post('/', async (request, response) => {
+router.post('/', async (req, res) => {
   try {
-    const { products, customer, total_price, transaction_date, total_amount_paid, source } = request.body;
+    const { products, customer, total_price, transaction_date, total_amount_paid, source, cashier } = req.body;
 
+    // Validate required fields
+    if (!products || !customer || !total_price ) {
+      return res.status(400).json({ message: 'Products, customer, total_price, and cashier are required' });
+    }
+
+    // Process products
     const productItems = await Promise.all(products.map(async (item) => {
       const { product: productId, quantity } = item;
       const productDoc = await Product.findById(productId);
@@ -43,10 +49,11 @@ router.post('/', async (request, response) => {
       return {
         product: productId,
         quantity,
-        price: productDoc.selling_price // Include price in product items
+        price: productDoc.selling_price
       };
     }));
 
+    // Verify total price
     const totalPrice = productItems.reduce((acc, curr) => {
       const productPrice = curr.quantity * curr.price;
       return acc + productPrice;
@@ -56,10 +63,13 @@ router.post('/', async (request, response) => {
       throw new Error(`Total price mismatch. Expected ${totalPrice}, received ${total_price}`);
     }
 
-    const transaction_id = await generateTransactionId(); // Generate transaction_id here
+    // Generate transaction ID
+    const transaction_id = await generateTransactionId();
 
-    const payment_status = source === 'pos' ? 'paid' : 'unpaid'; // Set payment_status based on source
+    // Determine payment status
+    const payment_status = source === 'pos' ? 'paid' : 'unpaid';
 
+    // Create new transaction
     const newTransaction = new Transaction({
       transaction_id,
       products: productItems,
@@ -67,63 +77,64 @@ router.post('/', async (request, response) => {
       total_price,
       total_amount_paid,
       transaction_date,
-      payment_status // Set payment_status here
+      payment_status,
+      cashier
     });
 
     const transaction = await newTransaction.save();
-    return response.status(201).send(transaction);
+    return res.status(201).send(transaction);
 
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 });
 
-
 // Get All Transactions
-router.get('/', async (request, response) => {
+router.get('/', async (req, res) => {
   try {
     let query = {};
 
-    if (request.query.payment_status) {
-      query.payment_status = request.query.payment_status;
+    // Build query based on request parameters
+    if (req.query.payment_status) {
+      query.payment_status = req.query.payment_status;
     }
 
-    if (request.query.startDate && request.query.endDate) {
+    if (req.query.startDate && req.query.endDate) {
       query.transaction_date = {
-        $gte: new Date(request.query.startDate),
-        $lte: new Date(request.query.endDate),
+        $gte: new Date(req.query.startDate),
+        $lte: new Date(req.query.endDate),
       };
-    } else if (request.query.startDate) {
-      query.transaction_date = { $gte: new Date(request.query.startDate) };
-    } else if (request.query.endDate) {
-      query.transaction_date = { $lte: new Date(request.query.endDate) };
+    } else if (req.query.startDate) {
+      query.transaction_date = { $gte: new Date(req.query.startDate) };
+    } else if (req.query.endDate) {
+      query.transaction_date = { $lte: new Date(req.query.endDate) };
     }
 
-    if (request.query.minPrice && request.query.maxPrice) {
+    if (req.query.minPrice && req.query.maxPrice) {
       query.total_price = {
-        $gte: parseInt(request.query.minPrice),
-        $lte: parseInt(request.query.maxPrice),
+        $gte: parseInt(req.query.minPrice),
+        $lte: parseInt(req.query.maxPrice),
       };
-    } else if (request.query.minPrice) {
-      query.total_price = { $gte: parseInt(request.query.minPrice) };
-    } else if (request.query.maxPrice) {
-      query.total_price = { $lte: parseInt(request.query.maxPrice) };
+    } else if (req.query.minPrice) {
+      query.total_price = { $gte: parseInt(req.query.minPrice) };
+    } else if (req.query.maxPrice) {
+      query.total_price = { $lte: parseInt(req.query.maxPrice) };
     }
 
     let sort = {};
 
-    if (request.query.sortBy === 'price_asc') {
+    if (req.query.sortBy === 'price_asc') {
       sort = { total_price: 1 };
-    } else if (request.query.sortBy === 'price_desc') {
+    } else if (req.query.sortBy === 'price_desc') {
       sort = { total_price: -1 };
-    } else if (request.query.sortBy === 'customer_name_asc') {
+    } else if (req.query.sortBy === 'customer_name_asc') {
       sort = { 'customer.name': 1 };
-    } else if (request.query.sortBy === 'customer_name_desc') {
+    } else if (req.query.sortBy === 'customer_name_desc') {
       sort = { 'customer.name': -1 };
-    } else if (request.query.sortBy === 'transaction_id_desc') {
+    } else if (req.query.sortBy === 'transaction_id_desc') {
       sort = { transaction_id: -1 };
-    } else if (request.query.sortBy === 'transaction_id_asc') {
+    } else if (req.query.sortBy === 'transaction_id_asc') {
       sort = { transaction_id: 1 };
     } else {
       sort = { transaction_id: 1 };
@@ -134,45 +145,80 @@ router.get('/', async (request, response) => {
       .populate('customer')
       .sort(sort);
 
-    return response.status(200).json({ count: transactions.length, data: transactions });
+    return res.status(200).json({ count: transactions.length, data: transactions });
 
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 });
 
-
-//Get Single Transaction
-router.get('/:transactionId', async (request, response) => {
+// Get Single Transaction
+router.get('/:transactionId', async (req, res) => {
   try {
-    const { transactionId } = request.params;
+    const { transactionId } = req.params;
     const transaction = await Transaction.findOne({ transaction_id: transactionId })
       .populate('products.product')
       .populate('customer');
 
     if (!transaction) {
-      return response.status(404).json({ message: 'Transaction not found' });
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    return response.status(200).json(transaction);
+    return res.status(200).json(transaction);
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 });
 
-
-// Update Transaction
-router.put('/:id', async (request, response) => {
+// Update Transaction (for total price and payment status)
+router.put('/:transactionId', async (req, res) => {
   try {
-    const { products, customer, total_amount_paid, source } = request.body;
-    const { id } = request.params;
+    const { transactionId } = req.params;
+    const { payment_status, total_price, cashier } = req.body;
 
-    if (!products || !customer || !total_amount_paid) {
-      return response.status(400).send({ message: 'Products, customer, and total_amount_paid are required' });
+    // Validate input
+    if (payment_status && !['paid', 'unpaid'].includes(payment_status)) {
+      return res.status(400).json({ message: 'Invalid payment status' });
     }
 
+    // Update transaction
+    const updatedTransaction = await Transaction.findOneAndUpdate(
+      { transaction_id: transactionId },
+      {
+        $set: {
+          payment_status,
+          total_price,
+          cashier,
+        }
+      },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedTransaction) {
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    return res.status(200).json(updatedTransaction);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Server Error');
+  }
+});
+
+// Update Transaction
+router.put('/:id', async (req, res) => {
+  try {
+    const { products, customer, total_amount_paid, source, cashier } = req.body;
+    const { id } = req.params;
+
+    // Validate required fields
+    if (!products || !total_amount_paid || !cashier) {
+      return res.status(400).send({ message: 'Products, total_amount_paid, and cashier are required' });
+    }
+
+    // Process products
     const productItems = await Promise.all(products.map(async (item) => {
       const { product: productId, quantity } = item;
       const productDoc = await Product.findById(productId);
@@ -182,15 +228,17 @@ router.put('/:id', async (request, response) => {
       return {
         product: productId,
         quantity,
+        price: productDoc.selling_price
       };
     }));
 
+    // Calculate total price
     const total_price = productItems.reduce((acc, curr) => {
-      const productPrice = curr.quantity * productDoc.selling_price;
+      const productPrice = curr.quantity * curr.price;
       return acc + productPrice;
     }, 0);
 
-    // Optionally handle payment_status update if source is included in the update request
+    // Optionally handle payment_status update if source is included
     const payment_status = source ? (source === 'pos' ? 'paid' : 'unpaid') : undefined;
 
     const transaction = await Transaction.findByIdAndUpdate(id, {
@@ -198,36 +246,36 @@ router.put('/:id', async (request, response) => {
       customer,
       total_price,
       total_amount_paid,
-      payment_status // Update payment_status if present
+      payment_status,
+      cashier // Update cashier information
     }, { new: true });
 
     if (!transaction) {
-      return response.status(404).json({ message: 'Transaction not found' });
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    return response.status(200).send({ message: 'Transaction updated', data: transaction });
+    return res.status(200).send({ message: 'Transaction updated', data: transaction });
 
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 });
 
-
 // Delete Transaction
-router.delete('/:id', async (request, response) => {
+router.delete('/:id', async (req, res) => {
   try {
-    const { id } = request.params;
+    const { id } = req.params;
     const result = await Transaction.findByIdAndDelete(id);
 
     if (!result) {
-      return response.status(404).json({ message: 'Transaction not found' });
+      return res.status(404).json({ message: 'Transaction not found' });
     }
 
-    return response.status(200).json({ message: 'Transaction deleted Successfully' });
+    return res.status(200).json({ message: 'Transaction deleted Successfully' });
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 });
 

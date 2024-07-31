@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const CustomerSchema = new mongoose.Schema(
   {
     name: { type: String },
-    email: { type: String, unique: true },
+    email: { type: String }, // Set unique to false
     phone: { type: String },
     address: { type: String },
   },
@@ -11,6 +11,7 @@ const CustomerSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
 
 const Customer = mongoose.model('Customer', CustomerSchema);
 

@@ -6,7 +6,6 @@ import { useTheme } from '../context/ThemeContext';
 import { GoTriangleDown } from "react-icons/go";
 import { useAuthContext } from '../hooks/useAuthContext';
 
-
 const ProfileInfo = () => {
   const [currentDate, setCurrentDate] = useState('');
   const [selected, setSelected] = useState('');
@@ -15,12 +14,6 @@ const ProfileInfo = () => {
   const { darkMode } = useTheme(); // Access darkMode from context
   const { user } = useAuthContext(); // Assuming useAuthContext provides user object
 
-  const handleSelect = (option) => {
-    setSelected(option);
-  };
-
-
-  
   useEffect(() => {
     const formatDate = (date) => {
       const options = {
@@ -34,8 +27,19 @@ const ProfileInfo = () => {
       return date.toLocaleString('en-US', options).replace(',', ',').toUpperCase();
     };
 
-    const today = new Date();
-    setCurrentDate(formatDate(today));
+    const updateDateTime = () => {
+      const today = new Date();
+      setCurrentDate(formatDate(today));
+    };
+
+    // Initial date and time update
+    updateDateTime();
+
+    // Set interval to update date and time every minute
+    const intervalId = setInterval(updateDateTime, 60000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const navigate = useNavigate(); // Call useNavigate as a function
@@ -47,6 +51,7 @@ const ProfileInfo = () => {
     logout();
     navigate('/login'); // Redirect to login page
   };
+
   const handleThemeChange = () => {
     toggleTheme(); // Toggle theme using the context function
   };
@@ -54,16 +59,17 @@ const ProfileInfo = () => {
   const handleToggleButtons = () => {
     setShowButtons(!showButtons);
   };
+
   return (
     <div className='flex items-center gap-3'>
       <p className='text-[#7f8284] min-w-max'>{currentDate}</p>
       <div className='flex items-center justify-center'>
-      <p className={`text-m font-medium ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`} style={{ textTransform: 'uppercase' }}>{user.username}</p>
+        <p className={`text-m font-medium ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`} style={{ textTransform: 'uppercase' }}>{user.name}</p>
         <button
           className={`text-sm p-2 mr-2 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}
           onClick={handleToggleButtons}
         >
-          <GoTriangleDown/>
+          <GoTriangleDown />
         </button>
         {showButtons && (
           <div className={`absolute right-0 mt-2 w-36 rounded-md shadow-lg mt-[100px] mr-[42px] ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'}`}>

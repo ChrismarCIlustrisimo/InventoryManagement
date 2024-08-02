@@ -39,7 +39,7 @@ const DashboardPos = () => {
           sortBy,
           payment_status: 'paid'  // Add payment_status filter here
         },
-        headers: {
+        headers: {  
           'Authorization': `Bearer ${user.token}`
         }
       });

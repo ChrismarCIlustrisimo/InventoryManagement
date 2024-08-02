@@ -60,6 +60,17 @@ const Transaction = () => {
     }
   };
 
+
+  const addDays = (date, days) => {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  const dueDate = transaction ? addDays(transaction.transaction_date, 10) : null;
+
+  
+
   const formatNumber = (value) => {
     if (value === '' || isNaN(value)) return '';
     const number = Number(value.replace(/,/g, ''));
@@ -150,7 +161,7 @@ const Transaction = () => {
               </div>
               <div className='flex items-start justify-between flex-col text-l gap-3'>
                 <p className='tracking-wider'>{formatDate(transaction.transaction_date)}</p>
-                <p className='text-l tracking-wider'>{formatDate(transaction.transaction_date)}</p>
+                <p className='text-l tracking-wider'>{dueDate ? formatDate(dueDate) : 'Calculating...'}</p>
               </div>
             </div>
           </div>

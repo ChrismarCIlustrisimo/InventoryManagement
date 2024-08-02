@@ -15,9 +15,11 @@ import SearchBar from '../components/SearchBar';
 import ProceedToPayment from '../components/ProceedToPayment';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';
 
 
 const PosHome = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All Products');
@@ -69,6 +71,10 @@ const PosHome = () => {
     });
   };
   
+  if(!user){
+    navigate('/login');
+    return;
+  }
   
 
   useEffect(() => {

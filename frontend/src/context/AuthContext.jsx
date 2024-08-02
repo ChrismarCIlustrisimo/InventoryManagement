@@ -21,14 +21,19 @@ export const AuthContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(authReducer, { user: null });
 
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'))
+        const user = JSON.parse(localStorage.getItem('user'));
 
-        if(user){
-            dispatch({ type: 'LOGIN', payload: user })
+        if (user) {
+            dispatch({ type: 'LOGIN', payload: user });
         }
-    }, [])
+    }, []);
+
+    // Extract user name if it exists
+    const userName = state.user ? state.user.name : 'No user logged in';
 
     console.log('AuthContext state:', state);
+    console.log('Logged in user name:', userName);
+
     return (
         <AuthContext.Provider value={{ ...state, dispatch }}>
             {children}

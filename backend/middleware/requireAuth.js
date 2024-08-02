@@ -1,34 +1,27 @@
+// src/middleware/authMiddleware.js
 import jwt from 'jsonwebtoken';
 import User from '../models/userModel.js';
 
-const requireAuth = async (request, response, next) => {
-    // verify authentication
-    const { authorization } = request.headers;
+const requireAuth = async (req, res, next) => {
+    const { authorization } = req.headers;
     if (!authorization) {
-        return response.status(401).json({ error: 'Authorization required' });
+        return res.status(401).json({ error: 'Authorization required' });
     }
 
     const token = authorization.split(' ')[1];
     try {
-        // Verify JWT token
         const { _id } = jwt.verify(token, process.env.SECRET);
-
-        // Find user in database based on _id from JWT
-        const user = await User.findOne({ _id }).select('_id');
-
+        const user = await User.findOne({ _id }).select('_id name');
         if (!user) {
-            return response.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'User not found' });
         }
-
-        // Assign user to request object for further middleware or route handling
-        request.user = user;
-
-        // Call next() to move on to the next middleware or route handler
+        req.user = user;
         next();
-
     } catch (error) {
-        console.error(error);
-        response.status(401).json({ error: 'Unauthorized request' });
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ error: 'Token expired' });
+        }
+        res.status(401).json({ error: 'Unauthorized request' });
     }
 };
 

@@ -15,7 +15,7 @@ const TransactionSchema = new mongoose.Schema(
     transaction_date: { type: Date, default: Date.now },
     payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
     cashier: { type: String }
-  },
+  },  
   {
     timestamps: true
   }

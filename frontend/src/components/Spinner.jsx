@@ -1,11 +1,44 @@
-import React from 'react'
+import React from 'react';
+import { useTheme } from '../context/ThemeContext';
 
 const Spinner = () => {
-  return (
-    <div className='animate-ping w-16 h-16 m-18 rounded-full bg-transparent'>
-      
-    </div>
-  )
-}
+  const { darkMode } = useTheme();
 
-export default Spinner
+  return (
+    <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
+      {[...Array(4)].map((_, index) => (
+        <div
+          key={index}
+          className={`rounded-lg p-4 flex gap-4 ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} animate-pulse`}
+        >
+          <div
+            className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+          >
+            <div className={`w-1/2 h-4 ${darkMode ? 'bg-dark-TABLE' : 'bg-dark-TABLE'} rounded`}></div>
+          </div>
+          <div className='flex justify-between items-center w-[85%]'>
+            <div className='p-4 w-[70%] flex flex-col gap-1'>
+              {[...Array(3)].map((_, idx) => (
+                <div key={idx} className={`w-3/4 h-4 ${darkMode ? 'bg-light-TEXT' : 'bg-dark-TABLE'} rounded`}></div>
+              ))}
+            </div>
+            <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-lightn-TABLE' : 'text-light-TABLE'}`}>
+              <div className='flex flex-col gap-1'>
+                <div className={`w-24 h-4 ${darkMode ? 'bg-light-TEXT' : 'bg-dark-TABLE'} rounded`}></div>
+                <div className={`w-24 h-4 ${darkMode ? 'bg-light-TEXT' : 'bg-dark-TABLE'} rounded`}></div>
+                <div className={`w-24 h-4 ${darkMode ? 'bg-light-TEXT' : 'bg-dark-TABLE'} rounded`}></div>
+              </div>
+              <div className='flex flex-col gap-1'>
+                <div className={`w-24 h-4 ${darkMode ? 'bg-light-TEXT' : 'bg-dark-TABLE'} rounded`}></div>
+                <div className={`w-24 h-4 ${darkMode ? 'bg-light-TEXT' : 'bg-dark-TABLE'} rounded`}></div>
+                <div className={`w-24 h-4 ${darkMode ? 'bg-light-TEXT' : 'bg-dark-TABLE'} rounded`}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export default Spinner;

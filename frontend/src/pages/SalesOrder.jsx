@@ -8,6 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
 import { useAuthContext } from '../hooks/useAuthContext'
 import { useTheme } from '../context/ThemeContext';
+import SearchBar from '../components/SearchBar';
 
 const SalesOrder = () => {
   const [startDate, setStartDate] = useState(null);
@@ -17,9 +18,10 @@ const SalesOrder = () => {
   const [sortBy, setSortBy] = useState('');
   const [salesOrder, setSalesOrder] = useState([]);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Initialize useNavigate
-  const { user } = useAuthContext(); // Assuming useAuthContext provides user object
-  const { darkMode } = useTheme(); // Access darkMode from context
+  const navigate = useNavigate(); 
+  const { user } = useAuthContext(); 
+  const { darkMode } = useTheme(); 
+  const [searchQuery, setSearchQuery] = useState('');
 
 
 
@@ -27,7 +29,7 @@ const SalesOrder = () => {
     if(user){
       fetchSalesOrders();
     }
-  }, [startDate, endDate, minPrice, maxPrice, sortBy, user]);
+  }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, user]);
 
   const fetchSalesOrders = async () => {
     setLoading(true);
@@ -39,7 +41,9 @@ const SalesOrder = () => {
           minPrice,
           maxPrice,
           sortBy,
-          payment_status: 'unpaid'  // Add payment_status filter here
+          payment_status: 'unpaid',
+          transaction_id: searchQuery  
+
         },
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -49,6 +53,7 @@ const SalesOrder = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching sales orders:', error);
+    } finally{
       setLoading(false);
     }
   };
@@ -130,7 +135,15 @@ const SalesOrder = () => {
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG' }`}>
       <Navbar />
       <div className='h-full px-6 pt-[70px]'>
-        <h1 className={`w-full py-5 text-3xl font-bold mt-5 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>Sales Order</h1>
+        <div className='flex items-center justify-center py-5'>
+          <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>Sales Order</h1>
+          <div className='w-full flex  justify-end '>
+              <SearchBar
+              query={searchQuery}
+              onQueryChange={setSearchQuery}
+              />
+          </div>
+        </div>
         <div className='flex gap-4'>
           <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' }`}>
             <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>

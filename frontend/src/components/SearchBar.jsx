@@ -24,9 +24,9 @@ const SearchBar = ({ query, onQueryChange }) => {
         onChange={handleChange}       
       />
       {query ? (
-        <IoMdClose className="text-slate-400 cursor-pointer hover:text-black" onClick={handleClear} />
+        <IoMdClose className={`${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'} hover:text-white cursor-pointer`} onClick={handleClear} />
       ) : (
-        <FaSearch className="text-slate-400 cursor-pointer hover:text-black" />
+        <FaSearch className={`${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'} hover:text-white cursor-pointer`} />
       )}
     </div>
   );

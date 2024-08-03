@@ -100,6 +100,15 @@ router.get('/', async (req, res) => {
       query.payment_status = req.query.payment_status;
     }
 
+    if (req.query.transaction_id) {
+      query.transaction_id = req.query.transaction_id;
+    }
+
+        // Add condition for cashier name
+    if (req.query.cashier) {
+       query.cashier = { $regex: req.query.cashier, $options: 'i' }; // Case-insensitive search
+    }
+
     if (req.query.startDate && req.query.endDate) {
       query.transaction_date = {
         $gte: new Date(req.query.startDate),

@@ -7,7 +7,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import SearchBar from '../components/SearchBar';
 
 const Transaction = () => {
   const { id } = useParams();
@@ -148,56 +148,68 @@ const Transaction = () => {
   return (
     <div className={`pt-20 px-20 pb-5 h-screen w-full ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
       <BackNavbar id={transaction._id} />
-      <div className='flex justify-center items-center h-full gap-6'>
+      <div className='flex flex-col justify-center items-center h-full'>
         {/* Left Section */}
-        <div className='flex flex-col items-end justify-start h-full w-[40%] p-4 gap-6'>
-          <p className={`w-full text-left text-4xl font-semibold ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Order Number: {transaction.transaction_id}</p>
-          <div className={`flex flex-col gap-4 w-full ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-            <h4 className={`font-medium text-2xl ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`}>Order Details</h4>
-            <div className='flex items-center w-[70%] justify-between'> 
-              <div className='flex items-start justify-between flex-col text-l gap-3'> 
-                <p>TRANSACTION DATE</p>
-                <p>DUE DATE</p>
+        <div className='flex flex-col items-end justify-start h-[40%] w-[80%] p-4 gap-2'>
+            <div className='w-full h-auto flex items-center justify-between'>
+              <p className={`text-left text-4xl font-semibold py-2 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                Order Number: {transaction.transaction_id}
+              </p>
+            </div>
+
+            <div className=' flex w-full'>
+              <div className={`flex flex-col gap-4 w-full ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                <h4 className={`font-medium text-xl ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`}>
+                  Order Details
+                </h4>
+                <div className='flex items-center w-[70%] justify-between'>
+                  <div className='flex items-start justify-between flex-col text-l gap-3 text-[#9C9C9C]'>
+                    <p>TRANSACTION DATE</p>
+                    <p>DUE DATE</p>
+                  </div>
+                  <div className='flex items-start justify-between flex-col text-l gap-3'>
+                    <p className='tracking-wider'>{formatDate(transaction.transaction_date)}</p>
+                    <p className='text-l tracking-wider'>{dueDate ? formatDate(dueDate) : 'Calculating...'}</p>
+                  </div>
+                </div>
               </div>
-              <div className='flex items-start justify-between flex-col text-l gap-3'>
-                <p className='tracking-wider'>{formatDate(transaction.transaction_date)}</p>
-                <p className='text-l tracking-wider'>{dueDate ? formatDate(dueDate) : 'Calculating...'}</p>
+
+              <div className={`flex flex-col gap-4 w-full h-[100%] ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                <h4 className={`font-medium text-lg ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`}>
+                  Customer Details
+                </h4>
+                <div className='flex items-center w-[95%] justify-between text-base '>
+                  <div className='flex items-start justify-between flex-col gap-3 text-[#9C9C9C]'>
+                    <p>CUSTOMER NUMBER</p>
+                    <p>CONTACT NUMBER</p>
+                    <p>EMAIL</p>
+                    <p>ADDRESS</p>
+                  </div>
+                  <div className='flex items-start justify-between text-l flex-col gap-3'>
+                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          
-          <div className={`flex flex-col gap-4 w-full ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-            <h4 className={`font-medium text-2xl ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`}>Customer Details</h4>
-            <div className='flex items-center w-[95%] justify-between'>
-              <div className='flex items-start justify-between flex-col text-l gap-3'>
-                <p>CUSTOMER NUMBER</p>
-                <p>CONTACT NUMBER</p>
-                <p>EMAIL</p>
-                <p>ADDRESS</p>
-              </div>
-              <div className='flex items-start justify-between text-l flex-col gap-3'>
-                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-                <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+
 
         {/* Right Section */}
-        <div className={`h-full w-[40%] p-6 rounded-2xl ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD text-dark-TEXT'}`}>
+        <div className={` h-[60%] w-[100%] p-6 rounded-2xl ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD text-dark-TEXT'}`}>
           {/* Invoices */}
-          <div className='flex flex-col gap-2'>
-            <p className='text-2xl'>Invoices</p>
-            <div className='overflow-y-auto h-[160px] w-full'>
+          <div className='flex gap-6'>
+            <div className='overflow-y-auto h-[360px] w-full'>
+             <p className={`text-2xl py-2 font-semibold ${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT' }`}>Product Order</p>
               <table className='m-w-full border-collapse table-fixed h-[120px]'>
                 <thead>
-                  <tr className='border-b border-primary'>
-                    <th className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Product</th>
-                    <th className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Unit Price</th>
-                    <th className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Qty</th>
-                    <th className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Total</th>
+                  <tr className={`border-b ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
+                    <th className={`sticky top-0 px-4 py-2 text-left`}>Product</th>
+                    <th className={`sticky top-0 px-4 py-2 text-left`}>Unit Price</th>
+                    <th className={`sticky top-0 px-4 py-2 text-left`}>Qty</th>
+                    <th className={`sticky top-0 px-4 py-2 text-left`}>Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -218,7 +230,7 @@ const Transaction = () => {
                 </tbody>
               </table>
             </div>
-            <div className={`flex flex-col w-full px-4 py-4 rounded-2xl gap-6 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
+            <div className={`flex flex-col w-full px-4 rounded-2xl gap-4`}>
               <div className='flex w-full justify-between items-center'>
                 <div className='flex gap-3 flex-col w-[50%]'>
                   <p>Add Discount</p>
@@ -270,7 +282,7 @@ const Transaction = () => {
               </div>
               <button
                 onClick={handlePayment}
-                className={`w-full py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
+                className={`w-full py-3 mb-4 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
               >
                 Pay
               </button>

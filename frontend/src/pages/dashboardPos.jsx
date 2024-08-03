@@ -7,6 +7,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
 import Spinner from '../components/Spinner';
+import SearchBar from '../components/SearchBar';
 
 const DashboardPos = () => {
   const { user } = useAuthContext();
@@ -19,13 +20,15 @@ const DashboardPos = () => {
   const [sortBy, setSortBy] = useState('');
   const [loading, setLoading] = useState(false);
   const [salesOrder, setSalesOrder] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cashierName, setCashierName] = useState('');
 
 
   useEffect(() => {
     if(user){
       fetchSalesOrders();
     }
-  }, [startDate, endDate, minPrice, maxPrice, sortBy, user]);
+  }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery,cashierName, user]);
 
   const fetchSalesOrders = async () => {
     setLoading(true);
@@ -37,7 +40,9 @@ const DashboardPos = () => {
           minPrice,
           maxPrice,
           sortBy,
-          payment_status: 'paid'  // Add payment_status filter here
+          payment_status: 'paid', 
+          transaction_id: searchQuery,
+          cashier: cashierName // Add cashier name to query params  
         },
         headers: {  
           'Authorization': `Bearer ${user.token}`
@@ -75,6 +80,7 @@ const DashboardPos = () => {
   const handleTransactionClick = (transactionId) => {
     // Implement transaction click logic
   };
+  const handleCashierNameChange = (event) => setCashierName(event.target.value);
 
 
 
@@ -82,14 +88,32 @@ const DashboardPos = () => {
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
       <Navbar />
       <div className='h-full px-6 pt-[70px]'>
-        <h1 className={`w-full py-5 text-3xl font-bold mt-5 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-          Sales Order
-        </h1>
+        <div className='flex items-center justify-center py-5'>
+          <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>Transaction</h1>
+          <div className='w-full flex  justify-end '>
+          <SearchBar 
+              query={searchQuery}
+              onQueryChange={setSearchQuery}
+            />
+
+          </div>
+        </div>
         <div className='flex gap-4'>
           <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}>
             <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
               <div className='flex flex-col'>
-                <label htmlFor='startDate'>Date</label>
+              <label htmlFor='CashierName' className='text-[#9C9C9C]'>CASHIER</label>
+              <input
+                      id='CashierName'
+                      value={cashierName}
+                      onChange={handleCashierNameChange}
+                      className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
+                      placeholder='Search by Cashier Name'
+                      />
+              </div>
+
+              <div className='flex flex-col'>
+                <label htmlFor='startDate' className='text-[#9C9C9C]'>DATE</label>
                 <select
                   id='startDate'
                   onChange={handleDateFilter}
@@ -102,7 +126,7 @@ const DashboardPos = () => {
                 </select>
               </div>
 
-              <label className='text-sm text-gray-500 mb-1'>DATE RANGE</label>
+              <label className='text-sm text-[#9C9C9C] mb-1'>DATE RANGE</label>
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
@@ -133,7 +157,7 @@ const DashboardPos = () => {
                 </div>
               </div>
 
-              <label className='text-sm text-gray-500 mb-1'>PRICE RANGE</label>
+              <label className='text-sm text-[#9C9C9C] mb-1'>PRICE RANGE</label>
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
@@ -168,7 +192,7 @@ const DashboardPos = () => {
               </div>
 
               <div className='flex flex-col'>
-                <label htmlFor='sortBy'>Sort By</label>
+                <label htmlFor='sortBy' className='text-[#9C9C9C]'>SORT BY</label>
                 <select
                   id='sortBy'
                   value={sortBy}
@@ -204,8 +228,8 @@ const DashboardPos = () => {
               {salesOrder.map((transaction) => (
                 <div
                   key={transaction._id}
-                  className={`rounded-lg p-4 flex gap-4 cursor-pointer ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}
-                  onClick={() => handleTransactionClick(transaction.transaction_id)}
+                  className={`rounded-lg p-4 flex gap-4 ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}
+                  //onClick={() => handleTransactionClick(transaction.transaction_id)}
                 >
                   <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
                     <h1 className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>{transaction.transaction_id}</h1>

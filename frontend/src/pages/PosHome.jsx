@@ -16,7 +16,7 @@ import ProceedToPayment from '../components/ProceedToPayment';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
-
+import ProductLoading from '../components/ProductLoading';
 
 const PosHome = () => {
   const navigate = useNavigate();
@@ -29,6 +29,7 @@ const PosHome = () => {
   const { user } = useAuthContext();
   const { darkMode } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const loadingItems = Array.from({ length: 6 }); // Adjust the number of placeholders
   const [categoryCounts, setCategoryCounts] = useState({
     'All Products': 0,
     'Components': 0,
@@ -188,13 +189,18 @@ const PosHome = () => {
             </button>
           ))}
         </div>
-      </div>
+      </div>  
 
       <div className='flex flex-col w-[80%] pt-[90px] p-5 gap-4 items-end'>
-        <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+        <SearchBar
+          query={searchQuery}
+          onQueryChange={setSearchQuery}
+        />
         <div className='w-full grid grid-cols-4 gap-3 h-[78vh] overflow-auto'>
           {loading ? (
-            <p>Loading...</p>
+            loadingItems.map((_, index) => (
+              <ProductLoading key={index} />
+            ))
           ) : (
             filteredProducts.map((product) => (
               <ProductCard
@@ -211,6 +217,7 @@ const PosHome = () => {
           )}
         </div>
       </div>
+
 
       <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[120px] pb-4 px-4 ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'} rounded-xl`}>
         <div className={`overflow-y-auto h-[500px] w-full rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>

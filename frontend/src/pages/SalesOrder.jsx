@@ -6,7 +6,7 @@ import Spinner from '../components/Spinner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
-import { useAuthContext } from '../hooks/useAuthContext'
+import { useAuthContext } from '../hooks/useAuthContext';
 import { useTheme } from '../context/ThemeContext';
 import SearchBar from '../components/SearchBar';
 
@@ -23,10 +23,8 @@ const SalesOrder = () => {
   const { darkMode } = useTheme(); 
   const [searchQuery, setSearchQuery] = useState('');
 
-
-
   useEffect(() => {
-    if(user){
+    if (user) {
       fetchSalesOrders();
     }
   }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, user]);
@@ -43,24 +41,26 @@ const SalesOrder = () => {
           sortBy,
           payment_status: 'unpaid',
           transaction_id: searchQuery  
-
         },
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
       });
       setSalesOrder(response.data.data);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching sales orders:', error);
-    } finally{
+    } finally {
       setLoading(false);
     }
   };
-  
 
   const handleTransactionClick = (transactionId) => {
     navigate(`/transaction/${transactionId}`);
+  };
+
+  const formatDate = (date) => {
+    if (!date) return '';
+    return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(new Date(date));
   };
 
   const handleDateFilter = (e) => {
@@ -68,9 +68,9 @@ const SalesOrder = () => {
     if (value === 'today') {
       const today = new Date();
       const startOfDay = new Date(today);
-      startOfDay.setHours(0, 0, 0, 0); // Set to the beginning of today
+      startOfDay.setHours(0, 0, 0, 0); 
       const endOfDay = new Date(today);
-      endOfDay.setDate(endOfDay.getDate() + 1); // Adding 1 day to get end of today
+      endOfDay.setDate(endOfDay.getDate() + 1); 
   
       setStartDate(startOfDay);
       setEndDate(endOfDay);
@@ -88,7 +88,6 @@ const SalesOrder = () => {
       setEndDate(endOfMonth);
     }
   };
-  
 
   const handleStartDateChange = (date) => {
     setStartDate(date);
@@ -117,19 +116,15 @@ const SalesOrder = () => {
   const handleSortByChange = (e) => {
     setSortBy(e.target.value);
   };
-  
-
 
   const handleResetFilters = () => {
-    setStartDate(undefined);
-    setEndDate(undefined);
+    setStartDate(null);
+    setEndDate(null);
     setMinPrice('');
     setMaxPrice('');
     setSortBy('');
     fetchSalesOrders();
   };
-  
-
 
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG' }`}>
@@ -137,11 +132,11 @@ const SalesOrder = () => {
       <div className='h-full px-6 pt-[70px]'>
         <div className='flex items-center justify-center py-5'>
           <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>Sales Order</h1>
-          <div className='w-full flex  justify-end '>
-              <SearchBar
+          <div className='w-full flex justify-end'>
+            <SearchBar
               query={searchQuery}
               onQueryChange={setSearchQuery}
-              />
+            />
           </div>
         </div>
         <div className='flex gap-4'>
@@ -150,23 +145,23 @@ const SalesOrder = () => {
               <div className='flex flex-col'>
                 <label htmlFor='startDate'>Date</label>
                 <select
-                    id='startDate'
-                    onChange={handleDateFilter}
-                    className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT' }`}
-                  >
-                    <option value=''>Select Option</option>
-                    <option value='today'>Today</option>
-                    <option value='this_week'>This Week</option>
-                    <option value='this_month'>This Month</option>
-                  </select>
+                  id='startDate'
+                  onChange={handleDateFilter}
+                  className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT' }`}
+                >
+                  <option value=''>Select Option</option>
+                  <option value='today'>Today</option>
+                  <option value='this_week'>This Week</option>
+                  <option value='this_month'>This Month</option>
+                </select>
               </div>
 
               <label className='text-sm text-gray-500 mb-1'>DATE RANGE</label>
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
-                 <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
-                   <DatePicker
+                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
+                    <DatePicker
                       selected={startDate}
                       onChange={handleStartDateChange}
                       dateFormat='MM-dd-yyyy'
@@ -179,8 +174,8 @@ const SalesOrder = () => {
                 <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                 <div className='flex flex-col'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
-                   <DatePicker
+                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
+                    <DatePicker
                       selected={endDate}
                       onChange={handleEndDateChange}
                       dateFormat='MM-dd-yyyy'
@@ -196,8 +191,8 @@ const SalesOrder = () => {
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
-                <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
-                <input
+                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
+                    <input
                       type='number'
                       id='minPrice'
                       value={minPrice}
@@ -212,7 +207,7 @@ const SalesOrder = () => {
                 <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                 <div className='flex flex-col'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1  ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
+                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-CARD1' : 'dark:border-dark-CARD1' }`}>
                     <input
                       type='number'
                       id='maxPrice'
@@ -233,7 +228,7 @@ const SalesOrder = () => {
                   value={sortBy}
                   onChange={handleSortByChange}
                   className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT' }`}
-                  >
+                >
                   <option value=''>Select Option</option>
                   <option value='price_asc'>Price Lowest to Highest</option>
                   <option value='price_desc'>Price Highest to Lowest</option>
@@ -242,13 +237,9 @@ const SalesOrder = () => {
                   <option value='transaction_id_asc'>ID Lowest to Highest</option>
                   <option value='transaction_id_desc'>ID Highest to Lowest</option>
                 </select>
-
-
               </div>
-
             </div>
             <div className='flex flex-col gap-2'>
-
               <button
                 className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide ${darkMode ? 'bg-light-TABLE text-dark-TEXT' : 'dark:bg-dark-TABLE light:text-light-TEXT' }`}
                 onClick={handleResetFilters}
@@ -262,6 +253,10 @@ const SalesOrder = () => {
           {/* Main Content */}
           {loading ? (
             <Spinner />
+          ) : salesOrder.length === 0 ? (
+            <div className='w-[80%] h-[76vh] flex items-center justify-center'>
+              <p className={`text-xl ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>No Orders Found</p>
+            </div>
           ) : (
             <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
               {salesOrder.map((transaction) => (
@@ -288,7 +283,7 @@ const SalesOrder = () => {
                         <p className='text-gray-400'>TOTAL AMOUNT</p>
                       </div>
                       <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`} >
-                        <p className='ml-auto'>{new Date(transaction.transaction_date).toLocaleDateString()}</p>
+                        <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
                         <p className='ml-auto'>{transaction.customer ? transaction.customer.name : 'None'}</p>
                         <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
                       </div>

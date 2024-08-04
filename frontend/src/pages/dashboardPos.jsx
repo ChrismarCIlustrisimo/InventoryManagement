@@ -23,12 +23,11 @@ const DashboardPos = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [cashierName, setCashierName] = useState('');
 
-
   useEffect(() => {
-    if(user){
+    if (user) {
       fetchSalesOrders();
     }
-  }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery,cashierName, user]);
+  }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user]);
 
   const fetchSalesOrders = async () => {
     setLoading(true);
@@ -40,13 +39,13 @@ const DashboardPos = () => {
           minPrice,
           maxPrice,
           sortBy,
-          payment_status: 'paid', 
+          payment_status: 'paid',
           transaction_id: searchQuery,
-          cashier: cashierName // Add cashier name to query params  
+          cashier: cashierName,
         },
-        headers: {  
-          'Authorization': `Bearer ${user.token}`
-        }
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+        },
       });
       setSalesOrder(response.data.data);
       setLoading(false);
@@ -55,14 +54,11 @@ const DashboardPos = () => {
       setLoading(false);
     }
   };
-  
-
 
   const handleDateFilter = (event) => {
     const selectedOption = event.target.value;
     // Implement your filtering logic here based on the selectedOption
     console.log("Selected date filter option:", selectedOption);
-    // Example filtering logic
   };
 
   const handleStartDateChange = (date) => setStartDate(date);
@@ -82,7 +78,11 @@ const DashboardPos = () => {
   };
   const handleCashierNameChange = (event) => setCashierName(event.target.value);
 
-
+  // Utility function for formatting date
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(new Date(date));
+  };
 
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
@@ -91,25 +91,24 @@ const DashboardPos = () => {
         <div className='flex items-center justify-center py-5'>
           <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>Transaction</h1>
           <div className='w-full flex  justify-end '>
-          <SearchBar 
+            <SearchBar 
               query={searchQuery}
               onQueryChange={setSearchQuery}
             />
-
           </div>
         </div>
         <div className='flex gap-4'>
           <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}>
             <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
               <div className='flex flex-col'>
-              <label htmlFor='CashierName' className='text-[#9C9C9C]'>CASHIER</label>
-              <input
-                      id='CashierName'
-                      value={cashierName}
-                      onChange={handleCashierNameChange}
-                      className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
-                      placeholder='Search by Cashier Name'
-                      />
+                <label htmlFor='CashierName' className='text-[#9C9C9C]'>CASHIER</label>
+                <input
+                  id='CashierName'
+                  value={cashierName}
+                  onChange={handleCashierNameChange}
+                  className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
+                  placeholder='Search by Cashier Name'
+                />
               </div>
 
               <div className='flex flex-col'>
@@ -223,6 +222,10 @@ const DashboardPos = () => {
 
           {loading ? (
             <Spinner />
+          ) : salesOrder.length === 0 ? (
+            <div className='w-[80%] h-[76vh] flex items-center justify-center'>
+              <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No Successful Transactions</p>
+            </div>
           ) : (
             <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
               {salesOrder.map((transaction) => (
@@ -232,15 +235,19 @@ const DashboardPos = () => {
                   //onClick={() => handleTransactionClick(transaction.transaction_id)}
                 >
                   <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
-                    <h1 className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>{transaction.transaction_id}</h1>
+                    <h1 className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>{transaction.transaction_id || 'N/A'}</h1>
                   </div>
                   <div className='flex justify-between items-center w-[85%]'>
                     <div className='p-4 w-[70%] flex flex-col gap-1'>
-                      {transaction.products.map((item, idx) => (
-                        <p key={idx} className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                          ({item.quantity}) {item.product.name}
-                        </p>
-                      ))}
+                      {transaction.products.length > 0 ? (
+                        transaction.products.map((item, idx) => (
+                          <p key={idx} className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                            ({item.quantity || 'N/A'}) {item.product.name || 'Unknown Product'}
+                          </p>
+                        ))
+                      ) : (
+                        <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No products available</p>
+                      )}
                     </div>
                     <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE'}`}>
                       <div className='flex flex-col gap-1'>
@@ -249,9 +256,9 @@ const DashboardPos = () => {
                         <p className='text-gray-400'>TOTAL AMOUNT</p>
                       </div>
                       <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                        <p className='ml-auto'>{new Date(transaction.transaction_date).toLocaleDateString()}</p>
-                        <p className='ml-auto'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-                        <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
+                        <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
+                        <p className='ml-auto'>{transaction.customer ? transaction.customer.name || 'None' : 'None'}</p>
+                        <p className='ml-auto'>₱ {transaction.total_price ? transaction.total_price.toFixed(2) : '0.00'}</p>
                       </div>
                     </div>
                   </div>

@@ -83,7 +83,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
             total_amount_paid: parseNumber(paymentAmount) || 0,
             transaction_date: new Date().toISOString(),
             source: 'pos',
-            cashier: user.username
+            cashier: user.name
         };
 
         console.log("Transaction Data:", transactionData); // Log the transaction data for verification

@@ -29,14 +29,14 @@ const generateTransactionId = async () => {
   }
 };
 
-// Add Transaction
+// routes/transactionRoutes.js
 router.post('/', async (req, res) => {
   try {
     const { products, customer, total_price, transaction_date, total_amount_paid, source, cashier } = req.body;
 
     // Validate required fields
-    if (!products || !customer || !total_price ) {
-      return res.status(400).json({ message: 'Products, customer, total_price, and cashier are required' });
+    if (!products || !customer || !total_price || !transaction_date) {
+      return res.status(400).json({ message: 'Products, customer, total_price, transaction_date, and cashier are required' });
     }
 
     // Process products
@@ -69,6 +69,10 @@ router.post('/', async (req, res) => {
     // Determine payment status
     const payment_status = source === 'pos' ? 'paid' : 'unpaid';
 
+    // Calculate due_date (10 days after transaction_date)
+    const dueDate = new Date(transaction_date);
+    dueDate.setDate(dueDate.getDate() + 10);
+
     // Create new transaction
     const newTransaction = new Transaction({
       transaction_id,
@@ -77,6 +81,7 @@ router.post('/', async (req, res) => {
       total_price,
       total_amount_paid,
       transaction_date,
+      due_date: dueDate, // Automatically set due_date
       payment_status,
       cashier
     });
@@ -90,6 +95,7 @@ router.post('/', async (req, res) => {
   }
 });
 
+
 // Get All Transactions
 router.get('/', async (req, res) => {
   try {
@@ -101,12 +107,12 @@ router.get('/', async (req, res) => {
     }
 
     if (req.query.transaction_id) {
-      query.transaction_id = req.query.transaction_id;
+      query.transaction_id = { $regex: req.query.transaction_id, $options: 'i' }; // Partial match for transaction_id
     }
 
-        // Add condition for cashier name
+    // Add condition for cashier name with partial matching
     if (req.query.cashier) {
-       query.cashier = { $regex: req.query.cashier, $options: 'i' }; // Case-insensitive search
+      query.cashier = { $regex: req.query.cashier, $options: 'i' }; 
     }
 
     if (req.query.startDate && req.query.endDate) {

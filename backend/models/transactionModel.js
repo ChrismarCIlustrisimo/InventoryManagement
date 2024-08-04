@@ -13,6 +13,7 @@ const TransactionSchema = new mongoose.Schema(
     total_price: { type: Number, required: true },
     total_amount_paid: { type: Number },
     transaction_date: { type: Date, default: Date.now },
+    due_date: { type: Date, required: true },
     payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
     cashier: { type: String }
   },  
@@ -20,7 +21,6 @@ const TransactionSchema = new mongoose.Schema(
     timestamps: true
   }
 );
-
 
 const Transaction = mongoose.model('Transaction', TransactionSchema);
 

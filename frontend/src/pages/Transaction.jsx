@@ -114,7 +114,7 @@ const Transaction = () => {
       await axios.put(`${baseURL}/transaction/${id}`, {
         total_amount_paid: amount,
         payment_status: 'paid',
-        cashier: user.username
+        cashier: user.name
       }, {
         headers: {
           Authorization: `Bearer ${user.token}`,

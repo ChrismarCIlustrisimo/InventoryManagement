@@ -1,43 +1,48 @@
-// src/hooks/useSignUp.js
 import { useState } from 'react';
 import { useAuthContext } from './useAuthContext';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 export const useLogin = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const { dispatch } = useAuthContext();
+    const navigate = useNavigate(); // Initialize useNavigate
 
-    const login = async (username, password) => {
+    const login = async (username, password, role) => {
         setLoading(true);
         setError(null);
 
         try {
-            // Send login request to the server
             const response = await fetch('http://localhost:5555/user/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, password }),
+                body: JSON.stringify({ username, password, role }),
             });
 
             const json = await response.json();
 
-            // Handle non-OK responses
             if (!response.ok) {
                 setError(json.error);
                 setLoading(false);
                 return;
             }
 
-            // Handle successful response
             const { token, name } = json;
 
-            // Store user data including name and token in local storage
-            localStorage.setItem('user', JSON.stringify({ username, name, token }));
+            localStorage.setItem('user', JSON.stringify({ username, name, token, role })); // Include role in local storage
 
-            // Dispatch login action to update AuthContext
-            dispatch({ type: 'LOGIN', payload: { username, name, token } });
+            dispatch({ type: 'LOGIN', payload: { username, name, token, role } });
+
+            // Redirect based on the role
+            if (role === 'admin') {
+                navigate('/dashboard');
+            } else if (role === 'cashier') {
+                navigate('/cashier');
+            } else {
+                navigate('/'); // Default redirection
+            }
 
             setLoading(false);
         } catch (error) {

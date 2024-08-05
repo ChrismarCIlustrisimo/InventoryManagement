@@ -1,37 +1,80 @@
-import React from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
-import PosHome from './pages/PosHome.jsx'
-import PosLogin from './pages/PosLogin.jsx'
-import SalesOrder from './pages/SalesOrder.jsx'
-import Transaction from './pages/Transaction.jsx'
-import AddProduct from './components/AddProduct.jsx'
-import SignUp from './pages/SignUp.jsx'
-import { useAuthContext } from './hooks/useAuthContext.js'
-import { ThemeProvider } from './context/ThemeContext.jsx'
-import Navbar from './components/Navbar.jsx'
-import PosTransaction from './pages/dashboardPos.jsx'
-
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthContextProvider } from './context/AuthContext';
+import PosLogin from './pages/PosLogin';
+import Dashboard from './pages/AdminHome'; // Assuming Dashboard is for Admin
+import Cashier from './pages/PosHome'; // Assuming Cashier is for the cashier view
+import SalesOrder from './pages/SalesOrder';
+import Transaction from './pages/dashboardPos';
+import AddProduct from './components/AddProduct';
+import SignUp from './pages/SignUp';
+import { ThemeProvider } from './context/ThemeContext';
+import PrivateRoute from './components/PrivateRoute ';
 const App = () => {
-  
-  const { user } = useAuthContext()
+    return (
+      <AuthContextProvider>
+      <ThemeProvider>
+          <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<PosLogin />} />
+              <Route path="/signup" element={<SignUp />} />
 
-  return (
-    <ThemeProvider>
-        <Routes>
-          <Route path="/" element={!user ? <PosLogin /> : <Navigate to='/cashier'/>} />
-          <Route path="/transaction/:id" element={user ? <Transaction /> : <Navigate to='/login' />} />
-          <Route path="/transaction" element={user ? <PosTransaction /> : <Navigate to='/login' />} />
-          <Route path="/AddProduct" element={<AddProduct />} />
-          <Route path="/cashier" element={user ? <PosHome /> : <Navigate to='/login' />} /> {/*This will check if the user is login or not */}
-          <Route path="/orders" element={user ? <SalesOrder /> : <Navigate to='/login' />} />
-          <Route path="/login" element={!user ? <PosLogin /> : <Navigate to='/cashier'/>} />
-         {/*<Route path="/transaction" element={<Transaction />} />
-            <Route path="/" element={<SignUp />} />*/}
-          <Route path="*" element={<h1>Page Not Found</h1>} />
-        </Routes>
-     </ThemeProvider>
+              {/* Protected Routes */}
+              <Route 
+                  path="/dashboard" 
+                  element={
+                      <PrivateRoute requiredRole="admin">
+                          <Dashboard />
+                      </PrivateRoute>
+                  } 
+              />
+              <Route 
+                  path="/cashier" 
+                  element={
+                      <PrivateRoute requiredRole="cashier">
+                          <Cashier />
+                      </PrivateRoute>
+                  } 
+              />
+              <Route 
+                  path="/transaction/:id" 
+                  element={
+                      <PrivateRoute requiredRole="cashier">
+                          <Transaction />
+                      </PrivateRoute>
+                  } 
+              />
+              <Route 
+                  path="/transaction" 
+                  element={
+                      <PrivateRoute requiredRole="cashier">
+                          <Transaction />
+                      </PrivateRoute>
+                  } 
+              />
+              <Route 
+                  path="/orders" 
+                  element={
+                      <PrivateRoute requiredRole="cashier">
+                          <SalesOrder />
+                      </PrivateRoute>
+                  } 
+              />
+              <Route 
+                  path="/addproduct" 
+                  element={
+                      <PrivateRoute requiredRole="admin">
+                          <AddProduct />
+                      </PrivateRoute>
+                  } 
+              />
 
-  )
-}
+              {/* Catch-All Route */}
+              <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+      </ThemeProvider>
+  </AuthContextProvider>
+    );
+};
 
-export default App
+export default App;

@@ -9,7 +9,7 @@ const router = express.Router();
 // jwt token generator
 const createToken = (user) => {
     // Include user ID and name in the token payload
-    return jwt.sign({ _id: user._id, name: user.name }, process.env.SECRET, { expiresIn: '3d' });
+    return jwt.sign({ _id: user._id, name: user.name }, process.env.SECRET, { expiresIn: '15s' });
 };
 
 //signup route
@@ -27,16 +27,17 @@ router.post('/signup', async (req, res) => {
 
 // login route
 router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, role } = req.body;
 
     try {
-        const user = await User.login(username, password);
-        const token = createToken(user); // Pass the entire user object
-        res.status(200).json({ username, name: user.name, token }); // Include the name in the response
+        const user = await User.login(username, password, role);
+        const token = createToken(user); // Generate token
+        res.status(200).json({ token, name: user.name, role: user.role }); // Include role in the response
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
 
 // Get all users
 router.get('/', async (req, res) => {

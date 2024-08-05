@@ -46,10 +46,10 @@ userSchema.statics.signup = async function(username, password, name, contact, ro
 }
 
 // Static Login method
-userSchema.statics.login = async function(username, password) {
-    // Validation
-    if (!username || !password) {
-        throw new Error('Please provide username and password');
+// Static Login method
+userSchema.statics.login = async function(username, password, role) {
+    if (!username || !password || !role) {  
+        throw new Error('Please provide username, password, and role');
     }
 
     const user = await this.findOne({ username });
@@ -64,8 +64,18 @@ userSchema.statics.login = async function(username, password) {
         throw new Error('Incorrect password');
     }
 
-    return user;  // Return the user, no need to save the user again
-}
+    // Check if the provided role matches the user’s actual role
+    if (role === 'cashier' && user.role !== 'cashier') {
+        throw new Error('User is not a cashier');
+    }
+    if (role === 'admin' && user.role !== 'admin') {
+        throw new Error('User is not an admin');
+    }
+
+    return user;  // Return the user if everything is okay
+};
+
+
 
 const User = mongoose.model('User', userSchema);
 

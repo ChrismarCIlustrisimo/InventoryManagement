@@ -17,8 +17,8 @@ const Transaction = () => {
   const [discountValue, setDiscountValue] = useState(0);
   const [paymentAmount, setPaymentAmount] = useState('');
   const baseURL = 'http://localhost:5555';
-  const { darkMode } = useTheme(); // Access darkMode from context
-  const { user } = useAuthContext(); // Assuming useAuthContext provides user object
+  const { darkMode } = useTheme(); 
+  const { user } = useAuthContext(); 
   const navigate = useNavigate();
 
 
@@ -27,7 +27,7 @@ const Transaction = () => {
       try {
         const response = await axios.get(`${baseURL}/transaction/${id}`, {
           headers: {
-            Authorization: `Bearer ${user.token}`, // Replace with your actual authentication token
+            Authorization: `Bearer ${user.token}`, 
           },
         });
         setTransaction(response.data);
@@ -134,7 +134,7 @@ const Transaction = () => {
   };
 
   if (loading) {
-    return <Spinner />;
+    return <p className={`w-full h-full flex items-center justify-center text-4xl ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>Please Wait</p>;
   }
 
   if (!transaction) {

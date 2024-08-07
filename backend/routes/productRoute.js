@@ -7,7 +7,7 @@ import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router();
 
 // requireAuth for all product routes
-//router.use(requireAuth)
+router.use(requireAuth)
 
 // Multer configuration
 const storage = multer.diskStorage({

@@ -9,7 +9,7 @@ const router = express.Router();
 // jwt token generator
 const createToken = (user) => {
     // Include user ID and name in the token payload
-    return jwt.sign({ _id: user._id, name: user.name }, process.env.SECRET, { expiresIn: '15s' });
+    return jwt.sign({ _id: user._id, name: user.name }, process.env.SECRET, { expiresIn: '3d' });
 };
 
 //signup route

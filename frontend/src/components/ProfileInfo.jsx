@@ -5,6 +5,8 @@ import { useLogout } from '../hooks/useLogout';
 import { useTheme } from '../context/ThemeContext';
 import { GoTriangleDown } from "react-icons/go";
 import { useAuthContext } from '../hooks/useAuthContext';
+import { IoSunnyOutline } from "react-icons/io5";
+import { MdLogout } from "react-icons/md";
 
 const ProfileInfo = () => {
   const [currentDate, setCurrentDate] = useState('');
@@ -73,15 +75,18 @@ const ProfileInfo = () => {
         </button>
         {showButtons && (
           <div className={`absolute right-0 mt-2 w-36 rounded-md shadow-lg mt-[100px] mr-[42px] ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'}`}>
-            <button className={`block px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-TABLE' : 'hover:bg-dark-TABLE'} w-full text-left`}
-              onClick={onLogout}
-            >
-              Logout
-            </button>
-            <button className={`block px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-TABLE' : 'hover:bg-dark-TABLE'} w-full text-left`}
+            <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-TABLE' : 'hover:bg-dark-TABLE'} w-full text-left`}
               onClick={handleThemeChange}
             >
+
+              <IoSunnyOutline />
               Theme
+            </button>
+            <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-TABLE' : 'hover:bg-dark-TABLE'} w-full text-left`}
+              onClick={onLogout}
+            >
+              <MdLogout />
+              Logout
             </button>
           </div>
         )}

@@ -1,59 +1,164 @@
 import React from 'react';
 import { Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, Tooltip, Legend, ArcElement } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { useAdminTheme } from '../context/AdminThemeContext';
 
-ChartJS.register(Tooltip, Legend, ArcElement);
+// Register Chart.js components and the data labels plugin
+ChartJS.register(Tooltip, Legend, ArcElement, ChartDataLabels);
 
 const PieChartComponent = () => {
+  const { darkMode } = useAdminTheme();
+
   const data = {
-    labels: ["Italy", "France", "Spain", "USA", "Argentina"],
+    labels: ["Italy", "France", "Spain", "USA"],
     datasets: [{
-      backgroundColor: ["#b91d47", "#00aba9", "#2b5797", "#e8c3b9", "#1e7145"],
-      data: [55, 49, 44, 24, 15]
+      backgroundColor: ["#28a745", "#fd7e14", "#ffc107", "#dc3545"], // Colors for each segment
+      data: [55, 49, 44, 24],
+      borderWidth: 0, // Remove border width around each segment
     }]
   };
+
+  // Calculate total
+  const total = data.datasets[0].data.reduce((acc, val) => acc + val, 0);
 
   const options = {
     plugins: {
       legend: {
-        display: false // Hide the legend from the chart
+        display: false // Hide the legend
+      },
+      tooltip: {
+        callbacks: {
+          label: function (tooltipItem) {
+            return `${data.labels[tooltipItem.dataIndex]}: ${tooltipItem.raw}%`;
+          }
+        }
+      },
+      datalabels: {
+        display: false, // Disable data labels inside segments
+      },
+      // Custom plugin to draw text in the center of the chart
+      customText: {
+        id: 'customText',
+        beforeDraw: (chart) => {
+          const { ctx, width, height } = chart;
+          const text = 'Total Products';
+          const fontSize = 16;
+          const fontFamily = 'Arial';
+
+          ctx.save();
+          ctx.font = `${fontSize}px ${fontFamily}`;
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(text, width / 2, height / 2);
+          ctx.restore();
+        }
       }
-    }
+    },
+    cutout: '80%' // Makes the pie chart thinner  
   };
 
   return (
     <div className="flex items-start">
       <div className="flex-1 flex justify-center">
-        <div className="w-[250px] h-[250px]">
+        <div className="w-[250px] h-[250px] relative">
           <Doughnut data={data} options={options} />
+          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col gap-2">
+            <span className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-5xl`}>350</span>
+            <span className={`${darkMode ? 'text-dark-CARD1' : 'text-light-CARD1'} text-sm`}>TOTAL PRODUCTS</span>
+          </div>
         </div>
       </div>
-      <div className="flex-1 pl-5">
-        <h3 className="text-xl font-semibold mb-4">World Wide Wine Production 2018</h3>
-        <ul className="list-none p-0">
-          {data.labels.map((label, index) => (
-            <li key={index} className="mb-4">
-              <div className="flex items-center">
-                <span className="text-xl mr-2" style={{ color: data.datasets[0].backgroundColor[index] }}>
-                  &#9679;
-                </span>
-                <span className="flex-1 text-lg">{label}:</span>
-                <div className="flex-2 ml-2 w-full">
-                  <div className="relative h-2 w-full bg-gray-200 rounded">
-                    <div
-                      className="absolute top-0 left-0 h-full rounded"
-                      style={{
-                        width: `${data.datasets[0].data[index]}%`,
-                        backgroundColor: data.datasets[0].backgroundColor[index]
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className="flex-1 pl-2">
+  <ul className="list-none p-0">
+    <li className="mb-4"> {/* Increased margin-bottom */}
+      <div className="flex flex-col items-start justify-start">
+        <span className="text-xs">HIGH STOCK PRODUCT</span>
+        <div className="w-full">
+          <div className="relative flex items-center justify-start text-xs font-semibold h-3 py-2">
+            <div className="relative flex-1 h-1.5 bg-gray-200 rounded">
+              <div
+                className="absolute top-0 left-0 h-full rounded"
+                style={{
+                  width: '30%', // Adjust as needed
+                  backgroundColor: '#28a745' // Adjust as needed
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="text-xs">10 products</p>
+        </div>
       </div>
+    </li>
+    <li className="mb-4"> {/* Increased margin-bottom */}
+      <div className="flex flex-col items-start justify-start">
+        <span className="text-xs">NEAR LOW STOCK PRODUCT</span>
+        <div className="w-full">
+          <div className="relative flex items-center justify-start text-xs font-semibold h-3 py-2">
+            <div className="relative flex-1 h-1.5 bg-gray-200 rounded">
+              <div
+                className="absolute top-0 left-0 h-full rounded"
+                style={{
+                  width: '50%', // Adjust as needed
+                  backgroundColor: '#fd7e14' // Adjust as needed
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="text-xs">20 products</p>
+        </div>
+      </div>
+    </li>
+    <li className="mb-4"> {/* Increased margin-bottom */}
+      <div className="flex flex-col items-start justify-start">
+        <span className="text-xs">LOW STOCK PRODUCT</span>
+        <div className="w-full">
+          <div className="relative flex items-center justify-start text-xs font-semibold h-3 py-2">
+            <div className="relative flex-1 h-1.5 bg-gray-200 rounded">
+              <div
+                className="absolute top-0 left-0 h-full rounded"
+                style={{
+                  width: '30%', // Adjust as needed
+                  backgroundColor: '#ffc107' // Adjust as needed
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="text-xs">10 products</p>
+        </div>
+      </div>
+    </li>
+    <li className="mb-4"> {/* Increased margin-bottom */}
+      <div className="flex flex-col items-start justify-start">
+        <span className="text-xs">OUT OF STOCK PRODUCT</span>
+        <div className="w-full">
+          <div className="relative flex items-center justify-start text-xs font-semibold h-3 py-2">
+            <div className="relative flex-1 h-1.5 bg-gray-200 rounded">
+              <div
+                className="absolute top-0 left-0 h-full rounded"
+                style={{
+                  width: '50%', // Adjust as needed
+                  backgroundColor: '#dc3545' // Adjust as needed
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p className="text-xs">20 products</p>
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+
     </div>
   );
 };

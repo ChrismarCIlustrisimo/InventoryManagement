@@ -62,7 +62,7 @@ const PieChartComponent = () => {
   return (
     <div className="flex items-start">
       <div className="flex-1 flex justify-center">
-        <div className="w-[250px] h-[250px] relative">
+        <div className="w-[210px] h-[210px] relative">
           <Doughnut data={data} options={options} />
           <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col gap-2">
             <span className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-5xl`}>350</span>
@@ -70,9 +70,9 @@ const PieChartComponent = () => {
           </div>
         </div>
       </div>
-      <div className="flex-1 pl-2">
+      <div className="flex-1">
   <ul className="list-none p-0">
-    <li className="mb-4"> {/* Increased margin-bottom */}
+    <li className="mb-3"> {/* Increased margin-bottom */}
       <div className="flex flex-col items-start justify-start">
         <span className="text-xs">HIGH STOCK PRODUCT</span>
         <div className="w-full">
@@ -93,7 +93,7 @@ const PieChartComponent = () => {
         </div>
       </div>
     </li>
-    <li className="mb-4"> {/* Increased margin-bottom */}
+    <li className="mb-3"> {/* Increased margin-bottom */}
       <div className="flex flex-col items-start justify-start">
         <span className="text-xs">NEAR LOW STOCK PRODUCT</span>
         <div className="w-full">
@@ -114,7 +114,7 @@ const PieChartComponent = () => {
         </div>
       </div>
     </li>
-    <li className="mb-4"> {/* Increased margin-bottom */}
+    <li className="mb-3"> {/* Increased margin-bottom */}
       <div className="flex flex-col items-start justify-start">
         <span className="text-xs">LOW STOCK PRODUCT</span>
         <div className="w-full">
@@ -135,7 +135,7 @@ const PieChartComponent = () => {
         </div>
       </div>
     </li>
-    <li className="mb-4"> {/* Increased margin-bottom */}
+    <li className="mb-3"> {/* Increased margin-bottom */}
       <div className="flex flex-col items-start justify-start">
         <span className="text-xs">OUT OF STOCK PRODUCT</span>
         <div className="w-full">

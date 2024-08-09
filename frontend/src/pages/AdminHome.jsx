@@ -174,8 +174,8 @@ const AdminHome = () => {
               </div>
             </div>
             <div className={`px-4 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-              <p className='text-sm py-2'>TOTAL PRODUCT INVENTORY</p>
-              <p className='text-4xl'>350</p> 
+              <p className='text-sm py-2'>TOTAL NET SALES</p>
+              <p className='text-4xl'>₱40,000</p> 
             </div>
           </div>
 
@@ -224,8 +224,8 @@ const AdminHome = () => {
               </div>
             </div>
             <div className={`px-4 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-              <p className='text-sm py-2'>TOTAL PRODUCT INVENTORY</p>
-              <p className='text-4xl'>350</p> 
+              <p className='text-sm py-2'>TOTAL GROSS SALES</p>
+              <p className='text-4xl'>₱60,000</p> 
             </div>
           </div>
         </div>

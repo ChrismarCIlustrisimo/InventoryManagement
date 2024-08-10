@@ -8,8 +8,9 @@ import demoImage from '../assets/Demo.png';
 import { FaCircle } from "react-icons/fa";
 import { AiFillProduct } from 'react-icons/ai';
 import { IoMdArrowDropdown } from 'react-icons/io';
+import BarChartComponent from '../charts/BarChartComponent';
 
-const AdminHome = () => {
+const AdminHome = () => { 
   const { darkMode } = useAdminTheme();
 
   // State for dropdowns
@@ -52,7 +53,7 @@ const AdminHome = () => {
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1 overflow-y`}>
       <DashboardNavbar />
-      <div className='h-[120vh] w-[100vw] pt-[70px] px-4 flex flex-col'>
+      <div className='h-[145vh] w-[100vw] pt-[70px] px-4 flex flex-col'>
         
         {/* Header Section */}
         <div className='w-full h-auto flex justify-between items-center mt-2'>
@@ -232,8 +233,34 @@ const AdminHome = () => {
 
         {/* Additional Placeholder Sections */}
         <div className='flex gap-2 w-full h-[45%] py-2'>
-          <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[50%] rounded-lg`}></div>
-          <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[50%] rounded-lg`}></div>
+
+          <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[50%] rounded-lg`}>
+
+            <div className='w-full h-[15%] flex items-center justify-between p-4'>
+                <p className={`text-2xl font-semibold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                  Transaction Log
+                </p>
+                <button className={`text-xs flex gap-1 items-center justify-center ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`}>
+                  VIEW MORE <GoTriangleRight />
+                </button>
+              </div>
+
+              <div className='w-full h-[82%] flex flex-col gap-3 border border-red-800'>
+                <div className='h-[360px] overflow-y-auto px-4 flex flex-col gap-4 border border-green-800'>
+                  <div className={`w-full h-[110px] rounded-md ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'bg-dark-CARD1 border-dark-ACCENT'} border-4 border-blue-500`}></div>
+                  <div className={`w-full h-[110px] rounded-md ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'bg-dark-CARD1 border-dark-ACCENT'} border-4 border-blue-500`}></div>
+                  <div className={`w-full h-[110px] rounded-md ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'bg-dark-CARD1 border-dark-ACCENT'} border-4 border-blue-500`}></div>
+                </div>
+              </div>
+
+            
+
+
+          </div>
+          <div className={`px-4 py-6 flex flex-col items-center jusitfy-center ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[50%] rounded-lg`}>
+              <p className='text-2xl'>Net Sales vs Gross Sales</p>
+              <BarChartComponent className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}/>
+          </div>
         </div>
       </div>
     </div>

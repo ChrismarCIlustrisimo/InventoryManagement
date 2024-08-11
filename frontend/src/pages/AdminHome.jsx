@@ -9,6 +9,43 @@ import { FaCircle } from "react-icons/fa";
 import { AiFillProduct } from 'react-icons/ai';
 import { IoMdArrowDropdown } from 'react-icons/io';
 import BarChartComponent from '../charts/BarChartComponent';
+import { GiWallet } from "react-icons/gi";
+import { HiMiniWallet } from "react-icons/hi2";
+
+// Sample transaction data
+const sampleTransactions = [
+  {
+    _id: '1',
+    transaction_id: 'SO-021',
+    transaction_date: '2024-08-01T00:00:00Z',
+    customer: { name: 'John Doe' },
+    total_price: 500.00,
+    products: [
+      { product: { name: 'NVIDIA GeForce RTX 3060 Ti' }, quantity: 2 },
+      { product: { name: 'NVIDIA GeForce RTX 3060 Ti' }, quantity: 1 }
+    ]
+  },
+  {
+    _id: '2',
+    transaction_id: 'SO-022',
+    transaction_date: '2024-08-02T00:00:00Z',
+    customer: { name: 'Jane Smith' },
+    total_price: 300.00,
+    products: [
+      { product: { name: 'NVIDIA GeForce RTX 3060 Ti' }, quantity: 3 }
+    ]
+  },
+  {
+    _id: '2',
+    transaction_id: 'SO-023',
+    transaction_date: '2024-08-02T00:00:00Z',
+    customer: { name: 'Jane Smith' },
+    total_price: 6900.00,
+    products: [
+      { product: { name: 'NVIDIA GeForce RTX 3060 Ti' }, quantity: 3 }
+    ]
+  }
+];
 
 const AdminHome = () => { 
   const { darkMode } = useAdminTheme();
@@ -50,6 +87,18 @@ const AdminHome = () => {
     { name: 'NVIDIA GeForce RTX 3060 Ti', status: 'outOfStock', stock: 0 }
   ];
 
+  // Function to format date
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  // Handle transaction click
+  const handleTransactionClick = (transactionId) => {
+    // Implement your click handling logic here
+    console.log('Transaction clicked:', transactionId);
+  };
+
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1 overflow-y`}>
       <DashboardNavbar />
@@ -62,14 +111,14 @@ const AdminHome = () => {
           </p>
           <button
             onClick={handleRefresh}
-            className={`${darkMode ? 'text-light-ACCENT border-light-ACCENT' : 'text-dark-ACCENT border-dark-ACCENT'} text-2xl border px-2 py-2 rounded-lg`}
+            className={`text-2xl border px-2 py-2 rounded-lg ${darkMode ? 'text-light-ACCENT border-light-ACCENT' : 'text-dark-ACCENT border-dark-ACCENT'}`}
           >
             <GrRefresh />
           </button>
         </div>
 
         {/* Main Content */}
-        <div className='flex gap-2 w-full h-[35%] py-2'>
+        <div className='flex gap-2 w-full h-[30%] py-2'>
           
           {/* Pie Chart Section */}
           <div className={`${darkMode ? 'bg-light-CARD text-light-TEXT' : 'bg-dark-CARD text-dark-TEXT'} w-[60%] rounded-lg px-4 py-2`}>
@@ -100,9 +149,9 @@ const AdminHome = () => {
                       <p className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{item.name}</p>
                       <div className='flex items-center gap-2'>
                         <p className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>Component</p>
-                        <FaCircle className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-[0.65rem]`} />
+                        <FaCircle className={`text-[0.65rem] ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`} />
                         <p className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{item.stock} in stock</p>
-                        <FaCircle className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-[0.65rem]`} />
+                        <FaCircle className={`text-[0.65rem] ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`} />
                         <p className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`} style={{ color: statusColor }}>
                           {item.status === 'outOfStock' ? 'Out of stock' :
                            item.status === 'low' ? 'Low stock' :
@@ -119,22 +168,22 @@ const AdminHome = () => {
 
         {/* Additional Sections */}
         <div className='flex gap-2 w-full h-[20%] py-2'>
-          <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[35%] rounded-lg  py-4 flex flex-col relative px-4`}>
+          <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[35%] rounded-lg py-4 flex flex-col relative px-4`}>
             <div className={`h-10 w-10 flex items-center justify-center rounded-full ${darkMode ? 'text-light-ACCENT bg-light-CARD1' : 'text-dark-ACCENT bg-dark-CARD1'}`}>
               <AiFillProduct className='text-2xl'/>
               <div className={`absolute left-0 top-4 h-10 w-2 ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} rounded-md`}></div>
             </div>
             <div className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-              <p className='text-sm py-2'>TOTAL PRODUCT INVENTORY</p>
+              <p className='text-sm py-3'>TOTAL PRODUCT INVENTORY</p>
               <p className='text-4xl'>350</p> 
             </div>
           </div>
 
           {/* Dropdown Component 1 */}
-          <div className={`w-[35%] rounded-lg py-4 flex flex-col gap-2 ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'}`}>
+          <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[35%] rounded-lg py-4 flex flex-col gap-2`}>
             <div className='flex items-center justify-between relative w-full px-4'>
               <div className={`h-10 w-10 flex items-center justify-center rounded-full ${darkMode ? 'text-light-ACCENT bg-light-CARD1' : 'text-dark-ACCENT bg-dark-CARD1'}`}>
-                <AiFillProduct className='text-2xl' />
+                <GiWallet className='text-2xl' />
                 <div className={`absolute left-0 top-0 h-10 w-2 ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} rounded-md`}></div>
               </div>
 
@@ -181,10 +230,10 @@ const AdminHome = () => {
           </div>
 
           {/* Dropdown Component 2 */}
-          <div className={`w-[35%] rounded-lg py-4 flex flex-col gap-2 ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'}`}>
+          <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[35%] rounded-lg py-4 flex flex-col gap-2`}>
             <div className='flex items-center justify-between relative w-full px-4'>
               <div className={`h-10 w-10 flex items-center justify-center rounded-full ${darkMode ? 'text-light-ACCENT bg-light-CARD1' : 'text-dark-ACCENT bg-dark-CARD1'}`}>
-                <AiFillProduct className='text-2xl' />
+                <HiMiniWallet className='text-2xl' />
                 <div className={`absolute left-0 top-0 h-10 w-2 ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} rounded-md`}></div>
               </div>
 
@@ -231,35 +280,60 @@ const AdminHome = () => {
           </div>
         </div>
 
-        {/* Additional Placeholder Sections */}
+        {/* Transaction Log Section */}
         <div className='flex gap-2 w-full h-[45%] py-2'>
-
           <div className={`${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[50%] rounded-lg`}>
-
             <div className='w-full h-[15%] flex items-center justify-between p-4'>
-                <p className={`text-2xl font-semibold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-                  Transaction Log
-                </p>
-                <button className={`text-xs flex gap-1 items-center justify-center ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`}>
-                  VIEW MORE <GoTriangleRight />
-                </button>
-              </div>
+              <p className={`text-2xl font-semibold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                Transaction Log
+              </p>
+              <button className={`text-xs flex gap-1 items-center justify-center ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`}>
+                VIEW MORE <GoTriangleRight />
+              </button>
+            </div>
+            <div className='w-full h-[82%] flex flex-col gap-3'>
+              <div className='h-[420px] overflow-y-auto px-4 flex flex-col gap-4'>
+                <div className={`w-full h-[100%] flex flex-col gap-4 overflow-y-auto scrollbar-custom ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'}`}>
+                  {sampleTransactions.map((transaction) => (
+                    <div
+                      key={transaction._id}
+                      className={`rounded-lg p-4 flex gap-4 cursor-pointer w-full ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}
+                      onClick={() => handleTransactionClick(transaction.transaction_id)}
+                    >
 
-              <div className='w-full h-[82%] flex flex-col gap-3 border border-red-800'>
-                <div className='h-[360px] overflow-y-auto px-4 flex flex-col gap-4 border border-green-800'>
-                  <div className={`w-full h-[110px] rounded-md ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'bg-dark-CARD1 border-dark-ACCENT'} border-4 border-blue-500`}></div>
-                  <div className={`w-full h-[110px] rounded-md ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'bg-dark-CARD1 border-dark-ACCENT'} border-4 border-blue-500`}></div>
-                  <div className={`w-full h-[110px] rounded-md ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'bg-dark-CARD1 border-dark-ACCENT'} border-4 border-blue-500`}></div>
+                      <div className='flex justify-between items-center gap-2 w-full h-[100px]'>
+                        <div className='p-4 w-[70%] flex flex-col gap-2'>
+                        <h1 className={`text-2xl ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`}>{transaction.transaction_id}</h1>
+
+                          {transaction.products.map((item, idx) => (
+                            <p key={idx} className={`text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                              ({item.quantity}) {item.product.name}
+                            </p>
+                          ))}
+                        </div>
+                        <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE'}`}>
+                          <div className='flex flex-col gap-1'> 
+                            <p className={`text-xs ${darkMode ? 'text-light-PRIMARY' : 'dark:text-dark-PRIMARY'}`}>DATE</p>
+                            <p className={`text-xs ${darkMode ? 'text-light-PRIMARY' : 'dark:text-dark-PRIMARY'}`}>CUSTOMER</p>
+                            <p className={`text-xs ${darkMode ? 'text-light-PRIMARY' : 'dark:text-dark-PRIMARY'}`}>TOTAL AMOUNT</p>
+                          </div>
+                          <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                            <p className='text-sm ml-auto'>{formatDate(transaction.transaction_date)}</p>
+                            <p className='text-sm ml-auto'>{transaction.customer ? transaction.customer.name.toUpperCase() : 'None'}</p>
+                            <p className='text-sm ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-
-            
-
+            </div>
 
           </div>
-          <div className={`px-4 py-6 flex flex-col items-center jusitfy-center ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[50%] rounded-lg`}>
-              <p className='text-2xl'>Net Sales vs Gross Sales</p>
-              <BarChartComponent className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}/>
+          <div className={`px-4 py-6 flex flex-col items-center justify-center ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'} w-[50%] rounded-lg`}>
+            <p className={`text-2xl ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Net Sales vs Gross Sales</p>
+            <BarChartComponent className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}/>
           </div>
         </div>
       </div>

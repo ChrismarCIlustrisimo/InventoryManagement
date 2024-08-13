@@ -55,15 +55,17 @@ const PosHome = () => {
     setIsModalOpen(false);
   };
 
+  //Updated
   const handlePaymentSuccess = () => {
     console.log('Payment success called');
     toast.success('Payment successful!');
     setCart([]); // Clear the cart
     
     setTimeout(() => {
-      window.location.reload();
-    }, 5000); 
-};
+      navigate('/cashier'); // Navigate programmatically
+    }, 1000); 
+  };
+  
   
   const handlePaymentError = () => {
     console.log('Payment error called');
@@ -72,13 +74,12 @@ const PosHome = () => {
     });
   };
   
-  if(!user){
-    navigate('/login');
-    return;
-  }
-  
 
+  
+  //Updated
   useEffect(() => {
+    if (!user) return; // Don't fetch if user is not available
+  
     const fetchProducts = async () => {
       setLoading(true);
       try {
@@ -87,10 +88,10 @@ const PosHome = () => {
             'Authorization': `Bearer ${user.token}`
           }
         });
-
+  
         const productData = response.data.data;
         setProducts(productData);
-
+  
         const counts = productData.reduce((acc, product) => {
           const category = product.category || 'Uncategorized';
           if (!acc[category]) acc[category] = 0;
@@ -105,20 +106,20 @@ const PosHome = () => {
           'PC Furniture': 0,
           'OS & Software': 0
         });
-
+  
         setCategoryCounts(counts);
-
+  
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
-
-    if (user) {
-      fetchProducts();
-    }
+  
+    fetchProducts();
+  
   }, [user]);
+  
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);

@@ -89,7 +89,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         console.log("Transaction Data:", transactionData); // Log the transaction data for verification
 
         // Step 3: Create the Transaction
-        const transactionResponse = await axios.post(`${baseURL}/transaction`, transactionData, {
+         await axios.post(`${baseURL}/transaction`, transactionData, {
             headers: {
                 'Authorization': `Bearer ${user.token}`,
                 'Content-Type': 'application/json'

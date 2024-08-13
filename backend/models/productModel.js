@@ -9,7 +9,7 @@ const ProductSchema = new mongoose.Schema(
     product_id: { type: String, required: true, unique: true },
     buyin_price: { type: Number, required: true },
     selling_price: { type: Number, required: true },
-    image: { type: String, required: true } // This field will store the image file path
+    image: { type: String, required: true }
   },
   {
     timestamps: true

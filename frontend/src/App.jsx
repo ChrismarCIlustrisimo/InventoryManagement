@@ -6,6 +6,7 @@ import Dashboard from './pages/AdminHome'; // Admin view
 import Cashier from './pages/PosHome'; // Cashier view
 import SalesOrder from './pages/SalesOrder';
 import Transaction from './pages/dashboardPos';
+import Product from './pages/Product';
 import AddProduct from './components/AddProduct';
 import SignUp from './pages/SignUp';
 import { ThemeProvider } from './context/ThemeContext';
@@ -73,6 +74,15 @@ const App = () => {
                             element={
                                 <PrivateRoute requiredRole="admin">
                                     <AddProduct />
+                                </PrivateRoute>
+                            } 
+                        />
+
+<Route 
+                            path="/Products" 
+                            element={
+                                <PrivateRoute requiredRole="admin">
+                                    <Product />
                                 </PrivateRoute>
                             } 
                         />

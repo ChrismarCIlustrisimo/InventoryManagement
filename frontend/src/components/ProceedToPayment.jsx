@@ -221,7 +221,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
                 </div>
               </div>
               <button
-                className={`mt-4 p-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT text-dark-TEXT hover:bg-dark-ACCENT' : 'bg-dark-ACCENT text-light-TEXT hover:bg-light-ACCENT'}`}
+                className={`mt-4 p-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT hover:bg-light-ACCENT' : 'bg-dark-ACCENT text-dark-TEXT hover:bg-dark-ACCENT'}`}
                 onClick={handlePayButton}
               >
                 Proceed to Pay

@@ -21,6 +21,7 @@ import ProductLoading from '../components/ProductLoading';
 const PosHome = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,33 +51,44 @@ const PosHome = () => {
   const handlePayButton = () => {
     setIsModalOpen(true);
   };
-
+  
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
+  
 
-  //Updated
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = async () => {
     console.log('Payment success called');
     toast.success('Payment successful!');
     setCart([]); // Clear the cart
-    
-    setTimeout(() => {
-      navigate('/cashier'); // Navigate programmatically
-    }, 1000); 
+  
+    // Fetch updated product list after payment
+    const fetchUpdatedProducts = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/product`, {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
+        });
+        const productData = response.data.data;
+        setProducts(productData); // Update products state with the new stock
+      } catch (error) {
+        console.error('Error fetching updated products:', error);
+      }
+    };
+  
+    await fetchUpdatedProducts();
   };
   
   
+  
+
   const handlePaymentError = () => {
-    console.log('Payment error called');
     toast.error('Payment failed!', {
       background: 'toastify-color-dark'
     });
   };
-  
 
-  
-  //Updated
   useEffect(() => {
     if (!user) return; // Don't fetch if user is not available
   
@@ -90,7 +102,9 @@ const PosHome = () => {
         });
   
         const productData = response.data.data;
+        console.log(productData);
         setProducts(productData);
+        setFilteredProducts(productData); // Set filtered products initially
   
         const counts = productData.reduce((acc, product) => {
           const category = product.category || 'Uncategorized';
@@ -118,18 +132,22 @@ const PosHome = () => {
   
     fetchProducts();
   
-  }, [user]);
+  }, [user]); // Make sure `user` is stable and doesn't cause re-renders
+  
+  useEffect(() => {
+    const updatedFilteredProducts = products.filter((product) => {
+      const isInCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
+      const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return isInCategory && matchesSearchQuery;
+    });
+    setFilteredProducts(updatedFilteredProducts);
+  }, [products, selectedCategory, searchQuery]); // Ensure dependencies are correct
+  
   
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
   };
-
-  const filteredProducts = products.filter((product) => {
-    const isInCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
-    const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return isInCategory && matchesSearchQuery;
-  });
 
   const handleAddToCart = (product) => {
     setCart((prevCart) => {
@@ -167,9 +185,7 @@ const PosHome = () => {
 
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
-      <ToastContainer
-        theme="dark"
-      />
+      <ToastContainer theme="dark" />
       <Navbar />
       <div className='h-[100vh] pt-[70px] px-2'>
         <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-4'>
@@ -218,7 +234,6 @@ const PosHome = () => {
           )}
         </div>
       </div>
-
 
       <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[120px] pb-4 px-4 ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'} rounded-xl`}>
         <div className={`overflow-y-auto h-[500px] w-full rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>

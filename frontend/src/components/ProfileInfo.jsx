@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { getInitials } from '../utils/helper';
-import { useNavigate } from 'react-router-dom';
 import { useLogout } from '../hooks/useLogout';
 import { useTheme } from '../context/ThemeContext';
 import { GoTriangleDown } from "react-icons/go";
-import { useAuthContext } from '../hooks/useAuthContext';
 import { IoSunnyOutline } from "react-icons/io5";
 import { MdLogout } from "react-icons/md";
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const ProfileInfo = () => {
   const [currentDate, setCurrentDate] = useState('');
   const [selected, setSelected] = useState('');
   const { toggleTheme } = useTheme();
   const [showButtons, setShowButtons] = useState(false);
-  const { darkMode } = useTheme(); // Access darkMode from context
-  const { user } = useAuthContext(); // Assuming useAuthContext provides user object
+  const { darkMode } = useTheme();
+  const { user } = useAuthContext();
+  const { logout } = useLogout();
 
   useEffect(() => {
     const formatDate = (date) => {
@@ -34,28 +33,19 @@ const ProfileInfo = () => {
       setCurrentDate(formatDate(today));
     };
 
-    // Initial date and time update
     updateDateTime();
-
-    // Set interval to update date and time every minute
     const intervalId = setInterval(updateDateTime, 60000);
 
-    // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
 
-  const navigate = useNavigate(); // Call useNavigate as a function
-  const { logout } = useLogout(); // Import the logout hook from useLogout.js file
-
   const onLogout = () => {
-    // Handle logout logic here
     console.log('Logging out...');
     logout();
-    navigate('/login'); // Redirect to login page
   };
 
   const handleThemeChange = () => {
-    toggleTheme(); // Toggle theme using the context function
+    toggleTheme();
   };
 
   const handleToggleButtons = () => {
@@ -78,7 +68,6 @@ const ProfileInfo = () => {
             <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-TABLE' : 'hover:bg-dark-TABLE'} w-full text-left`}
               onClick={handleThemeChange}
             >
-
               <IoSunnyOutline />
               Theme
             </button>

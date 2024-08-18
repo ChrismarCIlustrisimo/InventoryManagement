@@ -56,7 +56,6 @@ const PosHome = () => {
     setIsModalOpen(false);
   };
   
-
   const handlePaymentSuccess = async () => {
     console.log('Payment success called');
     toast.success('Payment successful!');
@@ -71,7 +70,9 @@ const PosHome = () => {
           }
         });
         const productData = response.data.data;
-        setProducts(productData); // Update products state with the new stock
+        // Filter out products with zero stock
+        const availableProducts = productData.filter(product => product.quantity_in_stock > 0);
+        setProducts(availableProducts); // Update products state with the new stock
       } catch (error) {
         console.error('Error fetching updated products:', error);
       }
@@ -80,13 +81,10 @@ const PosHome = () => {
     await fetchUpdatedProducts();
   };
   
-  
-  
-
   const handlePaymentError = () => {
     toast.error('Payment failed!', {
       background: 'toastify-color-dark'
-    });
+    }); 
   };
 
   useEffect(() => {
@@ -102,11 +100,12 @@ const PosHome = () => {
         });
   
         const productData = response.data.data;
-        console.log(productData);
-        setProducts(productData);
-        setFilteredProducts(productData); // Set filtered products initially
+        // Filter out products with zero stock
+        const availableProducts = productData.filter(product => product.quantity_in_stock > 0);
+        setProducts(availableProducts);
+        setFilteredProducts(availableProducts); // Set filtered products initially
   
-        const counts = productData.reduce((acc, product) => {
+        const counts = availableProducts.reduce((acc, product) => {
           const category = product.category || 'Uncategorized';
           if (!acc[category]) acc[category] = 0;
           acc[category] += product.quantity_in_stock;
@@ -132,7 +131,7 @@ const PosHome = () => {
   
     fetchProducts();
   
-  }, [user]); // Make sure `user` is stable and doesn't cause re-renders
+  }, [user]); 
   
   useEffect(() => {
     const updatedFilteredProducts = products.filter((product) => {
@@ -141,10 +140,8 @@ const PosHome = () => {
       return isInCategory && matchesSearchQuery;
     });
     setFilteredProducts(updatedFilteredProducts);
-  }, [products, selectedCategory, searchQuery]); // Ensure dependencies are correct
+  }, [products, selectedCategory, searchQuery]);
   
-  
-
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
   };
@@ -235,15 +232,15 @@ const PosHome = () => {
         </div>
       </div>
 
-      <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[120px] pb-4 px-4 ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'} rounded-xl`}>
-        <div className={`overflow-y-auto h-[500px] w-full rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
+      <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[100px] pb-4 px-4 ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'} rounded-xl`}>
+        <div className={`overflow-y-auto h-[480px] w-full rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
           <div style={{ width: '100%' }}> {/* Adjust this container width if needed */}
             <table className='border-collapse table-fixed h-auto w-full'>
               <thead>
-                <tr className='border-b border-primary'>
-                  <th style={{ width: '40%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Product</th>
+                <tr className='border-b border-primary relative'>
+                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Product</th>
                   <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Price</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Quantity</th>
+                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}><p className='flex items-center justify-start absolute left-[-18px] top-0 right-0 bottom-0'>Quantity</p></th>
                   <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Total</th>
                   <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}></th>
                 </tr>
@@ -274,7 +271,7 @@ const PosHome = () => {
           </div>
         </div>
 
-        <div className='flex flex-col gap-3 justify-center items-center pt-6 w-full'>
+        <div className='flex flex-col gap-3 justify-center items-center pt-2 w-full'>
           <div className='flex flex-col gap-2 tracking-wider items-center justify-center'>
             <p className='text-gray-400'>Subtotal</p>
             <p className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>₱ {calculateTotal().toLocaleString()}</p>

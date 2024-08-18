@@ -11,57 +11,130 @@ ChartJS.register(Tooltip, Legend, ArcElement, ChartDataLabels);
 
 const PieChartComponent = () => {
   const { darkMode } = useAdminTheme();
-  const [count, setCount] = useState(null);
+  const [data, setData] = useState({
+    highStock: 0,
+    nearLowStock: 0,
+    lowStock: 0,
+    outOfStock: 0,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const baseURL = 'http://localhost:5555';
   const { user } = useAuthContext();
 
   useEffect(() => {
-    const fetchUpdatedProducts = async () => {
+    const fetchProductData = async () => {
       try {
         const response = await axios.get(`${baseURL}/product`, {
           headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
+            'Authorization': `Bearer ${user.token}`,
+          },
         });
-        const productData = response.data.data;
-        setCount(productData.length); // Assuming length represents the count of products
+
+        console.log('Fetched products:', response.data.data);
+        const products = response.data.data;
+
+        const categorizedData = products.reduce((acc, product) => {
+          const {
+            quantity_in_stock,
+            low_stock_threshold,
+            near_low_stock_threshold
+          } = product;
+
+          let status;
+
+          if (quantity_in_stock <= 0) {
+            status = 'OUT OF STOCK';
+          } else if (quantity_in_stock <= low_stock_threshold) {
+            status = 'LOW STOCK';
+          } else if (quantity_in_stock <= near_low_stock_threshold) {
+            status = 'NEAR LOW STOCK';
+          } else {
+            status = 'HIGH STOCK';
+          }
+
+          switch (status) {
+            case 'HIGH STOCK':
+              acc.highStock += 1;
+              break;
+            case 'NEAR LOW STOCK':
+              acc.nearLowStock += 1;
+              break;
+            case 'LOW STOCK':
+              acc.lowStock += 1;
+              break;
+            case 'OUT OF STOCK':
+              acc.outOfStock += 1;
+              break;
+            default:
+              console.error('Unexpected stock status:', status);
+              break;
+          }
+          return acc;
+        }, {
+          highStock: 0,
+          nearLowStock: 0,
+          lowStock: 0,
+          outOfStock: 0,
+        });
+
+        console.log('Categorized data:', categorizedData);
+        setData(categorizedData);
+        
+        // Update stock statuses automatically after fetching the data
+        await updateStockStatuses();
       } catch (error) {
-        console.error('Error fetching updated products:', error);
+        console.error('Error fetching product data:', error);
         setError('Failed to fetch product data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUpdatedProducts();
-  }, [baseURL, user.token]); // Ensure dependencies are properly included
+    const updateStockStatuses = async () => {
+      try {
+        await axios.post(`${baseURL}/product/update-stock-status`, null, {
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+          },
+        });
+        console.log('Stock statuses updated successfully.');
+        // Optionally, you could re-fetch the data after updating
+        // fetchProductData();
+      } catch (error) {
+        console.error('Error updating stock statuses:', error);
+        alert('Failed to update stock statuses.');
+      }
+    };
 
-  // Placeholder data if count is not yet available
-  const placeholderData = {
-    labels: ["Italy", "France", "Spain", "USA"],
+    fetchProductData();
+  }, [baseURL, user.token]);
+
+  const chartData = {
+    labels: ["High Stock", "Near Low Stock", "Low Stock", "Out of Stock"],
     datasets: [{
-      backgroundColor: ["#28a745", "#fd7e14", "#ffc107", "#dc3545"], // Colors for each segment
-      data: [55, 49, 44, 24], // Placeholder data
-      borderWidth: 0, // Remove border width around each segment
+      backgroundColor: ["#28a745", "#fd7e14", "#ffc107", "#dc3545"],
+      data: [data.highStock, data.nearLowStock, data.lowStock, data.outOfStock],
+      borderWidth: 0,
     }]
   };
 
   const options = {
     plugins: {
       legend: {
-        display: false // Hide the legend
+        display: false,
       },
       tooltip: {
         callbacks: {
           label: function (tooltipItem) {
-            return `${placeholderData.labels[tooltipItem.dataIndex]}: ${tooltipItem.raw}%`;
+            const label = chartData.labels[tooltipItem.dataIndex];
+            const value = tooltipItem.raw;
+            return `${label}: ${value} products`;
           }
         }
       },
       datalabels: {
-        display: false, // Disable data labels inside segments
+        display: false,
       },
       customText: {
         id: 'customText',
@@ -81,26 +154,11 @@ const PieChartComponent = () => {
         }
       }
     },
-    cutout: '80%' // Makes the pie chart thinner  
+    cutout: '80%',
   };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
-
-  // Update the chart data with the fetched count
-  const chartData = {
-    labels: ["High Stock", "Near Low Stock", "Low Stock", "Out of Stock"],
-    datasets: [{
-      backgroundColor: ["#28a745", "#fd7e14", "#ffc107", "#dc3545"], // Colors for each segment
-      data: [
-        count ? count * 0.3 : 0, // Example distribution
-        count ? count * 0.2 : 0,
-        count ? count * 0.2 : 0,
-        count ? count * 0.3 : 0
-      ],
-      borderWidth: 0,
-    }]
-  };
 
   return (
     <div className="flex items-start">
@@ -109,7 +167,7 @@ const PieChartComponent = () => {
           <Doughnut data={chartData} options={options} />
           <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col gap-2">
             <span className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-5xl`}>
-              {count !== null ? count : 'N/A'}
+              {data.highStock + data.nearLowStock + data.lowStock + data.outOfStock}
             </span> {/* Overall Product Count */}
             <span className={`${darkMode ? 'text-dark-CARD1' : 'text-light-CARD1'} text-sm`}>
               TOTAL PRODUCTS
@@ -128,15 +186,15 @@ const PieChartComponent = () => {
                     <div
                       className="absolute top-0 left-0 h-full rounded"
                       style={{
-                        width: '30%', // Adjust as needed
-                        backgroundColor: '#28a745' // Adjust as needed
+                        width: `${(data.highStock / (data.highStock + data.nearLowStock + data.lowStock + data.outOfStock)) * 100}%`,
+                        backgroundColor: '#28a745',
                       }}
                     ></div>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-xs">10 products</p>
+                <p className="text-xs">{data.highStock} products</p>
               </div>
             </div>
           </li>
@@ -149,15 +207,15 @@ const PieChartComponent = () => {
                     <div
                       className="absolute top-0 left-0 h-full rounded"
                       style={{
-                        width: '50%', // Adjust as needed
-                        backgroundColor: '#fd7e14' // Adjust as needed
+                        width: `${(data.nearLowStock / (data.highStock + data.nearLowStock + data.lowStock + data.outOfStock)) * 100}%`,
+                        backgroundColor: '#fd7e14',
                       }}
                     ></div>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-xs">20 products</p>
+                <p className="text-xs">{data.nearLowStock} products</p>
               </div>
             </div>
           </li>
@@ -170,15 +228,15 @@ const PieChartComponent = () => {
                     <div
                       className="absolute top-0 left-0 h-full rounded"
                       style={{
-                        width: '30%', // Adjust as needed
-                        backgroundColor: '#ffc107' // Adjust as needed
+                        width: `${(data.lowStock / (data.highStock + data.nearLowStock + data.lowStock + data.outOfStock)) * 100}%`,
+                        backgroundColor: '#ffc107',
                       }}
                     ></div>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-xs">10 products</p>
+                <p className="text-xs">{data.lowStock} products</p>
               </div>
             </div>
           </li>
@@ -191,15 +249,15 @@ const PieChartComponent = () => {
                     <div
                       className="absolute top-0 left-0 h-full rounded"
                       style={{
-                        width: '50%', // Adjust as needed
-                        backgroundColor: '#dc3545' // Adjust as needed
+                        width: `${(data.outOfStock / (data.highStock + data.nearLowStock + data.lowStock + data.outOfStock)) * 100}%`,
+                        backgroundColor: '#dc3545',
                       }}
                     ></div>
                   </div>
                 </div>
               </div>
               <div>
-                <p className="text-xs">20 products</p>
+                <p className="text-xs">{data.outOfStock} products</p>
               </div>
             </div>
           </li>

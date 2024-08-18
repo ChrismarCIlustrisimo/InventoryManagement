@@ -49,76 +49,79 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
       toast.warning('Please enter a payment amount.');
       return;
     }
-
+  
     if (parseNumber(paymentAmount) < finalAmount) {
       toast.warning('Payment amount is less than the total amount.');
       return;
     }
-
+  
     try {
-        // Step 1: Create or Find the Customer
-        const customerResponse = await axios.post(`${baseURL}/customer`, {
-            name: customerName,
-            email: email,
-            phone: phoneNumber,
-            address: address,
-        }, {
-            headers: {
-                'Authorization': `Bearer ${user.token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const customerId = customerResponse.data._id;
-        console.log("Customer ID:", customerId);
-
-        // Step 2: Prepare Transaction Data
-        const transactionData = {
-            products: cart.map(item => ({
-                product: item.product._id,
-                quantity: item.quantity
-            })),
-            customer: customerId,
-            total_price: totalAmount,
-            total_amount_paid: parseNumber(paymentAmount) || 0,
-            transaction_date: new Date().toISOString(),
-            source: 'pos',
-            cashier: user.name
-        };
-
-        console.log("Transaction Data:", transactionData); // Log the transaction data for verification
-
-        // Step 3: Create the Transaction
-         await axios.post(`${baseURL}/transaction`, transactionData, {
-            headers: {
-                'Authorization': `Bearer ${user.token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        // Step 4: Update Product Quantities
-        const updates = cart.map(item => ({
-            updateOne: {
-                filter: { _id: item.product._id },
-                update: { $inc: { quantity_in_stock: -item.quantity } }
-            }
-        }));
-
-        await axios.put(`${baseURL}/product/bulk-update`, updates, {
-            headers: {
-                'Authorization': `Bearer ${user.token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        onClose(); // Close the modal
-        onPaymentSuccess(); // Call the onPaymentSuccess prop
-
+      // Step 1: Create or Find the Customer
+      const customerResponse = await axios.post(`${baseURL}/customer`, {
+        name: customerName,
+        email: email,
+        phone: phoneNumber,
+        address: address,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      const customerId = customerResponse.data._id;
+  
+      // Step 2: Prepare Transaction Data
+      const transactionData = {
+        products: cart.map(item => ({
+          product: item.product._id,
+          quantity: item.quantity
+        })),
+        customer: customerId,
+        total_price: totalAmount,
+        total_amount_paid: parseNumber(paymentAmount) || 0,
+        transaction_date: new Date().toISOString(),
+        source: 'pos',
+        cashier: user.name,
+      };
+  
+      // Step 3: Create the Transaction
+      await axios.post(`${baseURL}/transaction`, transactionData, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      // Step 4: Update Product Quantities and Sales
+      const updates = cart.map(item => ({
+        updateOne: {
+          filter: { _id: item.product._id },
+          update: { 
+            $inc: { 
+              quantity_in_stock: -item.quantity, 
+              sales: item.quantity 
+            } 
+          }
+        }
+      }));
+  
+      await axios.put(`${baseURL}/product/bulk-update`, updates, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      onClose(); // Close the modal
+      onPaymentSuccess(); // Call the onPaymentSuccess prop
+  
     } catch (error) {
-        console.error('Payment error:', error.response ? error.response.data : error.message);
-        onPaymentError(); // Call the onPaymentError prop
+      console.error('Payment error:', error.response ? error.response.data : error.message);
+      onPaymentError(); // Call the onPaymentError prop
     }
   };
+  
 
   return (
     <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md"

@@ -6,10 +6,20 @@ import requireAuth from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
-// requireAuth for all product routes
-router.use(requireAuth)
+// Middleware to require authentication for all routes
+router.use(requireAuth);
 
-// Multer configuration
+// Define category-specific thresholds
+const categoryThresholds = {
+  'Components': { nearLow: 10, low: 5 },
+  'Peripherals': { nearLow: 15, low: 3 },
+  'Accessories': { nearLow: 20, low: 10 },
+  'PC Furniture': { nearLow: 20, low: 10 },
+  'OS & Software': { nearLow: 10, low: 5 },
+  // Add more categories as needed
+};
+
+// Multer configuration for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'public/images'); // Ensure this folder exists or create it
@@ -41,16 +51,14 @@ const generateProductId = async () => {
   }
 };
 
-// Add Product with image upload
+// Add a new product with image upload
 router.post('/', upload.single('file'), async (req, res) => {
   try {
     const { name, category, quantity_in_stock, supplier, buyin_price, selling_price } = req.body;
     const image = req.file ? req.file.path : '';
 
     if (!name || !category || quantity_in_stock === undefined || !supplier || buyin_price === undefined || selling_price === undefined) {
-      return res.status(400).send({
-        message: 'All fields are required'
-      });
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
     // Generate product ID
@@ -68,29 +76,30 @@ router.post('/', upload.single('file'), async (req, res) => {
     });
 
     const product = await newProduct.save(); // Use save to trigger schema pre-save hooks
-    return res.status(201).send(product);
+    return res.status(201).json(product);
 
   } catch (error) {
     console.error(error);
-    return res.status(500).send('Server Error');
+    return res.status(500).json({ message: 'Server Error' });
   }
 });
 
-// Get All Products
-router.get('/', async (request, response) => {
+// Get all products (filtering out zero-stock products)
+router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({});
-    return response.status(200).json({
+    const products = await Product.find({ quantity_in_stock: { $gt: 0 } }); // Filter out zero-stock products
+    return res.status(200).json({
       count: products.length,
       data: products
     });
 
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).json({ message: 'Server Error' });
   }
 });
 
+// Bulk update products
 router.put('/bulk-update', async (request, response) => {
   try {
     const updates = request.body;
@@ -102,63 +111,166 @@ router.put('/bulk-update', async (request, response) => {
   }
 });
 
-// Get Single Product
-router.get('/:id', async (request, response) => {
+// Get a single product by ID
+router.get('/:id', async (req, res) => {
   try {
-    const { id } = request.params;
+    const { id } = req.params;
 
     const product = await Product.findById(id);
     if (!product) {
-      return response.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    return response.status(200).json(product);
+    return res.status(200).json(product);
 
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).json({ message: 'Server Error' });
   }
 });
 
-// Update Product
-router.put('/:id', async (request, response) => {
+// Update a product by ID
+router.put('/:id', upload.single('file'), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplier, buyin_price, selling_price, image } = request.body;
+    const { name, category, quantity_in_stock, supplier, buyin_price, selling_price } = req.body;
+    const image = req.file ? req.file.path : req.body.image; // Use existing image if not uploading a new one
 
-    if (!name || !category || quantity_in_stock === undefined || !supplier || buyin_price === undefined || selling_price === undefined || !image) {
-      return response.status(400).send({ message: 'All fields are required' });
+    if (!name || !category || quantity_in_stock === undefined || !supplier || buyin_price === undefined || selling_price === undefined) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const { id } = request.params;
-    const result = await Product.findByIdAndUpdate(id, request.body, { new: true });
+    const { id } = req.params;
+    const result = await Product.findByIdAndUpdate(id, {
+      name,
+      category,
+      quantity_in_stock,
+      supplier,
+      buyin_price,
+      selling_price,
+      image
+    }, { new: true });
 
     if (!result) {
-      return response.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    return response.status(200).send({ message: 'Product updated', data: result });
+    return res.status(200).json({ message: 'Product updated', data: result });
+
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).json({ message: 'Server Error' });
   }
 });
 
-// Delete Product
-router.delete('/:id', async (request, response) => {
+// Delete a product by ID
+/*router.delete('/:id', async (req, res) => {
   try {
-    const { id } = request.params;
+    const { id } = req.params;
     const result = await Product.findByIdAndDelete(id);
 
     if (!result) {
-      return response.status(404).json({ message: 'Product not found' });
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    return response.status(200).json({ message: 'Product deleted successfully' });
+    return res.status(200).json({ message: 'Product deleted successfully' });
+
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).json({ message: 'Server Error' });
+  }
+});*/
+
+// Update stock statuses based on quantity and thresholds
+router.post('/update-stock-status', async (req, res) => {
+  try {
+    const products = await Product.find({});
+
+    const bulkOps = products.map(product => {
+      // Get thresholds for the product's category
+      const thresholds = categoryThresholds[product.category] || { nearLow: 20, low: 10 };
+
+      // Update thresholds based on category
+      product.near_low_stock_threshold = thresholds.nearLow;
+      product.low_stock_threshold = thresholds.low;
+
+      // Determine stock status
+      let status;
+      const { quantity_in_stock, low_stock_threshold, near_low_stock_threshold } = product;
+
+      if (quantity_in_stock <= 0) {
+        status = 'OUT OF STOCK';
+      } else if (quantity_in_stock <= low_stock_threshold) {
+        status = 'LOW STOCK';
+      } else if (quantity_in_stock <= near_low_stock_threshold) {
+        status = 'NEAR LOW STOCK';
+      } else {
+        status = 'HIGH STOCK';
+      }
+
+      return {
+        updateOne: {
+          filter: { _id: product._id },
+          update: { 
+            $set: { 
+              current_stock_status: status,
+              near_low_stock_threshold: product.near_low_stock_threshold,
+              low_stock_threshold: product.low_stock_threshold
+            } 
+          },
+        }
+      };
+    });
+
+    await Product.bulkWrite(bulkOps);
+    res.status(200).json({ message: 'Stock statuses updated successfully' });
+  } catch (error) {
+    console.error('Error updating stock statuses:', error);
+    res.status(500).json({ message: 'Failed to update stock statuses' });
   }
 });
+
+
+
+
+
+// Get all products (filtering out zero-stock products and sorting by sales)
+router.get('/', async (req, res) => {
+  try {
+    // Extract query parameters
+    const sortBy = req.query.sortBy || 'sales';
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+
+    // Check if sortBy is a valid field for sorting
+    if (sortBy !== 'sales') {
+      return res.status(400).json({ message: 'Invalid sortBy parameter' });
+    }
+
+    // Fetch products with quantity_in_stock > 0
+    const products = await Product.find({ quantity_in_stock: { $gt: 0 } });
+
+    // Filter out products with sales equal to 0
+    const filteredProducts = products.filter(product => product.sales !== 0);
+
+    // Sort products
+    const sortedProducts = filteredProducts.sort((a, b) => (a.sales - b.sales) * -1);
+
+    // Send response
+    return res.status(200).json({
+      count: sortedProducts.length,
+      data: sortedProducts
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+
+
+
+
+
 
 
 export default router;

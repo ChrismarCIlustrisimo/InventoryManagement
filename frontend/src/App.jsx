@@ -2,15 +2,15 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContextProvider } from './context/AuthContext';
 import PosLogin from './pages/PosLogin';
-import Dashboard from './pages/AdminHome'; // Admin view
-import Cashier from './pages/PosHome'; // Cashier view
+import Dashboard from './pages/AdminHome';
+import Cashier from './pages/PosHome';
 import SalesOrder from './pages/SalesOrder';
 import Transaction from './pages/dashboardPos';
 import Product from './pages/Product';
 import AddProduct from './components/AddProduct';
 import SignUp from './pages/SignUp';
 import { ThemeProvider } from './context/ThemeContext';
-import { AdminThemeProvider } from './context/AdminThemeContext'; // Use the provider here
+import { AdminThemeProvider } from './context/AdminThemeContext';
 import PrivateRoute from './components/PrivateRoute';
 import SingleTransaction from './pages/Transaction';
 import { useAuthContext } from './hooks/useAuthContext';
@@ -21,14 +21,11 @@ const App = () => {
     return (
         <AuthContextProvider>
             <ThemeProvider>
-                <AdminThemeProvider> {/* Use AdminThemeProvider here */}
+                <AdminThemeProvider>
                     <Routes>
-                        {/* Public Routes */}
                         <Route path="/" element={<PosLogin />} />
                         <Route path="/login" element={!user ? <PosLogin /> : <Navigate to={user.role === 'admin' ? '/dashboard' : '/cashier'} />} />
                         <Route path="/signup" element={<SignUp />} />
-
-                        {/* Protected Routes */}
                         <Route 
                             path="/dashboard" 
                             element={
@@ -77,8 +74,7 @@ const App = () => {
                                 </PrivateRoute>
                             } 
                         />
-
-<Route 
+                        <Route 
                             path="/Products" 
                             element={
                                 <PrivateRoute requiredRole="admin">
@@ -86,8 +82,6 @@ const App = () => {
                                 </PrivateRoute>
                             } 
                         />
-
-                        {/* Catch-All Route */}
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
                 </AdminThemeProvider>

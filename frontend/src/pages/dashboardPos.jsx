@@ -55,12 +55,32 @@ const DashboardPos = () => {
     }
   };
 
-  const handleDateFilter = (event) => {
-    const selectedOption = event.target.value;
-    // Implement your filtering logic here based on the selectedOption
-    console.log("Selected date filter option:", selectedOption);
+  const handleDateFilter = (e) => {
+    const value = e.target.value;
+    const today = new Date();
+    
+    if (value === 'today') {
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // Set end of day
+      setStartDate(startOfDay);
+      setEndDate(endOfDay);
+    } else if (value === 'this_week') {
+      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Start of week (Monday)
+      const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7)); // End of week (Sunday)
+      startOfWeek.setHours(0, 0, 0, 0); // Set start of day
+      endOfWeek.setHours(23, 59, 59, 999); // Set end of day
+      setStartDate(startOfWeek);
+      setEndDate(endOfWeek);
+    } else if (value === 'this_month') {
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      startOfMonth.setHours(0, 0, 0, 0);
+      endOfMonth.setHours(23, 59, 59, 999);
+      setStartDate(startOfMonth);
+      setEndDate(endOfMonth);
+    }
   };
-
+  
   const handleStartDateChange = (date) => setStartDate(date);
   const handleEndDateChange = (date) => setEndDate(date);
   const handleMinPriceChange = (event) => setMinPrice(event.target.value);

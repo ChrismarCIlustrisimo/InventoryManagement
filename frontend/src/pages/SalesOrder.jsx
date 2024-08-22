@@ -284,7 +284,7 @@ const SalesOrder = () => {
                       </div>
                       <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`} >
                         <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
-                        <p className='ml-auto'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                        <p className='tracking-wider ml-auto'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
                         <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
                       </div>
                     </div>

@@ -15,11 +15,9 @@ import SearchBar from '../components/SearchBar';
 import ProceedToPayment from '../components/ProceedToPayment';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
 import ProductLoading from '../components/ProductLoading';
 
 const PosHome = () => {
-  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -49,6 +47,12 @@ const PosHome = () => {
   };
 
   const handlePayButton = () => {
+    if(cart.length == 0) {
+      toast.error('Cart is empty! Please add products before proceeding.', {
+        background: 'toastify-color-dark'
+      });
+      return;
+    } 
     setIsModalOpen(true);
   };
   
@@ -57,6 +61,7 @@ const PosHome = () => {
   };
   
   const handlePaymentSuccess = async () => {
+
     console.log('Payment success called');
     toast.success('Payment successful!');
     setCart([]); // Clear the cart
@@ -173,7 +178,7 @@ const PosHome = () => {
     { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: categoryCounts['OS & Software'] || 0 }
   ];
 
-  const safeToFixed = (value, decimals = 2) => {
+  const safeToFixed = (c, decimals = 2) => {
     if (typeof value !== 'number' || isNaN(value)) {
       return '0.00';
     }
@@ -182,7 +187,7 @@ const PosHome = () => {
 
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
-      <ToastContainer theme="dark" />
+      <ToastContainer theme={darkMode ? 'light' : 'dark'} />
       <Navbar />
       <div className='h-[100vh] pt-[70px] px-2'>
         <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-4'>

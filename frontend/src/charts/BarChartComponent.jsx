@@ -1,7 +1,6 @@
 import React from 'react';
 import { Bar } from 'react-chartjs-2';
 import { useAdminTheme } from '../context/AdminThemeContext';
-
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +10,7 @@ import {
   Tooltip,
   Legend
 } from 'chart.js';
-import ChartDataLabels from 'chartjs-plugin-datalabels'; // Import the plugin if used
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 // Registering Chart.js components
 ChartJS.register(
@@ -21,19 +20,35 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ChartDataLabels // Register the plugin if used
+  ChartDataLabels
 );
 
-const DashboardChart = () => {
+const BarChartComponent = ({ netSalesData, grossSalesData }) => {
   const { darkMode } = useAdminTheme();
 
-  // Sample data with values fitting within 0 - 100k range
+  // Days of the week for the x-axis
+  const daysOfWeek = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+  // Initialize datasets with zero values
+  const netSalesDataComplete = new Array(7).fill(0);
+  const grossSalesDataComplete = new Array(7).fill(0);
+
+  // Map existing data to their respective days
+  netSalesData.forEach((value, index) => {
+    netSalesDataComplete[index] = value;
+  });
+
+  grossSalesData.forEach((value, index) => {
+    grossSalesDataComplete[index] = value;
+  });
+
+  // Prepare the chart data
   const data = {
-    labels: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'],
+    labels: daysOfWeek,
     datasets: [
       {
         label: 'Net Sales',
-        data: [12000, 25000, 35000, 45000, 55000, 65000, 75000],
+        data: netSalesDataComplete,
         backgroundColor: '#CD5837',
         borderColor: 'none',
         borderWidth: 1,
@@ -41,7 +56,7 @@ const DashboardChart = () => {
       },
       {
         label: 'Gross Sales',
-        data: [15000, 30000, 40000, 55000, 70000, 85000, 95000],
+        data: grossSalesDataComplete,
         backgroundColor: '#DBA695',
         borderColor: 'none',
         borderWidth: 1,
@@ -49,6 +64,8 @@ const DashboardChart = () => {
       }
     ]
   };
+
+  // Chart options
   const options = {
     responsive: true,
     plugins: {
@@ -61,7 +78,8 @@ const DashboardChart = () => {
       tooltip: {
         callbacks: {
           label: function (tooltipItem) {
-            return `${tooltipItem.dataset.label}: ${tooltipItem.raw}`;
+            const roundedValue = Math.round(tooltipItem.raw);
+            return `${tooltipItem.dataset.label}: ${roundedValue}`;
           }
         }
       },
@@ -79,7 +97,7 @@ const DashboardChart = () => {
       y: {
         stacked: false,
         beginAtZero: true,
-        max: 100000,
+        max: 30000,
         ticks: {
           callback: function (value) {
             return value >= 1000 ? `${value / 1000}k` : value;
@@ -88,11 +106,10 @@ const DashboardChart = () => {
       }
     }
   };
-  
 
   return (
-      <Bar data={data} options={options} />
+    <Bar data={data} options={options} />
   );
 };
 
-export default DashboardChart;
+export default BarChartComponent;

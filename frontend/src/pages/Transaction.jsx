@@ -145,10 +145,12 @@ const Transaction = () => {
     );
   }
 
+  console.log(transaction.customer)
+
   return (
-    <div className={`pt-20 px-20 pb-5 h-screen w-full ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
+    <div className={`pt-20 px-20 pb-5 h-auto w-full ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
       <BackNavbar id={transaction._id} />
-      <div className='flex flex-col justify-center items-center h-full'>
+      <div className='flex flex-col justify-center items-center gap-4 h-full'>
         {/* Left Section */}
         <div className='flex flex-col items-end justify-start h-[40%] w-[80%] p-4 gap-2'>
             <div className='w-full h-auto flex items-center justify-between'>
@@ -180,16 +182,16 @@ const Transaction = () => {
                 </h4>
                 <div className='flex items-center w-[95%] justify-between text-base '>
                   <div className='flex items-start justify-between flex-col gap-3 text-[#9C9C9C]'>
-                    <p>CUSTOMER NUMBER</p>
+                    <p>CUSTOMER NAME</p>
                     <p>CONTACT NUMBER</p>
                     <p>EMAIL</p>
                     <p>ADDRESS</p>
                   </div>
-                  <div className='flex items-start justify-between text-l flex-col gap-3'>
-                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
-                    <p className='tracking-wider'>{transaction.customer ? transaction.customer.name : 'None'}</p>
+                  <div className={`flex items-start justify-between text-l flex-col gap-3 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                  <p className='tracking-wider'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
+                  <p className='tracking-wider'>{transaction.customer && transaction.customer.phone !== "" ? transaction.customer.name : 'None'}</p>
+                  <p className='tracking-wider'>{transaction.customer && transaction.customer.email !== "" ? transaction.customer.name : 'None'}</p>
+                  <p className='tracking-wider'>{transaction.customer && transaction.customer.address !== "" ? transaction.customer.name : 'None'}</p>
                   </div>
                 </div>
               </div>
@@ -198,7 +200,7 @@ const Transaction = () => {
 
 
         {/* Right Section */}
-        <div className={` h-[60%] w-[100%] p-6 rounded-2xl ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD text-dark-TEXT'}`}>
+        <div className={` h-[65%] w-[100%] p-6 rounded-2xl ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD text-dark-TEXT'}`}>
           {/* Invoices */}
           <div className='flex gap-6'>
             <div className='overflow-y-auto h-[360px] w-full'>

@@ -7,7 +7,7 @@ import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router();
 
 // Middleware to require authentication for all routes
-router.use(requireAuth);
+//router.use(requireAuth);
 
 // Define category-specific thresholds
 const categoryThresholds = {
@@ -54,14 +54,13 @@ const generateProductId = async () => {
 // Add a new product with image upload
 router.post('/', upload.single('file'), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplier, buyin_price, selling_price } = req.body;
+    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
     const image = req.file ? req.file.path : '';
 
-    if (!name || !category || quantity_in_stock === undefined || !supplier || buyin_price === undefined || selling_price === undefined) {
+    if (!name || !category || quantity_in_stock === undefined || !supplier || buying_price === undefined || selling_price === undefined) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Generate product ID
     const product_id = await generateProductId();
 
     const newProduct = new Product({
@@ -70,16 +69,16 @@ router.post('/', upload.single('file'), async (req, res) => {
       quantity_in_stock,
       supplier,
       product_id,
-      buyin_price,
+      buying_price,
       selling_price,
       image
     });
 
-    const product = await newProduct.save(); // Use save to trigger schema pre-save hooks
+    const product = await newProduct.save();
     return res.status(201).json(product);
 
   } catch (error) {
-    console.error(error);
+    console.error('Error:', error.message);
     return res.status(500).json({ message: 'Server Error' });
   }
 });
@@ -132,10 +131,10 @@ router.get('/:id', async (req, res) => {
 // Update a product by ID
 router.put('/:id', upload.single('file'), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplier, buyin_price, selling_price } = req.body;
+    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
     const image = req.file ? req.file.path : req.body.image; // Use existing image if not uploading a new one
 
-    if (!name || !category || quantity_in_stock === undefined || !supplier || buyin_price === undefined || selling_price === undefined) {
+    if (!name || !category || quantity_in_stock === undefined || !supplier || buying_price === undefined || selling_price === undefined) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -145,7 +144,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
       category,
       quantity_in_stock,
       supplier,
-      buyin_price,
+      buying_price,
       selling_price,
       image
     }, { new: true });

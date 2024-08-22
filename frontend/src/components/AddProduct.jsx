@@ -7,7 +7,7 @@ const AddProduct = () => {
   const [category, setCategory] = useState('');
   const [quantity, setQuantity] = useState('');
   const [supplier, setSupplier] = useState('');
-  const [buyinPrice, setBuyinPrice] = useState('');
+  const [buyingPrice, setBuyinPrice] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
   const [error, setError] = useState(null);
 
@@ -19,19 +19,20 @@ const AddProduct = () => {
     formData.append('category', category);
     formData.append('quantity_in_stock', quantity);
     formData.append('supplier', supplier);
-    formData.append('buyin_price', buyinPrice);
+    formData.append('buying_price', buyingPrice);
     formData.append('selling_price', sellingPrice);
-
+  
     axios.post('http://localhost:5555/product', formData)
       .then(res => {
         console.log('Product added:', res.data);
-        // Optionally, clear the form or provide feedback
+        // Optionally clear the form or provide feedback
       })
       .catch(err => {
-        console.error('Error:', err);
-        // Optionally, provide error feedback
+        console.error('Error:', err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data.message : 'An unknown error occurred');
       });
   };
+  
 
   return (
     <div className='text-black'>
@@ -39,7 +40,7 @@ const AddProduct = () => {
       <input type='text' placeholder='Category' value={category} onChange={(e) => setCategory(e.target.value)} />
       <input type='number' placeholder='Quantity' value={quantity} onChange={(e) => setQuantity(e.target.value)} />
       <input type='text' placeholder='Supplier' value={supplier} onChange={(e) => setSupplier(e.target.value)} />
-      <input type='number' placeholder='Buyin Price' value={buyinPrice} onChange={(e) => setBuyinPrice(e.target.value)} />
+      <input type='number' placeholder='Buyin Price' value={buyingPrice} onChange={(e) => setBuyinPrice(e.target.value)} />
       <input type='number' placeholder='Selling Price' value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} />
       <input type='file' onChange={(e) => setFile(e.target.files[0])} />
       <button type="button" onClick={upload}>Upload</button>

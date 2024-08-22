@@ -31,7 +31,6 @@ const PieChartComponent = () => {
           },
         });
 
-        console.log('Fetched products:', response.data.data);
         const products = response.data.data;
 
         const categorizedData = products.reduce((acc, product) => {
@@ -78,7 +77,6 @@ const PieChartComponent = () => {
           outOfStock: 0,
         });
 
-        console.log('Categorized data:', categorizedData);
         setData(categorizedData);
         
         // Update stock statuses automatically after fetching the data
@@ -108,7 +106,7 @@ const PieChartComponent = () => {
     };
 
     fetchProductData();
-  }, [baseURL, user.token]);
+  }, [user]);
 
   const chartData = {
     labels: ["High Stock", "Near Low Stock", "Low Stock", "Out of Stock"],
@@ -168,6 +166,7 @@ const PieChartComponent = () => {
           <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col gap-2">
             <span className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-5xl`}>
               {data.highStock + data.nearLowStock + data.lowStock + data.outOfStock}
+              {console.log(data)}
             </span> {/* Overall Product Count */}
             <span className={`${darkMode ? 'text-dark-CARD1' : 'text-light-CARD1'} text-sm`}>
               TOTAL PRODUCTS

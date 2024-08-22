@@ -24,7 +24,7 @@ const BackNavbar = ({ id }) => {
   };
 
   return (
-    <div className='fixed top-0 left-0 w-full flex justify-between px-2 py-4 items-center bg-trasnparent'>
+    <div className={`fixed top-0 left-0 w-full flex justify-between px-2 py-4 items-center ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`} >
       <button className={`flex gap-2 items-center py-3 px-6 outline-none ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}  onClick={handleBackClick}>
         <IoCaretBackOutline />
         Back to sales order

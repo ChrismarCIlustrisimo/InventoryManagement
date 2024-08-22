@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuthContext } from '../hooks/useAuthContext';
 
-const PrivateRoute = ({ children, requiredRole }) => {
+const PrivateRoute = ({ requiredRole, children }) => {
     const { user } = useAuthContext();
 
     if (!user) {
@@ -10,7 +10,7 @@ const PrivateRoute = ({ children, requiredRole }) => {
     }
 
     if (user.role !== requiredRole) {
-        return <Navigate to="/unauthorized" />;
+     return <Navigate to="/unauthorized" />; // redirect to a specific unauthorized route
     }
 
     return children;

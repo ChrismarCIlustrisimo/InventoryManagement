@@ -12,12 +12,10 @@ const PosLogin = () => {
     const [password, setPassword] = useState('');
     const { login, error, isLoading } = useLogin();
     const [activeButton, setActiveButton] = useState('admin');
-    const navigate = useNavigate(); 
 
     useEffect(() => {
-        localStorage.removeItem('user'); // Remove user data from localStorage
-        navigate('/login'); // Redirect to login page or home page
-    }, [navigate]);
+        localStorage.removeItem('user');
+      }, []);
     
     const handleLogin = async (e) => {
         e.preventDefault();

@@ -125,6 +125,7 @@ router.get('/', async (req, res) => {
     } else if (req.query.endDate) {
       query.transaction_date = { $lte: new Date(req.query.endDate) };
     }
+    
 
     if (req.query.minPrice && req.query.maxPrice) {
       query.total_price = {

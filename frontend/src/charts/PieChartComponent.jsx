@@ -96,9 +96,6 @@ const PieChartComponent = () => {
             'Authorization': `Bearer ${user.token}`,
           },
         });
-        console.log('Stock statuses updated successfully.');
-        // Optionally, you could re-fetch the data after updating
-        // fetchProductData();
       } catch (error) {
         console.error('Error updating stock statuses:', error);
         alert('Failed to update stock statuses.');
@@ -166,7 +163,6 @@ const PieChartComponent = () => {
           <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center flex-col gap-2">
             <span className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-5xl`}>
               {data.highStock + data.nearLowStock + data.lowStock + data.outOfStock}
-              {console.log(data)}
             </span> {/* Overall Product Count */}
             <span className={`${darkMode ? 'text-dark-CARD1' : 'text-light-CARD1'} text-sm`}>
               TOTAL PRODUCTS

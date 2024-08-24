@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-
 // Define stock status enumeration
 const StockStatusEnum = ['HIGH STOCK', 'NEAR LOW STOCK', 'LOW STOCK', 'OUT OF STOCK'];
 
@@ -18,7 +17,7 @@ const ProductSchema = new mongoose.Schema(
     name: { type: String, required: true },
     category: { type: String, required: true },
     quantity_in_stock: { type: Number, required: true },
-    supplier: { type: String, required: true },
+    supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
     buying_price: { type: Number, required: true },
     selling_price: { type: Number, required: true },
     product_id: { type: String, required: true, unique: true },

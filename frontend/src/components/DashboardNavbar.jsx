@@ -6,12 +6,14 @@ import { useAdminTheme } from '../context/AdminThemeContext';
 import { IoMdListBox } from "react-icons/io";
 import { PiCashRegisterFill } from "react-icons/pi";
 import { IoBagHandle, IoHome } from "react-icons/io5";
+import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti"; // Import the triangle icons
 import DashboardProfile from './DashboardProfile';
 
 const DashboardNavbar = () => {
   const location = useLocation();
   const [selected, setSelected] = useState('');
   const [isSalesDropdownOpen, setIsSalesDropdownOpen] = useState(false);
+  const [isInventoryDropdownOpen, setIsInventoryDropdownOpen] = useState(false); // New state for Inventory dropdown
   const { darkMode } = useAdminTheme(); // Access darkMode from context
 
   useEffect(() => {
@@ -51,16 +53,25 @@ const DashboardNavbar = () => {
         <div className="relative flex-1">
           <button
             className={`text-sm p-2 ${selected === 'Inventory' ? 'border-dark-ACCENT' : 'border-none'} ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' } rounded-[24px] w-full flex items-center justify-center gap-2 border border-opacity-50`}
-            onClick={() => setSelected('Inventory')}
+            onClick={() => {
+              setSelected('Inventory');
+              setIsInventoryDropdownOpen(!isInventoryDropdownOpen); // Toggle dropdown visibility
+            }}
           >
             <PiCashRegisterFill className='text-dark-ACCENT text-lg' />
             <span className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Inventory</span>
+            {/* Dropdown indicator */}
+            {isInventoryDropdownOpen ? (
+              <TiArrowSortedUp className='text-dark-ACCENT text-lg ml-2' />
+            ) : (
+              <TiArrowSortedDown className='text-dark-ACCENT text-lg ml-2' />
+            )}
           </button>
           {/* Inventory Dropdown Menu */}
-          {selected === 'Inventory' && (
+          {isInventoryDropdownOpen && (
             <div className={`absolute top-full left-0 mt-2 w-full bg-${darkMode ? 'light-CARD' : 'dark-CARD'} border border-opacity-50 rounded-lg`}>
-              <Link to="/inventory/add" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>Add Item</Link>
-              <Link to="/inventory/view" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>View Items</Link>
+              <Link to="/inventory/product" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>Product List</Link>
+              <Link to="/inventory/supplier" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>Supplier List</Link>
             </div>
           )}
         </div>
@@ -87,6 +98,12 @@ const DashboardNavbar = () => {
           >
             <IoBagHandle className='text-dark-ACCENT text-lg' />
             <span className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Sales</span>
+            {/* Dropdown indicator */}
+            {isSalesDropdownOpen ? (
+              <TiArrowSortedUp className='text-dark-ACCENT text-lg ml-2' />
+            ) : (
+              <TiArrowSortedDown className='text-dark-ACCENT text-lg ml-2' />
+            )}
           </button>
           {/* Sales Dropdown Menu */}
           {isSalesDropdownOpen && (

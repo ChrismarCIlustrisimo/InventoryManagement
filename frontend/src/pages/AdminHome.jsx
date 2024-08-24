@@ -4,7 +4,6 @@ import { useAdminTheme } from "../context/AdminThemeContext";
 import { GrRefresh } from "react-icons/gr";
 import PieChartComponent from "../charts/PieChartComponent";
 import { GoTriangleRight } from "react-icons/go";
-import demoImage from "../assets/Demo.png";
 import { FaCircle } from "react-icons/fa";
 import { AiFillProduct } from "react-icons/ai";
 import { IoMdArrowDropdown } from "react-icons/io";
@@ -34,8 +33,6 @@ const AdminHome = () => {
     const [netSalesData, setNetSalesData] = useState([]);
     const [grossSalesData, setGrossSalesData] = useState([]);
 
-  console.log("netSalesData", netSalesData);
-  console.log("grossSalesData", grossSalesData);
 
   const getCurrentWeekDateRange = () => {
     const now = new Date(); // Current date and time
@@ -51,7 +48,6 @@ const AdminHome = () => {
     // Set time for start and end of the day
     start.setHours(0, 0, 0, 0); // Start of the day
     end.setHours(23, 59, 59, 999); // End of the day
-  
     return { start, end };
   };
   
@@ -157,7 +153,8 @@ const AdminHome = () => {
         });
   
         const result = response.data;
-  
+        console.log("Result:", result); // Inside fetchTopSellingProducts and fetchWeeklyData
+
         // Filter transactions with payment_status 'paid'
         const paidTransactions = result.data.filter(transaction => transaction.payment_status === 'paid');
   
@@ -179,6 +176,10 @@ const AdminHome = () => {
           grossSalesByDay[dayIndex] += transaction.total_price;
         });
   
+        console.log(paidTransactions);
+        console.log(netSalesByDay);
+        console.log(grossSalesByDay);
+
         // Set data for the bar chart
         setNetSalesData(netSalesByDay);
         setGrossSalesData(grossSalesByDay);
@@ -338,60 +339,67 @@ const AdminHome = () => {
           </div>
         </div>
 
-        {/* Transaction Log Section */}
-        <div className="flex gap-2 w-full h-[45%] py-2">
-          <div className={`${darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[50%] rounded-lg`}>
-            <div className="w-full h-[15%] flex items-center justify-between p-4">
-              <p className={`text-2xl font-semibold ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
-                  Transaction Log
-              </p>
-              <button className={`text-xs flex gap-1 items-center justify-center ${darkMode ? "text-dark-ACCENT" : "text-light-ACCENT"}`}>
-                VIEW MORE
-                <GoTriangleRight />
-              </button>
-            </div>
-            <div className="w-full h-[82%] flex flex-col gap-3">
-              <div className="h-[420px] overflow-y-auto px-4 flex flex-col gap-4">
-                <div className={`w-full h-[100%] flex flex-col gap-4 overflow-y-auto scrollbar-custom ${darkMode ? "bg-light-CARD" : "bg-dark-CARD"}`}>
-                  {transactionLog.map((transaction) => (
-                    <div key={transaction._id} className={`rounded-lg p-4 flex gap-4 cursor-pointer w-full ${ darkMode ? "bg-light-CARD1" : "dark:bg-dark-CARD1" }`}
-                         onClick={() => handleTransactionClick(transaction.transaction_id)}>
-                      <div className="flex justify-between items-center gap-2 w-full h-[100px]">
-                        <div className="p-4 w-[70%] flex flex-col gap-2">
-                          <h1 className={`text-2xl ${darkMode ? "text-light-ACCENT" : "dark:text-dark-ACCENT"}`}> {transaction.transaction_id}</h1>
+{/* Transaction Log Section */}
+<div className="flex gap-2 w-full h-[45%] py-2">
+  <div className={`${darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[50%] rounded-lg`}>
+    <div className="w-full h-[15%] flex items-center justify-between p-4">
+      <p className={`text-2xl font-semibold ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
+        Transaction Log
+      </p>
+      <button className={`text-xs flex gap-1 items-center justify-center ${darkMode ? "text-dark-ACCENT" : "text-light-ACCENT"}`}>
+        VIEW MORE
+        <GoTriangleRight />
+      </button>
+    </div>
+    <div className="w-full h-[82%] flex flex-col gap-3">
+      <div className="h-[420px] overflow-y-auto px-4 flex flex-col gap-4">
+        {transactionLog.length === 0 ? (
+          <div className={`w-full h-full flex items-center justify-center ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
+            <p className="text-2xl">No Transactions for this week</p>
+          </div>
+        ) : (
+          <div className={`w-full h-[100%] flex flex-col gap-4 overflow-y-auto scrollbar-custom ${darkMode ? "bg-light-CARD" : "bg-dark-CARD"}`}>
+            {transactionLog.map((transaction) => (
+              <div key={transaction._id} className={`rounded-lg p-4 flex gap-4 cursor-pointer w-full ${darkMode ? "bg-light-CARD1" : "dark:bg-dark-CARD1"}`}
+                   onClick={() => handleTransactionClick(transaction.transaction_id)}>
+                <div className="flex justify-between items-center gap-2 w-full h-[100px]">
+                  <div className="p-4 w-[70%] flex flex-col gap-2">
+                    <h1 className={`text-2xl ${darkMode ? "text-light-ACCENT" : "dark:text-dark-ACCENT"}`}> {transaction.transaction_id}</h1>
 
-                          {transaction.products.map((item, idx) => (
-                            <p key={idx} className={`text-sm ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>
-                              ({item.quantity}) {item.product.name}
-                            </p>
-                          ))}
-                        </div>
-                        <div
-                          className={`flex gap-6 w-[50%] justify-between ${darkMode ? "text-light-TABLE" : "dark:text-dark-TABLE"}`}>
-                          <div className="flex flex-col gap-1">
-                            <p className={`text-xs ${darkMode ? "text-light-PRIMARY" : "dark:text-dark-PRIMARY"}`}>DATE</p>
-                            <p className={`text-xs ${darkMode ? "text-light-PRIMARY" : "dark:text-dark-PRIMARY"}`}>CUSTOMER</p>
-                            <p className={`text-xs ${darkMode ? "text-light-PRIMARY" : "dark:text-dark-PRIMARY"}`}>TOTAL AMOUNT</p>
-                          </div>
-                          <div className={`flex flex-col gap-1 ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>
-                            <p className="text-sm ml-auto">{formatDate(transaction.transaction_date)}</p>
-                            <p className="text-sm ml-auto">{transaction.customer ? transaction.customer.name.toUpperCase() : "None"}</p>
-                            <p className="text-sm ml-auto"> ₱ {transaction.total_price.toFixed(2)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
+                    {transaction.products.map((item, idx) => (
+                      <p key={idx} className={`text-sm ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>
+                        ({item.quantity}) {item.product.name}
+                      </p>
+                    ))}
+                  </div>
+                  <div
+                    className={`flex gap-6 w-[50%] justify-between ${darkMode ? "text-light-TABLE" : "dark:text-dark-TABLE"}`}>
+                    <div className="flex flex-col gap-1">
+                      <p className={`text-xs ${darkMode ? "text-light-PRIMARY" : "dark:text-dark-PRIMARY"}`}>DATE</p>
+                      <p className={`text-xs ${darkMode ? "text-light-PRIMARY" : "dark:text-dark-PRIMARY"}`}>CUSTOMER</p>
+                      <p className={`text-xs ${darkMode ? "text-light-PRIMARY" : "dark:text-dark-PRIMARY"}`}>TOTAL AMOUNT</p>
                     </div>
-                  ))}
+                    <div className={`flex flex-col gap-1 ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>
+                      <p className="text-sm ml-auto">{formatDate(transaction.transaction_date)}</p>
+                      <p className="text-sm ml-auto">{transaction.customer ? transaction.customer.name.toUpperCase() : "None"}</p>
+                      <p className="text-sm ml-auto"> ₱ {transaction.total_price.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            ))}
           </div>
-          <div className={`px-4 py-6 flex flex-col items-center justify-center ${darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[50%] rounded-lg`}>
-            <p className={`text-2xl ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>Net Sales vs Gross Sales</p>
-            <BarChartComponent netSalesData={netSalesData} grossSalesData={grossSalesData} />
-          </div>
-        </div>
+        )}
+      </div>
+    </div>
+  </div>
+  <div className={`px-4 py-6 flex flex-col items-center justify-center ${darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[50%] rounded-lg`}>
+    <p className={`text-2xl ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>Net Sales vs Gross Sales</p>
+    <BarChartComponent netSalesData={netSalesData} grossSalesData={grossSalesData} />
+  </div>
+</div>
+
       </div>
     </div>
   );

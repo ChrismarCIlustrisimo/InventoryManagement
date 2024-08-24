@@ -15,6 +15,8 @@ import PrivateRoute from './components/PrivateRoute';
 import SingleTransaction from './pages/Transaction';
 import { useAuthContext } from './hooks/useAuthContext';
 import Unauthorized from './pages/Unauthorized';
+import DashboardProductList from './pages/dashboardProductList';
+
 
 const App = () => {
     const { user } = useAuthContext();
@@ -34,6 +36,7 @@ const App = () => {
               <Route path="/orders" element={<PrivateRoute requiredRole="cashier"><SalesOrder /></PrivateRoute>} />
               <Route path="/addproduct" element={<AddProduct />} />
               <Route path="/Products" element={<PrivateRoute requiredRole="admin"><Product /></PrivateRoute>} />
+              <Route path="/inventory/product" element={<PrivateRoute requiredRole="admin"><DashboardProductList /></PrivateRoute>} /> {/* Updated usage */}
               <Route path="*" element={<Navigate to="/" />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
             </Routes>
@@ -44,3 +47,4 @@ const App = () => {
   };
 
 export default App;
+

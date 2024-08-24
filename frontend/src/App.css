@@ -57,3 +57,53 @@
   }
 }
 
+.custom-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem; /* Space between checkbox and label text */
+  position: relative; /* For absolute positioning of the checkmark */
+}
+
+/* Default colors */
+.custom-checkbox {
+  --checkbox-border-color: #ccc;
+  --checkbox-checked-color: #C85232;
+}
+
+.custom-checkbox input[type="checkbox"] {
+  appearance: none; /* Remove default styling */
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--checkbox-border-color);
+  border-radius: 0.25rem;
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+  position: relative; /* For absolute positioning of the checkmark */
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.custom-checkbox input[type="checkbox"]:hover {
+  border-color: #666; /* Adjust to your desired hover border color */
+}
+
+.custom-checkbox input[type="checkbox"]:checked {
+  background-color: transparent; /* Adjust to your desired checked background color */
+  border-color: var(--checkbox-checked-color); /* Use the variable for checked border color */
+}
+
+.custom-checkbox input[type="checkbox"]:checked::after {
+  content: "\2714"; /* Unicode checkmark character */
+  font-size: 0.8rem; /* Adjust size to fit within the checkbox */
+  color: var(--checkbox-checked-color); /* Use the same color as the border for the checkmark */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the checkmark */
+}
+
+
+/* Style for label text based on checkbox checked state */
+input[type='checkbox']:checked + .checkmark + .label-text {
+  color:#C85232; /* Adjust to your desired text color */
+}

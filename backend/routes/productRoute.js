@@ -3,6 +3,7 @@ import multer from 'multer';
 import Product from '../models/productModel.js';
 import Counter from '../models/counterModel.js';
 import requireAuth from '../middleware/requireAuth.js';
+import Supplier from '../models/supplierModel.js';
 
 const router = express.Router();
 
@@ -54,11 +55,17 @@ const generateProductId = async () => {
 // Add a new product with image upload
 router.post('/', upload.single('file'), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
+    const { name, category, quantity_in_stock, supplierId, buying_price, selling_price } = req.body;
     const image = req.file ? req.file.path : '';
 
-    if (!name || !category || quantity_in_stock === undefined || !supplier || buying_price === undefined || selling_price === undefined) {
+    if (!name || !category || quantity_in_stock === undefined || !supplierId || buying_price === undefined || selling_price === undefined) {
       return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Validate that supplier exists
+    const supplier = await Supplier.findById(supplierId);
+    if (!supplier) {
+      return res.status(404).json({ message: 'Supplier not found' });
     }
 
     const product_id = await generateProductId();
@@ -67,7 +74,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       name,
       category,
       quantity_in_stock,
-      supplier,
+      supplier: supplierId, // Reference supplier by ID
       product_id,
       buying_price,
       selling_price,
@@ -82,6 +89,8 @@ router.post('/', upload.single('file'), async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
+
 
 // Get all products (filtering out zero-stock products)
 router.get('/', async (req, res) => {
@@ -131,10 +140,10 @@ router.get('/:id', async (req, res) => {
 // Update a product by ID
 router.put('/:id', upload.single('file'), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
+    const { name, category, quantity_in_stock, supplierId, buying_price, selling_price } = req.body;
     const image = req.file ? req.file.path : req.body.image; // Use existing image if not uploading a new one
 
-    if (!name || !category || quantity_in_stock === undefined || !supplier || buying_price === undefined || selling_price === undefined) {
+    if (!name || !category || quantity_in_stock === undefined || !supplierId || buying_price === undefined || selling_price === undefined) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -143,7 +152,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
       name,
       category,
       quantity_in_stock,
-      supplier,
+      supplier: supplierId, // Reference supplier by ID
       buying_price,
       selling_price,
       image
@@ -160,6 +169,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 // Delete a product by ID
 /*router.delete('/:id', async (req, res) => {

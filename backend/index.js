@@ -5,6 +5,7 @@ import productRoutes from './routes/productRoute.js';
 import customerRoutes from './routes/customerRoute.js';
 import transactionRoutes from './routes/transactionRoute.js';
 import userRoute from './routes/userRoute.js';
+import SupplierRoute from './routes/supplierRoute.js';
 import Counter from './models/counterModel.js';
 import { mongoDBURL, PORT } from './config.js';
 import cleanupExpiredTransactions from './middleware/cleanupExpiredTransactions .js';
@@ -24,6 +25,8 @@ app.use('/product', productRoutes);
 app.use('/customer', customerRoutes);
 app.use('/transaction', transactionRoutes);
 app.use('/user', userRoute);
+app.use('/supplier', SupplierRoute);
+
 
 
 // Function to initialize the counter

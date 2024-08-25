@@ -3,7 +3,7 @@ import { FaSearch } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { useAdminTheme } from '../context/AdminThemeContext';
 
-const adminSearchBar = ({ query, onQueryChange }) => {
+const AdminSearchBar = ({ query, onQueryChange }) => {
   const { darkMode } = useAdminTheme(); // Access darkMode from context
 
   const handleChange = (event) => {
@@ -18,7 +18,7 @@ const adminSearchBar = ({ query, onQueryChange }) => {
     <div className={`w-[480px] flex items-center px-4 rounded-md ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'}`}>
       <input 
         type="text"
-        placeholder='Search Products'
+        placeholder='Search Product'
         className='w-full text-xs bg-transparent py-[11px] outline-none'
         value={query}
         onChange={handleChange}       
@@ -32,4 +32,4 @@ const adminSearchBar = ({ query, onQueryChange }) => {
   );
 };
 
-export default adminSearchBar;
+export default AdminSearchBar;

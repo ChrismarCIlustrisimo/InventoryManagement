@@ -69,9 +69,9 @@ const DashboardNavbar = () => {
           </button>
           {/* Inventory Dropdown Menu */}
           {isInventoryDropdownOpen && (
-            <div className={`absolute top-full left-0 mt-2 w-full bg-${darkMode ? 'light-CARD' : 'dark-CARD'} border border-opacity-50 rounded-lg`}>
-              <Link to="/inventory/product" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>Product List</Link>
-              <Link to="/inventory/supplier" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>Supplier List</Link>
+            <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
+              <Link to="/inventory/product" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Product List</Link>
+              <Link to="/inventory/supplier" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Supplier List</Link>
             </div>
           )}
         </div>
@@ -107,9 +107,9 @@ const DashboardNavbar = () => {
           </button>
           {/* Sales Dropdown Menu */}
           {isSalesDropdownOpen && (
-            <div className={`absolute top-full left-0 mt-2 w-full bg-${darkMode ? 'light-CARD' : 'dark-CARD'} border border-opacity-50 rounded-lg`}>
-              <Link to="/sales/report" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>Sales Report</Link>
-              <Link to="/sales/analytics" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:bg-gray-200`}>Sales Analytics</Link>
+            <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
+              <Link to="/sales/report" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales Report</Link>
+              <Link to="/sales/analytics" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales Analytics</Link>
             </div>
           )}
         </div>

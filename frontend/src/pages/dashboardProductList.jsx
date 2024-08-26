@@ -8,6 +8,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
 import '../App.css';
 import axios from 'axios';
+import { FaEdit } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+import { HiOutlineDotsHorizontal, HiX } from "react-icons/hi";
 
 const DashboardProductList = () => {
   const { user } = useAuthContext();
@@ -15,22 +18,33 @@ const DashboardProductList = () => {
   const navigate = useNavigate();
   const baseURL = "http://localhost:5555";
 
-  // State for filters and search query
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('');
-  const [searchQuery, setSearchQuery] = useState(''); // State for search query
-
-  // State for checkboxes
-  const [selectAll, setSelectAll] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isOpenButton, setIsOpenButton] = useState(false);
   const [checkedItems, setCheckedItems] = useState([]);
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [productCount, setProductCount] = useState();
-  const [suppliersList, setSuppliersList] = useState([]); // State for suppliers
+  const [selectedSupplier, setSelectedSupplier] = useState(''); // State for selected supplier
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [stockAlerts, setStockAlerts] = useState({
+    "LOW STOCK": false,
+    "NEAR LOW STOCK": false,
+    "HIGH STOCK": false,
+    "OUT OF STOCK": false,
+  });
 
+  const handleStockAlertChange = (e) => {
+    setStockAlerts(prev => ({
+      ...prev,
+      [e.target.value]: e.target.checked
+    }));
+  };
+  
   const fetchSuppliers = async () => {
     try {
       const response = await axios.get(`${baseURL}/supplier`, {
@@ -38,7 +52,7 @@ const DashboardProductList = () => {
           'Authorization': `Bearer ${user.token}`
         }
       });
-      setSuppliers(response.data.data); // Update state with fetched data
+      setSuppliers(response.data.data);
       console.log("Suppliers:", response.data);
     } catch (error) {
       console.error('Error fetching suppliers:', error.message);
@@ -52,56 +66,6 @@ const DashboardProductList = () => {
     }
   }, [user]);
 
-  const supplierMap = suppliers.reduce((map, supplier) => {
-    map[supplier._id] = supplier.name;
-    return map;
-  }, {});
-
-  // Handler functions
-  const handleDateFilter = () => {};
-  const handleSortByChange = e => setSortBy(e.target.value);
-  const handleResetFilters = () => {
-    setStartDate(null);
-    setEndDate(null);
-    setMinPrice('');
-    setMaxPrice('');
-    setSortBy('');
-    setSearchQuery(''); // Clear search query
-  };
-
-  const handleAddProductClick = () => {
-    navigate('/addproduct');
-  };
-
-  // Handle "Select All" checkbox change
-  const handleSelectAllChange = e => {
-    const isChecked = e.target.checked;
-    setSelectAll(isChecked);
-    setCheckedItems(isChecked ? products.map((_, index) => index) : []);
-  };
-
-  // Handle individual checkbox change
-  const handleCheckboxChange = (index) => {
-    setCheckedItems(prevCheckedItems => {
-      if (prevCheckedItems.includes(index)) {
-        return prevCheckedItems.filter(item => item !== index);
-      } else {
-        return [...prevCheckedItems, index];
-      }
-    });
-  };
-
-  useEffect(() => {
-    // Fetch suppliers when component mounts
-    axios.get('http://localhost:5555/supplier')
-      .then(res => {
-        setSuppliersList(res.data.data); // Assuming your API response contains an array of suppliers
-      })
-      .catch(err => {
-        console.error('Error fetching suppliers:', err.response ? err.response.data : err.message);
-      });
-  }, []);
-
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${baseURL}/product`, {
@@ -109,11 +73,11 @@ const DashboardProductList = () => {
           'Authorization': `Bearer ${user.token}`
         }
       });
-      setProducts(response.data.data); // Update state with fetched data
+      setProducts(response.data.data);
       setProductCount(response.data.count); 
       console.log("Products:", response.data);
     } catch (error) {
-      console.error('Error fetching products:', error.message); // Log error message
+      console.error('Error fetching products:', error.message);
     }
   };
 
@@ -123,10 +87,68 @@ const DashboardProductList = () => {
     }
   }, [user]);
 
-  // Filter products based on search query
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products
+  .filter(product =>
+    product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+    (selectedSupplier === '' || product.supplier === selectedSupplier) &&
+    (categoryFilter === '' || product.category === categoryFilter) &&
+    (minPrice === '' || product.buying_price >= parseFloat(minPrice)) &&
+    (maxPrice === '' || product.buying_price <= parseFloat(maxPrice)) &&
+    (stockAlerts['LOW STOCK'] && product.current_stock_status === 'LOW STOCK' ||
+    stockAlerts['NEAR LOW STOCK'] && product.current_stock_status === 'NEAR LOW STOCK' ||
+    stockAlerts['HIGH STOCK'] && product.current_stock_status === 'HIGH STOCK' ||
+    stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK' ||
+    (!stockAlerts['LOW STOCK'] && !stockAlerts['NEAR LOW STOCK'] && !stockAlerts['HIGH STOCK'] && !stockAlerts['OUT OF STOCK']))
+  )
+  .sort((a, b) => {
+    if (sortBy === 'price_asc') return a.buying_price - b.buying_price;
+    if (sortBy === 'price_desc') return b.buying_price - a.buying_price;
+    if (sortBy === 'product_name_asc') return a.name.localeCompare(b.name);
+    if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
+    return 0;
+  });
+
+
+
+    const handleCategoryChange = e => {
+      setCategoryFilter(e.target.value);
+    };
+    
+  const handleSortByChange = e => setSortBy(e.target.value);
+  
+  const handleResetFilters = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setMinPrice('');
+    setMaxPrice('');
+    setSortBy('');
+    setSearchQuery('');
+    setSelectedSupplier(''); // Clear selected supplier
+  };
+
+  const handleAddProductClick = () => {
+    navigate('/addproduct');
+  };
+
+  const handleCheckboxChange = (index) => {
+    setCheckedItems(prevCheckedItems => 
+      prevCheckedItems.includes(index) 
+        ? prevCheckedItems.filter(item => item !== index) 
+        : [...prevCheckedItems, index]
+    );
+  };
+
+  const handleEditProduct = (product) => {
+    // Implement the edit functionality
+  };
+
+  const handleDeleteProduct = (productId) => {
+    // Implement the delete functionality
+  };
+
+  const toggleButtons = () => {
+    setIsOpenButton(prev => !prev);
+  };
 
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
@@ -140,8 +162,9 @@ const DashboardProductList = () => {
               <p className={`text-xs ${darkMode ? 'text-dark-TABLE' : 'dark:text-light-TABLE'}`}>total products</p>
             </div>
           </div>
-          <div className='w-full flex justify-end gap-6'>
+          <div className='w-full flex justify-end gap-2'>
             <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+            <button className={`px-4 py-2 rounded-md font-semibold text-2xl ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`} onClick={toggleButtons}>{isOpenButton ? <HiX /> : <HiOutlineDotsHorizontal />}</button>
             <button className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={handleAddProductClick}> Add Product</button>
           </div>
         </div>
@@ -152,15 +175,15 @@ const DashboardProductList = () => {
                 <label htmlFor='category' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'dark:text-light-TABLE'}`}>CATEGORY</label>
                 <select
                   id='category'
-                  onChange={handleDateFilter}
+                  onChange={handleCategoryChange}
                   className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
                 >
                   <option value=''>Select Category</option>
-                  <option value='components'>Components</option>
-                  <option value='peripherals'>Peripherals</option>
-                  <option value='accessories'>Accessories</option>
-                  <option value='pc_furniture'>PC Furniture</option>
-                  <option value='os_software'>OS & Software</option>
+                  <option value='Components'>Components</option>
+                  <option value='Peripherals'>Peripherals</option>
+                  <option value='Accessories'>Accessories</option>
+                  <option value='PC Furniture'>PC Furniture</option>
+                  <option value='OS & Software'>OS & Software</option>
                 </select>
               </div>
 
@@ -184,7 +207,7 @@ const DashboardProductList = () => {
                 <select
                   id='supplier'
                   className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
-                  onChange={(e) => setSuppliersList(e.target.value)}
+                  onChange={(e) => setSelectedSupplier(e.target.value)}
                 >
                   <option value="">Select Supplier</option>
                   <option value="None">None</option>
@@ -198,22 +221,22 @@ const DashboardProductList = () => {
                 <label htmlFor='stockAlert' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'dark:text-light-TABLE'}`}>STOCK ALERT</label>
                 <div id='stockAlert' className='flex flex-col'>
                   <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='lowStock' id='lowStock' />
+                    <input type='checkbox' name='stockAlert' value='LOW STOCK' id='lowStock' checked={stockAlerts['LOW STOCK']} onChange={handleStockAlertChange}/>
                     <span className='checkmark'></span>
                     <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Low Stock</span>
                   </label>
                   <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='nearLowStock' id='nearLowStock' />
+                    <input type='checkbox' name='stockAlert' value='NEAR LOW STOCK' id='nearLowStock' checked={stockAlerts['NEAR LOW STOCK']} onChange={handleStockAlertChange}/>
                     <span className='checkmark'></span>
                     <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Near Low Stock</span>
                   </label>
                   <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='highStock' id='highStock' />
+                    <input type='checkbox' name='stockAlert' value='HIGH STOCK' id='highStock' checked={stockAlerts['HIGH STOCK']} onChange={handleStockAlertChange}/>
                     <span className='checkmark'></span>
                     <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>High Stock</span>
                   </label>
                   <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='outOfStock' id='outOfStock' />
+                    <input type='checkbox' name='stockAlert' value='OUT OF STOCK' id='outOfStock' checked={stockAlerts['OUT OF STOCK']} onChange={handleStockAlertChange}/>
                     <span className='checkmark'></span>
                     <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Out of Stock</span>
                   </label>
@@ -235,17 +258,8 @@ const DashboardProductList = () => {
           {/* Table */}
           <div className={`h-[76vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
             <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-              <thead>
-                <tr className={`border-b text-sm ${darkMode ? 'border-light-TABLE bg-light-CARD' : 'border-dark-TABLE bg-dark-CARD'}`}>
-                  <th className='p-2 text-center'>
-                    <div className={`custom-checkbox border-2 rounded-md ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
-                      <input
-                        type='checkbox'
-                        checked={selectAll}
-                        onChange={handleSelectAllChange}
-                      />
-                    </div>
-                  </th>
+              <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-TABLE bg-light-CARD' : 'border-dark-TABLE bg-dark-CARD'} border-b text-sm`}>
+                <tr>
                   <th className='p-2 text-left'>Product</th>
                   <th className='p-2 text-center'>Category</th>
                   <th className='p-2 text-center'>In-stock</th>
@@ -253,31 +267,37 @@ const DashboardProductList = () => {
                   <th className='p-2 text-center'>Product Code</th>
                   <th className='p-2 text-center'>Buying Price (PHP)</th>
                   <th className='p-2 text-center'>Selling Price (PHP)</th>
+                  <th className='p-2 text-center'></th>
                 </tr>
               </thead>
               <tbody>
                 {filteredProducts.map((product, index) => (
                   <tr key={index} className={`border-b ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
-                    <td className='p-2 px-4 text-center'>
-                      <div className={`custom-checkbox border-2 rounded-md ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
-                        <input
-                          type="checkbox"
-                          id="custom-checkbox"
-                          checked={checkedItems.includes(index)}
-                          onChange={() => handleCheckboxChange(index)}
-                        />
-                      </div>
-                    </td>
-                    <td className='flex items-center py-2'>
+                    <td className='flex items-center p-2'>
                       <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
-                      <p>{product.name}</p>
+                      <p className='text-sm'>{product.name}</p>
                     </td>
                     <td className='p-2 text-center'>{product.category}</td>
-                    <td className='p-2 text-center'>{product.quantity_in_stock}</td>
-                    <td className='p-2 text-center'>{supplierMap[product.supplier] ? supplierMap[product.supplier] : 'No Supplier'}</td>
+                    <td className='p-2 text-center flex gap-2 items-center justify-center'>
+                      <p className='text-center'>{product.quantity_in_stock}</p>
+                      <p className='text-center text-sm'>{product.current_stock_status}</p>
+                    </td>
+                    <td className='p-2 text-center'>{suppliers.find(s => s._id === product.supplier)?.name || 'No Supplier'}</td>
                     <td className='p-2 text-center'>{product.product_id}</td>
                     <td className='p-2 text-center'>{product.buying_price}</td>
                     <td className='p-2 text-center'>{product.selling_price}</td>
+                    {isOpenButton && (
+                      <td className='p-2 text-2xl'>
+                        <div className='w-full h-full flex'>
+                          <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleEditProduct(product)}>
+                            <FaEdit />
+                          </button>
+                          <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleDeleteProduct(product._id)}>
+                            <MdDelete />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

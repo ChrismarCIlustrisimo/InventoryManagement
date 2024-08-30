@@ -29,6 +29,7 @@ export default {
           CARD1: "#d1cecd",
           TABLE: "#9e9c9b"
         },
+
     },
   },
 },

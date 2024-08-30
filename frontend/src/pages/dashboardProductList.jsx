@@ -11,25 +11,30 @@ import axios from 'axios';
 import { FaEdit } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 import { HiOutlineDotsHorizontal, HiX } from "react-icons/hi";
+import { FaPlay } from "react-icons/fa";
+
+const stockColors = {
+  "HIGH STOCK": "#1e7e34", // Darker Green
+  "NEAR LOW STOCK": "#e06c0a", // Darker Orange
+  "LOW STOCK": "#d39e00", // Darker Yellow
+  "OUT OF STOCK": "#c82333", // Darker Red
+};
+
 
 const DashboardProductList = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const baseURL = "http://localhost:5555";
-
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isOpenButton, setIsOpenButton] = useState(false);
-  const [checkedItems, setCheckedItems] = useState([]);
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [productCount, setProductCount] = useState();
-  const [selectedSupplier, setSelectedSupplier] = useState(''); // State for selected supplier
+  const [selectedSupplier, setSelectedSupplier] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [stockAlerts, setStockAlerts] = useState({
     "LOW STOCK": false,
@@ -53,7 +58,6 @@ const DashboardProductList = () => {
         }
       });
       setSuppliers(response.data.data);
-      console.log("Suppliers:", response.data);
     } catch (error) {
       console.error('Error fetching suppliers:', error.message);
     }
@@ -75,7 +79,6 @@ const DashboardProductList = () => {
       });
       setProducts(response.data.data);
       setProductCount(response.data.count); 
-      console.log("Products:", response.data);
     } catch (error) {
       console.error('Error fetching products:', error.message);
     }
@@ -88,54 +91,71 @@ const DashboardProductList = () => {
   }, [user]);
 
   const filteredProducts = products
-  .filter(product =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    (selectedSupplier === '' || product.supplier === selectedSupplier) &&
-    (categoryFilter === '' || product.category === categoryFilter) &&
-    (minPrice === '' || product.buying_price >= parseFloat(minPrice)) &&
-    (maxPrice === '' || product.buying_price <= parseFloat(maxPrice)) &&
-    (stockAlerts['LOW STOCK'] && product.current_stock_status === 'LOW STOCK' ||
-    stockAlerts['NEAR LOW STOCK'] && product.current_stock_status === 'NEAR LOW STOCK' ||
-    stockAlerts['HIGH STOCK'] && product.current_stock_status === 'HIGH STOCK' ||
-    stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK' ||
-    (!stockAlerts['LOW STOCK'] && !stockAlerts['NEAR LOW STOCK'] && !stockAlerts['HIGH STOCK'] && !stockAlerts['OUT OF STOCK']))
-  )
-  .sort((a, b) => {
-    if (sortBy === 'price_asc') return a.buying_price - b.buying_price;
-    if (sortBy === 'price_desc') return b.buying_price - a.buying_price;
-    if (sortBy === 'product_name_asc') return a.name.localeCompare(b.name);
-    if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
-    return 0;
-  });
+    .filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (selectedSupplier === '' || product.supplier === selectedSupplier) &&
+      (categoryFilter === '' || product.category === categoryFilter) &&
+      (stockAlerts['LOW STOCK'] && product.current_stock_status === 'LOW STOCK' ||
+      stockAlerts['NEAR LOW STOCK'] && product.current_stock_status === 'NEAR LOW STOCK' ||
+      stockAlerts['HIGH STOCK'] && product.current_stock_status === 'HIGH STOCK' ||
+      stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK' ||
+      (!stockAlerts['LOW STOCK'] && !stockAlerts['NEAR LOW STOCK'] && !stockAlerts['HIGH STOCK'] && !stockAlerts['OUT OF STOCK']))
+    )
+    .sort((a, b) => {
+      if (sortBy === 'price_asc') return a.selling_price - b.selling_price;
+      if (sortBy === 'price_desc') return b.selling_price - a.selling_price;
+      if (sortBy === 'product_name_asc') return a.name.localeCompare(b.name);
+      if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
+      return 0;
+    });
 
 
 
-    const handleCategoryChange = e => {
-      setCategoryFilter(e.target.value);
-    };
-    
+  const handleCategoryChange = e => {
+    setCategoryFilter(e.target.value);
+  };
+
+
+  const handleMinPriceChange = (e) => {
+    setMinPrice(e.target.value);
+  };
+  
+  const handleMaxPriceChange = (e) => {
+    setMaxPrice(e.target.value);
+  };
+  
+  
   const handleSortByChange = e => setSortBy(e.target.value);
   
+  const handlePriceRangeFilter = () => {
+    setProducts(prevProducts => prevProducts.filter(product =>
+      (minPrice === '' || product.selling_price >= parseFloat(minPrice)) &&
+      (maxPrice === '' || product.selling_price <= parseFloat(maxPrice))
+    ));
+  };
+
   const handleResetFilters = () => {
-    setStartDate(null);
-    setEndDate(null);
     setMinPrice('');
     setMaxPrice('');
     setSortBy('');
     setSearchQuery('');
-    setSelectedSupplier(''); // Clear selected supplier
+    setSelectedSupplier('');
+    setCategoryFilter(''); // Reset category filter
+    setStockAlerts({
+      "LOW STOCK": false,
+      "NEAR LOW STOCK": false,
+      "HIGH STOCK": false,
+      "OUT OF STOCK": false,
+    }); // Reset stock alerts
+  
+    // Refetch products to ensure the display reflects the unfiltered state
+    fetchProducts();
   };
+  
+  
 
   const handleAddProductClick = () => {
     navigate('/addproduct');
-  };
-
-  const handleCheckboxChange = (index) => {
-    setCheckedItems(prevCheckedItems => 
-      prevCheckedItems.includes(index) 
-        ? prevCheckedItems.filter(item => item !== index) 
-        : [...prevCheckedItems, index]
-    );
   };
 
   const handleEditProduct = (product) => {
@@ -164,13 +184,13 @@ const DashboardProductList = () => {
           </div>
           <div className='w-full flex justify-end gap-2'>
             <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
-            <button className={`px-4 py-2 rounded-md font-semibold text-2xl ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`} onClick={toggleButtons}>{isOpenButton ? <HiX /> : <HiOutlineDotsHorizontal />}</button>
+            <button className={`px-4 py-2 rounded-md font-semibold text-2xl ${darkMode ? 'text-light-TEXT bg-light-CARD' : 'dark:bg-dark-CARD text-dark-TEXT'}`} onClick={toggleButtons}>{isOpenButton ? <HiX /> : <HiOutlineDotsHorizontal />}</button>
             <button className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={handleAddProductClick}> Add Product</button>
           </div>
         </div>
         <div className='flex gap-4'>
           <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}>
-            <div className='flex flex-col gap-4'>
+            <div className='flex flex-col gap-2'>
               <div className='flex flex-col'>
                 <label htmlFor='category' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'dark:text-light-TABLE'}`}>CATEGORY</label>
                 <select
@@ -242,6 +262,21 @@ const DashboardProductList = () => {
                   </label>
                 </div>
               </div>
+                  <label className='text-sm text-gray-500 mb-1'>PRICE RANGE</label>
+                <div className='flex justify-left items-center gap-2'>
+                  <div className='flex flex-col'>
+                    <div className={`w-[100px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
+                      <input type='number' id='minPrice' value={minPrice} onChange={handleMinPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Min'/>
+                    </div>
+                  </div>
+                    <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
+                  <div className='flex flex-col'>
+                    <div className={`w-[100px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT' }`}>
+                      <input type='number' id='maxPrice' value={maxPrice} onChange={handleMaxPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Max' /> 
+                     </div>
+                  </div>
+                    <button className={`p-2 text-xs rounded-md ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} hover:bg-opacity-60 active:bg-opacity-30`} onClick={handlePriceRangeFilter}><FaPlay /></button>
+                </div>
             </div>
 
             <div className='flex flex-col gap-2'>
@@ -257,51 +292,60 @@ const DashboardProductList = () => {
 
           {/* Table */}
           <div className={`h-[76vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
-            <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-              <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-TABLE bg-light-CARD' : 'border-dark-TABLE bg-dark-CARD'} border-b text-sm`}>
-                <tr>
-                  <th className='p-2 text-left'>Product</th>
-                  <th className='p-2 text-center'>Category</th>
-                  <th className='p-2 text-center'>In-stock</th>
-                  <th className='p-2 text-center'>Supplier</th>
-                  <th className='p-2 text-center'>Product Code</th>
-                  <th className='p-2 text-center'>Buying Price (PHP)</th>
-                  <th className='p-2 text-center'>Selling Price (PHP)</th>
-                  <th className='p-2 text-center'></th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredProducts.map((product, index) => (
-                  <tr key={index} className={`border-b ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
-                    <td className='flex items-center p-2'>
-                      <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
-                      <p className='text-sm'>{product.name}</p>
-                    </td>
-                    <td className='p-2 text-center'>{product.category}</td>
-                    <td className='p-2 text-center flex gap-2 items-center justify-center'>
-                      <p className='text-center'>{product.quantity_in_stock}</p>
-                      <p className='text-center text-sm'>{product.current_stock_status}</p>
-                    </td>
-                    <td className='p-2 text-center'>{suppliers.find(s => s._id === product.supplier)?.name || 'No Supplier'}</td>
-                    <td className='p-2 text-center'>{product.product_id}</td>
-                    <td className='p-2 text-center'>{product.buying_price}</td>
-                    <td className='p-2 text-center'>{product.selling_price}</td>
-                    {isOpenButton && (
-                      <td className='p-2 text-2xl'>
-                        <div className='w-full h-full flex'>
-                          <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleEditProduct(product)}>
-                            <FaEdit />
-                          </button>
-                          <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleDeleteProduct(product._id)}>
-                            <MdDelete />
-                          </button>
-                        </div>
-                      </td>
-                    )}
+            {filteredProducts.length > 0 ? (
+              <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-TABLE bg-light-CARD' : 'border-dark-TABLE bg-dark-CARD'} border-b text-sm`}>
+                  <tr>
+                    <th className='p-2 text-left'>Product</th>
+                    <th className='p-2 text-center'>Category</th>
+                    <th className='p-2 text-center'>In-stock</th>
+                    <th className='p-2 text-center'>Stock Status</th>
+                    <th className='p-2 text-center'>Supplier</th>
+                    <th className='p-2 text-center'>Product Code</th>
+                    <th className='p-2 text-center'>Buying Price (PHP)</th>
+                    <th className='p-2 text-center'>Selling Price (PHP)</th>
+                    <th className='p-2 text-center'></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredProducts.map((product, index) => (
+                    <tr key={index} className={`border-b ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
+                      <td className='flex items-center justify-left p-2'>
+                        <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
+                        <p className='text-sm'>{product.name}</p>
+                      </td>
+                      <td className='text-center text-sm'>{product.category}</td>
+                      <td className='text-center'>{product.quantity_in_stock}</td>
+                      <td className='text-xs text-center' style={{ color: stockColors[product.current_stock_status] || '#ffffff' }}>
+                        {product.current_stock_status}
+                      </td>
+                      <td className='text-center text-xs'>
+                        {suppliers.find(s => s._id === product.supplier)?.name || 'No Supplier'}
+                      </td>
+                      <td className='text-center text-sm'>{product.product_id}</td>
+                      <td className='text-center'>{product.buying_price}</td>
+                      <td className='text-center'>{product.selling_price}</td>
+                      {isOpenButton && (
+                        <td className='text-center text-2xl'>
+                          <div className='flex justify-center'>
+                            <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleEditProduct(product)}>
+                              <FaEdit />
+                            </button>
+                            <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleDeleteProduct(product._id)}>
+                              <MdDelete />
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className='flex items-center justify-center h-[76vh] text-lg text-center'>
+                <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No products found matching the filter criteria.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

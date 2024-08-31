@@ -21,6 +21,7 @@ const stockColors = {
 };
 
 
+
 const DashboardProductList = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
@@ -30,7 +31,6 @@ const DashboardProductList = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isOpenButton, setIsOpenButton] = useState(false);
   const [products, setProducts] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [productCount, setProductCount] = useState();
@@ -48,6 +48,21 @@ const DashboardProductList = () => {
       ...prev,
       [e.target.value]: e.target.checked
     }));
+  };
+
+  const handleDeleteProduct = async (productId) => {
+    try {
+      await axios.delete(`${baseURL}/product/${productId}`, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+      // Refetch products after deletion
+
+      fetchProducts();
+    } catch (error) {
+      console.error('Error deleting product:', error.message);
+    }
   };
   
   const fetchSuppliers = async () => {
@@ -152,20 +167,14 @@ const DashboardProductList = () => {
     fetchProducts();
   };
   
-  
-
   const handleAddProductClick = () => {
     navigate('/addproduct');
   };
 
-  const handleEditProduct = (product) => {
-    // Implement the edit functionality
+  const handleRowClick = (productId) => {
+    navigate(`/update-product/${productId}`);
   };
-
-  const handleDeleteProduct = (productId) => {
-    // Implement the delete functionality
-  };
-
+  
   const toggleButtons = () => {
     setIsOpenButton(prev => !prev);
   };
@@ -184,7 +193,6 @@ const DashboardProductList = () => {
           </div>
           <div className='w-full flex justify-end gap-2'>
             <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
-            <button className={`px-4 py-2 rounded-md font-semibold text-2xl ${darkMode ? 'text-light-TEXT bg-light-CARD' : 'dark:bg-dark-CARD text-dark-TEXT'}`} onClick={toggleButtons}>{isOpenButton ? <HiX /> : <HiOutlineDotsHorizontal />}</button>
             <button className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={handleAddProductClick}> Add Product</button>
           </div>
         </div>
@@ -304,12 +312,11 @@ const DashboardProductList = () => {
                     <th className='p-2 text-center'>Product Code</th>
                     <th className='p-2 text-center'>Buying Price (PHP)</th>
                     <th className='p-2 text-center'>Selling Price (PHP)</th>
-                    <th className='p-2 text-center'></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredProducts.map((product, index) => (
-                    <tr key={index} className={`border-b ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
+                    <tr key={index} onClick={() => handleRowClick(product._id)} className={`border-b cursor-pointer ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
                       <td className='flex items-center justify-left p-2'>
                         <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
                         <p className='text-sm'>{product.name}</p>
@@ -325,18 +332,6 @@ const DashboardProductList = () => {
                       <td className='text-center text-sm'>{product.product_id}</td>
                       <td className='text-center'>{product.buying_price}</td>
                       <td className='text-center'>{product.selling_price}</td>
-                      {isOpenButton && (
-                        <td className='text-center text-2xl'>
-                          <div className='flex justify-center'>
-                            <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleEditProduct(product)}>
-                              <FaEdit />
-                            </button>
-                            <button className={`p-2 rounded ${darkMode ? 'text-dark-ACCENT' : 'text-light-ACCENT'}`} onClick={() => handleDeleteProduct(product._id)}>
-                              <MdDelete />
-                            </button>
-                          </div>
-                        </td>
-                      )}
                     </tr>
                   ))}
                 </tbody>

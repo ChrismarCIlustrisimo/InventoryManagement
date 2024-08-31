@@ -12,9 +12,7 @@ const AddProduct = () => {
   const [supplier, setSupplier] = useState('');
   const [buyingPrice, setBuyingPrice] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
-  const [error, setError] = useState(null);
   const [suppliers, setSuppliers] = useState([]); // State for suppliers
-  const [supplierName, setSupplierName] = useState(''); // State for supplier name
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
 
@@ -46,6 +44,7 @@ const AddProduct = () => {
     axios.post('http://localhost:5555/product', formData)
       .then(res => {
         console.log('Product added:', res.data);
+        handleBackClick();
       })
       .catch(err => {
         console.error('Error:', err.response ? err.response.data : err.message);
@@ -76,13 +75,26 @@ const AddProduct = () => {
               </div>
               <div className='w-full flex gap-2'>
                 <div className='flex flex-col w-[50%] gap-2'>
-                  <label for="category">Product Category</label>
-                  <input type='text' id="category" placeholder='Category' className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} value={category} onChange={(e) => setCategory(e.target.value)} />
+                  <label htmlFor="category">Product Category</label>
+                  <select
+                    id="category"
+                    className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    <option value="" className='text-gray-400'>Select Category</option>
+                    <option value="Components">Components</option>
+                    <option value="Peripherals">Peripherals</option>
+                    <option value="Accessories">Accessories</option>
+                    <option value="PC Furniture">PC Furniture</option>
+                    <option value="OS & Software">OS & Software</option>
+                  </select>
                 </div>
+
                 <div className='flex flex-col w-[50%] gap-2'>
                   <label for="quantity">Product Quantity</label>
                   <input type='number' placeholder='Quantity' id="quantity" className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-                </div>
+                  </div>
               </div>
               <div className='w-full flex flex-col gap-2' >
                 <label for="quantity">Product Supplier</label>
@@ -92,8 +104,8 @@ const AddProduct = () => {
                     setSupplier(e.target.value);
                     setSupplierName(e.target.options[e.target.selectedIndex].text);
                     }}>
-                    <option value="" className='text-gray-400'>Select Supplier</option>
-                    <option value="None">None</option>
+                    <option value="NONE" className='text-gray-400'>Select Supplier</option>
+                    <option value="NONE">None</option>
                     {suppliers.map(supplier => (
                       <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
                     ))}
@@ -107,8 +119,8 @@ const AddProduct = () => {
                 </div>
                 <div className='flex flex-col w-[50%] gap-2'>
                   <label for="selling_price">Selling Price</label>
-                  <input type='number' placeholder='Quantity' id="selling_price"  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} value={quantity} onChange={(e) => setQuantity(e.target.value)} />
-                </div>
+                  <input type='number' placeholder='Selling Price' id="selling_price" className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} />
+                  </div>
               </div>
               <p className={``}>Image</p>
               <div className={`w-full h-[10%] border rounded-md p-2 flex items-center justify-start ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>

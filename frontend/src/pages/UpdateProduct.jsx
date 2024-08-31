@@ -1,0 +1,266 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useAdminTheme } from '../context/AdminThemeContext';
+import { IoCaretBackOutline } from "react-icons/io5";
+import { useNavigate, useParams } from 'react-router-dom';
+import { FaTrash } from "react-icons/fa";
+import ConfirmationDialog from '../components/ConfirmationDialog';
+
+const UpdateProduct = () => {
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState('No file selected');
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [image, setImage] = useState('');
+  const [supplierName, setSupplierName] = useState('');
+  const [supplierId, setSupplierId] = useState('');
+  const [productID, setProductID] = useState('');
+  const [buyingPrice, setBuyingPrice] = useState('');
+  const [sellingPrice, setSellingPrice] = useState('');
+  const [dateAdded, setDateAdded] = useState('');
+  const [updatedAt, setUpdatedAt] = useState('');
+  const [batchNumber, setBatchNumber] = useState('');
+  const [currentStockStatus, setCurrentStockStatus] = useState('');
+  const [suppliers, setSuppliers] = useState([]);
+  const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { darkMode } = useAdminTheme();
+  const navigate = useNavigate();
+  const { productId } = useParams();
+  const baseURL = "http://localhost:5555";
+
+  useEffect(() => {
+    axios.get(`${baseURL}/product/${productId}`)
+      .then(res => {
+        const { data } = res;
+        setName(data.name);
+        setCategory(data.category);
+        setQuantity(data.quantity_in_stock);
+        setBuyingPrice(data.buying_price);
+        setSellingPrice(data.selling_price);
+        setProductID(data.product_id);
+        setImage(data.image);
+        setBatchNumber(data.batch_number);
+        setCurrentStockStatus(data.current_stock_status);
+        setDateAdded(data.createdAt);
+        setUpdatedAt(data.updatedAt);
+        setSupplierId(data.supplier);
+        if (data.image) {
+          setFileName(trimFileName(data.image));
+        }
+
+        axios.get(`${baseURL}/supplier/${data.supplier}`)
+          .then(res => {
+            setSupplierName(res.data.name);
+            setSupplierId(res.data._id);
+          })
+          .catch(err => {
+            console.error('Error fetching supplier:', err.response ? err.response.data : err.message);
+            setError(err.response ? err.response.data.message : 'An unknown error occurred');
+          });
+      })
+      .catch(err => {
+        console.error('Error fetching product:', err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data.message : 'An unknown error occurred');
+      });
+
+    axios.get(`${baseURL}/supplier`)
+      .then(res => {
+        setSuppliers(res.data.data);
+      })
+      .catch(err => {
+        console.error('Error fetching suppliers:', err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data.message : 'An unknown error occurred');
+      });
+  }, [productId]);
+
+  const updateProduct = () => {
+    const formData = new FormData();
+    if (file) formData.append('file', file);
+    formData.append('name', name);
+    formData.append('category', category);
+    formData.append('quantity_in_stock', quantity);
+    formData.append('supplier', supplierId);
+    formData.append('buying_price', buyingPrice);
+    formData.append('selling_price', sellingPrice);
+    formData.append('date_added', dateAdded);
+    formData.append('last_updated', updatedAt);
+    axios.put(`${baseURL}/product/${productId}`, formData)
+      .then(res => {
+        console.log('Update successful:', res.data);
+        setIsEditing(false);
+      })
+      .catch(err => {
+        console.error('Error updating product:', err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data.message : 'An unknown error occurred');
+      });
+  };
+
+  const deleteProduct = () => {
+    axios.delete(`${baseURL}/product/${productId}`)
+      .then(res => {
+        console.log('Delete successful:', res.data);
+        navigate('/inventory/product'); // Navigate back to the inventory page
+      })
+      .catch(err => {
+        console.error('Error deleting product:', err.response ? err.response.data : err.message);
+        setError(err.response ? err.response.data.message : 'An unknown error occurred');
+      });
+    setIsDialogOpen(false);
+  };
+
+  const handleBackClick = () => {
+    navigate('/inventory/product');
+  };
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    setFile(selectedFile);
+    setFileName(selectedFile ? selectedFile.name : 'No file selected');
+  };
+
+  const trimFileName = (filePath) => {
+    const fileName = filePath.substring(filePath.lastIndexOf('\\') + 1);
+    const productName = fileName.split('-')[1];
+    return productName;
+  };
+
+  const handleSupplierChange = (e) => {
+    const selectedId = e.target.value;
+    setSupplierId(selectedId);
+    const selectedSupplier = suppliers.find(supplier => supplier._id === selectedId);
+    setSupplierName(selectedSupplier ? selectedSupplier.name : ''); 
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', { 
+      month: 'long', 
+      day: '2-digit', 
+      year: 'numeric' 
+    }).format(date);
+  };
+  
+  const stockColors = {
+    "HIGH STOCK": "#1e7e34", // Darker Green
+    "NEAR LOW STOCK": "#e06c0a", // Darker Orange
+    "LOW STOCK": "#d39e00", // Darker Yellow
+    "OUT OF STOCK": "#c82333", // Darker Red
+  };
+
+  const stockStatusColor = stockColors[currentStockStatus] || '#000000';
+
+
+  return (
+    <div className={`h-full w-full flex flex-col ${darkMode ? 'text-light-TEXT bg-light-BG' : 'text-dark-TEXT bg-dark-BG'}`}>
+      {!isEditing && (
+        <div className='flex items-center justify-between h-[8%]'>
+          <button className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`} onClick={handleBackClick}>
+            <IoCaretBackOutline /> Back to inventory
+          </button>
+          <div className='flex gap-4 items-center p-4'>
+            <button className={`px-4 py-2 rounded-md font-semibold text-sm ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={() => setIsEditing(true)}> Edit </button>
+            <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div>
+            <button className={`text-2xl ${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'}`} onClick={() => setIsDialogOpen(true)}><FaTrash /></button>
+          </div>
+        </div>
+      )}
+
+      <div className='flex gap-2 w-full h-[90%] items-center justify-center'>
+        <div className='flex h-[80%] w-[70%]'>
+          <div className='flex flex-col gap-2 p-2 w-[49%] justify-between'>
+            <p className='text-xl'>
+              <input type='text' value={name} onChange={(e) => setName(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-2 w-full text-md ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-300' : ''}`} />
+            </p>
+            <div className='w-full h-full flex items-center justify-start'>
+              <img src={`${baseURL}/images/${image.substring(14)}`} alt={name} className='w-[360px] h-[360px] object-cover mr-[10px] rounded-md' />
+            </div>
+          </div>
+          <div className='w-[2%] h-full flex items-center mx-12'>
+            <div className={`flex-grow border-l h-[96%] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div>
+          </div>
+          <div className='w-[49%] p-2'>
+            <p className='text-xl font-semibold'>Basic information</p>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>CATEGORY</p>
+              <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} >
+                <option value="">Select Category</option>
+                <option value="Components">Components</option>
+                <option value="Peripherals">Peripherals</option>
+                <option value="Accessories">Accessories</option>
+                <option value="PC Furniture">PC Furniture</option>
+                <option value="OS & Software">OS & Software</option>
+              </select>
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>PRODUCT CODE</p>
+              <input type='text' value={productID} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>            
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>QUANTITY IN STOCK</p>
+              <input type='number' value={quantity} onChange={(e) => setQuantity(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`}/>
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>BATCH NUMBER</p>
+              <input type='text' value={batchNumber} onChange={(e) => setBatchNumber(e.target.value)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>CURRENT STOCK STATUS</p>
+              <input style={{ color: stockStatusColor }} type='text' value={currentStockStatus} onChange={(e) => setCurrentStockStatus(e.target.value)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>DATE ADDED</p>
+              <input type='text' value={formatDate(dateAdded)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>LAST UPDATED</p>
+              <input type='text' value={formatDate(updatedAt)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
+            </div>
+
+            <p className='text-xl font-semibold my-4'>Purchase information</p>
+
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>SUPPLIER</p>
+              <select value={supplierId} onChange={handleSupplierChange} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} >
+                <option value="">Select Supplier</option>
+                {suppliers.map(supplier => (
+                  <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>BUYING PRICE</p>
+              <input type='number' value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`} />
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>SELLING PRICE</p>
+              <input type='number' value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {isEditing && (
+        <div className={`w-full h-[10%] px-4 py-6 border-t flex items-center justify-end ${darkMode ? 'bg-light-CARD border-light-ACCENT' : 'bg-dark-CARD border-dark-ACCENT'}`}> 
+          <div className="flex items-center gap-4"> 
+            <button type="button" onClick={() => setIsEditing(false)} className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-ACCENT text-light-ACCENT' : 'border-dark-ACCENT text-dark-ACCENT'}`}>Cancel</button> 
+            <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div> 
+            <button type="button" className={`px-6 py-2 rounded-md ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'bg-dark-ACCENT text-dark-TEXT'}`} onClick={updateProduct}>Save</button> 
+          </div> 
+        </div>
+      )}
+
+    <ConfirmationDialog 
+        isOpen={isDialogOpen}
+        onConfirm={deleteProduct}
+        onCancel={() => setIsDialogOpen(false)}
+        message="Are you sure you want to delete this product?"
+      />
+    </div>
+  );
+};
+
+export default UpdateProduct;

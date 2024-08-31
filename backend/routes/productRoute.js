@@ -4,6 +4,7 @@ import Product from '../models/productModel.js';
 import Counter from '../models/counterModel.js';
 import requireAuth from '../middleware/requireAuth.js';
 import Supplier from '../models/supplierModel.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -32,26 +33,6 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Function to generate a unique product ID
-const generateProductId = async () => {
-  try {
-    const counter = await Counter.findByIdAndUpdate(
-      { _id: 'product_id' },
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true }
-    );
-
-    if (!counter) {
-      throw new Error('Failed to generate product_id');
-    }
-
-    return `PRD-${counter.seq.toString().padStart(3, '0')}`;
-  } catch (error) {
-    console.error('Error generating product ID:', error);
-    throw new Error('Error generating product ID');
-  }
-};
-
 // Add a new product with image upload
 router.post('/', upload.single('file'), async (req, res) => {
   try {
@@ -68,7 +49,8 @@ router.post('/', upload.single('file'), async (req, res) => {
       return res.status(404).json({ message: 'Supplier not found' });
     }
 
-    const product_id = await generateProductId();
+    const product_id = await Product.generateProductId();
+    const batch_number = await Product.generateBatchNumber(); // Generate batch number
 
     const newProduct = new Product({
       name,
@@ -78,7 +60,8 @@ router.post('/', upload.single('file'), async (req, res) => {
       product_id,
       buying_price,
       selling_price,
-      image
+      image,
+      batch_number // Assign batch number
     });
 
     const product = await newProduct.save();
@@ -89,8 +72,6 @@ router.post('/', upload.single('file'), async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
-
-
 
 // Get all products (filtering out zero-stock products)
 router.get('/', async (req, res) => {
@@ -108,14 +89,14 @@ router.get('/', async (req, res) => {
 });
 
 // Bulk update products
-router.put('/bulk-update', async (request, response) => {
+router.put('/bulk-update', async (req, res) => {
   try {
-    const updates = request.body;
+    const updates = req.body;
     await Product.bulkWrite(updates);
-    return response.status(200).send({ message: 'Products updated successfully' });
+    return res.status(200).send({ message: 'Products updated successfully' });
   } catch (error) {
     console.error(error);
-    return response.status(500).send('Server Error');
+    return res.status(500).send('Server Error');
   }
 });
 
@@ -138,41 +119,35 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update a product by ID
-router.put('/:id', upload.single('file'), async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplierId, buying_price, selling_price } = req.body;
-    const image = req.file ? req.file.path : req.body.image; // Use existing image if not uploading a new one
-
-    if (!name || !category || quantity_in_stock === undefined || !supplierId || buying_price === undefined || selling_price === undefined) {
-      return res.status(400).json({ message: 'All fields are required' });
-    }
-
     const { id } = req.params;
-    const result = await Product.findByIdAndUpdate(id, {
-      name,
-      category,
-      quantity_in_stock,
-      supplier: supplierId, // Reference supplier by ID
-      buying_price,
-      selling_price,
-      image
-    }, { new: true });
+    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
 
-    if (!result) {
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { name, category, quantity_in_stock, supplier, buying_price, selling_price },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    return res.status(200).json({ message: 'Product updated', data: result });
+    return res.status(200).json(updatedProduct);
 
   } catch (error) {
-    console.error(error);
+    console.error('Error updating product:', error.message);
     return res.status(500).json({ message: 'Server Error' });
   }
 });
 
 
+
+
+
 // Delete a product by ID
-/*router.delete('/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const result = await Product.findByIdAndDelete(id);
@@ -187,7 +162,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
     console.error(error);
     return res.status(500).json({ message: 'Server Error' });
   }
-});*/
+});
 
 // Update stock statuses based on quantity and thresholds
 router.post('/update-stock-status', async (req, res) => {
@@ -238,10 +213,6 @@ router.post('/update-stock-status', async (req, res) => {
   }
 });
 
-
-
-
-
 // Get all products (filtering out zero-stock products and sorting by sales)
 router.get('/', async (req, res) => {
   try {
@@ -274,9 +245,6 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
-
-
-
 
 
 

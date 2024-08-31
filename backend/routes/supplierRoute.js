@@ -1,5 +1,6 @@
 import express from 'express';
 import Supplier from '../models/supplierModel.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 

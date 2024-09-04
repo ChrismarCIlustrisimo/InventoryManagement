@@ -41,7 +41,7 @@ const DashboardNavbar = () => {
   useEffect(() => {
     if (location.pathname === '/transaction') {
       setSelected('Transaction');
-    } else if (location.pathname === '/AdminTransaction') {
+    } else if (location.pathname === '/transaction-list') {
       setSelected('Cashier');
     } else if (location.pathname === '/orders') {
       setSelected('Orders');
@@ -132,7 +132,7 @@ const DashboardNavbar = () => {
         </div>
 
         {/* Transaction Button */}
-        <Link to="/transaction" className="flex-1">
+        <Link to="/transaction-list" className="flex-1">
           <button
             className={`text-sm p-2 ${selected === 'Transaction' ? 'border-dark-ACCENT' : 'border-none'} ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' } rounded-[24px] w-full flex items-center justify-center gap-2 border border-opacity-50`}
             onClick={() => setSelected('Transaction')}

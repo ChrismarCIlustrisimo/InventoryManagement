@@ -20,25 +20,24 @@ const Transaction = () => {
   const { darkMode } = useTheme(); 
   const { user } = useAuthContext(); 
   const navigate = useNavigate();
-
+  
+  const fetchTransaction = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/transaction/${id}`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`, 
+        },
+      });
+      setTransaction(response.data);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching transaction:', error);
+      toast.error('Failed to fetch transaction. Please try again.');
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchTransaction = async () => {
-      try {
-        const response = await axios.get(`${baseURL}/transaction/${id}`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`, 
-          },
-        });
-        setTransaction(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching transaction:', error);
-        toast.error('Failed to fetch transaction. Please try again.');
-        setLoading(false);
-      }
-    };
-
     fetchTransaction();
   }, [id, user.token]);
 

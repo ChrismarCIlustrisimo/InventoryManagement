@@ -52,26 +52,6 @@ const AdminHome = () => {
   };
   
 
-  // Toggle dropdown function
-  const toggleDropdown = (dropdown) => {
-    if (dropdown === 1) {
-      setOpenDropdown1(!openDropdown1);
-    } else if (dropdown === 2) {
-      setOpenDropdown2(!openDropdown2);
-    }
-  };
-
-  // Handle option select function
-  const handleOptionSelect = (option, dropdown) => {
-    if (dropdown === 1) {
-      setSelectedOption1(option);
-      setOpenDropdown1(false);
-    } else if (dropdown === 2) {
-      setSelectedOption2(option);
-      setOpenDropdown2(false);
-    }
-  };
-
   // Function to refresh the page
   const handleRefresh = () => {
     window.location.reload();
@@ -98,42 +78,41 @@ const AdminHome = () => {
     console.log("Transaction clicked:", transactionId);
   };
 
-  
+  const fetchTopSellingProducts = async () => {
+    try {
+      // Add sorting query parameters to the request
+      const response = await axios.get(`${baseURL}/product`, {
+        params: {
+          sortBy: "sales", // Sort by sales
+          sortOrder: "desc", // Descending order
+        },
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Network response was not ok");
+      }
+
+      const result = response.data;
+      setproductCount(result.count);
+
+      // Filter out products with sales equal to 0 and slice to get only the top 5 products
+      const top5Products = result.data
+        .filter((product) => product.sales > 0) // Exclude products with zero sales
+        .slice(0, 5);
+
+      setTopProducts(top5Products);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   useEffect(() => {
-    const fetchTopSellingProducts = async () => {
-      try {
-        // Add sorting query parameters to the request
-        const response = await axios.get(`${baseURL}/product`, {
-          params: {
-            sortBy: "sales", // Sort by sales
-            sortOrder: "desc", // Descending order
-          },
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-        });
-
-        if (response.status !== 200) {
-          throw new Error("Network response was not ok");
-        }
-
-        const result = response.data;
-        setproductCount(result.count);
-
-        // Filter out products with sales equal to 0 and slice to get only the top 5 products
-        const top5Products = result.data
-          .filter((product) => product.sales > 0) // Exclude products with zero sales
-          .slice(0, 5);
-
-        setTopProducts(top5Products);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchTopSellingProducts();
   }, [baseURL, user.token]);
 
@@ -284,22 +263,7 @@ const AdminHome = () => {
                 <div className={`absolute left-0 top-0 h-10 w-2 ${darkMode ? "bg-light-ACCENT" : "bg-dark-ACCENT"} rounded-md`}></div>
               </div>
 
-              {/* Dropdown Button */}
-              <div className="relative">
-                <button onClick={() => toggleDropdown(1)}className={`flex items-center space-x-2 px-2 py-1 rounded-md ${darkMode ? "text-light-ACCENT" : "text-dark-ACCENT"} bg-transparent border border-transparent`}>
-                  <span>{selectedOption1}</span>
-                  <IoMdArrowDropdown className={`text-lg ${darkMode ? "text-light-ACCENT" : "text-dark-ACCENT"}`}/>
-                </button>
-                {/* Dropdown Menu */}
-                {openDropdown1 && (
-                  <div className={`absolute right-0 top-full mt-2 w-48 bg-${darkMode ? "light-CARD" : "dark-CARD"} border border-gray-300 rounded-md shadow-lg`}>
-                    <ul>
-                    <li className="px-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleOptionSelect("Last Month", 1)}>Last Month</li>
-                    <li className="px-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleOptionSelect("This Month", 1)}>This Month</li>
-                    </ul>
-                  </div>
-                )}
-              </div>
+
             </div>
             <div className={`px-4 ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
               <p className="text-sm py-2">TOTAL NET SALES</p>
@@ -315,22 +279,7 @@ const AdminHome = () => {
                 <div className={`absolute left-0 top-0 h-10 w-2 ${darkMode ? "bg-light-ACCENT" : "bg-dark-ACCENT"} rounded-md`}></div>
               </div>
 
-              {/* Dropdown Button */}
-              <div className="relative">
-                <button onClick={() => toggleDropdown(2)}className={`flex items-center space-x-2 px-2 py-1 rounded-md ${darkMode ? "text-light-ACCENT" : "text-dark-ACCENT"} bg-transparent border border-transparent`}>
-                  <span>{selectedOption2}</span>
-                  <IoMdArrowDropdown className={`text-lg ${darkMode ? "text-light-ACCENT" : "text-dark-ACCENT"}`}/>
-                </button>
-                {/* Dropdown Menu */}
-                {openDropdown2 && (
-                  <div className={`absolute right-0 top-full mt-2 w-48 bg-${darkMode ? "light-CARD" : "dark-CARD"} border border-gray-300 rounded-md shadow-lg`}>
-                    <ul>
-                    <li className="px-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleOptionSelect("Last Month", 2)}>Last Month</li>
-                    <li className="px-4 py-2 hover:bg-gray-200 cursor-pointer" onClick={() => handleOptionSelect("This Month", 2)}>This Month</li>
-                    </ul>
-                  </div>
-                )}
-              </div>
+
             </div>
             <div className={`px-4 ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
               <p className="text-sm py-2">TOTAL GROSS SALES</p>

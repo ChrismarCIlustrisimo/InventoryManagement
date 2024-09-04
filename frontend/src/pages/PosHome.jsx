@@ -98,24 +98,26 @@ const PosHome = () => {
 
   useSocket(updateProducts, setFetchedProducts);
 
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${baseURL}/product`, {
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      });
+      
+      const availableProducts = response.data.data.filter(product => product.quantity_in_stock > 0);
+      setFetchedProducts(availableProducts);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   useEffect(() => {
     if (!user) return;
-
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${baseURL}/product`, {
-          headers: { 'Authorization': `Bearer ${user.token}` }
-        });
-        const availableProducts = response.data.data.filter(product => product.quantity_in_stock > 0);
-        setFetchedProducts(availableProducts);
-      } catch (error) {
-        console.error('Error fetching products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
   }, [user]);
 
@@ -202,6 +204,7 @@ const PosHome = () => {
                 onClick={() => handleAddToCart(product)}
               />
             ))
+            
           )}
         </div>
       </div>

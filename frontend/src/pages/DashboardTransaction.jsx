@@ -1,124 +1,121 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import Navbar from '../components/Navbar';
+import { useAdminTheme } from '../context/AdminThemeContext';
+import AdminSearchBar from '../components/adminSearchBar';
+import DashboardNavbar from '../components/DashboardNavbar';
 import { useAuthContext } from '../hooks/useAuthContext';
-import { useTheme } from '../context/ThemeContext';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { GrPowerReset } from 'react-icons/gr';
+import { useNavigate } from 'react-router-dom';
 import Spinner from '../components/Spinner';
-import SearchBar from '../components/SearchBar';
+import { GrPowerReset } from 'react-icons/gr';
+import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from 'react-datepicker';
+import axios from 'axios';
 
-const DashboardPos = () => {
-  const { user } = useAuthContext();
-  const { darkMode } = useTheme();
+const DashboardTransaction = () => {
+    const { user } = useAuthContext();
+    const { darkMode } = useAdminTheme();
+    const baseURL = "http://localhost:5555";
+    const navigate = useNavigate();
+    const [error, setError] = useState('');
 
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [sortBy, setSortBy] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [salesOrder, setSalesOrder] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [cashierName, setCashierName] = useState('');
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+    const [minPrice, setMinPrice] = useState('');
+    const [maxPrice, setMaxPrice] = useState('');
+    const [sortBy, setSortBy] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [salesOrder, setSalesOrder] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [cashierName, setCashierName] = useState('');
 
-  useEffect(() => {
-    if (user) {
-      fetchSalesOrders();
-    }
-  }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user]);
-
-  const fetchSalesOrders = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get('http://localhost:5555/transaction', {
-        params: {
-          startDate: startDate ? startDate.toISOString() : undefined,
-          endDate: endDate ? endDate.toISOString() : undefined,
-          minPrice,
-          maxPrice,
-          sortBy,
-          payment_status: 'paid',
-          transaction_id: searchQuery,
-          cashier: cashierName,
-        },
-        headers: {
-          'Authorization': `Bearer ${user.token}`,
-        },
-      });
-      setSalesOrder(response.data.data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching sales orders:', error);
-      setLoading(false);
-    }
-  };
-
-  const handleDateFilter = (e) => {
-    const value = e.target.value;
-    const today = new Date();
+    useEffect(() => {
+        if (user) {
+          fetchSalesOrders();
+        }
+      }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user]);
     
-    if (value === 'today') {
-      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // Set end of day
-      setStartDate(startOfDay);
-      setEndDate(endOfDay);
-    } else if (value === 'this_week') {
-      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Start of week (Monday)
-      const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7)); // End of week (Sunday)
-      startOfWeek.setHours(0, 0, 0, 0); // Set start of day
-      endOfWeek.setHours(23, 59, 59, 999); // Set end of day
-      setStartDate(startOfWeek);
-      setEndDate(endOfWeek);
-    } else if (value === 'this_month') {
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      startOfMonth.setHours(0, 0, 0, 0);
-      endOfMonth.setHours(23, 59, 59, 999);
-      setStartDate(startOfMonth);
-      setEndDate(endOfMonth);
-    }
-  };
-  
-  const handleStartDateChange = (date) => setStartDate(date);
-  const handleEndDateChange = (date) => setEndDate(date);
-  const handleMinPriceChange = (event) => setMinPrice(event.target.value);
-  const handleMaxPriceChange = (event) => setMaxPrice(event.target.value);
-  const handleSortByChange = (event) => setSortBy(event.target.value);
-  const handleResetFilters = () => {
-    setStartDate(null);
-    setEndDate(null);
-    setMinPrice('');
-    setMaxPrice('');
-    setSortBy('');
-  };
-  const handleTransactionClick = (transactionId) => {
-    // Implement transaction click logic
-  };
-  
-  const handleCashierNameChange = (event) => setCashierName(event.target.value);
+      const fetchSalesOrders = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get('http://localhost:5555/transaction', {
+            params: {
+              startDate: startDate ? startDate.toISOString() : undefined,
+              endDate: endDate ? endDate.toISOString() : undefined,
+              minPrice,
+              maxPrice,
+              sortBy,
+              payment_status: 'paid',
+              transaction_id: searchQuery,
+              cashier: cashierName,
+            },
+            headers: {
+              'Authorization': `Bearer ${user.token}`,
+            },
+          });
+          setSalesOrder(response.data.data);
+          setLoading(false);
+        } catch (error) {
+          console.error('Error fetching sales orders:', error);
+          setLoading(false);
+        }
+      };
 
-  // Utility function for formatting date
-  const formatDate = (date) => {
-    if (!date) return 'N/A';
-    return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(new Date(date));
-  };
 
-  return (
-    <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
-      <Navbar />
-      <div className='h-full px-6 pt-[70px]'>
-        <div className='flex items-center justify-center py-5'>
-          <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT' }`}>Transaction</h1>
-          <div className='w-full flex  justify-end '>
-            <SearchBar 
-              query={searchQuery}
-              onQueryChange={setSearchQuery}
-            />
-          </div>
-        </div>
-        <div className='flex gap-4'>
+      const handleDateFilter = (e) => {
+        const value = e.target.value;
+        const today = new Date();
+        
+        if (value === 'today') {
+          const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+          const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // Set end of day
+          setStartDate(startOfDay);
+          setEndDate(endOfDay);
+        } else if (value === 'this_week') {
+          const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Start of week (Monday)
+          const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7)); // End of week (Sunday)
+          startOfWeek.setHours(0, 0, 0, 0); // Set start of day
+          endOfWeek.setHours(23, 59, 59, 999); // Set end of day
+          setStartDate(startOfWeek);
+          setEndDate(endOfWeek);
+        } else if (value === 'this_month') {
+          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          startOfMonth.setHours(0, 0, 0, 0);
+          endOfMonth.setHours(23, 59, 59, 999);
+          setStartDate(startOfMonth);
+          setEndDate(endOfMonth);
+        }
+      };
+
+      const handleStartDateChange = (date) => setStartDate(date);
+      const handleEndDateChange = (date) => setEndDate(date);
+      const handleMinPriceChange = (event) => setMinPrice(event.target.value);
+      const handleMaxPriceChange = (event) => setMaxPrice(event.target.value);
+      const handleSortByChange = (event) => setSortBy(event.target.value);
+      const handleCashierNameChange = (event) => setCashierName(event.target.value);
+      const handleResetFilters = () => {
+        setStartDate(null);
+        setEndDate(null);
+        setMinPrice('');
+        setMaxPrice('');
+        setSortBy('');
+      };
+
+      const formatDate = (date) => {
+        if (!date) return 'N/A';
+        return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(new Date(date));
+      };
+
+    return (
+        <div className={`w-full h-full ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
+            <DashboardNavbar />
+            <div className='pt-[70px] px-6 py-4 w-full h-full'>
+                <div className='flex items-center justify-center py-5'>
+                    <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>Transaction</h1>
+                    <div className='w-full flex justify-end gap-2'>
+                        <AdminSearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+                    </div>
+                </div>
+                <div className='flex gap-4'>
           <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}>
             <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
               <div className='flex flex-col'>
@@ -288,9 +285,9 @@ const DashboardPos = () => {
             </div>
           )}
         </div>
-      </div>
-    </div>
-  );
-};
+            </div>
+        </div>
+    );
+}
 
-export default DashboardPos;
+export default DashboardTransaction;

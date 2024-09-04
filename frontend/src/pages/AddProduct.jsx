@@ -70,98 +70,98 @@ const AddProduct = () => {
         <div className={`w-[40%] h-[85%] rounded-md p-4 ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'}`}>
           <div className='flex flex-col w-full gap-4 h-full'>
           <div className='flex flex-col w-full gap-2'>
-  <label htmlFor="name">Product name</label>
-  <input
-    type='text'
-    placeholder='Name'
-    className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-    value={name}
-    onChange={(e) => setName(e.target.value)}
-  />
-</div>
+        <label htmlFor="name">Product name</label>
+        <input
+          type='text'
+          placeholder='Name'
+          className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
 
-<div className='w-full flex gap-2'>
-  <div className='flex flex-col w-[50%] gap-2'>
-    <label htmlFor="category">Product Category</label>
-    <select
-      id="category"
-      className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-      value={category}
-      onChange={(e) => setCategory(e.target.value)}
-    >
-      <option value="" className='text-gray-400'>Select Category</option>
-      <option value="Components">Components</option>
-      <option value="Peripherals">Peripherals</option>
-      <option value="Accessories">Accessories</option>
-      <option value="PC Furniture">PC Furniture</option>
-      <option value="OS & Software">OS & Software</option>
-    </select>
-  </div>
+        <div className='w-full flex gap-2'>
+          <div className='flex flex-col w-[50%] gap-2'>
+            <label htmlFor="category">Product Category</label>
+            <select
+              id="category"
+              className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+            >
+              <option value="" className='text-gray-400'>Select Category</option>
+              <option value="Components">Components</option>
+              <option value="Peripherals">Peripherals</option>
+              <option value="Accessories">Accessories</option>
+              <option value="PC Furniture">PC Furniture</option>
+              <option value="OS & Software">OS & Software</option>
+            </select>
+          </div>
 
-  <div className='flex flex-col w-[50%] gap-2'>
-    <label htmlFor="quantity">Product Quantity</label>
-    <input
-      type='number'
-      placeholder='Quantity'
-      id="quantity"
-      className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-      value={quantity}
-      onChange={(e) => setQuantity(e.target.value)}
-    />
-  </div>
-</div>
+          <div className='flex flex-col w-[50%] gap-2'>
+            <label htmlFor="quantity">Product Quantity</label>
+            <input
+              type='number'
+              placeholder='Quantity'
+              id="quantity"
+              className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
+          </div>
+        </div>
 
-<div className='w-full flex flex-col gap-2'>
-  <label htmlFor="supplier">Product Supplier</label>
-  <select
-  className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-  onChange={(e) => {
-    setSupplier(e.target.value);
-    setSupplierName(e.target.options[e.target.selectedIndex].text); // Ensure this is defined
-  }}
->
-  <option value="NONE" className='text-gray-400'>Select Supplier</option>
-  <option value="NONE">None</option>
-  {suppliers.map(supplier => (
-    <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
-  ))}
-</select>
+        <div className='w-full flex flex-col gap-2'>
+          <label htmlFor="supplier">Product Supplier</label>
+          <select
+          className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+          onChange={(e) => {
+            setSupplier(e.target.value);
+            setSupplierName(e.target.options[e.target.selectedIndex].text); // Ensure this is defined
+          }}
+        >
+          <option value="NONE" className='text-gray-400'>Select Supplier</option>
+          <option value="NONE">None</option>
+          {suppliers.map(supplier => (
+            <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
+          ))}
+        </select>
 
-</div>
+        </div>
 
-<div className='w-full flex gap-2'>
-  <div className='flex flex-col w-[50%] gap-2'>
-    <label htmlFor="buying_price">Buying Price</label>
-    <input
-      type='number'
-      placeholder='Buying Price'
-      id="buying_price"
-      className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-      value={buyingPrice}
-      onChange={(e) => setBuyingPrice(e.target.value)}
-    />
-  </div>
-  <div className='flex flex-col w-[50%] gap-2'>
-    <label htmlFor="selling_price">Selling Price</label>
-    <input
-      type='number'
-      placeholder='Selling Price'
-      id="selling_price"
-      className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-      value={sellingPrice}
-      onChange={(e) => setSellingPrice(e.target.value)}
-    />
-  </div>
-</div>
+        <div className='w-full flex gap-2'>
+          <div className='flex flex-col w-[50%] gap-2'>
+            <label htmlFor="buying_price">Buying Price</label>
+            <input
+              type='number'
+              placeholder='Buying Price'
+              id="buying_price"
+              className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+              value={buyingPrice}
+              onChange={(e) => setBuyingPrice(e.target.value)}
+            />
+          </div>
+          <div className='flex flex-col w-[50%] gap-2'>
+            <label htmlFor="selling_price">Selling Price</label>
+            <input
+              type='number'
+              placeholder='Selling Price'
+              id="selling_price"
+              className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+              value={sellingPrice}
+              onChange={(e) => setSellingPrice(e.target.value)}
+            />
+          </div>
+        </div>
 
-<p>Image</p>
-<div className={`w-full h-[10%] border rounded-md p-2 flex items-center justify-start ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
-  <input
-    className="bg-transparent w-auto"
-    type='file'
-    onChange={(e) => setFile(e.target.files[0])}
-  />
-</div>
+              <p>Image</p>
+              <div className={`w-full h-[10%] border rounded-md p-2 flex items-center justify-start ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
+                <input
+                  className="bg-transparent w-auto"
+                  type='file'
+                  onChange={(e) => setFile(e.target.files[0])}
+                />
+              </div>
 
           </div>
         </div>

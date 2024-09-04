@@ -18,7 +18,7 @@ const AdminSearchBar = ({ query, onQueryChange }) => {
     <div className={`w-[480px] flex items-center px-4 rounded-md ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'}`}>
       <input 
         type="text"
-        placeholder='Search Product'
+        placeholder='Search'
         className='w-full text-xs bg-transparent py-[11px] outline-none'
         value={query}
         onChange={handleChange}       

@@ -18,6 +18,9 @@ import Unauthorized from './pages/Unauthorized';
 import DashboardProductList from './pages/dashboardProductList';
 import UpdateProduct from './pages/UpdateProduct';
 import Supplier from './pages/dashboardSupplier';
+import AddSupplier from './pages/AddSupplier'
+import UpdateSupplier from './pages/UpdateSupplier';
+import DashboardTransaction from './pages/DashboardTransaction';
 
 const App = () => {
     const { user } = useAuthContext();
@@ -38,8 +41,11 @@ const App = () => {
               <Route path="/addproduct" element={<AddProduct />} />
               <Route path="/update-product/:productId"  element={<UpdateProduct />} />
               <Route path="/inventory/supplier" element={<Supplier />} />
+              <Route path="/add-supplier" element={<AddSupplier />} />
+              <Route path="/update-supplier/:supplierId" element={<UpdateSupplier />} />
               <Route path="/Products" element={<PrivateRoute requiredRole="admin"><Product /></PrivateRoute>} />
               <Route path="/inventory/product" element={<PrivateRoute requiredRole="admin"><DashboardProductList /></PrivateRoute>} /> {/* Updated usage */}
+              <Route path="/transaction-list" element={<PrivateRoute requiredRole="admin"><DashboardTransaction /></PrivateRoute>} />
               <Route path="*" element={<Navigate to="/" />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
             </Routes>

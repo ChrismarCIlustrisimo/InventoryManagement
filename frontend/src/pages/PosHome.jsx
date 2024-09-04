@@ -16,6 +16,9 @@ import ProceedToPayment from '../components/ProceedToPayment';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProductLoading from '../components/ProductLoading';
+import useSocket from '../hooks/useSocket';
+
+const baseURL = 'http://localhost:5555';
 
 const PosHome = () => {
   const [products, setProducts] = useState([]);
@@ -24,11 +27,10 @@ const PosHome = () => {
   const [selectedCategory, setSelectedCategory] = useState('All Products');
   const [searchQuery, setSearchQuery] = useState('');
   const [cart, setCart] = useState([]);
-  const baseURL = 'http://localhost:5555';
   const { user } = useAuthContext();
   const { darkMode } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const loadingItems = Array.from({ length: 6 }); // Adjust the number of placeholders
+  const loadingItems = Array.from({ length: 6 });
   const [categoryCounts, setCategoryCounts] = useState({
     'All Products': 0,
     'Components': 0,
@@ -38,136 +40,104 @@ const PosHome = () => {
     'OS & Software': 0
   });
 
-  const calculateTotal = () => {
-    return cart.reduce((total, item) => {
-      const price = parseFloat(item.product.selling_price) || 0;
-      const quantity = item.quantity || 0;
-      return total + (price * quantity);
-    }, 0);
-  };
+  const calculateTotal = () => cart.reduce((total, item) => total + (parseFloat(item.product.selling_price) || 0) * (item.quantity || 0), 0);
 
   const handlePayButton = () => {
-    if(cart.length == 0) {
-      toast.error('Cart is empty! Please add products before proceeding.', {
-        background: 'toastify-color-dark'
-      });
+    if (cart.length === 0) {
+      toast.error('Cart is empty! Please add products before proceeding.', { background: 'toastify-color-dark' });
       return;
-    } 
+    }
     setIsModalOpen(true);
   };
-  
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-  
-  const handlePaymentSuccess = async () => {
 
-    console.log('Payment success called');
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  const handlePaymentSuccess = async () => {
     toast.success('Payment successful!');
-    setCart([]); // Clear the cart
-  
-    // Fetch updated product list after payment
-    const fetchUpdatedProducts = async () => {
-      try {
-        const response = await axios.get(`${baseURL}/product`, {
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
-        });
-        const productData = response.data.data;
-        // Filter out products with zero stock
-        const availableProducts = productData.filter(product => product.quantity_in_stock > 0);
-        setProducts(availableProducts); // Update products state with the new stock
-      } catch (error) {
-        console.error('Error fetching updated products:', error);
+    setCart([]);
+
+    try {
+      const response = await axios.get(`${baseURL}/product`, {
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      });
+      const availableProducts = response.data.data.filter(product => product.quantity_in_stock > 0);
+      setProducts(availableProducts);
+    } catch (error) {
+      console.error('Error fetching updated products:', error);
+    }
+  };
+
+  const handlePaymentError = () => toast.error('Payment failed!', { background: 'toastify-color-dark' });
+
+  const updateProducts = (updatedProduct) => {
+    setProducts(prevProducts => {
+      const index = prevProducts.findIndex(p => p._id === updatedProduct._id);
+      if (index !== -1) {
+        const updatedProducts = [...prevProducts];
+        updatedProducts[index] = updatedProduct;
+        return updatedProducts;
       }
-    };
-  
-    await fetchUpdatedProducts();
+      return [...prevProducts, updatedProduct];
+    });
   };
-  
-  const handlePaymentError = () => {
-    toast.error('Payment failed!', {
-      background: 'toastify-color-dark'
-    }); 
+
+  const setFetchedProducts = (fetchedProducts) => {
+    setProducts(fetchedProducts);
+    setFilteredProducts(fetchedProducts);
+
+    const counts = fetchedProducts.reduce((acc, product) => {
+      const category = product.category || 'Uncategorized';
+      if (!acc[category]) acc[category] = 0;
+      acc[category] += product.quantity_in_stock;
+      acc['All Products'] += product.quantity_in_stock;
+      return acc;
+    }, { 'All Products': 0, 'Components': 0, 'Peripherals': 0, 'Accessories': 0, 'PC Furniture': 0, 'OS & Software': 0 });
+
+    setCategoryCounts(counts);
   };
+
+  useSocket(updateProducts, setFetchedProducts);
 
   useEffect(() => {
-    if (!user) return; // Don't fetch if user is not available
-  
+    if (!user) return;
+
     const fetchProducts = async () => {
       setLoading(true);
       try {
         const response = await axios.get(`${baseURL}/product`, {
-          headers: {
-            'Authorization': `Bearer ${user.token}`
-          }
+          headers: { 'Authorization': `Bearer ${user.token}` }
         });
-  
-        const productData = response.data.data;
-        // Filter out products with zero stock
-        const availableProducts = productData.filter(product => product.quantity_in_stock > 0);
-        setProducts(availableProducts);
-        setFilteredProducts(availableProducts); // Set filtered products initially
-  
-        const counts = availableProducts.reduce((acc, product) => {
-          const category = product.category || 'Uncategorized';
-          if (!acc[category]) acc[category] = 0;
-          acc[category] += product.quantity_in_stock;
-          acc['All Products'] += product.quantity_in_stock;
-          return acc;
-        }, {
-          'All Products': 0,
-          'Components': 0,
-          'Peripherals': 0,
-          'Accessories': 0,
-          'PC Furniture': 0,
-          'OS & Software': 0
-        });
-  
-        setCategoryCounts(counts);
-  
+        const availableProducts = response.data.data.filter(product => product.quantity_in_stock > 0);
+        setFetchedProducts(availableProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     };
-  
+
     fetchProducts();
-  
-  }, [user]); 
-  
+  }, [user]);
+
   useEffect(() => {
-    const updatedFilteredProducts = products.filter((product) => {
+    setFilteredProducts(products.filter(product => {
       const isInCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
       const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase());
       return isInCategory && matchesSearchQuery;
-    });
-    setFilteredProducts(updatedFilteredProducts);
+    }));
   }, [products, selectedCategory, searchQuery]);
-  
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
-  };
 
-  const handleAddToCart = (product) => {
-    setCart((prevCart) => {
-      const existingProduct = prevCart.find(item => item.product._id === product._id);
-      if (existingProduct) {
-        return prevCart.map(item =>
-          item.product._id === product._id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-      return [...prevCart, { product, quantity: 1 }];
-    });
-  };
+  const handleCategoryChange = (category) => setSelectedCategory(category);
 
-  const handleRemoveFromCart = (productId) => {
-    setCart((prevCart) => prevCart.filter(item => item.product._id !== productId));
-  };
+  const handleAddToCart = (product) => setCart(prevCart => {
+    const existingProduct = prevCart.find(item => item.product._id === product._id);
+    if (existingProduct) {
+      return prevCart.map(item => item.product._id === product._id ? { ...item, quantity: item.quantity + 1 } : item);
+    }
+    return [...prevCart, { product, quantity: 1 }];
+  });
+
+  const handleRemoveFromCart = (productId) => setCart(prevCart => prevCart.filter(item => item.product._id !== productId));
 
   const buttons = [
     { icon: <RiFileList3Fill className='w-8 h-8' />, label: 'All Products', count: categoryCounts['All Products'] || 0 },
@@ -178,13 +148,12 @@ const PosHome = () => {
     { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: categoryCounts['OS & Software'] || 0 }
   ];
 
-  const safeToFixed = (c, decimals = 2) => {
+  const safeToFixed = (value, decimals = 2) => {
     if (typeof value !== 'number' || isNaN(value)) {
       return '0.00';
     }
     return value.toFixed(decimals);
   };
-
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
       <ToastContainer theme={darkMode ? 'light' : 'dark'} />

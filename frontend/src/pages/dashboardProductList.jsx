@@ -8,10 +8,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
 import '../App.css';
 import axios from 'axios';
-import { FaEdit } from "react-icons/fa";
-import { MdDelete } from "react-icons/md";
-import { HiOutlineDotsHorizontal, HiX } from "react-icons/hi";
 import { FaPlay } from "react-icons/fa";
+import io from 'socket.io-client'; // Import socket.io-client
 
 const stockColors = {
   "HIGH STOCK": "#1e7e34", // Darker Green
@@ -19,8 +17,6 @@ const stockColors = {
   "LOW STOCK": "#d39e00", // Darker Yellow
   "OUT OF STOCK": "#c82333", // Darker Red
 };
-
-
 
 const DashboardProductList = () => {
   const { user } = useAuthContext();
@@ -50,21 +46,6 @@ const DashboardProductList = () => {
     }));
   };
 
-  const handleDeleteProduct = async (productId) => {
-    try {
-      await axios.delete(`${baseURL}/product/${productId}`, {
-        headers: {
-          'Authorization': `Bearer ${user.token}`
-        }
-      });
-      // Refetch products after deletion
-
-      fetchProducts();
-    } catch (error) {
-      console.error('Error deleting product:', error.message);
-    }
-  };
-  
   const fetchSuppliers = async () => {
     try {
       const response = await axios.get(`${baseURL}/supplier`, {
@@ -105,6 +86,31 @@ const DashboardProductList = () => {
     }
   }, [user]);
 
+  // WebSocket setup
+  useEffect(() => {
+    const socket = io(baseURL, { transports: ['websocket'], upgrade: true });
+
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+    }); 
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+    });
+
+    socket.on('product-updated', (updatedProduct) => {
+      // Update the local product list with the updated product
+      setProducts(prevProducts => prevProducts.map(product =>
+        product._id === updatedProduct._id ? updatedProduct : product
+      ));
+    });
+
+    // Clean up the WebSocket connection on component unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   const filteredProducts = products
     .filter(product =>
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -124,24 +130,20 @@ const DashboardProductList = () => {
       return 0;
     });
 
-
-
   const handleCategoryChange = e => {
     setCategoryFilter(e.target.value);
   };
 
-
   const handleMinPriceChange = (e) => {
     setMinPrice(e.target.value);
   };
-  
+
   const handleMaxPriceChange = (e) => {
     setMaxPrice(e.target.value);
   };
-  
-  
+
   const handleSortByChange = e => setSortBy(e.target.value);
-  
+
   const handlePriceRangeFilter = () => {
     setProducts(prevProducts => prevProducts.filter(product =>
       (minPrice === '' || product.selling_price >= parseFloat(minPrice)) &&
@@ -162,21 +164,17 @@ const DashboardProductList = () => {
       "HIGH STOCK": false,
       "OUT OF STOCK": false,
     }); // Reset stock alerts
-  
+
     // Refetch products to ensure the display reflects the unfiltered state
     fetchProducts();
   };
-  
+
   const handleAddProductClick = () => {
     navigate('/addproduct');
   };
 
   const handleRowClick = (productId) => {
     navigate(`/update-product/${productId}`);
-  };
-  
-  const toggleButtons = () => {
-    setIsOpenButton(prev => !prev);
   };
 
   return (
@@ -270,21 +268,21 @@ const DashboardProductList = () => {
                   </label>
                 </div>
               </div>
-                  <label className='text-sm text-gray-500 mb-1'>PRICE RANGE</label>
-                <div className='flex justify-left items-center gap-2'>
-                  <div className='flex flex-col'>
-                    <div className={`w-[100px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
-                      <input type='number' id='minPrice' value={minPrice} onChange={handleMinPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Min'/>
-                    </div>
+              <label className='text-sm text-gray-500 mb-1'>PRICE RANGE</label>
+              <div className='flex justify-left items-center gap-2'>
+                <div className='flex flex-col'>
+                  <div className={`w-[100px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
+                    <input type='number' id='minPrice' value={minPrice} onChange={handleMinPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Min'/>
                   </div>
-                    <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
-                  <div className='flex flex-col'>
-                    <div className={`w-[100px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT' }`}>
-                      <input type='number' id='maxPrice' value={maxPrice} onChange={handleMaxPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Max' /> 
-                     </div>
-                  </div>
-                    <button className={`p-2 text-xs rounded-md ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} hover:bg-opacity-60 active:bg-opacity-30`} onClick={handlePriceRangeFilter}><FaPlay /></button>
                 </div>
+                <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
+                <div className='flex flex-col'>
+                  <div className={`w-[100px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT' }`}>
+                    <input type='number' id='maxPrice' value={maxPrice} onChange={handleMaxPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Max' /> 
+                   </div>
+                </div>
+                <button className={`p-2 text-xs rounded-md ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} hover:bg-opacity-60 active:bg-opacity-30`} onClick={handlePriceRangeFilter}><FaPlay /></button>
+              </div>
             </div>
 
             <div className='flex flex-col gap-2'>

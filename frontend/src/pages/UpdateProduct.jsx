@@ -30,6 +30,16 @@ const UpdateProduct = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
   const baseURL = "http://localhost:5555";
+  
+
+  const categoryThresholds = {
+    'Components': { nearLow: 10, low: 5 },
+    'Peripherals': { nearLow: 15, low: 3 },
+    'Accessories': { nearLow: 20, low: 10 },
+    'PC Furniture': { nearLow: 20, low: 10 },
+    'OS & Software': { nearLow: 10, low: 5 },
+    // Add more categories as needed
+  };
 
   useEffect(() => {
     axios.get(`${baseURL}/product/${productId}`)
@@ -74,9 +84,27 @@ const UpdateProduct = () => {
         console.error('Error fetching suppliers:', err.response ? err.response.data : err.message);
         setError(err.response ? err.response.data.message : 'An unknown error occurred');
       });
+
   }, [productId]);
+  console.log("Selling Price", buyingPrice);
 
   const updateProduct = () => {
+    // Determine stock status
+    let status;
+    const thresholds = categoryThresholds[category] || { nearLow: 20, low: 10 };
+  
+    if (quantity <= 0) {
+      status = 'OUT OF STOCK';
+    } else if (quantity <= thresholds.low) {
+      status = 'LOW STOCK';
+    } else if (quantity <= thresholds.nearLow) {
+      status = 'NEAR LOW STOCK';
+    } else {
+      status = 'HIGH STOCK';
+    }
+  
+    setCurrentStockStatus(status); // Update the currentStockStatus state
+  
     const formData = new FormData();
     if (file) formData.append('file', file);
     formData.append('name', name);
@@ -85,18 +113,29 @@ const UpdateProduct = () => {
     formData.append('supplier', supplierId);
     formData.append('buying_price', buyingPrice);
     formData.append('selling_price', sellingPrice);
-    formData.append('date_added', dateAdded);
-    formData.append('last_updated', updatedAt);
+    formData.append('batchNumber', batchNumber);
+    formData.append('dateAdded', dateAdded);
+    formData.append('updatedAt', updatedAt);
+    formData.append('product_id', productID);
+    formData.append('current_stock_status', currentStockStatus);
+  
+    console.log('Updating product with data:', {
+      name, category, quantity, supplierId, buyingPrice, sellingPrice, batchNumber, dateAdded, updatedAt
+    });
+  
     axios.put(`${baseURL}/product/${productId}`, formData)
       .then(res => {
         console.log('Update successful:', res.data);
         setIsEditing(false);
+        // Optionally refetch product data here to ensure it reflects the latest changes
+        handleBackClick();
       })
       .catch(err => {
         console.error('Error updating product:', err.response ? err.response.data : err.message);
         setError(err.response ? err.response.data.message : 'An unknown error occurred');
       });
   };
+  
 
   const deleteProduct = () => {
     axios.delete(`${baseURL}/product/${productId}`)

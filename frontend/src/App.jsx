@@ -17,6 +17,7 @@ import { useAuthContext } from './hooks/useAuthContext';
 import Unauthorized from './pages/Unauthorized';
 import DashboardProductList from './pages/dashboardProductList';
 import UpdateProduct from './pages/UpdateProduct';
+import Supplier from './pages/dashboardSupplier';
 
 const App = () => {
     const { user } = useAuthContext();
@@ -36,6 +37,7 @@ const App = () => {
               <Route path="/orders" element={<PrivateRoute requiredRole="cashier"><SalesOrder /></PrivateRoute>} />
               <Route path="/addproduct" element={<AddProduct />} />
               <Route path="/update-product/:productId"  element={<UpdateProduct />} />
+              <Route path="/inventory/supplier" element={<Supplier />} />
               <Route path="/Products" element={<PrivateRoute requiredRole="admin"><Product /></PrivateRoute>} />
               <Route path="/inventory/product" element={<PrivateRoute requiredRole="admin"><DashboardProductList /></PrivateRoute>} /> {/* Updated usage */}
               <Route path="*" element={<Navigate to="/" />} />

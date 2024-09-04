@@ -43,28 +43,29 @@ router.post('/', upload.single('file'), async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Validate that supplier exists
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(404).json({ message: 'Supplier not found' });
     }
 
-    const product_id = await Product.generateProductId();
-    const batch_number = await Product.generateBatchNumber(); // Generate batch number
+    const productId = await Product.generateProductId(); // Generate product ID
 
-    const newProduct = new Product({
+    const product = new Product({
       name,
       category,
       quantity_in_stock,
-      supplier: supplierId, // Reference supplier by ID
-      product_id,
+      supplier: supplierId,
       buying_price,
       selling_price,
       image,
-      batch_number // Assign batch number
+      product_id: productId // Set the generated product ID
     });
 
-    const product = await newProduct.save();
+    await product.save();
+
+    // Emit a WebSocket event after adding the product
+    req.app.get('io').emit('product-added', product);
+
     return res.status(201).json(product);
 
   } catch (error) {
@@ -73,10 +74,15 @@ router.post('/', upload.single('file'), async (req, res) => {
   }
 });
 
+
 // Get all products (filtering out zero-stock products)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({ quantity_in_stock: { $gt: 0 } }); // Filter out zero-stock products
+    const products = await Product.find({ quantity_in_stock: { $gt: 0 } });
+    
+    // Emit a WebSocket event for product list fetch
+    req.app.get('io').emit('products-fetched', products);
+
     return res.status(200).json({
       count: products.length,
       data: products
@@ -87,6 +93,7 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 // Bulk update products
 router.put('/bulk-update', async (req, res) => {
@@ -118,21 +125,26 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update a product by ID
-router.put('/:id', async (req, res) => {
+// Use multer to handle file uploads and body parsing
+router.put('/:id', upload.single('file'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
+    const { name, category, quantity_in_stock, supplier, buying_price, selling_price, batchNumber, currentStockStatus, dateAdded, updatedAt } = req.body;
+    const file = req.file;
 
+    // Update the product
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, category, quantity_in_stock, supplier, buying_price, selling_price },
+      { name, category, quantity_in_stock, supplier, buying_price, selling_price, batchNumber, currentStockStatus, dateAdded, updatedAt },
       { new: true, runValidators: true }
     );
 
     if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found' });
     }
+
+    // Emit a WebSocket event after updating the product
+    req.app.get('io').emit('product-updated', updatedProduct);
 
     return res.status(200).json(updatedProduct);
 
@@ -141,6 +153,7 @@ router.put('/:id', async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 
 

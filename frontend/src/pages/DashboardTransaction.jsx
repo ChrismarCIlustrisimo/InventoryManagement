@@ -9,7 +9,12 @@ import { GrPowerReset } from 'react-icons/gr';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import axios from 'axios';
+import DashboardRefund from '../components/DashboardRefund';
+import { toast, ToastContainer } from 'react-toastify';
 
+
+
+// This component is used to display all sales orders in the dashboard.
 const DashboardTransaction = () => {
     const { user } = useAuthContext();
     const { darkMode } = useAdminTheme();
@@ -26,9 +31,24 @@ const DashboardTransaction = () => {
     const [salesOrder, setSalesOrder] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [cashierName, setCashierName] = useState('');
+    const [showRefundPanel, setShowRefundPanel] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState(null);
+    const toggleRefundPanel = (transaction) => {
+      setSelectedTransaction(transaction);
+      setShowRefundPanel(!showRefundPanel);
+    };
 
+    const handleRefundSuccess = () => {
+      toast.success('Refund was successful!');
+      fetchSalesOrders();
+  };
+
+  const handleRefundError = () => {
+      toast.error(`Refund failed!`);
+  };
+    
     useEffect(() => {
-        if (user) {
+        if (user) { 
           fetchSalesOrders();
         }
       }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user]);
@@ -105,8 +125,10 @@ const DashboardTransaction = () => {
         return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(new Date(date));
       };
 
+
     return (
         <div className={`w-full h-full ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
+            <ToastContainer theme={darkMode ? 'light' : 'dark'} />
             <DashboardNavbar />
             <div className='pt-[70px] px-6 py-4 w-full h-full'>
                 <div className='flex items-center justify-center py-5'>
@@ -250,6 +272,7 @@ const DashboardTransaction = () => {
                 <div
                   key={transaction._id}
                   className={`rounded-lg p-4 flex gap-4 ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}
+                  onClick={() => toggleRefundPanel(transaction)}
                   //onClick={() => handleTransactionClick(transaction.transaction_id)}
                 >
                   <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
@@ -286,6 +309,21 @@ const DashboardTransaction = () => {
           )}
         </div>
             </div>
+            {/* Refund Panel */}
+            {showRefundPanel && (
+                <DashboardRefund
+                    isOpen={showRefundPanel}
+                    onClose={() => setShowRefundPanel(false)}
+                    transaction_id={selectedTransaction?.transaction_id || 0}
+                    total_price={selectedTransaction?.total_price || 0}
+                    transaction_date={selectedTransaction?.transaction_date}
+                    cashier={selectedTransaction?.cashier}
+                    customer={selectedTransaction?.customer || {}}
+                    cart={selectedTransaction?.products || []}
+                    onRefundSuccess={handleRefundSuccess}
+                    onRefundError={handleRefundError}
+                />
+            )}
         </div>
     );
 }

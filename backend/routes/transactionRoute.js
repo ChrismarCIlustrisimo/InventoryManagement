@@ -8,7 +8,7 @@ import requireAuth from '../middleware/requireAuth.js';
 const router = express.Router();
 
 // requireAuth for all transactions routes
-router.use(requireAuth)
+//router.use(requireAuth)
 
 // Function to generate a new transaction ID
 const generateTransactionId = async () => {

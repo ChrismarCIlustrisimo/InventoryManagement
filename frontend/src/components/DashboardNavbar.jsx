@@ -125,7 +125,17 @@ const DashboardNavbar = () => {
           </Tooltip>
           {isInventoryDropdownOpen && (
             <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
-              <Link to="/inventory/product" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Product List</Link>
+              <Link to="/inventory/product" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>
+                Product List 
+                <div className="flex gap-5 absolute top-0 right-[10px]">
+                  {lowStockCount > 0 && (
+                    <LowStockBadge badgeContent={lowStockCount} color="warning" />
+                  )}
+                  {outOfStockCount > 0 && (
+                    <OutOfStockBadge badgeContent={outOfStockCount} color="error" />
+                  )}
+              </div>
+              </Link>
               <Link to="/inventory/supplier" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Supplier List</Link>
             </div>
           )}
@@ -161,14 +171,15 @@ const DashboardNavbar = () => {
           </button>
           {isSalesDropdownOpen && (
             <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
-              <Link to="/sales/report" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales Report</Link>
-              <Link to="/sales/analytics" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales Analytics</Link>
+              <Link to="/sales" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales</Link>
+              <Link to="/customer" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Customer</Link>
             </div>
           )}
         </div>
 
       </div>
-      <DashboardProfile className="h-full" />
+      {/* DashboardProfile wrapped in Link */}
+        <DashboardProfile />
     </div>
   );
 };

@@ -90,10 +90,10 @@ const DashboardSupplier = () => {
                                                 <img
                                                     src={`${baseURL}/images/${supplier.image.substring(14)}`}
                                                     alt={supplier.name}
-                                                    className="w-12 h-12 mr-2 object-cover"
+                                                    className="w-12 h-12 mr-2 object-cover rounded-md"
                                                 />
                                             ) : (
-                                                <div className={`w-12 h-12 flex items-center justify-center mr-2 ${darkMode ? 'bg-light-TABLE' : 'bg-dark-TABLE'}`}>
+                                                <div className={`w-12 h-12 flex items-center justify-center mr-2 rounded-md ${darkMode ? 'bg-light-TABLE' : 'bg-dark-TABLE'}`}>
                                                     <p className={`text-sm text-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>No image</p>
                                                 </div>
                                             )}

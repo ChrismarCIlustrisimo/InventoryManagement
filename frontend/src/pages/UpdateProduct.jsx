@@ -212,7 +212,11 @@ const UpdateProduct = () => {
         <div className='flex h-[80%] w-[70%]'>
           <div className='flex flex-col gap-2 p-2 w-[49%] justify-between'>
             <p className='text-xl'>
+              {isEditing ? ( 
               <input type='text' value={name} onChange={(e) => setName(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-2 w-full text-md ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-300' : ''}`} />
+              ) : (
+                <p className={`bg-transparent rounded-md p-2 w-full text-md`}>{name}</p>
+              )}
             </p>
             <div className='w-full h-full flex items-center justify-start'>
               <img src={`${baseURL}/images/${image.substring(14)}`} alt={name} className='w-[360px] h-[360px] object-cover mr-[10px] rounded-md' />
@@ -225,6 +229,7 @@ const UpdateProduct = () => {
             <p className='text-xl font-semibold'>Basic information</p>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>CATEGORY</p>
+              {isEditing ? ( 
               <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} >
                 <option value="">Select Category</option>
                 <option value="Components">Components</option>
@@ -233,50 +238,77 @@ const UpdateProduct = () => {
                 <option value="PC Furniture">PC Furniture</option>
                 <option value="OS & Software">OS & Software</option>
               </select>
-            </div>
-            <div className='text-sm flex items-center justify-between w-full my-3'>
-              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>PRODUCT CODE</p>
-              <input type='text' value={productID} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>            
+              ) : (
+                <p className={`bg-transparent rounded-md p-1`}>{category}</p>
+              )}
+
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>QUANTITY IN STOCK</p>
+              {isEditing ? ( 
               <input type='number' value={quantity} onChange={(e) => setQuantity(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`}/>
+              ) : ( 
+              <p className={`bg-transparent rounded-md p-1`}>{quantity}</p>
+              )}
+            </div>
+            <div className='text-sm flex items-center justify-between w-full my-3'>
+              <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>PRODUCT CODE</p>
+              <p className={`bg-transparent rounded-md p-1`}>{productID}</p>
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>BATCH NUMBER</p>
-              <input type='text' value={batchNumber} onChange={(e) => setBatchNumber(e.target.value)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>
+              <p className={`bg-transparent rounded-md p-1`}>{batchNumber}</p>
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>CURRENT STOCK STATUS</p>
-              <input style={{ color: stockStatusColor }} type='text' value={currentStockStatus} onChange={(e) => setCurrentStockStatus(e.target.value)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>
+              <p style={{ color: stockStatusColor }} className={`bg-transparent rounded-md p-1 text-gray-500`}>{currentStockStatus}</p>
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>DATE ADDED</p>
-              <input type='text' value={formatDate(dateAdded)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}/>
+              <p className={`bg-transparent rounded-md p-1`}>{formatDate(dateAdded)} </p>
             </div>
-            <div className='text-sm flex items-center justify-between w-full my-3'>
+            <div className='text-sm flex items-center justify-between w-full my-3'> 
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>LAST UPDATED</p>
-              <input type='text' value={formatDate(updatedAt)} disabled className={`border bg-transparent rounded-md p-1 text-gray-500 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
+              <p className={`bg-transparent rounded-md p-1`}>{formatDate(updatedAt)} </p>
             </div>
 
             <p className='text-xl font-semibold my-4'>Purchase information</p>
 
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>SUPPLIER</p>
-              <select value={supplierId} onChange={handleSupplierChange} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} >
-                <option value="">Select Supplier</option>
-                {suppliers.map(supplier => (
-                  <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
-                ))}
-              </select>
+              {isEditing ? (
+                  <select
+                    value={supplierId}
+                    onChange={handleSupplierChange}
+                    className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                  >
+                    <option value="">Select Supplier</option>
+                    {suppliers.map(supplier => (
+                      <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className={`bg-transparent rounded-md p-1`}>
+                    {suppliers.find(supplier => supplier._id === supplierId)?.name || "No Supplier Assigned"}
+                  </p>
+                )}
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>BUYING PRICE</p>
+              {isEditing ? (
               <input type='number' value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`} />
+              ) : ( 
+                <p className={`bg-transparent rounded-md p-1`}>{buyingPrice}</p>
+              )}
+
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>SELLING PRICE</p>
+              {isEditing ? (
               <input type='number' value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`} />
+              ) : ( 
+                <p className={`bg-transparent rounded-md p-1`}>{sellingPrice}</p>
+              )}
             </div>
           </div>
         </div>

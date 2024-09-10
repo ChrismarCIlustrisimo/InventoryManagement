@@ -78,7 +78,7 @@ router.post('/', upload.single('file'), async (req, res) => {
 // Get all products (filtering out zero-stock products)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({ quantity_in_stock: { $gt: 0 } });
+    const products = await Product.find({});
     
     // Emit a WebSocket event for product list fetch
     req.app.get('io').emit('products-fetched', products);

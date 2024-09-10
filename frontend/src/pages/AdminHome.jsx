@@ -101,7 +101,7 @@ const AdminHome = () => {
       // Filter out products with sales equal to 0 and slice to get only the top 5 products
       const top5Products = result.data
         .filter((product) => product.sales > 0) // Exclude products with zero sales
-        .slice(0, 5);
+        .slice(0, 5).sort((a, b) => b.sales - a.sales);
 
       setTopProducts(top5Products);
     } catch (error) {

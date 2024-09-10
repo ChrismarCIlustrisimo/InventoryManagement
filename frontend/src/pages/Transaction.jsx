@@ -20,7 +20,8 @@ const Transaction = () => {
   const { darkMode } = useTheme(); 
   const { user } = useAuthContext(); 
   const navigate = useNavigate();
-  
+
+
   const fetchTransaction = async () => {
     try {
       const response = await axios.get(`${baseURL}/transaction/${id}`, {

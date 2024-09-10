@@ -121,6 +121,7 @@ const PosHome = () => {
     fetchProducts();
   }, [user]);
 
+
   useEffect(() => {
     setFilteredProducts(products.filter(product => {
       const isInCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
@@ -129,6 +130,7 @@ const PosHome = () => {
     }));
   }, [products, selectedCategory, searchQuery]);
 
+  
   const handleCategoryChange = (category) => setSelectedCategory(category);
 
   const handleAddToCart = (product) => setCart(prevCart => {
@@ -156,6 +158,8 @@ const PosHome = () => {
     }
     return value.toFixed(decimals);
   };
+
+
   return (
     <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
       <ToastContainer theme={darkMode ? 'light' : 'dark'} />

@@ -103,6 +103,7 @@ const DashboardProductList = () => {
       setProducts(prevProducts => prevProducts.map(product =>
         product._id === updatedProduct._id ? updatedProduct : product
       ));
+      fetchProducts();
     });
 
     // Clean up the WebSocket connection on component unmount

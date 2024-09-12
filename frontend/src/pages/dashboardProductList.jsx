@@ -10,6 +10,7 @@ import '../App.css';
 import axios from 'axios';
 import { FaPlay } from "react-icons/fa";
 import io from 'socket.io-client'; // Import socket.io-client
+import { useLocation } from 'react-router-dom';
 
 const stockColors = {
   "HIGH STOCK": "#1e7e34", // Darker Green
@@ -32,12 +33,23 @@ const DashboardProductList = () => {
   const [productCount, setProductCount] = useState();
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  const location = useLocation();
   const [stockAlerts, setStockAlerts] = useState({
     "LOW STOCK": false,
     "NEAR LOW STOCK": false,
     "HIGH STOCK": false,
     "OUT OF STOCK": false,
   });
+
+  const categoryThresholds = {
+    'Components': { nearLow: 10, low: 5 },
+    'Peripherals': { nearLow: 15, low: 3 },
+    'Accessories': { nearLow: 20, low: 10 },
+    'PC Furniture': { nearLow: 20, low: 10 },
+    'OS & Software': { nearLow: 10, low: 5 },
+    // Add more categories as needed
+  };
+  
 
   const handleStockAlertChange = (e) => {
     setStockAlerts(prev => ({
@@ -64,7 +76,7 @@ const DashboardProductList = () => {
       fetchProducts();
       fetchSuppliers();
     }
-  }, [user]);
+  }, [user, location.pathname]);
 
   const fetchProducts = async () => {
     try {
@@ -73,44 +85,59 @@ const DashboardProductList = () => {
           'Authorization': `Bearer ${user.token}`
         }
       });
-      setProducts(response.data.data);
+  
+      const products = response.data.data;
+  
+      // Update current_stock_status based on category thresholds
+      const updatedProducts = products.map(product => {
+        const thresholds = categoryThresholds[product.category];
+        let stockStatus = 'HIGH STOCK';
+  
+        if (product.quantity_in_stock === 0) {
+          stockStatus = 'OUT OF STOCK';
+        } else if (product.quantity_in_stock <= thresholds.low) {
+          stockStatus = 'LOW STOCK';
+        } else if (product.quantity_in_stock <= thresholds.nearLow) {
+          stockStatus = 'NEAR LOW STOCK';
+        }
+  
+        return {
+          ...product,
+          current_stock_status: stockStatus
+        };
+      });
+  
+      setProducts(updatedProducts);
       setProductCount(response.data.count); 
     } catch (error) {
       console.error('Error fetching products:', error.message);
     }
   };
+  
 
-  useEffect(() => {
-    if (user && user.token) {
-      fetchProducts();
-    }
-  }, [user]);
 
-  // WebSocket setup
-  useEffect(() => {
-    const socket = io(baseURL, { transports: ['websocket'], upgrade: true });
+useEffect(() => {
+  const socket = io(baseURL, { transports: ['websocket'], upgrade: true });
 
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket server');
-    }); 
+  socket.on('connect', () => {
+    console.log('Connected to WebSocket server');
+  });
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected from WebSocket server');
-    });
+  socket.on('disconnect', () => {
+    console.log('Disconnected from WebSocket server');
+  });
 
-    socket.on('product-updated', (updatedProduct) => {
-      // Update the local product list with the updated product
-      setProducts(prevProducts => prevProducts.map(product =>
-        product._id === updatedProduct._id ? updatedProduct : product
-      ));
-      fetchProducts();
-    });
+  socket.on('product-updated', (updatedProduct) => {
+    setProducts(prevProducts => prevProducts.map(product =>
+      product._id === updatedProduct._id ? updatedProduct : product
+    ));
+  });
 
-    // Clean up the WebSocket connection on component unmount
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+  return () => {
+    socket.disconnect();
+  };
+}, []);
+
 
   const filteredProducts = products
     .filter(product =>

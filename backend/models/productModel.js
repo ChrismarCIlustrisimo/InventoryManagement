@@ -20,7 +20,7 @@ const ProductSchema = new mongoose.Schema(
     name: { type: String, required: true },
     category: { type: String, required: true },
     quantity_in_stock: { type: Number, required: true },
-    supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: true },
+    supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: false }, // Change to required: false
     buying_price: { type: Number, required: true },
     selling_price: { type: Number, required: true },
     product_id: { type: String, required: true, unique: true },
@@ -39,6 +39,7 @@ const ProductSchema = new mongoose.Schema(
     timestamps: true
   }
 );
+
 
 // Pre-save hook to set thresholds based on category
 ProductSchema.pre('save', function (next) {

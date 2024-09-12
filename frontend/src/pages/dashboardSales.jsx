@@ -73,6 +73,10 @@ const DashboardSales = () => {
                         return a.name.localeCompare(b.name);
                     case 'product_name_desc':
                         return b.name.localeCompare(a.name);
+                    case 'quantity_sold_asc':
+                        return a.sales - b.sales;
+                    case 'quantity_sold_desc':
+                        return b.sales - a.sales;
                     default:
                         return 0;
                 }
@@ -144,20 +148,21 @@ const DashboardSales = () => {
                             </div>
 
                             <div className='flex flex-col'>
-                                <label htmlFor='sortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
-                                    QUANTITY SOLD
+                                <label htmlFor='quantitySoldSortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
+                                    SALES
                                 </label>
                                 <select
-                                    id='sortBy'
+                                    id='quantitySoldSortBy'
                                     value={sortBy}
                                     onChange={handleSortByChange}
                                     className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
                                 >
-                                    <option value=''>Ascending - Descending</option>
-                                    <option value='quantity_sold_asc'>Ascending</option>
-                                    <option value='quantity_sold_desc'>Descending</option>
+                                    <option value=''>Select Sales Order</option>
+                                    <option value='quantity_sold_desc'>Highest to Lowest</option>
+                                    <option value='quantity_sold_asc'>Lowest to Highest</option>
                                 </select>
                             </div>
+
                             <div className='flex flex-col'>
                                 <label htmlFor='sortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
                                     SORT BY
@@ -193,8 +198,7 @@ const DashboardSales = () => {
                                     <tr>
                                         <th className='p-2 text-left'>Product</th>
                                         <th className='p-2 text-center'>Category</th>
-                                        <th className='p-2 text-center'>In-stock</th>
-                                        <th className='p-2 text-center'>Stock Status</th>
+                                        <th className='p-2 text-center'>Sales</th>
                                         <th className='p-2 text-center'>Product Code</th>
                                         <th className='p-2 text-center'>Buying Price (PHP)</th>
                                         <th className='p-2 text-center'>Selling Price (PHP)</th>
@@ -208,10 +212,7 @@ const DashboardSales = () => {
                                                 <p className='text-sm'>{product.name}</p>
                                             </td>
                                             <td className='text-center text-sm'>{product.category}</td>
-                                            <td className='text-center'>{product.quantity_in_stock}</td>
-                                            <td className='text-xs text-center' style={{ color: stockColors[product.current_stock_status] || '#ffffff' }}>
-                                                {product.current_stock_status}
-                                            </td>
+                                            <td className='text-center'>{product.sales}</td>
                                             <td className='text-center text-sm'>{product.product_id}</td>
                                             <td className='text-center'>{product.buying_price}</td>
                                             <td className='text-center'>{product.selling_price}</td>

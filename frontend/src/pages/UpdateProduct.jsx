@@ -61,6 +61,21 @@ const UpdateProduct = () => {
           setFileName(trimFileName(data.image));
         }
 
+        // Calculate stock status
+        const thresholds = categoryThresholds[data.category];
+        let stockStatus = 'HIGH STOCK';
+
+        if (data.quantity_in_stock === 0) {
+          stockStatus = 'OUT OF STOCK';
+        } else if (data.quantity_in_stock <= thresholds.low) {
+          stockStatus = 'LOW STOCK';
+        } else if (data.quantity_in_stock <= thresholds.nearLow) {
+          stockStatus = 'NEAR LOW STOCK';
+        }
+
+        setCurrentStockStatus(stockStatus);
+
+
         axios.get(`${baseURL}/supplier/${data.supplier}`)
           .then(res => {
             setSupplierName(res.data.name);
@@ -85,56 +100,51 @@ const UpdateProduct = () => {
         setError(err.response ? err.response.data.message : 'An unknown error occurred');
       });
 
-  }, [productId]);
-  console.log("Selling Price", buyingPrice);
+    }, [productId]);
 
-  const updateProduct = () => {
-    // Determine stock status
-    let status;
-    const thresholds = categoryThresholds[category] || { nearLow: 20, low: 10 };
-  
-    if (quantity <= 0) {
-      status = 'OUT OF STOCK';
-    } else if (quantity <= thresholds.low) {
-      status = 'LOW STOCK';
-    } else if (quantity <= thresholds.nearLow) {
-      status = 'NEAR LOW STOCK';
-    } else {
-      status = 'HIGH STOCK';
-    }
-  
-    setCurrentStockStatus(status); // Update the currentStockStatus state
-  
-    const formData = new FormData();
-    if (file) formData.append('file', file);
-    formData.append('name', name);
-    formData.append('category', category);
-    formData.append('quantity_in_stock', quantity);
-    formData.append('supplier', supplierId);
-    formData.append('buying_price', buyingPrice);
-    formData.append('selling_price', sellingPrice);
-    formData.append('batchNumber', batchNumber);
-    formData.append('dateAdded', dateAdded);
-    formData.append('updatedAt', updatedAt);
-    formData.append('product_id', productID);
-    formData.append('current_stock_status', currentStockStatus);
-  
-    console.log('Updating product with data:', {
-      name, category, quantity, supplierId, buyingPrice, sellingPrice, batchNumber, dateAdded, updatedAt
-    });
-  
-    axios.put(`${baseURL}/product/${productId}`, formData)
-      .then(res => {
-        console.log('Update successful:', res.data);
-        setIsEditing(false);
-        // Optionally refetch product data here to ensure it reflects the latest changes
-        handleBackClick();
-      })
-      .catch(err => {
-        console.error('Error updating product:', err.response ? err.response.data : err.message);
-        setError(err.response ? err.response.data.message : 'An unknown error occurred');
-      });
-  };
+
+    const updateProduct = () => {
+      let status;
+      const thresholds = categoryThresholds[category];
+      
+      if (quantity <= 0) {
+        status = 'OUT OF STOCK';
+      } else if (quantity <= thresholds.low) {
+        status = 'LOW STOCK';
+      } else if (quantity <= thresholds.nearLow) {
+        status = 'NEAR LOW STOCK';
+      } else {
+        status = 'HIGH STOCK';
+      }
+      
+      setCurrentStockStatus(status);
+      
+      const formData = new FormData();
+      if (file) formData.append('file', file);
+      formData.append('name', name);
+      formData.append('category', category);
+      formData.append('quantity_in_stock', quantity);
+      formData.append('supplier', supplierId === "NONE" ? "" : supplierId); // Send "" for no supplier
+      formData.append('buying_price', buyingPrice);
+      formData.append('selling_price', sellingPrice);
+      formData.append('batchNumber', batchNumber);
+      formData.append('dateAdded', dateAdded);
+      formData.append('updatedAt', updatedAt);
+      formData.append('product_id', productID);
+      formData.append('current_stock_status', currentStockStatus);
+      
+      axios.put(`${baseURL}/product/${productId}`, formData)
+        .then(res => {
+          console.log('Update successful:', res.data);
+          setIsEditing(false);
+        })
+        .catch(err => {
+          console.error('Error updating product:', err.response ? err.response.data : err.message);
+          setError(err.response ? err.response.data.message : 'An unknown error occurred');
+        });
+    };
+    
+    
   
 
   const deleteProduct = () => {
@@ -282,14 +292,14 @@ const UpdateProduct = () => {
                     onChange={handleSupplierChange}
                     className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
                   >
-                    <option value="">Select Supplier</option>
+                    <option value="NONE">Select Supplier</option>
                     {suppliers.map(supplier => (
                       <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
                     ))}
                   </select>
                 ) : (
                   <p className={`bg-transparent rounded-md p-1`}>
-                    {suppliers.find(supplier => supplier._id === supplierId)?.name || "No Supplier Assigned"}
+                    {suppliers.find(supplier => supplier._id === supplierId)?.name || "No Supplier"}
                   </p>
                 )}
             </div>

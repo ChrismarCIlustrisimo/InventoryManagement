@@ -86,12 +86,15 @@ const PosHome = () => {
     setFilteredProducts(fetchedProducts);
 
     const counts = fetchedProducts.reduce((acc, product) => {
-      const category = product.category || 'Uncategorized';
-      if (!acc[category]) acc[category] = 0;
-      acc[category] += product.quantity_in_stock;
-      acc['All Products'] += product.quantity_in_stock;
+      if (product.quantity_in_stock > 0) {
+        const category = product.category || 'Uncategorized';
+        if (!acc[category]) acc[category] = 0;
+        acc[category] += product.quantity_in_stock;
+        acc['All Products'] += product.quantity_in_stock;
+      }
       return acc;
     }, { 'All Products': 0, 'Components': 0, 'Peripherals': 0, 'Accessories': 0, 'PC Furniture': 0, 'OS & Software': 0 });
+    
 
     setCategoryCounts(counts);
   };

@@ -36,7 +36,7 @@ const AddProduct = () => {
     formData.append('name', name);
     formData.append('category', category);
     formData.append('quantity_in_stock', quantity);
-    formData.append('supplierId', supplier);
+    formData.append('supplierId', supplier === "NONE" ? null : supplier); // Use null if "NONE"
     formData.append('buying_price', buyingPrice);
     formData.append('selling_price', sellingPrice);
   
@@ -50,6 +50,8 @@ const AddProduct = () => {
         setError(err.response ? err.response.data.message : 'An unknown error occurred');
       });
   };
+  
+  
   
 
   const handleBackClick = () => {
@@ -89,7 +91,6 @@ const AddProduct = () => {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option value="" className='text-gray-400'>Select Category</option>
               <option value="Components">Components</option>
               <option value="Peripherals">Peripherals</option>
               <option value="Accessories">Accessories</option>
@@ -114,18 +115,21 @@ const AddProduct = () => {
         <div className='w-full flex flex-col gap-2'>
           <label htmlFor="supplier">Product Supplier</label>
           <select
-          className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-          onChange={(e) => {
-            setSupplier(e.target.value);
-            setSupplierName(e.target.options[e.target.selectedIndex].text); // Ensure this is defined
-          }}
-        >
-          <option value="NONE" className='text-gray-400'>Select Supplier</option>
-          <option value="NONE">None</option>
-          {suppliers.map(supplier => (
-            <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
-          ))}
-        </select>
+              className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+              onChange={(e) => {
+                const value = e.target.value === "NONE" ? null : e.target.value;
+                setSupplier(value); // Ensure this sets to null or a valid ObjectId
+              }}
+              value={supplier || "NONE"} // Default to "NONE" if supplier is null
+            >
+              <option value="NONE" className='text-gray-400'>No Supplier</option>
+              {suppliers.map(supplier => (
+                <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
+              ))}
+            </select>
+
+
+
 
         </div>
 

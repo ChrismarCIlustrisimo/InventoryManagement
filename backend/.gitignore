@@ -1,2 +1,9 @@
-# Ignore all node_modules directories
+# Node.js dependencies
 node_modules/
+
+# Environment variables
+.env
+
+# Log files
+*.log
+npm-debug.log*

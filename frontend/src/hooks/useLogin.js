@@ -29,11 +29,10 @@ export const useLogin = () => {
                 return;
             }
 
-            const { token, name } = json;
+            const { token, name, contact } = json; // Extract contact here
 
-            localStorage.setItem('user', JSON.stringify({ username, name, token, role })); // Include role in local storage
-
-            dispatch({ type: 'LOGIN', payload: { username, name, token, role } });
+            localStorage.setItem('user', JSON.stringify({ username, name, token, role, contact }));
+            dispatch({ type: 'LOGIN', payload: { username, name, token, role, contact } });
 
             // Redirect based on the role
             if (role === 'admin') {

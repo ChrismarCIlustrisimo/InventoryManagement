@@ -38,8 +38,8 @@ return (
             <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
             <input type="text" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="Contact" className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
             <select value={role} onChange={(e) => setRole(e.target.value)} className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
+                <option value="cashier">Cashier</option>
+                <option value="admin">Admin</option> 
             </select>
             {error && <div className='mt-2 text-red-500'>{error}</div>}
         </form>

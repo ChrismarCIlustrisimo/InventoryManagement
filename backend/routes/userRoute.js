@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
     try {
         const user = await User.login(username, password, role);
         const token = createToken(user); // Generate token
-        res.status(200).json({ token, name: user.name, role: user.role }); // Include role in the response
+        res.status(200).json({ token, name: user.name, role: user.role, contact: user.contact }); // Include contact in the response
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

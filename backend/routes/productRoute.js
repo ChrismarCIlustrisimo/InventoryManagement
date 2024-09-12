@@ -39,13 +39,21 @@ router.post('/', upload.single('file'), async (req, res) => {
     const { name, category, quantity_in_stock, supplierId, buying_price, selling_price } = req.body;
     const image = req.file ? req.file.path : '';
 
-    if (!name || !category || quantity_in_stock === undefined || !supplierId || buying_price === undefined || selling_price === undefined) {
+    // Check for required fields
+    if (!name || !category || quantity_in_stock === undefined || buying_price === undefined || selling_price === undefined) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const supplier = await Supplier.findById(supplierId);
-    if (!supplier) {
-      return res.status(404).json({ message: 'Supplier not found' });
+    // Validate supplierId
+    let supplier = null;
+    if (supplierId && supplierId !== 'NONE') {
+      if (!mongoose.Types.ObjectId.isValid(supplierId)) {
+        return res.status(400).json({ message: 'Invalid supplier ID' });
+      }
+      supplier = await Supplier.findById(supplierId);
+      if (!supplier) {
+        return res.status(404).json({ message: 'Supplier not found' });
+      }
     }
 
     const productId = await Product.generateProductId(); // Generate product ID
@@ -54,7 +62,7 @@ router.post('/', upload.single('file'), async (req, res) => {
       name,
       category,
       quantity_in_stock,
-      supplier: supplierId,
+      supplier: supplier ? supplier._id : null, // Set to null if no supplier
       buying_price,
       selling_price,
       image,
@@ -73,6 +81,7 @@ router.post('/', upload.single('file'), async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 
 // Get all products (filtering out zero-stock products)
@@ -132,10 +141,13 @@ router.put('/:id', upload.single('file'), async (req, res) => {
     const { name, category, quantity_in_stock, supplier, buying_price, selling_price, batchNumber, currentStockStatus, dateAdded, updatedAt } = req.body;
     const file = req.file;
 
+    // Convert empty supplier to null
+    const supplierId = supplier === "" ? null : supplier;
+
     // Update the product
     const updatedProduct = await Product.findByIdAndUpdate(
       id,
-      { name, category, quantity_in_stock, supplier, buying_price, selling_price, batchNumber, currentStockStatus, dateAdded, updatedAt },
+      { name, category, quantity_in_stock, supplier: supplierId, buying_price, selling_price, batchNumber, currentStockStatus, dateAdded, updatedAt },
       { new: true, runValidators: true }
     );
 
@@ -153,6 +165,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 
 
@@ -184,7 +197,7 @@ router.post('/update-stock-status', async (req, res) => {
 
     const bulkOps = products.map(product => {
       // Get thresholds for the product's category
-      const thresholds = categoryThresholds[product.category] || { nearLow: 20, low: 10 };
+      const thresholds = categoryThresholds[product.category];
 
       // Update thresholds based on category
       product.near_low_stock_threshold = thresholds.nearLow;

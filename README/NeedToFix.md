@@ -1,3 +1,2 @@
-- Inventory badge for out of stock
-- inventory filter for out of stock
-- Fix sales ranking
+- Profile Changes
+- Adding Discount In transaction

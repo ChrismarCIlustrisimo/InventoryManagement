@@ -47,13 +47,17 @@ const DashboardPos = () => {
           'Authorization': `Bearer ${user.token}`,
         },
       });
-      setSalesOrder(response.data.data);
+  
+      // Sort transactions by date descending
+      const sortedOrders = response.data.data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+      setSalesOrder(sortedOrders);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching sales orders:', error);
       setLoading(false);
     }
   };
+  
 
   const handleDateFilter = (e) => {
     const value = e.target.value;
@@ -93,9 +97,6 @@ const DashboardPos = () => {
     setMaxPrice('');
     setSortBy('');
   };
-  const handleTransactionClick = (transactionId) => {
-    // Implement transaction click logic
-  };
   
   const handleCashierNameChange = (event) => setCashierName(event.target.value);
 
@@ -106,7 +107,7 @@ const DashboardPos = () => {
   };
 
   return (
-    <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
+    <div className={`h-full ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
       <Navbar />
       <div className='h-full px-6 pt-[70px]'>
         <div className='flex items-center justify-center py-5'>
@@ -242,51 +243,51 @@ const DashboardPos = () => {
           </div>
 
           {loading ? (
-            <Spinner />
-          ) : salesOrder.length === 0 ? (
-            <div className='w-[80%] h-[76vh] flex items-center justify-center'>
-              <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No Successful Transactions</p>
-            </div>
-          ) : (
-            <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
-              {salesOrder.map((transaction) => (
-                <div
-                  key={transaction._id}
-                  className={`rounded-lg p-4 flex gap-4 ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}
-                  //onClick={() => handleTransactionClick(transaction.transaction_id)}
-                >
-                  <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
-                    <h1 className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>{transaction.transaction_id || 'N/A'}</h1>
-                  </div>
-                  <div className='flex justify-between items-center w-[85%]'>
-                    <div className='p-4 w-[70%] flex flex-col gap-1'>
-                      {transaction.products.length > 0 ? (
-                        transaction.products.map((item, idx) => (
-                          <p key={idx} className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                            ({item.quantity || 'N/A'}) {item.product.name || 'Unknown Product'}
-                          </p>
-                        ))
-                      ) : (
-                        <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No products available</p>
-                      )}
-                    </div>
-                    <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE'}`}>
-                      <div className='flex flex-col gap-1'>
-                        <p className='text-gray-400'>DATE</p>
-                        <p className='text-gray-400'>CUSTOMER</p>
-                        <p className='text-gray-400'>TOTAL AMOUNT</p>
-                      </div>
-                      <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                        <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
-                        <p className='ml-auto'>{transaction.customer ? transaction.customer.name || 'None' : 'None'}</p>
-                        <p className='ml-auto'>₱ {transaction.total_price ? transaction.total_price.toFixed(2) : '0.00'}</p>
-                      </div>
-                    </div>
-                  </div>
+                <Spinner />
+              ) : salesOrder.length === 0 ? (
+                <div className='w-[80%] h-[76vh] flex items-center justify-center'>
+                  <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No Successful Transactions</p>
                 </div>
-              ))}
-            </div>
-          )}
+              ) : (
+                <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
+                  {salesOrder.map((transaction) => (
+                    <div
+                      key={transaction._id}
+                      className={`rounded-lg p-4 flex gap-4 ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'}`}
+                      //onClick={() => handleTransactionClick(transaction.transaction_id)}
+                    >
+                      <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
+                        <h1 className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>{transaction.transaction_id || 'N/A'}</h1>
+                      </div>
+                      <div className='flex justify-between items-center w-[85%]'>
+                        <div className='p-4 w-[70%] flex flex-col gap-1'>
+                          {transaction.products.length > 0 ? (
+                            transaction.products.map((item, idx) => (
+                              <p key={idx} className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                                ({item.quantity || 'N/A'}) {item.product.name || 'Unknown Product'}
+                              </p>
+                            ))
+                          ) : (
+                            <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No products available</p>
+                          )}
+                        </div>
+                        <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE'}`}>
+                          <div className='flex flex-col gap-1'>
+                            <p className='text-gray-400'>DATE</p>
+                            <p className='text-gray-400'>CUSTOMER</p>
+                            <p className='text-gray-400'>TOTAL AMOUNT</p>
+                          </div>
+                          <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+                            <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
+                            <p className='ml-auto'>{transaction.customer ? transaction.customer.name || 'None' : 'None'}</p>
+                            <p className='ml-auto'>₱ {transaction.total_price ? transaction.total_price.toFixed(2) : '0.00'}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
         </div>
       </div>
     </div>

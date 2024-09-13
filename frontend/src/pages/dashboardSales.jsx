@@ -15,9 +15,11 @@ const DashboardSales = () => {
 
     const [searchQuery, setSearchQuery] = useState("");
     const [category, setCategory] = useState("");
-    const [sortBy, setSortBy] = useState("");
+    const [totalSalesSortBy, setTotalSalesSortBy] = useState("");
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [salesSortBy, setSalesSortBy] = useState("");
+    const [sortBy, setSortBy] = useState(""); // Consider removing if not used
 
     // Define stockColors object
     const stockColors = {
@@ -34,7 +36,7 @@ const DashboardSales = () => {
 
     useEffect(() => {
         filterProducts();
-    }, [searchQuery, category, sortBy, products]);
+    }, [searchQuery, category, salesSortBy, totalSalesSortBy, products]);
 
     const fetchProducts = async () => {
         try {
@@ -51,59 +53,79 @@ const DashboardSales = () => {
 
     const filterProducts = () => {
         let filtered = [...products];
-
+    
+        // Filter by search query
         if (searchQuery) {
             filtered = filtered.filter(product =>
                 product.name.toLowerCase().includes(searchQuery.toLowerCase())
             );
         }
-
+    
+        // Filter by category
         if (category) {
             filtered = filtered.filter(product => product.category === category);
         }
-
-        if (sortBy) {
+    
+        // Apply sorting by sales
+        if (salesSortBy) {
             filtered = filtered.sort((a, b) => {
-                switch (sortBy) {
-                    case 'price_asc':
-                        return a.selling_price - b.selling_price;
-                    case 'price_desc':
-                        return b.selling_price - a.selling_price;
-                    case 'product_name_asc':
-                        return a.name.localeCompare(b.name);
-                    case 'product_name_desc':
-                        return b.name.localeCompare(a.name);
-                    case 'quantity_sold_asc':
-                        return a.sales - b.sales;
+                switch (salesSortBy) {
                     case 'quantity_sold_desc':
                         return b.sales - a.sales;
+                    case 'quantity_sold_asc':
+                        return a.sales - b.sales;
                     default:
                         return 0;
                 }
             });
         }
-
+    
+        // Apply sorting by total sales
+        if (totalSalesSortBy) {
+            filtered = filtered.sort((a, b) => {
+                switch (totalSalesSortBy) {
+                    case 'total_sales_desc':
+                        return (b.selling_price * b.sales) - (a.selling_price * a.sales);
+                    case 'total_sales_asc':
+                        return (a.selling_price * a.sales) - (b.selling_price * b.sales);
+                    default:
+                        return 0;
+                }
+            });
+        }
+    
         setFilteredProducts(filtered);
     };
 
     const handleAddProductClick = () => {
-        console.log("Generate Report button clicked");
-        navigate('/generate-report');
+        navigate('/report-page');
     };
+    
 
     const handleCategoryChange = (e) => {
         setCategory(e.target.value);
     };
 
+    const handleSalesSortByChange = (e) => {
+        setSalesSortBy(e.target.value);
+    };
+    
+    const handleTotalSalesSortByChange = (e) => {
+        setTotalSalesSortBy(e.target.value);
+    };
+    
     const handleSortByChange = (e) => {
         setSortBy(e.target.value);
     };
-
+    
     const handleResetFilters = () => {
         setCategory("");
-        setSortBy("");
+        setSalesSortBy("");
+        setTotalSalesSortBy("");
         setSearchQuery("");
     };
+
+    
 
     return (
         <div className={`w-full h-full ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
@@ -147,14 +169,15 @@ const DashboardSales = () => {
                                 </select>
                             </div>
 
+                            {/* Sales Sorting */}
                             <div className='flex flex-col'>
-                                <label htmlFor='quantitySoldSortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
+                                <label htmlFor='salesSortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
                                     SALES
                                 </label>
                                 <select
-                                    id='quantitySoldSortBy'
-                                    value={sortBy}
-                                    onChange={handleSortByChange}
+                                    id='salesSortBy'
+                                    value={salesSortBy}
+                                    onChange={handleSalesSortByChange}
                                     className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
                                 >
                                     <option value=''>Select Sales Order</option>
@@ -163,6 +186,24 @@ const DashboardSales = () => {
                                 </select>
                             </div>
 
+                            {/* Total Sales Sorting */}
+                            <div className='flex flex-col'>
+                                <label htmlFor='totalSalesSortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
+                                    TOTAL SALES
+                                </label>
+                                <select
+                                    id='totalSalesSortBy'
+                                    value={totalSalesSortBy}
+                                    onChange={handleTotalSalesSortByChange}
+                                    className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
+                                >
+                                    <option value=''>Select Total Sales Order</option>
+                                    <option value='total_sales_desc'>Highest to Lowest</option>
+                                    <option value='total_sales_asc'>Lowest to Highest</option>
+                                </select>
+                            </div>
+
+                            {/* Sort By */}
                             <div className='flex flex-col'>
                                 <label htmlFor='sortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
                                     SORT BY
@@ -202,11 +243,12 @@ const DashboardSales = () => {
                                         <th className='p-2 text-center'>Product Code</th>
                                         <th className='p-2 text-center'>Buying Price (PHP)</th>
                                         <th className='p-2 text-center'>Selling Price (PHP)</th>
+                                        <th className='p-2 text-center'>Total Sales</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {filteredProducts.map((product, index) => (
-                                        <tr key={index} onClick={() => handleRowClick(product._id)} className={`border-b cursor-pointer ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
+                                        <tr key={index} className={`border-b cursor-pointer ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
                                             <td className='flex items-center justify-left p-2'>
                                                 <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
                                                 <p className='text-sm'>{product.name}</p>
@@ -216,6 +258,7 @@ const DashboardSales = () => {
                                             <td className='text-center text-sm'>{product.product_id}</td>
                                             <td className='text-center'>{product.buying_price}</td>
                                             <td className='text-center'>{product.selling_price}</td>
+                                            <td className='text-center'>{product.selling_price * product.sales}</td>
                                         </tr>
                                     ))}
                                 </tbody>

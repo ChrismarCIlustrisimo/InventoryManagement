@@ -35,11 +35,11 @@ const BarChartComponent = ({ netSalesData, grossSalesData }) => {
 
   // Map existing data to their respective days
   netSalesData.forEach((value, index) => {
-    netSalesDataComplete[index] = value;
+    netSalesDataComplete[index] = value || 0; // Default to 0 if undefined
   });
-
+  
   grossSalesData.forEach((value, index) => {
-    grossSalesDataComplete[index] = value;
+    grossSalesDataComplete[index] = value || 0; // Default to 0 if undefined
   });
 
   // Prepare the chart data
@@ -71,9 +71,6 @@ const BarChartComponent = ({ netSalesData, grossSalesData }) => {
     plugins: {
       legend: {
         position: 'top',
-        labels: {
-          padding: 10,
-        }
       },
       tooltip: {
         callbacks: {
@@ -90,13 +87,11 @@ const BarChartComponent = ({ netSalesData, grossSalesData }) => {
     scales: {
       x: {
         stacked: false,
-        ticks: {
-          color: darkMode ? '#120A08' : '#F7EFED',
-        }
       },
       y: {
         stacked: false,
         beginAtZero: true,
+        min: 0,
         max: 30000,
         ticks: {
           callback: function (value) {
@@ -106,6 +101,7 @@ const BarChartComponent = ({ netSalesData, grossSalesData }) => {
       }
     }
   };
+  
 
   return (
     <Bar data={data} options={options} />

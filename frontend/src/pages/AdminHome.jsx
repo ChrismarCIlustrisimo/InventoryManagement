@@ -12,6 +12,7 @@ import { GiWallet } from "react-icons/gi";
 import { HiMiniWallet } from "react-icons/hi2";
 import axios from "axios";
 import { useAuthContext } from "../hooks/useAuthContext";
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -29,9 +30,9 @@ const AdminHome = () => {
   const [openDropdown2, setOpenDropdown2] = useState(false);
   const [selectedOption2, setSelectedOption2] = useState("Last Month");
   const [totalBuyingPrice, setTotalBuyingPrice] = useState();
-// Inside AdminHome Component
-    const [netSalesData, setNetSalesData] = useState([]);
-    const [grossSalesData, setGrossSalesData] = useState([]);
+  const navigate = useNavigate();
+  const [netSalesData, setNetSalesData] = useState([]);
+  const [grossSalesData, setGrossSalesData] = useState([]);
 
 
   const getCurrentWeekDateRange = () => {
@@ -178,7 +179,10 @@ const AdminHome = () => {
   }, [user.token, baseURL]);
   
 
-  
+  const handleProductClick = (productId) => {
+    navigate(`/update-product/${productId}`);
+  };
+
 
   if (loading) return <p>Loading...</p>;
 
@@ -205,9 +209,7 @@ const AdminHome = () => {
           {/* Top Selling Products Section */}
           <div className={`${ darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[40%] rounded-lg px-2`}>
             <div className="w-full h-[15%] flex items-center justify-between px-2">
-              <p className={`text-xl ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>Top 5 Selling Products</p>
-              <button className={`text-xs flex gap-1 items-center justify-center ${darkMode ? "text-dark-ACCENT" : "text-light-ACCENT"}`}>VIEW MORE <GoTriangleRight />
-              </button>
+              <p className={`text-2xl ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>Top 5 Selling Products</p>
             </div>
             <div className="w-full h-[82%] flex flex-col gap-3 overflow-y-auto">
               {topProducts.map((item, index) => {
@@ -215,7 +217,7 @@ const AdminHome = () => {
                 const statusColor = stockColors[item.current_stock_status] || "#000000"; // Default to black if status is not found
 
                 return (
-                  <div key={index} className={`flex items-center justify-start w-full h-[70px] px-2 py-4 gap-4 ${ darkMode ? "bg-light-CARD1 border-light-ACCENT": "bg-dark-CARD1 border-dark-ACCENT"} rounded-md border-b-2`}>
+                  <div onClick={() => handleProductClick(item._id)} key={index} className={`flex items-center justify-start w-full h-[70px] px-2 py-4 gap-4 ${ darkMode ? "bg-light-CARD1 border-light-ACCENT": "bg-dark-CARD1 border-dark-ACCENT"} rounded-md border-b-2`}>
                     <img src={`${baseURL}/images/${item.image.substring(14)}`}className="w-14 h-14 object-cover rounded-lg"alt={item.name}/>
                     <div className="flex flex-col w-[80%]">
                       <p className={`text-sm ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>{item.name} </p>
@@ -248,7 +250,7 @@ const AdminHome = () => {
             </div>
             <div
               className={`${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
-              <p className="text-sm py-3">TOTAL PRODUCT INVENTORY</p>
+              <p className="text-lg py-3">TOTAL PRODUCT INVENTORY</p>
               <p className="text-4xl">{productCount}</p>
             </div>
           </div>
@@ -266,8 +268,8 @@ const AdminHome = () => {
 
             </div>
             <div className={`px-4 ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
-              <p className="text-sm py-2">TOTAL NET SALES</p>
-              <p className="text-4xl">₱{Math.round(grossSales - totalBuyingPrice)}</p>
+              <p className="text-lg py-2">TOTAL NET SALES</p>
+              <p className="text-4xl">₱ {Math.round(grossSales - totalBuyingPrice) || 0}</p>
             </div>
           </div>
 
@@ -295,10 +297,6 @@ const AdminHome = () => {
       <p className={`text-2xl font-semibold ${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
         Transaction Log
       </p>
-      <button className={`text-xs flex gap-1 items-center justify-center ${darkMode ? "text-dark-ACCENT" : "text-light-ACCENT"}`}>
-        VIEW MORE
-        <GoTriangleRight />
-      </button>
     </div>
     <div className="w-full h-[82%] flex flex-col gap-3">
       <div className="h-[420px] overflow-y-auto px-4 flex flex-col gap-4">
@@ -343,7 +341,7 @@ const AdminHome = () => {
       </div>
     </div>
   </div>
-  <div className={`px-4 py-6 flex flex-col items-center justify-center ${darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[50%] rounded-lg`}>
+  <div className={`px-4 py-2 flex flex-col items-center justify-center ${darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[50%] rounded-lg`}>
     <p className={`text-2xl ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>Net Sales vs Gross Sales</p>
     <BarChartComponent netSalesData={netSalesData} grossSalesData={grossSalesData} />
   </div>

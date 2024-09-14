@@ -250,7 +250,7 @@ const AdminHome = () => {
             </div>
             <div
               className={`${darkMode ? "text-light-TEXT" : "text-dark-TEXT"}`}>
-              <p className="text-lg py-3">TOTAL PRODUCT INVENTORY</p>
+              <p className="text-lg py-3">TOTAL PRODUCT</p>
               <p className="text-4xl">{productCount}</p>
             </div>
           </div>

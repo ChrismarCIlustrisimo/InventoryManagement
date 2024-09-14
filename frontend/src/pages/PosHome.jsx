@@ -128,10 +128,12 @@ const PosHome = () => {
   useEffect(() => {
     setFilteredProducts(products.filter(product => {
       const isInCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
-      const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.product_id.toLowerCase().includes(searchQuery.toLowerCase())
       return isInCategory && matchesSearchQuery;
     }));
   }, [products, selectedCategory, searchQuery]);
+  
 
   
   const handleCategoryChange = (category) => setSelectedCategory(category);
@@ -192,6 +194,7 @@ const PosHome = () => {
         <SearchBar
           query={searchQuery}
           onQueryChange={setSearchQuery}
+          placeholderMessage={'Search product by name and product id'}
         />
         <div className='w-full grid grid-cols-4 gap-3 h-[78vh] overflow-auto'>
           {loading ? (
@@ -222,11 +225,11 @@ const PosHome = () => {
             <table className='border-collapse table-fixed h-auto w-full'>
               <thead>
                 <tr className='border-b border-primary relative'>
-                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Product</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Price</th>
-                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}><p className='flex items-center justify-start absolute left-[-18px] top-0 right-0 bottom-0'>Quantity</p></th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>Total</th>
-                  <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}></th>
+                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>PRODUCT</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>PRICE</th>
+                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>QTY</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>TOTAL</th>
+                  <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}></th>
                 </tr>
               </thead>
               <tbody>
@@ -239,9 +242,9 @@ const PosHome = () => {
                       />
                       <p className='w-full'>{item.product.name}</p>
                     </td>
-                    <td>₱ {((item.product.selling_price).toLocaleString()) || 0}</td>
+                    <td className="text-center">₱ {((item.product.selling_price).toLocaleString()) || 0}</td>
                     <td className='text-center'>{item.quantity}</td>
-                    <td className='tracking-wide'>₱ {((item.quantity * item.product.selling_price).toLocaleString())}</td>
+                    <td className='tracking-wide text-center'>₱ {((item.quantity * item.product.selling_price).toLocaleString())}</td>
                     <td>
                       <IoCloseCircle 
                         className="text-lg cursor-pointer" 

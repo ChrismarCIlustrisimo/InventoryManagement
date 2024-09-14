@@ -23,12 +23,19 @@ const io = new Server(server, {
   },
 });
 
+// CORS configuration
 app.use(cors({
   origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// Handle preflight requests
+app.options('*', cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 app.use(express.json());
 app.use(express.static('public'));
@@ -44,13 +51,6 @@ app.use('/user', userRoute);
 app.use('/supplier', SupplierRoute);
 app.use('/refund', RefundRoute);
 
-// Handle preflight requests
-app.options('*', cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-  
 // WebSocket connection
 io.on('connection', (socket) => {
   console.log('A user connected');

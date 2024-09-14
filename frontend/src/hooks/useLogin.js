@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useAuthContext } from './useAuthContext';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 export const useLogin = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const { dispatch } = useAuthContext();
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
 
     const login = async (username, password, role) => {
         setLoading(true);
@@ -29,10 +29,11 @@ export const useLogin = () => {
                 return;
             }
 
-            const { token, name, contact } = json; // Extract contact here
+            const { token, name, contact, _id } = json;
 
-            localStorage.setItem('user', JSON.stringify({ username, name, token, role, contact }));
-            dispatch({ type: 'LOGIN', payload: { username, name, token, role, contact } });
+            // Store user information including _id
+            localStorage.setItem('user', JSON.stringify({ username, name, token, role, contact, _id }));
+            dispatch({ type: 'LOGIN', payload: { username, name, token, role, contact, _id } });
 
             // Redirect based on the role
             if (role === 'admin') {
@@ -40,7 +41,7 @@ export const useLogin = () => {
             } else if (role === 'cashier') {
                 navigate('/cashier');
             } else {
-                navigate('/'); // Default redirection
+                navigate('/');
             }
 
             setLoading(false);

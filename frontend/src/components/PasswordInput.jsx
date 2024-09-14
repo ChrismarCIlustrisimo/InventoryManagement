@@ -15,7 +15,7 @@ const PasswordInput = ({ value, onChange, placeholder }) => {
   return (                
 
     <div className={`${darkMode ? 'border-dark-ACCENT' : 'border-light-ACCENT'} px-4 w-[100%] input-box flex gap-1 items-center rounded-xl p-0 m-0 mt-2`}>
-      <RiLockPasswordLine className="text-lg" />
+      <RiLockPasswordLine className="text-xl" />
       <input 
         type={isShowPassword ? 'text' : 'password'}
         placeholder={placeholder || 'Password'}

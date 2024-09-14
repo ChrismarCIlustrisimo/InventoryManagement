@@ -26,17 +26,25 @@ router.post('/signup', async (req, res) => {
 });
 
 // login route
+// login route
 router.post('/login', async (req, res) => {
     const { username, password, role } = req.body;
 
     try {
         const user = await User.login(username, password, role);
         const token = createToken(user); // Generate token
-        res.status(200).json({ token, name: user.name, role: user.role, contact: user.contact }); // Include contact in the response
+        res.status(200).json({
+            token,
+            name: user.name,
+            role: user.role,
+            contact: user.contact,
+            _id: user._id // Add _id to the response
+        });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
 
 
 // Get all users
@@ -65,7 +73,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update user
-router.patch('/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { username, password, name, contact, role } = req.body;
 
@@ -102,5 +110,51 @@ router.delete('/:id', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+// Route to handle password change
+router.patch('/:id/change-password', async (req, res) => {
+    const { id } = req.params;
+    const { currentPassword, newPassword } = req.body;
+
+    try {
+        console.log('Changing password for user:', id);
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) return res.status(400).json({ error: 'Current password is incorrect' });
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error('Error during password change:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// Route to validate current password
+router.post('/:id/validate-password', async (req, res) => {
+    const { id } = req.params;
+    const { currentPassword } = req.body;
+
+    try {
+        console.log('Validating password for user:', id);
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) return res.status(400).json({ error: 'Current password is incorrect' });
+
+        res.status(200).json({ valid: true });
+    } catch (error) {
+        console.error('Error during password validation:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+
 
 export default router;

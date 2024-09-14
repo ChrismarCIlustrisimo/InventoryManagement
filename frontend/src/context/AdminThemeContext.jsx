@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState } from 'react';
 export const AdminThemeContext = createContext();
 
 export const AdminThemeProvider = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(false); // Default is light mode
+  const [darkMode, setDarkMode] = useState(true); // Default is light mode
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);

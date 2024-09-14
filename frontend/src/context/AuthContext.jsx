@@ -28,7 +28,6 @@ export const AuthContextProvider = ({ children }) => {
         }
     }, []);
 
-    // Extract user name if it exists
     const userName = state.user ? state.user.name : 'No user logged in';
 
     console.log('AuthContext state:', state);

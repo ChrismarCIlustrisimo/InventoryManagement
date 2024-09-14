@@ -139,24 +139,27 @@ useEffect(() => {
 }, []);
 
 
-  const filteredProducts = products
-    .filter(product =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (selectedSupplier === '' || product.supplier === selectedSupplier) &&
-      (categoryFilter === '' || product.category === categoryFilter) &&
-      (stockAlerts['LOW STOCK'] && product.current_stock_status === 'LOW STOCK' ||
-      stockAlerts['NEAR LOW STOCK'] && product.current_stock_status === 'NEAR LOW STOCK' ||
-      stockAlerts['HIGH STOCK'] && product.current_stock_status === 'HIGH STOCK' ||
-      stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK' ||
-      (!stockAlerts['LOW STOCK'] && !stockAlerts['NEAR LOW STOCK'] && !stockAlerts['HIGH STOCK'] && !stockAlerts['OUT OF STOCK']))
-    )
-    .sort((a, b) => {
-      if (sortBy === 'price_asc') return a.selling_price - b.selling_price;
-      if (sortBy === 'price_desc') return b.selling_price - a.selling_price;
-      if (sortBy === 'product_name_asc') return a.name.localeCompare(b.name);
-      if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
-      return 0;
-    });
+const filteredProducts = products
+  .filter(product =>
+    (product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     product.product_id.toLowerCase().includes(searchQuery.toLowerCase())) &&
+    (selectedSupplier === '' || product.supplier === selectedSupplier) &&
+    (categoryFilter === '' || product.category === categoryFilter) &&
+    (stockAlerts['LOW STOCK'] && product.current_stock_status === 'LOW STOCK' ||
+    stockAlerts['NEAR LOW STOCK'] && product.current_stock_status === 'NEAR LOW STOCK' ||
+    stockAlerts['HIGH STOCK'] && product.current_stock_status === 'HIGH STOCK' ||
+    stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK' ||
+    (!stockAlerts['LOW STOCK'] && !stockAlerts['NEAR LOW STOCK'] && !stockAlerts['HIGH STOCK'] && !stockAlerts['OUT OF STOCK']))
+  )
+  .sort((a, b) => {
+    if (sortBy === 'price_asc') return a.selling_price - b.selling_price;
+    if (sortBy === 'price_desc') return b.selling_price - a.selling_price;
+    if (sortBy === 'product_name_asc') return a.name.localeCompare(b.name);
+    if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
+    return 0;
+  });
+
+
 
   const handleCategoryChange = e => {
     setCategoryFilter(e.target.value);
@@ -218,7 +221,7 @@ useEffect(() => {
             </div>
           </div>
           <div className='w-full flex justify-end gap-2'>
-            <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+            <SearchBar query={searchQuery} onQueryChange={setSearchQuery}   placeholderMessage={'Search product by name and product id'}/>
             <button className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={handleAddProductClick}> Add Product</button>
           </div>
         </div>
@@ -326,48 +329,56 @@ useEffect(() => {
 
           {/* Table */}
           <div className={`h-[76vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
-            {filteredProducts.length > 0 ? (
-              <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-                <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-TABLE bg-light-CARD' : 'border-dark-TABLE bg-dark-CARD'} border-b text-sm`}>
-                  <tr>
-                    <th className='p-2 text-left'>Product</th>
-                    <th className='p-2 text-center'>Category</th>
-                    <th className='p-2 text-center'>In-stock</th>
-                    <th className='p-2 text-center'>Stock Status</th>
-                    <th className='p-2 text-center'>Supplier</th>
-                    <th className='p-2 text-center'>Product Code</th>
-                    <th className='p-2 text-center'>Buying Price (PHP)</th>
-                    <th className='p-2 text-center'>Selling Price (PHP)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProducts.map((product, index) => (
-                    <tr key={index} onClick={() => handleRowClick(product._id)} className={`border-b cursor-pointer ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
-                      <td className='flex items-center justify-left p-2'>
-                        <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
-                        <p className='text-sm'>{product.name}</p>
-                      </td>
-                      <td className='text-center text-sm'>{product.category}</td>
-                      <td className='text-center'>{product.quantity_in_stock}</td>
-                      <td className='text-xs text-center' style={{ color: stockColors[product.current_stock_status] || '#ffffff' }}>
-                        {product.current_stock_status}
-                      </td>
-                      <td className='text-center text-xs'>
-                        {suppliers.find(s => s._id === product.supplier)?.name || 'No Supplier'}
-                      </td>
-                      <td className='text-center text-sm'>{product.product_id}</td>
-                      <td className='text-center'>{product.buying_price}</td>
-                      <td className='text-center'>{product.selling_price}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className='flex items-center justify-center h-[76vh] text-lg text-center'>
-                <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No products found matching the filter criteria.</p>
-              </div>
-            )}
-          </div>
+  {filteredProducts.length > 0 ? (
+    <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+      <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-TABLE bg-light-TABLE' : 'border-dark-TABLE bg-dark-TABLE'} border-b text-sm`}>
+        <tr>
+          <th className='p-2 text-left'>Product</th>
+          <th className='p-2 text-center'>Category</th>
+          <th className='p-2 text-center'>In-stock</th>
+          <th className='p-2 text-center'>Stock Status</th> 
+          <th className='p-2 text-center'>Supplier</th>
+          <th className='p-2 text-center'>Product Code</th>
+          <th className='p-2 text-center'>Batch Number</th>
+          <th className='p-2 text-center'>Buying Price (PHP)</th>
+          <th className='p-2 text-center'>Selling Price (PHP)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredProducts.map((product, index) => (
+          <tr key={index}
+              onClick={() => handleRowClick(product._id)}
+              className={`border-b cursor-pointer font-medium ${darkMode ? 'border-light-CARD' : 'border-dark-CARD'}
+                         hover:shadow-lg hover:bg-gray-100 dark:hover:${darkMode ? 'bg-light-TABLE' : 'bg-dark-TABLE'}
+                         transform hover:scale-100 hover:translate-x-2 transition-transform transition-shadow`}
+          >
+            <td className='flex items-center justify-left p-2'>
+              <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
+              <p className='text-sm'>{product.name}</p>
+            </td>
+            <td className='text-center text-sm'>{product.category}</td>
+            <td className='text-center'>{product.quantity_in_stock}</td>
+            <td className='text-center text-xs'>
+              {suppliers.find(s => s._id === product.supplier)?.name || 'N/A'}
+            </td>
+            <td className='text-center text-sm'>{product.product_id}</td>
+            <td className='text-center text-sm'>{product.batch_number}</td>
+            <td className='text-center'>{product.buying_price}</td>
+            <td className='text-center'>{product.selling_price}</td>
+            <td className='text-xs text-center' style={{ background: stockColors[product.current_stock_status] || '#ffffff' }}>
+              {product.current_stock_status}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  ) : (
+    <div className='flex items-center justify-center h-[76vh] text-lg text-center'>
+      <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No products found matching the filter criteria.</p>
+    </div>
+  )}
+</div>
+
         </div>
       </div>
     </div>

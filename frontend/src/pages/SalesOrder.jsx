@@ -136,6 +136,7 @@ const SalesOrder = () => {
             <SearchBar
               query={searchQuery}
               onQueryChange={setSearchQuery}
+              placeholderMessage={'Search by Sales ID'}
             />
           </div>
         </div>

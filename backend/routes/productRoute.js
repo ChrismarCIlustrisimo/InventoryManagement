@@ -36,7 +36,7 @@ const upload = multer({ storage });
 // Add a new product with image upload
 router.post('/', upload.single('file'), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplierId, buying_price, selling_price } = req.body;
+    const { name, category, quantity_in_stock,batch_number, supplierId, buying_price, selling_price } = req.body;
     const image = req.file ? req.file.path : '';
 
     // Check for required fields
@@ -57,6 +57,8 @@ router.post('/', upload.single('file'), async (req, res) => {
     }
 
     const productId = await Product.generateProductId(); // Generate product ID
+    const batchNumber  = await Product.generateBatchNumber(); // Generate product ID
+
 
     const product = new Product({
       name,
@@ -66,7 +68,8 @@ router.post('/', upload.single('file'), async (req, res) => {
       buying_price,
       selling_price,
       image,
-      product_id: productId // Set the generated product ID
+      product_id: productId, // Set the generated product ID
+      batch_number: batchNumber  
     });
 
     await product.save();

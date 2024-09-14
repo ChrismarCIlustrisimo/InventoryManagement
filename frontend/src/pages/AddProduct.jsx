@@ -41,9 +41,6 @@ const AddProduct = () => {
       return 'Valid product quantity is required';
     }
 
-    if (!supplier) {
-      return 'Product supplier is required';
-    }
 
     if (!buyingPrice || isNaN(buyingPrice) || buyingPrice <= 0) {
       return 'Valid buying price is required';

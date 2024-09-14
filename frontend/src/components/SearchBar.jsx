@@ -3,7 +3,7 @@ import { FaSearch } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { useTheme } from '../context/ThemeContext';
 
-const SearchBar = ({ query, onQueryChange }) => {
+const SearchBar = ({ query, onQueryChange, placeholderMessage }) => {
   const { darkMode } = useTheme(); // Access darkMode from context
 
   const handleChange = (event) => {
@@ -18,7 +18,7 @@ const SearchBar = ({ query, onQueryChange }) => {
     <div className={`w-[480px] flex items-center px-4 rounded-md ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'}`}>
       <input 
         type="text"
-        placeholder='Search Products'
+        placeholder={placeholderMessage}
         className='w-full text-xs bg-transparent py-[11px] outline-none'
         value={query}
         onChange={handleChange}       

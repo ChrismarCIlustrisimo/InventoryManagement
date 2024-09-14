@@ -6,7 +6,7 @@ import { useTheme } from '../context/ThemeContext';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { GrPowerReset } from 'react-icons/gr';
-import Spinner from '../components/Spinner';
+import Spinner from '../components/Spinner2';
 import SearchBar from '../components/SearchBar';
 
 const DashboardPos = () => {
@@ -116,6 +116,7 @@ const DashboardPos = () => {
             <SearchBar 
               query={searchQuery}
               onQueryChange={setSearchQuery}
+              placeholderMessage={'Search by sales id'}
             />
           </div>
         </div>

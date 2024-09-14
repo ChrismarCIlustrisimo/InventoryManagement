@@ -7,7 +7,6 @@ import { useTheme } from '../context/ThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import SearchBar from '../components/SearchBar';
 
 const Transaction = () => {
   const { id } = useParams();

@@ -25,11 +25,13 @@ import DashboardSales from './pages/dashboardSales';
 import AdminProfile from './pages/AdminProfile';
 import Customer from './pages/dashboardCustomer';
 import ReportPage from './pages/reportPage';
+import { AppProvider } from './context/AppContext';
 
 const App = () => {
     const { user } = useAuthContext();
   
     return (
+      <AppProvider>
       <AuthContextProvider>
         <ThemeProvider>
           <AdminThemeProvider>
@@ -53,13 +55,14 @@ const App = () => {
               <Route path="/customer" element={<PrivateRoute requiredRole="admin"><Customer /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute requiredRole="admin"><AdminProfile /></PrivateRoute>} />
               <Route path="/report-page" element={<PrivateRoute requiredRole="admin"><ReportPage /></PrivateRoute>} />
-              <Route path="/addUser" element={<AddUser />} />
+              <Route path="/addUser" element={<PrivateRoute requiredRole="admin"><AddUser /></PrivateRoute>} />
               <Route path="*" element={<Navigate to="/" />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
             </Routes>
           </AdminThemeProvider>
         </ThemeProvider>
       </AuthContextProvider>
+      </AppProvider>
     );
   };
 

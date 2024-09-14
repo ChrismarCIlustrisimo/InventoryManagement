@@ -18,14 +18,15 @@ router.post('/signup', async (req, res) => {
 
     try {
         const user = await User.signup(username, password, name, contact, role);
-        const token = createToken(user); // Pass the entire user object
-        res.status(201).json({ username, name, token }); // Include the name in the response
+        const token = createToken(user);
+        res.status(201).json({ username, name, token });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
 
-// login route
+
+
 // login route
 router.post('/login', async (req, res) => {
     const { username, password, role } = req.body;

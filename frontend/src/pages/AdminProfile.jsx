@@ -11,7 +11,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
-
+import ConfirmationDialog from '../components/ConfirmationDialog';
 // Inside your App component or main component render method
 <ToastContainer />
 
@@ -37,7 +37,9 @@ const AdminProfile = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+
     const resetToUserData = () => {
         setName(user.name);
         setUsername(user.username);
@@ -118,6 +120,16 @@ const AdminProfile = () => {
         fetchUsers();
     }, [baseURL]);
 
+
+    useEffect(() => {
+        const nextView = localStorage.getItem('nextView');
+        if (nextView) {
+            setActiveButton(nextView);
+            localStorage.removeItem('nextView'); // Clear the value
+        }
+    }, [setActiveButton]);
+
+
     const handleClick = (button) => {
         setActiveButton(button);
         resetToUserData();  // Reset any editing or password changes when switching tabs
@@ -132,7 +144,40 @@ const AdminProfile = () => {
     };
 
     const handleDeleteUserClick = (userId) => {
-        console.log("Delete User button clicked for user:", userId);
+        setUserToDelete(userId);
+        setIsDialogOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (userToDelete) {
+            try {
+                const response = await fetch(`http://localhost:5555/user/${userToDelete}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to delete user');
+                }
+
+                const responseData = await response.json();
+                console.log(responseData.message);
+
+                // Update the user list after deletion
+                setUsers((prevUsers) => prevUsers.filter(user => user._id !== userToDelete));
+                setUserToDelete(null);
+            } catch (error) {
+                console.error('Error:', error.message);
+                // Handle error state here (e.g., show an error message to the user)
+            }
+        }
+
+        setIsDialogOpen(false);
+    };
+
+    const handleCancelDelete = () => {
+        setUserToDelete(null);
+        setIsDialogOpen(false);
     };
 
     const getIconColor = (role) => {
@@ -344,6 +389,12 @@ const AdminProfile = () => {
                                 </div>
                             )}
                         </div>
+                        <ConfirmationDialog
+                                isOpen={isDialogOpen}
+                                onConfirm={handleConfirmDelete}
+                                onCancel={handleCancelDelete}
+                                message="Are you sure you want to delete this user?"
+                            />
                     </div>
                 </div>
             </div>

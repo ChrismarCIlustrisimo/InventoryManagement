@@ -12,9 +12,9 @@ const DashboardProfile = () => {
     <div className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-4xl`}>
       <button onClick={toggleTheme} className='m-2'>
         {darkMode ? (
-          <CiLight className={darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'} />
+          <CiLight className={darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} />
         ) : (
-          <MdOutlineDarkMode className={darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'} />
+          <MdOutlineDarkMode className={darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} />
         )}
       </button>
       

@@ -266,9 +266,13 @@ const AdminProfile = () => {
                                                 </>
 
                                                 <div className='flex gap-4'>
-                                                    <button onClick={isChangingPassword ? toggleChangePassword : toggleEdit} className={`px-4 py-2 rounded-md ${isChangingPassword ? 'bg-dark-ACCENT text-light-TEXT' : 'bg-light-ACCENT text-dark-TEXT'}`}>
+                                                <button
+                                                        onClick={isChangingPassword ? toggleChangePassword : toggleEdit}
+                                                        className={`px-4 py-2 rounded-md 
+                                                            ${isChangingPassword ? 'bg-dark-ACCENT text-light-text' : 'bg-light-ACCENT text-dark-text'}`}
+                                                        >
                                                         {isChangingPassword ? 'Save Password' : isEditable ? 'Save Info' : 'Edit Info'}
-                                                    </button>
+                                                        </button>
                                                     <button onClick={resetToUserData} className="px-4 py-2 rounded-md bg-gray-300 text-black">Cancel</button>
                                                 </div>
                                         </div>

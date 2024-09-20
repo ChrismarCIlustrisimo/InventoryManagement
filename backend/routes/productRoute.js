@@ -213,11 +213,11 @@ router.post('/update-stock-status', async (req, res) => {
       if (quantity_in_stock <= 0) {
         status = 'OUT OF STOCK';
       } else if (quantity_in_stock <= low_stock_threshold) {
-        status = 'LOW STOCK';
+        status = 'LOW';
       } else if (quantity_in_stock <= near_low_stock_threshold) {
-        status = 'NEAR LOW STOCK';
+        status = 'NEAR LOW';
       } else {
-        status = 'HIGH STOCK';
+        status = 'HIGH';
       }
 
       return {

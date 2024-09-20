@@ -55,6 +55,12 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
       return;
     }
   
+    // Validate customer information
+    if (!customerName.trim() || !address.trim() || !phoneNumber.trim() || !email.trim()) {
+      toast.warning('Please fill in all customer information fields.');
+      return;
+    }
+  
     try {
       // Step 1: Create or Find the Customer
       const customerResponse = await axios.post(`${baseURL}/customer`, {
@@ -81,7 +87,6 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         total_price: totalAmount,
         total_amount_paid: parseNumber(paymentAmount) || 0,
         transaction_date: new Date().toISOString(),
-        source: 'pos',
         cashier: user.name,
       };
   
@@ -122,6 +127,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
     }
   };
   
+  
 
   return (
     <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md"
@@ -144,28 +150,28 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
                 placeholder='Customer Name'
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+                className={`p-2 rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
               />
               <input
                 type="text"
                 placeholder='Address'
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+                className={`p-2 rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
               />
               <input
                 type="text"
                 placeholder='Phone Number'
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+                className={`p-2 rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
               />
                 <input
                 type="text"
                 placeholder='Email'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
+                className={`p-2 rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1' }`}
               />
             </div>
           </div>
@@ -224,7 +230,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
                 </div>
               </div>
               <button
-                className={`mt-4 p-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT hover:bg-light-ACCENT' : 'bg-dark-ACCENT text-dark-TEXT hover:bg-dark-ACCENT'}`}
+                className={`mt-4 p-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT text-dark-TEXT hover:bg-light-ACCENT' : 'bg-dark-ACCENT text-dark-TEXT hover:bg-dark-ACCENT'}`}
                 onClick={handlePayButton}
               >
                 Proceed to Pay

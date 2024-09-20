@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Counter from './counterModel.js';
 
 // Define stock status enumeration
-const StockStatusEnum = ['HIGH STOCK', 'NEAR LOW STOCK', 'LOW STOCK', 'OUT OF STOCK'];
+const StockStatusEnum = ['HIGH', 'NEAR LOW', 'LOW', 'OUT OF STOCK'];
 
 // Define category-specific thresholds
 const categoryThresholds = {
@@ -31,7 +31,7 @@ const ProductSchema = new mongoose.Schema(
     current_stock_status: {
       type: String,
       enum: StockStatusEnum,
-      default: 'HIGH STOCK'
+      default: 'HIGH'
     },
     batch_number: { type: String } // New field for batch number
   },

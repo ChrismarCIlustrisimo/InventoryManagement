@@ -21,7 +21,7 @@ const AddUser = () => {
     };
 
     const handleAddUser = async () => {
-        setError('');
+        setError('');"/update-product/:userId"
     
         if (!username || !password || !name || !contact) {
             setError('All fields are required.');

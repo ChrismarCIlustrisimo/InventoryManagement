@@ -265,7 +265,7 @@ const PosHome = () => {
           </div>
 
           <button
-            className={`w-[80%] py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
+            className={`w-[80%] py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
             onClick={handlePayButton}
           >
             Proceed to Payment

@@ -108,7 +108,7 @@ const DashboardCustomer = () => {
                         <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
                             Customer
                         </h1>
-                        <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+                        <SearchBar query={searchQuery} onQueryChange={setSearchQuery}  placeholderMessage={'Search Customer by name'} />
                     </div>
                 </div>
                 <div className='flex gap-4'>

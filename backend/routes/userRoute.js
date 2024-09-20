@@ -73,6 +73,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+
 // Update user
 router.put('/:id', async (req, res) => {
     const { id } = req.params;
@@ -118,12 +119,13 @@ router.patch('/:id/change-password', async (req, res) => {
     const { currentPassword, newPassword } = req.body;
 
     try {
-        console.log('Changing password for user:', id);
         const user = await User.findById(id);
         if (!user) return res.status(404).json({ error: 'User not found' });
 
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) return res.status(400).json({ error: 'Current password is incorrect' });
+
+        if (!newPassword) return res.status(400).json({ error: 'New password cannot be empty' });
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword;
@@ -136,10 +138,12 @@ router.patch('/:id/change-password', async (req, res) => {
     }
 });
 
+
 // Route to validate current password
 router.post('/:id/validate-password', async (req, res) => {
     const { id } = req.params;
     const { currentPassword } = req.body;
+    console.log('Request payload:', { currentPassword });
 
     try {
         console.log('Validating password for user:', id);

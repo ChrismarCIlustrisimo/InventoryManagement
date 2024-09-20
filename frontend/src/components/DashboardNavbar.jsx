@@ -63,7 +63,7 @@ const DashboardNavbar = () => {
       });
       const productData = response.data.data;
 
-      const lowStockProducts = productData.filter(product => product.current_stock_status === "LOW STOCK").length;
+      const lowStockProducts = productData.filter(product => product.current_stock_status === "LOW").length;
       const outOfStockProducts = productData.filter(product => product.current_stock_status === "OUT OF STOCK").length;
 
       setLowStockCount(lowStockProducts);
@@ -125,7 +125,7 @@ const DashboardNavbar = () => {
           </Tooltip>
           {isInventoryDropdownOpen && (
             <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
-              <Link to="/inventory/product" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>
+              <Link to="/inventory/product" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>
                 Product List 
                 <div className="flex gap-5 absolute top-0 right-[10px]">
                   {lowStockCount > 0 && (
@@ -136,7 +136,7 @@ const DashboardNavbar = () => {
                   )}
               </div>
               </Link>
-              <Link to="/inventory/supplier" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Supplier List</Link>
+              <Link to="/inventory/supplier" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Supplier List</Link>
             </div>
           )}
         </div>
@@ -171,8 +171,8 @@ const DashboardNavbar = () => {
           </button>
           {isSalesDropdownOpen && (
             <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
-              <Link to="/sales" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales</Link>
-              <Link to="/customer" className={`block px-4 py-2 text-sm ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Customer</Link>
+              <Link to="/sales" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales</Link>
+              <Link to="/customer" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Customer</Link>
             </div>
           )}
         </div>

@@ -13,9 +13,9 @@ import io from 'socket.io-client'; // Import socket.io-client
 import { useLocation } from 'react-router-dom';
 
 const stockColors = {
-  "HIGH STOCK": "#1e7e34", // Darker Green
-  "NEAR LOW STOCK": "#e06c0a", // Darker Orange
-  "LOW STOCK": "#d39e00", // Darker Yellow
+  "HIGH": "#1e7e34", // Darker Green
+  "NEAR LOW": "#e06c0a", // Darker Orange
+  "LOW": "#d39e00", // Darker Yellow
   "OUT OF STOCK": "#c82333", // Darker Red
 };
 
@@ -35,9 +35,9 @@ const DashboardProductList = () => {
   const [categoryFilter, setCategoryFilter] = useState('');
   const location = useLocation();
   const [stockAlerts, setStockAlerts] = useState({
-    "LOW STOCK": false,
-    "NEAR LOW STOCK": false,
-    "HIGH STOCK": false,
+    "LOW": false,
+    "NEAR LOW": false,
+    "HIGH": false,
     "OUT OF STOCK": false,
   });
 
@@ -91,14 +91,14 @@ const DashboardProductList = () => {
       // Update current_stock_status based on category thresholds
       const updatedProducts = products.map(product => {
         const thresholds = categoryThresholds[product.category];
-        let stockStatus = 'HIGH STOCK';
+        let stockStatus = 'HIGH';
   
         if (product.quantity_in_stock === 0) {
           stockStatus = 'OUT OF STOCK';
         } else if (product.quantity_in_stock <= thresholds.low) {
-          stockStatus = 'LOW STOCK';
+          stockStatus = 'LOW';
         } else if (product.quantity_in_stock <= thresholds.nearLow) {
-          stockStatus = 'NEAR LOW STOCK';
+          stockStatus = 'NEAR LOW';
         }
   
         return {
@@ -145,11 +145,11 @@ const filteredProducts = products
      product.product_id.toLowerCase().includes(searchQuery.toLowerCase())) &&
     (selectedSupplier === '' || product.supplier === selectedSupplier) &&
     (categoryFilter === '' || product.category === categoryFilter) &&
-    (stockAlerts['LOW STOCK'] && product.current_stock_status === 'LOW STOCK' ||
-    stockAlerts['NEAR LOW STOCK'] && product.current_stock_status === 'NEAR LOW STOCK' ||
-    stockAlerts['HIGH STOCK'] && product.current_stock_status === 'HIGH STOCK' ||
+    (stockAlerts['LOW'] && product.current_stock_status === 'LOW' ||
+    stockAlerts['NEAR LOW'] && product.current_stock_status === 'NEAR LOW' ||
+    stockAlerts['HIGH'] && product.current_stock_status === 'HIGH' ||
     stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK' ||
-    (!stockAlerts['LOW STOCK'] && !stockAlerts['NEAR LOW STOCK'] && !stockAlerts['HIGH STOCK'] && !stockAlerts['OUT OF STOCK']))
+    (!stockAlerts['LOW'] && !stockAlerts['NEAR LOW'] && !stockAlerts['HIGH'] && !stockAlerts['OUT OF STOCK']))
   )
   .sort((a, b) => {
     if (sortBy === 'price_asc') return a.selling_price - b.selling_price;
@@ -190,9 +190,9 @@ const filteredProducts = products
     setSelectedSupplier('');
     setCategoryFilter(''); // Reset category filter
     setStockAlerts({
-      "LOW STOCK": false,
-      "NEAR LOW STOCK": false,
-      "HIGH STOCK": false,
+      "LOW": false,
+      "NEAR LOW": false,
+      "HIGH": false,
       "OUT OF STOCK": false,
     }); // Reset stock alerts
 
@@ -221,7 +221,7 @@ const filteredProducts = products
             </div>
           </div>
           <div className='w-full flex justify-end gap-2'>
-            <SearchBar query={searchQuery} onQueryChange={setSearchQuery}   placeholderMessage={'Search product by name and product id'}/>
+            <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search products by name and product id'}/>
             <button className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={handleAddProductClick}> Add Product</button>
           </div>
         </div>
@@ -278,19 +278,19 @@ const filteredProducts = products
                 <label htmlFor='stockAlert' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'dark:text-light-TABLE'}`}>STOCK ALERT</label>
                 <div id='stockAlert' className='flex flex-col'>
                   <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='LOW STOCK' id='lowStock' checked={stockAlerts['LOW STOCK']} onChange={handleStockAlertChange}/>
+                    <input type='checkbox' name='stockAlert' value='LOW' id='lowStock' checked={stockAlerts['LOW']} onChange={handleStockAlertChange}/>
                     <span className='checkmark'></span>
-                    <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Low Stock</span>
+                    <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Low</span>
                   </label>
                   <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='NEAR LOW STOCK' id='nearLowStock' checked={stockAlerts['NEAR LOW STOCK']} onChange={handleStockAlertChange}/>
+                    <input type='checkbox' name='stockAlert' value='NEAR LOW' id='nearLowStock' checked={stockAlerts['NEAR LOW']} onChange={handleStockAlertChange}/>
                     <span className='checkmark'></span>
-                    <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Near Low Stock</span>
+                    <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Near Low</span>
                   </label>
                   <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='HIGH STOCK' id='highStock' checked={stockAlerts['HIGH STOCK']} onChange={handleStockAlertChange}/>
+                    <input type='checkbox' name='stockAlert' value='HIGH' id='highStock' checked={stockAlerts['HIGH']} onChange={handleStockAlertChange}/>
                     <span className='checkmark'></span>
-                    <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>High Stock</span>
+                    <span className={`label-text ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>High</span>
                   </label>
                   <label className='custom-checkbox flex items-center'>
                     <input type='checkbox' name='stockAlert' value='OUT OF STOCK' id='outOfStock' checked={stockAlerts['OUT OF STOCK']} onChange={handleStockAlertChange}/>
@@ -300,7 +300,7 @@ const filteredProducts = products
                 </div>
               </div>
               <label className='text-sm text-gray-500 mb-1'>PRICE RANGE</label>
-              <div className='flex justify-left items-center gap-2'>
+              <div className={`flex justify-left items-center gap-2 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
                 <div className='flex flex-col'>
                   <div className={`w-[100px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>
                     <input type='number' id='minPrice' value={minPrice} onChange={handleMinPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Min'/>
@@ -312,7 +312,7 @@ const filteredProducts = products
                     <input type='number' id='maxPrice' value={maxPrice} onChange={handleMaxPriceChange} className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none' min='0' placeholder='Max' /> 
                    </div>
                 </div>
-                <button className={`p-2 text-xs rounded-md ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} hover:bg-opacity-60 active:bg-opacity-30`} onClick={handlePriceRangeFilter}><FaPlay /></button>
+                <button className={`p-2 text-xs rounded-md text-white ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'} hover:bg-opacity-60 active:bg-opacity-30`} onClick={handlePriceRangeFilter}><FaPlay /></button>
               </div>
             </div>
 
@@ -336,12 +336,12 @@ const filteredProducts = products
           <th className='p-2 text-left'>Product</th>
           <th className='p-2 text-center'>Category</th>
           <th className='p-2 text-center'>In-stock</th>
-          <th className='p-2 text-center'>Stock Status</th> 
           <th className='p-2 text-center'>Supplier</th>
           <th className='p-2 text-center'>Product Code</th>
           <th className='p-2 text-center'>Batch Number</th>
           <th className='p-2 text-center'>Buying Price (PHP)</th>
           <th className='p-2 text-center'>Selling Price (PHP)</th>
+          <th className='p-2 text-center'>Stock Status</th> 
         </tr>
       </thead>
       <tbody>
@@ -365,8 +365,8 @@ const filteredProducts = products
             <td className='text-center text-sm'>{product.batch_number}</td>
             <td className='text-center'>{product.buying_price}</td>
             <td className='text-center'>{product.selling_price}</td>
-            <td className='text-xs text-center' style={{ background: stockColors[product.current_stock_status] || '#ffffff' }}>
-              {product.current_stock_status}
+            <td className='text-xs text-center text-dark-TEXT' style={{ background: stockColors[product.current_stock_status] || '#ffffff' }}>
+            {product.current_stock_status}
             </td>
           </tr>
         ))}

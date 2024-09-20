@@ -39,6 +39,7 @@ const AdminProfile = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
+    const [userId, setuserId] = useState(user._id);
 
     const resetToUserData = () => {
         setName(user.name);
@@ -140,9 +141,8 @@ const AdminProfile = () => {
     };
 
     const handleViewUserClick = (userId) => {
-        console.log("View User button clicked for user:", userId);
+        navigate(`/update-user/${userId}`);
     };
-
     const handleDeleteUserClick = (userId) => {
         setUserToDelete(userId);
         setIsDialogOpen(true);
@@ -166,6 +166,7 @@ const AdminProfile = () => {
                 // Update the user list after deletion
                 setUsers((prevUsers) => prevUsers.filter(user => user._id !== userToDelete));
                 setUserToDelete(null);
+                toast.success('User Deleted successfully!');
             } catch (error) {
                 console.error('Error:', error.message);
                 // Handle error state here (e.g., show an error message to the user)
@@ -197,7 +198,7 @@ const AdminProfile = () => {
     return (
         <div className={`w-full h-full ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
             <DashboardNavbar />
-            <ToastContainer />
+            <ToastContainer theme={darkMode ? 'light' : 'dark'} />
             <div className={`pt-[70px] px-6 py-4 h-full`}>
                 <div className='flex items-center justify-center py-5 flex-col h-full'>
                     <div className='flex w-full items-center justify-start'>
@@ -339,7 +340,7 @@ const AdminProfile = () => {
                                     <div className='flex items-center justify-between'>
                                         <p className={`text-4xl ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>Users</p>
                                         <div className='w-full flex justify-end gap-4 my-4'>
-                                            <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+                                            <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search User by name'}/>
                                             <button
                                                 className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}
                                                 onClick={handleAddUserClick}
@@ -348,27 +349,32 @@ const AdminProfile = () => {
                                             </button>
                                         </div>
                                     </div>
-                                    <div className='flex flex-col gap-2 w-full'>
-                                        <div className={`w-full max-h-[480px] overflow-auto rounded-lg ${darkMode ? 'bg-light-CARD1' : 'bg-dark-CARD1'}`}>
-                                            <table className='w-full border-collapse'>
-                                                <thead className={`sticky top-0 rounded-lg py-6 ${darkMode ? 'border-light-ACCENT bg-light-CARD text-light-TEXT' : 'border-dark-ACCENT bg-dark-CARD text-dark-TEXT'}`}>
-                                                    <tr>
-                                                        <th style={{ width: '60%' }} className={`p-2 py-4 text-left`}>NAME</th>
-                                                        <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ROLE</th>
-                                                        <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ACTION</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {users.filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase())).map(user => (
+                                    <div className='flex flex-col gap-2 w-full'> 
+                                    <div className={`w-full max-h-[480px] overflow-auto rounded-lg ${darkMode ? 'bg-light-CARD1' : 'bg-dark-CARD1'}`}>
+                                        <table className='w-full border-collapse'>
+                                            <thead className={`sticky top-0 rounded-lg py-6 ${darkMode ? 'border-light-ACCENT bg-light-CARD text-light-TEXT' : 'border-dark-ACCENT bg-dark-CARD text-dark-TEXT'}`}>
+                                                <tr>
+                                                    <th style={{ width: '40%' }} className={`p-2 py-4 text-left`}>NAME</th>
+                                                    <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ROLE</th>
+                                                    <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>CONTACT</th>
+                                                    <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ACTION</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className='h-full'>
+                                                {users
+                                                    .filter(user => user._id !== userId)  // Exclude the current user
+                                                    .filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase()))  // Apply search filter
+                                                    .map(user => (
                                                         <tr key={user._id} className={`border-b ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
-                                                            <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center justify-start ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-                                                                <BsPersonCircle className={`w-8 h-8 ${getIconColor(user.role)}`} />
+                                                            <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center justify-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                                <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
                                                                 <p>{user.name}</p>
                                                             </td>
-                                                            <td style={{ width: '30%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{user.role}</td>
-                                                            <td style={{ width: '20%' }} className='p-2 py-4 text-center flex gap-4'>
+                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{user.role}</td>
+                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{user.contact}</td>
+                                                            <td style={{ width: '20%' }} className='text-center gap-4'>
                                                                 <button
-                                                                    className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}
+                                                                    className={`px-4 py-2 rounded-md font-semibold mr-4 ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}
                                                                     onClick={() => handleViewUserClick(user._id)}
                                                                 >
                                                                     Edit
@@ -382,10 +388,11 @@ const AdminProfile = () => {
                                                             </td>
                                                         </tr>
                                                     ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                            </tbody>
+                                        </table>
                                     </div>
+                                </div>
+
                                 </div>
                             )}
                         </div>

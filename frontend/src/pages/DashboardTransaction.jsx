@@ -134,7 +134,7 @@ const DashboardTransaction = () => {
                 <div className='flex items-center justify-center py-5'>
                     <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>Transaction</h1>
                     <div className='w-full flex justify-end gap-2'>
-                        <AdminSearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+                        <AdminSearchBar query={searchQuery} onQueryChange={setSearchQuery}  placeholderMessage={'Search Transaction by transaction id'} />
                     </div>
                 </div>
                 <div className='flex gap-4'>

@@ -63,14 +63,14 @@ const UpdateProduct = () => {
 
         // Calculate stock status
         const thresholds = categoryThresholds[data.category];
-        let stockStatus = 'HIGH STOCK';
+        let stockStatus = 'HIGH';
 
         if (data.quantity_in_stock === 0) {
           stockStatus = 'OUT OF STOCK';
         } else if (data.quantity_in_stock <= thresholds.low) {
-          stockStatus = 'LOW STOCK';
+          stockStatus = 'LOW';
         } else if (data.quantity_in_stock <= thresholds.nearLow) {
-          stockStatus = 'NEAR LOW STOCK';
+          stockStatus = 'NEAR LOW';
         }
 
         setCurrentStockStatus(stockStatus);
@@ -110,11 +110,11 @@ const UpdateProduct = () => {
       if (quantity <= 0) {
         status = 'OUT OF STOCK';
       } else if (quantity <= thresholds.low) {
-        status = 'LOW STOCK';
+        status = 'LOW';
       } else if (quantity <= thresholds.nearLow) {
-        status = 'NEAR LOW STOCK';
+        status = 'NEAR LOW';
       } else {
-        status = 'HIGH STOCK';
+        status = 'HIGH';
       }
       
       setCurrentStockStatus(status);
@@ -194,9 +194,9 @@ const UpdateProduct = () => {
   };
   
   const stockColors = {
-    "HIGH STOCK": "#1e7e34", // Darker Green
-    "NEAR LOW STOCK": "#e06c0a", // Darker Orange
-    "LOW STOCK": "#d39e00", // Darker Yellow
+    "HIGH": "#1e7e34", // Darker Green
+    "NEAR LOW": "#e06c0a", // Darker Orange
+    "LOW": "#d39e00", // Darker Yellow
     "OUT OF STOCK": "#c82333", // Darker Red
   };
 
@@ -207,11 +207,11 @@ const UpdateProduct = () => {
     <div className={`h-full w-full flex flex-col ${darkMode ? 'text-light-TEXT bg-light-BG' : 'text-dark-TEXT bg-dark-BG'}`}>
       {!isEditing && (
         <div className='flex items-center justify-between h-[8%]'>
-          <button className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`} onClick={handleBackClick}>
+          <button className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:underline`} onClick={handleBackClick}>
             <IoCaretBackOutline /> Back to inventory
           </button>
           <div className='flex gap-4 items-center p-4'>
-            <button className={`px-4 py-2 rounded-md font-semibold text-sm ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={() => setIsEditing(true)}> Edit </button>
+            <button className={`px-4 py-2 rounded-md font-semibold text-sm text-white ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={() => setIsEditing(true)}> Edit </button>
             <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div>
             <button className={`text-2xl ${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'}`} onClick={() => setIsDialogOpen(true)}><FaTrash /></button>
           </div>
@@ -271,7 +271,7 @@ const UpdateProduct = () => {
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>CURRENT STOCK STATUS</p>
-              <p style={{ color: stockStatusColor }} className={`bg-transparent rounded-md p-1 text-gray-500`}>{currentStockStatus}</p>
+              <p style={{ background: stockStatusColor }} className={`bg-transparent rounded-md p-1 text-white`}>{currentStockStatus}</p>
             </div>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>DATE ADDED</p>
@@ -299,7 +299,7 @@ const UpdateProduct = () => {
                   </select>
                 ) : (
                   <p className={`bg-transparent rounded-md p-1`}>
-                    {suppliers.find(supplier => supplier._id === supplierId)?.name || "No Supplier"}
+                    {suppliers.find(supplier => supplier._id === supplierId)?.name || "N/A"}
                   </p>
                 )}
             </div>
@@ -329,7 +329,7 @@ const UpdateProduct = () => {
           <div className="flex items-center gap-4"> 
             <button type="button" onClick={() => setIsEditing(false)} className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-ACCENT text-light-ACCENT' : 'border-dark-ACCENT text-dark-ACCENT'}`}>Cancel</button> 
             <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div> 
-            <button type="button" className={`px-6 py-2 rounded-md ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'bg-dark-ACCENT text-dark-TEXT'}`} onClick={updateProduct}>Save</button> 
+            <button type="button" className={`px-6 py-2 rounded-md text-white ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`} onClick={updateProduct}>Save</button> 
           </div> 
         </div>
       )}

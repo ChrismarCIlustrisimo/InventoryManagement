@@ -138,7 +138,7 @@ const DashboardSales = () => {
                         </h1>
                     </div>
                     <div className='w-full flex justify-end gap-2'>
-                        <SearchBar query={searchQuery} onQueryChange={setSearchQuery} />
+                        <SearchBar query={searchQuery} onQueryChange={setSearchQuery}  placeholderMessage={'Search sales by product name'} />
                         <button
                             className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}
                             onClick={handleAddProductClick}

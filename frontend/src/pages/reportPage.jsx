@@ -1,62 +1,137 @@
 // src/pages/ReportPage.js
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
+import { IoCaretBackOutline } from 'react-icons/io5';
+import ReactToPrint from 'react-to-print';
 
 const ReportPage = () => {
     const location = useLocation();
-    const { products } = location.state || { products: [] };
-    const [reportTimeFrame, setReportTimeFrame] = useState('');
-    const [showReport, setShowReport] = useState(false); // New state to control report visibility
     const { user } = useAuthContext();
     const { darkMode } = useAdminTheme();
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const componentRef = useRef();
 
-    const handleTimeFrameChange = (e) => {
-        setReportTimeFrame(e.target.value);
-    };
+    // Sample data
+    const sampleProducts = [
+        { name: 'Product A', quantitySold: 120, netSales: 2400, refunded: 50, discounts: 100, cost: 1200 },
+        { name: 'Product B', quantitySold: 90, netSales: 1800, refunded: 30, discounts: 75, cost: 900 },
+        { name: 'Product C', quantitySold: 60, netSales: 1200, refunded: 20, discounts: 50, cost: 600 },
+        { name: 'Product D', quantitySold: 30, netSales: 600, refunded: 10, discounts: 25, cost: 300 },
+    ];
 
-    const handleGenerateReport = () => {
-        if (reportTimeFrame) {
-            setShowReport(true); // Show the report after selecting a time frame
-        }
+    const handleBackClick = () => {
+        navigate(-1); // Navigate back to the previous page
     };
 
     return (
-        <div className={`w-full h-full flex items-center justify-center flex-col ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
-                {!showReport ? (
-                    <div className='p-4 flex flex-col items-center justify-centers'>
-                    <div className="mb-4 w-full flex flex-col items-center justify-center">
-                        <h1 className="text-4xl font-bold mb-4">Generate Report</h1>
-                        <label htmlFor="timeFrame" className="text-lg mb-2 text-center">Select Report Time Frame</label>
-                        <select
-                            id="timeFrame"
-                            value={reportTimeFrame}
-                            onChange={handleTimeFrameChange}
-                            className={`block px-6 py-4 text-sm rounded-lg w-full border ${darkMode ? 'text-light-TEXT border-light-ACCENT bg-light-CARD' : 'text-dark-TEXT border-light-ACCENT bg-dark-CARD'}`}
-                        >
-                            <option value="">Select Time Frame</option>
-                            <option value="this_week">This Week</option>
-                            <option value="this_month">This Month</option>
-                            <option value="last_month">Last Month</option>
-                            <option value="last_week">Last Week</option>
-                        </select>
-                        <button
-                            onClick={handleGenerateReport}
-                            className={`mt-4 px-8 py-4 rounded-lg ${darkMode ? 'bg-dark-ACCENT text-light-TEXT' : 'bg-light-ACCENT text-dark-TEXT'}`}
-                        >
-                            Generate Report
-                        </button>
+        <div className={`w-full flex items-center justify-center flex-col ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
+            <div className='p-4 flex flex-col items-center justify-start w-full min-h-screen'>
+                <div className='flex items-center justify-between h-[8%] absolute top-0 left-0 right-0'>
+                    <button
+                        className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}
+                        onClick={handleBackClick}
+                    >
+                        <IoCaretBackOutline /> Back to Supplier List
+                    </button>
+                    <ReactToPrint
+                        trigger={() => (
+                            <button className={`py-4 px-6 ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}>
+                                Print
+                            </button>
+                        )}
+                        content={() => componentRef.current}
+                        pageStyle={`@media print {
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 0;
+                                padding: 0;
+                                width: 3in; /* Set width to 3 inches */
+                                overflow: hidden; /* Hide overflow content */
+                            }
+                            table {
+                                width: 100%;
+                                border-collapse: collapse;
+                            }
+                            th, td {
+                                border: 1px solid black;
+                                padding: 4px;
+                                text-align: left;
+                            }
+                            th {
+                                background-color: #f2f2f2;
+                            }
+                            @media print {
+                                body {
+                                    margin: 0;
+                                    width: 3in; /* Ensure the width is 3 inches for printing */
+                                }
+                            }
+                        `}
+                    />
+                </div>
+                <div ref={componentRef} className={`mt-4 h-full w-full items-center flex flex-col justify-start border border-red-800 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                    <h1 className='w-full text-center text-2xl font-semibold'>SALES REPORT - APRIL 2024</h1>
+                    <div className='w-full h-[30%] border'>
+                        <div className=' flex my-6 border'>
+                            <div className={`w-[50%] flex items-start  justify-start gap-4 border-r mr-12 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
+                                <div className='w-[40%] h-full flex flex-col gap-4'>
+                                    <p>Date Generated</p>
+                                    <p>Generated By</p>
+                                </div>
+                                <div className='w-[40%] h-full flex flex-col gap-4'>
+                                    <p>Date Generated</p>
+                                    <p>Generated By</p>
+                                </div>
+                            </div>
+                            <div className={`grid grid-cols-2 gap-20 pl-6`}>
+                                <div className='flex flex-col gap-4'>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                </div>
+                                <div className='flex flex-col gap-4'>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                    <p>April 2024</p>
+                                </div>
+                            </div>
+                        </div>
+                        {/* Table Section */}
+                        <div className='mt-12'>
+                            <table className='w-full border-collapse'>
+                                <thead>
+                                    <tr className={`bg-${darkMode ? 'dark' : 'light'}-HEADER`}>
+                                        <th className='border p-2'>Product</th>
+                                        <th className='border p-2'>Quantity Sold</th>
+                                        <th className='border p-2'>Net Sales (PHP)</th>
+                                        <th className='border p-2'>Refunded</th>
+                                        <th className='border p-2'>Discounts</th>
+                                        <th className='border p-2'>Cost (PHP)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className='text-center'>
+                                    {sampleProducts.map((product, index) => (
+                                        <tr key={index} className={`bg-${index % 2 === 0 ? 'light' : 'dark'}-ROW`}>
+                                            <td className='border p-2 text-start'>{product.name}</td>
+                                            <td className='border p-2'>{product.quantitySold}</td>
+                                            <td className='border p-2'>{product.netSales}</td>
+                                            <td className='border p-2'>{product.refunded}</td>
+                                            <td className='border p-2'>{product.discounts}</td>
+                                            <td className='border p-2'>{product.cost}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-                ) : (
-                    <div className="p-8 w-full h-full border flex flex-col items-center">
-                        <p className="text-4xl font-medium mb-4">Sales Report</p>
-
-                    </div>
-                )}
+            </div>
         </div>
     );
 };

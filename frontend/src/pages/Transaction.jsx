@@ -188,9 +188,9 @@ const Transaction = () => {
                   </div>
                   <div className={`flex items-start justify-between text-l flex-col gap-3 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
                   <p className='tracking-wider'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
-                  <p className='tracking-wider'>{transaction.customer && transaction.customer.phone !== "" ? transaction.customer.name : 'None'}</p>
-                  <p className='tracking-wider'>{transaction.customer && transaction.customer.email !== "" ? transaction.customer.name : 'None'}</p>
-                  <p className='tracking-wider'>{transaction.customer && transaction.customer.address !== "" ? transaction.customer.name : 'None'}</p>
+                  <p className='tracking-wider'>{transaction.customer && transaction.customer.phone !== "" ? transaction.customer.phone : 'None'}</p>
+                  <p className='tracking-wider'>{transaction.customer && transaction.customer.email !== "" ? transaction.customer.email : 'None'}</p>
+                  <p className='tracking-wider'>{transaction.customer && transaction.customer.address !== "" ? transaction.customer.address : 'None'}</p>
                   </div>
                 </div>
               </div>
@@ -283,7 +283,7 @@ const Transaction = () => {
               </div>
               <button
                 onClick={handlePayment}
-                className={`w-full py-3 mb-4 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
+                className={`w-full py-3 mb-4 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
               >
                 Pay
               </button>

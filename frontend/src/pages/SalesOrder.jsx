@@ -39,20 +39,23 @@ const SalesOrder = () => {
           minPrice,
           maxPrice,
           sortBy,
-          payment_status: 'unpaid',
+          payment_status: 'unpaid',  // This is set to 'unpaid'
           transaction_id: searchQuery  
         },
         headers: {
           'Authorization': `Bearer ${user.token}`
         }
       });
-      setSalesOrder(response.data.data);
+      setSalesOrder(response.data.data); // Ensure this matches the data structure returned from API
     } catch (error) {
       console.error('Error fetching sales orders:', error);
     } finally {
       setLoading(false);
     }
   };
+  
+
+  {console.log(salesOrder)}
 
   const handleTransactionClick = (transactionId) => {
     navigate(`/transaction/${transactionId}`);
@@ -127,7 +130,7 @@ const SalesOrder = () => {
   };
 
   return (
-    <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG' }`}>
+    <div className={`h-full ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG' }`}>
       <Navbar />
       <div className='h-full px-6 pt-[70px]'>
         <div className='flex items-center justify-center py-5'>

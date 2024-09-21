@@ -88,6 +88,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         total_amount_paid: parseNumber(paymentAmount) || 0,
         transaction_date: new Date().toISOString(),
         cashier: user.name,
+        payment_status: 'paid'
       };
   
       // Step 3: Create the Transaction

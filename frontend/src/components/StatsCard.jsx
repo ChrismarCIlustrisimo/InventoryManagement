@@ -15,8 +15,6 @@ const StatsCard = (
     isDropdownOpen,
 }) => {
 
-    console.log(Icon); // Add this line inside the StatsCard component
-
     return (
       <div className={`w-[35%] rounded-lg py-4 flex flex-col gap-2 ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'}`}>
         <div className='flex items-center justify-between relative w-full px-4'>

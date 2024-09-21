@@ -21,6 +21,7 @@ const AdminHome = () => {
   const { user } = useAuthContext();
   const [topProducts, setTopProducts] = useState([]);
   const [grossSales, setGrossSales] = useState(0);
+  const [Netsales, setNetSales] = useState(0);
   const [loading, setLoading] = useState(true);
   const [productCount, setproductCount] = useState([]);
   const [transactionLog, setTransactionLog] = useState([]);
@@ -34,9 +35,9 @@ const AdminHome = () => {
   const [grossSalesData, setGrossSalesData] = useState([]);
   const [selectedOption, setSelectedOption] = useState('Select an option');
   const [openDropdown, setOpenDropdown] = useState(false); // Initialize dropdown state
-  const [grossSalesOption, setGrossSalesOption] = useState("Last Month");
+  const [grossSalesOption, setGrossSalesOption] = useState("Last 7 Days");
   const [openGrossSalesDropdown, setOpenGrossSalesDropdown] = useState(false);
-  const [netSalesOption, setNetSalesOption] = useState("Last Month"); // New state for net sales
+  const [netSalesOption, setNetSalesOption] = useState("Last 7 Days"); // Change this to a valid option
   const [openNetSalesDropdown, setOpenNetSalesDropdown] = useState(false); // New state for net sales dropdown
   
   const toggleGrossSalesDropdown = () => {
@@ -56,23 +57,50 @@ const AdminHome = () => {
     setNetSalesOption(option);
     setOpenNetSalesDropdown(false); // close dropdown after selection
   };
-  const getCurrentWeekDateRange = () => {
-    const now = new Date(); // Current date and time
+
+  const getDateRange = (option) => {
+    const now = new Date();
   
-    // Calculate the start of the week (Monday)
-    const start = new Date(now);
-    start.setDate(now.getDate() - now.getDay() + 1); // Adjust to Monday
+    switch (option) {
+      case 'Last 7 Days':
+        const startOfLast7Days = new Date(now);
+        startOfLast7Days.setDate(now.getDate() - 6); // 6 days ago
+        return {
+          start: startOfLast7Days,
+          end: now,
+        };
   
-    // Calculate the end of the week (Sunday)
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6); // Move to Sunday
+      case 'Last 30 Days':
+        const startOfLast30Days = new Date(now);
+        startOfLast30Days.setDate(now.getDate() - 29); // 29 days ago
+        return {
+          start: startOfLast30Days,
+          end: now,
+        };
   
-    // Set time for start and end of the day
-    start.setHours(0, 0, 0, 0); // Start of the day
-    end.setHours(23, 59, 59, 999); // End of the day
-    return { start, end };
+      case 'This Year':
+        const startOfYear = new Date(now.getFullYear(), 0, 1); // January 1st of the current year
+        return {
+          start: startOfYear,
+          end: now,
+        };
+  
+      case 'Custom Date':
+        // Handle custom date logic here, if needed
+        return {
+          start: null, // Replace with actual custom start date
+          end: null, // Replace with actual custom end date
+        };
+  
+      default:
+        return {
+          start: null,
+          end: null,
+        };
+    }
   };
   
+
 
   // Function to refresh the page
   const handleRefresh = () => {
@@ -130,71 +158,71 @@ const AdminHome = () => {
     }
   };
 
+   // Move fetchTransactionData outside of useEffect
+   const fetchTransactionData = async () => {
+    const dateRange = getDateRange(netSalesOption);
+  
+    if (!dateRange.start || !dateRange.end) {
+      console.error("Invalid date range.");
+      return;
+    }
+  
+    try {
+      const response = await axios.get(`${baseURL}/transaction`, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+        params: {
+          startDate: dateRange.start.toISOString(),
+          endDate: dateRange.end.toISOString(),
+        },
+      });
+  
+      const result = response.data;
+      const paidTransactions = result.data.filter(transaction => transaction.payment_status === 'paid');
+  
+      // Calculate Gross Sales
+      const grossSales = paidTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
+      console.log("Total Gross Sales:", grossSales);
+  
+      // Calculate Total Cost of Sold Products
+      const totalCostOfSoldProducts = paidTransactions.reduce((total, transaction) => {
+        const transactionCost = transaction.products.reduce((sum, product) => {
+          return sum + (product.product.buying_price * product.quantity);
+        }, 0);
+        return total + transactionCost;
+      }, 0);
+  
+      console.log("Total Cost of Sold Products:", totalCostOfSoldProducts);
+  
+      // Calculate Net Sales
+      const netSales = grossSales - totalCostOfSoldProducts;
+  
+      console.log("Total Net Sales:", netSales);
+  
+      setTransactionLog(paidTransactions.slice(0, 3));
+      setGrossSales(grossSales);
+      setNetSales(netSales);
+  
+    } catch (error) {
+      console.error("Error fetching transaction data:", error);
+    }
+  };
+  
+  
+  
+  
 
+  // UseEffect for fetching transaction data based on token and selected option
+  useEffect(() => {
+    fetchTransactionData();
+  }, [user.token, baseURL, netSalesOption]); // Include netSalesOption as a dependency
+
+  // Fetch top selling products as before
   useEffect(() => {
     fetchTopSellingProducts();
   }, [baseURL, user.token]);
-
-  useEffect(() => {
-    const fetchWeeklyData = async () => {
-      const { start, end } = getCurrentWeekDateRange();
   
-      try {
-        const response = await axios.get(`${baseURL}/transaction`, {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-          params: {
-            startDate: start.toISOString(),
-            endDate: end.toISOString(),
-          },
-        });
-  
-        const result = response.data;
-        console.log("Result:", result); // Inside fetchTopSellingProducts and fetchWeeklyData
-
-        // Filter transactions with payment_status 'paid'
-        const paidTransactions = result.data.filter(transaction => transaction.payment_status === 'paid');
-  
-        // Initialize sales data for each day of the week (0 for Monday, 1 for Tuesday, ..., 6 for Sunday)
-        const netSalesByDay = Array(7).fill(0);
-        const grossSalesByDay = Array(7).fill(0);
-  
-        // Function to get day index (0 for Monday, 6 for Sunday)
-        const getDayIndex = (dateString) => {
-          const date = new Date(dateString);
-          const day = date.getDay();
-          return (day === 0 ? 6 : day - 1); // Adjust Sunday to be the last day (index 6)
-        };
-  
-        // Aggregate sales data
-        paidTransactions.forEach(transaction => {
-          const dayIndex = getDayIndex(transaction.transaction_date);
-          netSalesByDay[dayIndex] += transaction.total_price - transaction.products.reduce((total, product) => total + (product.product.buying_price * product.quantity), 0);
-          grossSalesByDay[dayIndex] += transaction.total_price;
-        });
-  
-        console.log(paidTransactions);
-        console.log(netSalesByDay);
-        console.log(grossSalesByDay);
-
-        // Set data for the bar chart
-        setNetSalesData(netSalesByDay);
-        setGrossSalesData(grossSalesByDay);
-  
-        // Other calculations remain the same
-        const overallTotalBuyingPrice = paidTransactions.reduce((acc, transaction) => acc + transaction.products.reduce((total, product) => total + (product.product.buying_price * product.quantity), 0), 0);
-        setTotalBuyingPrice(overallTotalBuyingPrice);
-        setGrossSales(paidTransactions.reduce((acc, P) => acc + P.total_price, 0));
-        setTransactionLog(paidTransactions.slice(0, 3));
-  
-      } catch (error) {
-        console.error("Error fetching weekly data:", error);
-      }
-    };
-  
-    fetchWeeklyData();
-  }, [user.token, baseURL]);
   
 
   const handleProductClick = (productId) => {
@@ -271,10 +299,10 @@ const AdminHome = () => {
 
           <StatsCard
             title="TOTAL NET SALES"
-            value={`₱ ${Math.round(grossSales - totalBuyingPrice) || 0}`}
+            value={`₱ ${Math.round(Netsales) || 0}`}
             icon={HiMiniWallet}
             optionLabel="Select Timeframe"
-            options={['Last Month', 'This Month', 'Next Month']}
+            options={['Last 7 Days', 'Last 30 Days', 'This Year', 'Custom Date']}
             onOptionSelect={handleNetSalesOptionSelect}
             selectedOption={netSalesOption}
             darkMode={darkMode}
@@ -287,7 +315,7 @@ const AdminHome = () => {
             value={`₱ ${Math.round(grossSales)}`}
             icon={GiWallet}
             optionLabel="Select Timeframe"
-            options={['Last Month', 'This Month', 'Next Month']}
+            options={['Last 7 Days', 'Last 30 Days', 'This Year', 'Custom Date']}
             onOptionSelect={handleGrossSalesOptionSelect}
             selectedOption={grossSalesOption}
             darkMode={darkMode}
@@ -344,8 +372,7 @@ const AdminHome = () => {
           </div>
   
           <div className={`px-4 py-2 flex flex-col items-center justify-center ${darkMode ? "bg-light-CARD" : "bg-dark-CARD"} w-[50%] rounded-lg`}>
-            <p className={`text-2xl ${darkMode ? "text-light-TEXT" : "dark:text-dark-TEXT"}`}>Net Sales vs Gross Sales</p>
-            <BarChartComponent netSalesData={netSalesData} grossSalesData={grossSalesData} />
+            
           </div>
         </div>
       </div>

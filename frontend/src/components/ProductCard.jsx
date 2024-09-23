@@ -14,15 +14,15 @@ const ProductCard = ({ product, onClick }) => {
   return (
     <div
       onClick={onClick}
-      className={`rounded-lg h-[260px] flex flex-col ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD'} cursor-pointer`}
+      className={`rounded-lg h-[260px] flex flex-col ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'} cursor-pointer`}
     >
       <div className='w-full'>
         <img src={product.image} alt={product.title} className='w-full h-[120px] object-cover object-center rounded-lg' />
       </div>
-      <div className={`w-full h-auto p-2 flex-grow ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+      <div className={`w-full h-auto p-2 flex-grow ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
         <p>{product.name}</p>
       </div>
-      <div className={`w-full h-auto p-2 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
+      <div className={`w-full h-auto p-2 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
         <div className='flex justify-between items-center tracking-wide'>
           <p className='text-sm text-primary'>₱ {safeToFixed(product.price)}</p>
           <p className='text-xs text-gray-400'>{product.stock} in stock</p>

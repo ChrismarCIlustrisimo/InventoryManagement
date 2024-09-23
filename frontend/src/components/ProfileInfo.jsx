@@ -56,22 +56,22 @@ const ProfileInfo = () => {
     <div className='flex items-center gap-3'>
       <p className='text-[#7f8284] min-w-max'>{currentDate}</p>
       <div className='flex items-center justify-center'>
-        <p className={`text-m font-medium ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`} style={{ textTransform: 'uppercase' }}>{user.name}</p>
+        <p className={`text-m font-medium ${darkMode ? 'text-light-primary' : 'dark:text-dark-primary'}`} style={{ textTransform: 'uppercase' }}>{user.name}</p>
         <button
-          className={`text-sm p-2 mr-2 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}
+          className={`text-sm p-2 mr-2 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}
           onClick={handleToggleButtons}
         >
           <GoTriangleDown />
         </button>
         {showButtons && (
-          <div className={`absolute right-0 mt-2 w-36 rounded-md shadow-lg mt-[100px] mr-[42px] ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'}`}>
-            <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-TABLE' : 'hover:bg-dark-TABLE'} w-full text-left`}
+          <div className={`absolute right-0 mt-2 w-36 rounded-md shadow-lg mt-[100px] mr-[42px] ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container dark:text-dark-textPrimary'}`}>
+            <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-border' : 'hover:bg-dark-border'} w-full text-left`}
               onClick={handleThemeChange}
             >
               <IoSunnyOutline />
               Theme
             </button>
-            <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-TABLE' : 'hover:bg-dark-TABLE'} w-full text-left`}
+            <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-border' : 'hover:bg-dark-border'} w-full text-left`}
               onClick={onLogout}
             >
               <MdLogout />

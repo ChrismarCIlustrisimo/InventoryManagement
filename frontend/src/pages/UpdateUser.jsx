@@ -108,14 +108,14 @@ const UpdateUser = () => {
     };
 
     return (
-        <div className={`w-full h-full ${darkMode ? 'bg-light-BG text-light-TEXT' : 'bg-dark-BG text-dark-TEXT'}`}>
+        <div className={`w-full h-full ${darkMode ? 'bg-light-bg text-light-textPrimary' : 'bg-dark-bg text-dark-textPrimary'}`}>
             <div className={`pt-4 h-full w-full flex flex-col items-center justify-between`}>
                 <div className='w-full h-[88%] flex flex-col items-center justify-center gap-4'>
                     <h3 className='text-2xl font-semibold'>{showPasswordForm ? 'CHANGE PASSWORD' : 'UPDATE USER'}</h3>
-                    <div className={`px-4 py-8 rounded-lg shadow-lg w-[30%] flex flex-col gap-4 items-center justify-center ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'bg-dark-CARD text-dark-TEXT'}`}>
+                    <div className={`px-4 py-8 rounded-lg shadow-lg w-[30%] flex flex-col gap-4 items-center justify-center ${darkMode ? 'bg-light-CARD text-light-textPrimary' : 'bg-dark-CARD text-dark-textPrimary'}`}>
                         {showPasswordForm ? (
                             <>
-                                <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                     Current Password
                                     <div className="relative">
                                         <input
@@ -123,7 +123,7 @@ const UpdateUser = () => {
                                             value={currentPassword}
                                             onChange={(e) => setCurrentPassword(e.target.value)}
                                             placeholder="Current Password"
-                                            className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                            className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                         />
                                         <div
                                             className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-xl"
@@ -133,7 +133,7 @@ const UpdateUser = () => {
                                         </div>
                                     </div>
                                 </label>
-                                <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                     New Password
                                     <div className="relative">
                                         <input
@@ -141,7 +141,7 @@ const UpdateUser = () => {
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             placeholder="New Password"
-                                            className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                            className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                         />
                                         <div
                                             className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-xl"
@@ -151,7 +151,7 @@ const UpdateUser = () => {
                                         </div>
                                     </div>
                                 </label>
-                                <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                     Confirm Password
                                     <div className="relative">
                                         <input
@@ -159,7 +159,7 @@ const UpdateUser = () => {
                                             value={confirmPassword}
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             placeholder="Confirm Password"
-                                            className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                            className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                         />
                                         <div
                                             className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-xl"
@@ -174,7 +174,7 @@ const UpdateUser = () => {
                                 <div className='flex items-center justify-center gap-2'>
                                     <button
                                         onClick={togglePasswordForm}
-                                        className={`px-4 py-2 rounded ${darkMode ? 'text-dark-TEXT bg-light-ACCENT' : 'text-light-TEXT bg-dark-ACCENT'}`}
+                                        className={`px-4 py-2 rounded ${darkMode ? 'text-dark-textPrimary bg-light-primary' : 'text-light-textPrimary bg-dark-primary'}`}
                                     >
                                         Cancel
                                     </button>
@@ -182,7 +182,7 @@ const UpdateUser = () => {
                                     <button
                                         onClick={toggleChangePassword}
                                         disabled={loading}
-                                        className={`px-4 py-2 rounded ${darkMode ? 'text-dark-TEXT bg-light-ACCENT' : 'text-light-TEXT bg-dark-ACCENT'}`}
+                                        className={`px-4 py-2 rounded ${darkMode ? 'text-dark-textPrimary bg-light-primary' : 'text-light-textPrimary bg-dark-primary'}`}
                                     >
                                         {loading ? 'Updating...' : 'Update Password'}
                                     </button>
@@ -195,26 +195,26 @@ const UpdateUser = () => {
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     placeholder="Username"
-                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                 />
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="Name"
-                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                 />
                                 <input
                                     type="text"
                                     value={contact}
                                     onChange={(e) => setContact(e.target.value)}
                                     placeholder="Contact"
-                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                 />
                                 <select
                                     value={role}
                                     onChange={(e) => setRole(e.target.value)}
-                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                 >
                                     <option value="cashier">Cashier</option>
                                     <option value="admin">Admin</option>
@@ -222,7 +222,7 @@ const UpdateUser = () => {
                                 {error && <p className='mt-2 text-red-500'>{error}</p>}
                                 <button
                                     onClick={togglePasswordForm}
-                                    className={`px-4 py-2 mt-4 rounded ${darkMode ? 'text-dark-TEXT bg-light-ACCENT' : 'text-light-TEXT bg-dark-ACCENT'}`}
+                                    className={`px-4 py-2 mt-4 rounded ${darkMode ? 'text-dark-textPrimary bg-light-primary' : 'text-light-textPrimary bg-dark-primary'}`}
                                 >
                                     Change Password
                                 </button>
@@ -231,19 +231,19 @@ const UpdateUser = () => {
                     </div>
                 </div>
                 {!showPasswordForm && (
-                <div className={`px-4 py-6 border-t w-full flex items-center justify-end h-[12%] ${darkMode ? 'bg-light-CARD border-light-ACCENT' : 'bg-dark-CARD border-dark-ACCENT'}`}>
+                <div className={`px-4 py-6 border-t w-full flex items-center justify-end h-[12%] ${darkMode ? 'bg-light-CARD border-light-primary' : 'bg-dark-CARD border-dark-primary'}`}>
                     <div className="flex items-center gap-4">
                         <button
                             type="button"
                             onClick={handleBackClick}
-                            className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-ACCENT text-light-ACCENT' : 'border-dark-ACCENT text-dark-ACCENT'}`}
+                            className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
                         >
                             Cancel
                         </button>
                         <div className="flex-grow border-l h-[38px]"></div>
                             <button
                                 onClick={handleUpdateUser}
-                                className={`w-full px-4 py-2 rounded ${darkMode ? 'text-dark-TEXT bg-light-ACCENT' : 'text-light-TEXT bg-dark-ACCENT'}`}
+                                className={`w-full px-4 py-2 rounded ${darkMode ? 'text-dark-textPrimary bg-light-primary' : 'text-light-textPrimary bg-dark-primary'}`}
                             >
                                 UPDATE USER
                             </button>

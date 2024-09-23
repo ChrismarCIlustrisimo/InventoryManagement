@@ -166,24 +166,24 @@ const PosHome = () => {
 
 
   return (
-    <div className={`${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'} h-auto flex gap-1`}>
+    <div className={`${darkMode ? 'bg-light-bg' : 'dark:bg-dark-bg'} h-auto flex gap-1`}>
       <ToastContainer theme={darkMode ? 'light' : 'dark'} />
       <Navbar />
       <div className='h-[100vh] pt-[70px] px-2'>
         <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-4'>
-          <p className={`font-bold text-3xl pt-6 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Cashier</p>
+          <p className={`font-bold text-3xl pt-6 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Cashier</p>
           {buttons.map((button, index) => (
             <button
               key={index}
               onClick={() => handleCategoryChange(button.label)}
-              className={`${darkMode ? 'bg-light-CARD text-light-ACCENT' : 'dark:bg-dark-CARD dark:text-dark-ACCENT'} flex items-center justify-center w-[100%] h-[40%] rounded-xl ${selectedCategory === button.label ? 'border-light-ACCENT dark:border-dark-ACCENT border-2' : 'border-transparent'} transition-all duration-200`}
+              className={`flex items-center justify-center w-[100%] h-[40%] rounded-xl ${selectedCategory === button.label ? `bg-dark-activeLink ${darkMode ? 'text-light-primary' : 'text-dark-primary bg-'}` : `bg-transparent border-2 ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} transition-all duration-200`}
             >
               <div className='w-[30%]'>
                 {button.icon}
               </div>
-              <div className={`w-70% flex flex-col ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                <p className='w-full text-sm'>{button.label}</p>
-                <p className='w-full text-xs text-start'>{button.count}</p>
+              <div className={`w-70% flex flex-col font-semibold`}>
+                <p className={`w-full text-sm ${darkMode ? 'text-light-primary' : 'dark:text-dark-primary'}`}>{button.label}</p>
+                <p className={`w-full text-xs text-start ${darkMode ? 'text-light-textSecondary' : 'dark:text-dark-textSecondary'}`} >{button.count}</p>
               </div>
             </button>
           ))}
@@ -219,28 +219,28 @@ const PosHome = () => {
         </div>
       </div>
 
-      <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[100px] pb-4 px-4 ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'} rounded-xl`}>
-        <div className={`overflow-y-auto h-[480px] w-full rounded-lg ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
+      <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[100px] pb-4 px-4 ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container dark:text-dark-textPrimary'} rounded-xl`}>
+        <div className={`overflow-y-auto h-[480px] w-full rounded-lg ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>
           <div style={{ width: '100%' }}> {/* Adjust this container width if needed */}
             <table className='border-collapse table-fixed h-auto w-full'>
               <thead>
-                <tr className='border-b border-primary relative'>
-                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>PRODUCT</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>PRICE</th>
-                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>QTY</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}>TOTAL</th>
-                  <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-TABLE' : 'dark:bg-dark-TABLE'}`}></th>
+              <tr className="border-b-2 border-textPrimary relative">
+                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>PRODUCT</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>PRICE</th>
+                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>QTY</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>TOTAL</th>
+                  <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-border'}`}></th>
                 </tr>
               </thead>
               <tbody>
                 {cart.map((item, idx) => (
-                  <tr key={idx} className='border-b border-dark-ACCENT gap-2 text-xs'>
+                  <tr key={idx} className='border-b-2 border-textPrimary gap-2 text-xs'>
                     <td className='flex gap-2 items-center justify-center p-2'>
                       <img
                         src={`${baseURL}/images/${item.product.image.substring(14)}`}
                         className='w-16 h-16 object-cover rounded-lg'
                       />
-                      <p className='w-full'>{item.product.name}</p>
+                      <p className='w-full font-medium'>{item.product.name}</p>
                     </td>
                     <td className="text-center">₱ {((item.product.selling_price).toLocaleString()) || 0}</td>
                     <td className='text-center'>{item.quantity}</td>
@@ -261,11 +261,11 @@ const PosHome = () => {
         <div className='flex flex-col gap-3 justify-center items-center pt-2 w-full'>
           <div className='flex flex-col gap-2 tracking-wider items-center justify-center'>
             <p className='text-gray-400'>Subtotal</p>
-            <p className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>₱ {calculateTotal().toLocaleString()}</p>
+            <p className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>₱ {calculateTotal().toLocaleString()}</p>
           </div>
 
           <button
-            className={`w-[80%] py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
+            className={`w-[80%] py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'dark:bg-dark-primary text-dark-textPrimary'}`}
             onClick={handlePayButton}
           >
             Proceed to Payment

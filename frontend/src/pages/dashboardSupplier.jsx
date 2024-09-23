@@ -36,7 +36,7 @@ const DashboardSupplier = () => {
     };
 
     const handleBackClick = () => {
-        navigate('/inventory/product');
+        navigate(-1);
     };
 
     const handleRowClick = (supplierId) => {

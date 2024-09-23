@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import Counter from './counterModel.js';
 
 // Define stock status enumeration
-const StockStatusEnum = ['HIGH', 'NEAR LOW', 'LOW', 'OUT OF STOCK'];
+const StockStatusEnum = ['IN STOCK', 'NEAR LOW', 'LOW', 'OUT OF STOCK'];
 
 // Define category-specific thresholds
 const categoryThresholds = {
@@ -20,7 +20,7 @@ const ProductSchema = new mongoose.Schema(
     name: { type: String, required: true },
     category: { type: String, required: true },
     quantity_in_stock: { type: Number, required: true },
-    supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', required: false }, // Change to required: false
+    supplier: { type: String, required: false }, // Change to required: false
     buying_price: { type: Number, required: true },
     selling_price: { type: Number, required: true },
     product_id: { type: String, required: true, unique: true },
@@ -31,9 +31,8 @@ const ProductSchema = new mongoose.Schema(
     current_stock_status: {
       type: String,
       enum: StockStatusEnum,
-      default: 'HIGH'
+      default: 'IN STOCK'
     },
-    batch_number: { type: String } // New field for batch number
   },
   {
     timestamps: true
@@ -67,25 +66,6 @@ ProductSchema.statics.generateProductId = async function () {
     return `PRD-${counter.seq.toString().padStart(3, '0')}`;
   } catch (error) {
     throw new Error('Error generating product ID');
-  }
-};
-
-// Static method to generate a batch number
-ProductSchema.statics.generateBatchNumber = async function () {
-  try {
-    const counter = await Counter.findByIdAndUpdate(
-      { _id: 'batch_number' },
-      { $inc: { seq: 1 } },
-      { new: true, upsert: true }
-    );
-
-    if (!counter) {
-      throw new Error('Failed to generate batch number');
-    }
-
-    return `BATCH-${counter.seq.toString().padStart(4, '0')}`;
-  } catch (error) {
-    throw new Error('Error generating batch number');
   }
 };
 

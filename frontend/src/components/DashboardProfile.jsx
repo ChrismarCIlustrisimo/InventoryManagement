@@ -9,17 +9,17 @@ const DashboardProfile = () => {
   const { darkMode, toggleTheme } = useAdminTheme();
 
   return (
-    <div className={`${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} text-4xl`}>
+    <div className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} text-4xl`}>
       <button onClick={toggleTheme} className='m-2'>
         {darkMode ? (
-          <CiLight className={darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} />
+          <CiLight className={darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} />
         ) : (
-          <MdOutlineDarkMode className={darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'} />
+          <MdOutlineDarkMode className={darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} />
         )}
       </button>
       
       <Link to="/profile">
-        <button className={`${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'} m-2`}>
+        <button className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'} m-2`}>
           <BsPersonCircle />
         </button>
       </Link>

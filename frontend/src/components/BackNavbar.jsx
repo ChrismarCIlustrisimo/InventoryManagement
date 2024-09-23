@@ -11,7 +11,7 @@ const BackNavbar = ({ id }) => {
   const { darkMode } = useTheme(); // Access darkMode from context
 
   const handleBackClick = () => {
-    navigate('/orders');
+    navigate(-1);
   };
 
   const handleDeleteClick = async () => {

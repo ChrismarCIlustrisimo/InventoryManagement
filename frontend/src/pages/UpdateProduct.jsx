@@ -63,7 +63,7 @@ const UpdateProduct = () => {
 
         // Calculate stock status
         const thresholds = categoryThresholds[data.category];
-        let stockStatus = 'HIGH';
+        let stockStatus = 'IN STOCK';
 
         if (data.quantity_in_stock === 0) {
           stockStatus = 'OUT OF STOCK';
@@ -114,7 +114,7 @@ const UpdateProduct = () => {
       } else if (quantity <= thresholds.nearLow) {
         status = 'NEAR LOW';
       } else {
-        status = 'HIGH';
+        status = 'IN STOCK';
       }
       
       setCurrentStockStatus(status);
@@ -161,7 +161,7 @@ const UpdateProduct = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/inventory/product');
+    navigate(-1);
   };
 
   const handleFileChange = (e) => {
@@ -194,7 +194,7 @@ const UpdateProduct = () => {
   };
   
   const stockColors = {
-    "HIGH": "#1e7e34", // Darker Green
+    "IN STOCK": "#1e7e34", // Darker Green
     "NEAR LOW": "#e06c0a", // Darker Orange
     "LOW": "#d39e00", // Darker Yellow
     "OUT OF STOCK": "#c82333", // Darker Red
@@ -204,16 +204,16 @@ const UpdateProduct = () => {
 
 
   return (
-    <div className={`h-full w-full flex flex-col ${darkMode ? 'text-light-TEXT bg-light-BG' : 'text-dark-TEXT bg-dark-BG'}`}>
+    <div className={`h-full w-full flex flex-col ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-dark-bg'}`}>
       {!isEditing && (
         <div className='flex items-center justify-between h-[8%]'>
-          <button className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:underline`} onClick={handleBackClick}>
+          <button className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} hover:underline`} onClick={handleBackClick}>
             <IoCaretBackOutline /> Back to inventory
           </button>
           <div className='flex gap-4 items-center p-4'>
-            <button className={`px-4 py-2 rounded-md font-semibold text-sm text-white ${darkMode ? 'bg-light-ACCENT' : 'dark:bg-dark-ACCENT'}`} onClick={() => setIsEditing(true)}> Edit </button>
-            <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div>
-            <button className={`text-2xl ${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'}`} onClick={() => setIsDialogOpen(true)}><FaTrash /></button>
+            <button className={`px-4 py-2 rounded-md font-semibold text-sm text-white ${darkMode ? 'bg-light-primary' : 'dark:bg-dark-primary'}`} onClick={() => setIsEditing(true)}> Edit </button>
+            <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>
+            <button className={`text-2xl ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`} onClick={() => setIsDialogOpen(true)}><FaTrash /></button>
           </div>
         </div>
       )}
@@ -223,7 +223,7 @@ const UpdateProduct = () => {
           <div className='flex flex-col gap-2 p-2 w-[49%] justify-between'>
             <p className='text-xl'>
               {isEditing ? ( 
-              <input type='text' value={name} onChange={(e) => setName(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-2 w-full text-md ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-300' : ''}`} />
+              <input type='text' value={name} onChange={(e) => setName(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-2 w-full text-md ${darkMode ? 'border-light-primary' : 'border-dark-primary'} ${!isEditing ? 'text-gray-300' : ''}`} />
               ) : (
                 <p className={`bg-transparent rounded-md p-2 w-full text-md`}>{name}</p>
               )}
@@ -233,14 +233,14 @@ const UpdateProduct = () => {
             </div>
           </div>
           <div className='w-[2%] h-full flex items-center mx-12'>
-            <div className={`flex-grow border-l h-[96%] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div>
+            <div className={`flex-grow border-l h-[96%] ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>
           </div>
           <div className='w-[49%] p-2'>
             <p className='text-xl font-semibold'>Basic information</p>
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>CATEGORY</p>
               {isEditing ? ( 
-              <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} >
+              <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} >
                 <option value="">Select Category</option>
                 <option value="Components">Components</option>
                 <option value="Peripherals">Peripherals</option>
@@ -256,7 +256,7 @@ const UpdateProduct = () => {
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>QUANTITY IN STOCK</p>
               {isEditing ? ( 
-              <input type='number' value={quantity} onChange={(e) => setQuantity(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`}/>
+              <input type='number' value={quantity} onChange={(e) => setQuantity(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'} ${!isEditing ? 'text-gray-500' : ''}`}/>
               ) : ( 
               <p className={`bg-transparent rounded-md p-1`}>{quantity}</p>
               )}
@@ -290,7 +290,7 @@ const UpdateProduct = () => {
                   <select
                     value={supplierId}
                     onChange={handleSupplierChange}
-                    className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                    className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                   >
                     <option value="NONE">Select Supplier</option>
                     {suppliers.map(supplier => (
@@ -306,7 +306,7 @@ const UpdateProduct = () => {
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>BUYING PRICE</p>
               {isEditing ? (
-              <input type='number' value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`} />
+              <input type='number' value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'} ${!isEditing ? 'text-gray-500' : ''}`} />
               ) : ( 
                 <p className={`bg-transparent rounded-md p-1`}>{buyingPrice}</p>
               )}
@@ -315,7 +315,7 @@ const UpdateProduct = () => {
             <div className='text-sm flex items-center justify-between w-full my-3'>
               <p className={`${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>SELLING PRICE</p>
               {isEditing ? (
-              <input type='number' value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'} ${!isEditing ? 'text-gray-500' : ''}`} />
+              <input type='number' value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} disabled={!isEditing} className={`border bg-transparent rounded-md p-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'} ${!isEditing ? 'text-gray-500' : ''}`} />
               ) : ( 
                 <p className={`bg-transparent rounded-md p-1`}>{sellingPrice}</p>
               )}
@@ -325,11 +325,11 @@ const UpdateProduct = () => {
       </div>
 
       {isEditing && (
-        <div className={`w-full h-[10%] px-4 py-6 border-t flex items-center justify-end ${darkMode ? 'bg-light-CARD border-light-ACCENT' : 'bg-dark-CARD border-dark-ACCENT'}`}> 
+        <div className={`w-full h-[10%] px-4 py-6 border-t flex items-center justify-end ${darkMode ? 'bg-light-CARD border-light-primary' : 'bg-dark-CARD border-dark-primary'}`}> 
           <div className="flex items-center gap-4"> 
-            <button type="button" onClick={() => setIsEditing(false)} className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-ACCENT text-light-ACCENT' : 'border-dark-ACCENT text-dark-ACCENT'}`}>Cancel</button> 
-            <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div> 
-            <button type="button" className={`px-6 py-2 rounded-md text-white ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`} onClick={updateProduct}>Save</button> 
+            <button type="button" onClick={() => setIsEditing(false)} className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Cancel</button> 
+            <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div> 
+            <button type="button" className={`px-6 py-2 rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} onClick={updateProduct}>Save</button> 
           </div> 
         </div>
       )}

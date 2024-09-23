@@ -27,7 +27,11 @@ import Customer from './pages/dashboardCustomer';
 import ReportPage from './pages/reportPage';
 import { AppProvider } from './context/AppContext';
 import UpdateUser from './pages/UpdateUser'
+import ViewNetSalesTran from './pages/NetSalesTransactions'
+
 import Ecommerce from './onlineListing/pages/Ecommerce'; 
+
+
 
 const App = () => {
     const { user } = useAuthContext();
@@ -59,6 +63,7 @@ const App = () => {
               <Route path="/report-page" element={<PrivateRoute requiredRole="admin"><ReportPage /></PrivateRoute>} />
               <Route path="/addUser" element={<PrivateRoute requiredRole="admin"><AddUser /></PrivateRoute>} />
               <Route path="/update-user/:userId" element={<PrivateRoute requiredRole="admin"><UpdateUser /></PrivateRoute>} />
+              <Route path="/net-sales-transactions" element={<PrivateRoute requiredRole="admin"><ViewNetSalesTran /></PrivateRoute>} />
               <Route path="/ecommerce/irigpc" element={<Ecommerce />} />
               <Route path="*" element={<Navigate to="/" />} />
               <Route path="/unauthorized" element={<Unauthorized />} />

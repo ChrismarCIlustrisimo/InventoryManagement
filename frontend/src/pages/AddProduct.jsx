@@ -3,6 +3,10 @@ import axios from 'axios';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { IoCaretBackOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
+import TextField from '@mui/material/TextField';
+import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
+
+const filter = createFilterOptions();
 
 const AddProduct = () => {
   const [file, setFile] = useState(null);
@@ -12,48 +16,18 @@ const AddProduct = () => {
   const [supplier, setSupplier] = useState('');
   const [buyingPrice, setBuyingPrice] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
-  const [suppliers, setSuppliers] = useState([]);
   const [error, setError] = useState('');
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    axios.get('http://localhost:5555/supplier')
-      .then(res => {
-        setSuppliers(res.data.data);
-      })
-      .catch(err => {
-        console.error('Error fetching suppliers:', err.response ? err.response.data : err.message);
-        setError(err.response ? err.response.data.message : 'An unknown error occurred');
-      });
-  }, []);
+  const [options, setOptions] = useState([]);
 
   const validate = () => {
-    if (!name) {
-      return 'Product name is required';
-    }
-
-    if (!category) {
-      return 'Product category is required';
-    }
-
-    if (!quantity || isNaN(quantity) || quantity <= 0) {
-      return 'Valid product quantity is required';
-    }
-
-
-    if (!buyingPrice || isNaN(buyingPrice) || buyingPrice <= 0) {
-      return 'Valid buying price is required';
-    }
-
-    if (!sellingPrice || isNaN(sellingPrice) || sellingPrice <= 0) {
-      return 'Valid selling price is required';
-    }
-
-    if (!file) {
-      return 'Product image is required';
-    }
-
+    if (!name) return 'Product name is required';
+    if (!category) return 'Product category is required';
+    if (!quantity || isNaN(quantity) || quantity <= 0) return 'Valid product quantity is required';
+    if (!buyingPrice || isNaN(buyingPrice) || buyingPrice <= 0) return 'Valid buying price is required';
+    if (!sellingPrice || isNaN(sellingPrice) || sellingPrice <= 0) return 'Valid selling price is required';
+    if (!file) return 'Product image is required';
     return ''; // No errors
   };
 
@@ -69,7 +43,7 @@ const AddProduct = () => {
     formData.append('name', name);
     formData.append('category', category);
     formData.append('quantity_in_stock', quantity);
-    formData.append('supplierId', supplier === "NONE" ? null : supplier);
+    formData.append('supplier', supplier);
     formData.append('buying_price', buyingPrice);
     formData.append('selling_price', sellingPrice);
 
@@ -85,30 +59,31 @@ const AddProduct = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/inventory/product');
+    navigate(-1);
   };
 
   return (
-    <div className={`h-full w-full flex flex-col gap-2 ${darkMode ? 'text-light-TEXT bg-light-BG' : 'text-dark-TEXT bg-dark-BG'}`}>
+    <div className={`h-full w-full flex flex-col gap-2 ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-dark-bg'}`}>
       <div className='flex items-center justify-start h-[8%]'>
-        <button className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`} onClick={handleBackClick}>
-          <IoCaretBackOutline /> 
-          Back to sales order
+        <button 
+          className={`flex gap-2 items-center py-4 px-6 outline-none ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} hover:underline`} 
+          onClick={handleBackClick}
+        >
+          <IoCaretBackOutline /> Back to sales order
         </button>
       </div>
 
       <div className='w-full h-[82%] flex flex-col items-center justify-center gap-2'>
         <p className='text-3xl'>Add New Product</p>
-        <div className={`w-[40%] h-[85%] rounded-md p-4 ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'}`}>
+        <div className={`w-[40%] h-[85%] rounded-md p-4 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
           <div className='flex flex-col w-full gap-4 h-full'>
 
-            
             <div className='flex flex-col w-full gap-2'>
               <label htmlFor="name">Product name</label>
               <input
                 type='text'
                 placeholder='Name'
-                className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -119,7 +94,7 @@ const AddProduct = () => {
                 <label htmlFor="category">Product Category</label>
                 <select
                   id="category"
-                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
@@ -138,7 +113,7 @@ const AddProduct = () => {
                   type='number'
                   placeholder='Quantity'
                   id="quantity"
-                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                 />
@@ -147,16 +122,48 @@ const AddProduct = () => {
 
             <div className='w-full flex flex-col gap-2'>
               <label htmlFor="supplier">Product Supplier</label>
-              <select
-                className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
-                onChange={(e) => setSupplier(e.target.value)}
-                value={supplier || "NONE"}
-              >
-                <option value="NONE" className='text-gray-400'>No Supplier</option>
-                {suppliers.map(supplier => (
-                  <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
-                ))}
-              </select>
+              <Autocomplete
+                  value={supplier}
+                  onChange={(event, newValue) => {
+                    if (typeof newValue === 'string') {
+                      setSupplier(newValue);
+                    } else if (newValue && newValue.inputValue) {
+                      const newSupplier = newValue.inputValue;
+                      setOptions((prev) => [...prev, newSupplier]);
+                      setSupplier(newSupplier);
+                    } else {
+                      setSupplier(newValue.title);
+                    }
+                  }}
+                  filterOptions={(options, params) => {
+                    const filtered = filter(options, params);
+                    const { inputValue } = params;
+                    const isExisting = options.some(option => inputValue === option.title);
+                    if (inputValue !== '' && !isExisting) {
+                      filtered.push({
+                        inputValue,
+                        title: `Add "${inputValue}"`,
+                      });
+                    }
+                    return filtered;
+                  }}
+                  options={options.map(option => ({ title: option }))}
+                  getOptionLabel={(option) => option.title || ''}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      label="Type to search Supplier"
+                      variant="outlined"
+                      InputProps={{
+                        ...params.InputProps,
+                        className: 'bg-transparent border rounded-md',
+                      }}
+                    />
+                  )}
+                  sx={{ width: '100%' }}
+                  freeSolo
+                />
+
             </div>
 
             <div className='w-full flex gap-2'>
@@ -166,7 +173,7 @@ const AddProduct = () => {
                   type='number'
                   placeholder='Buying Price'
                   id="buying_price"
-                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                   value={buyingPrice}
                   onChange={(e) => setBuyingPrice(e.target.value)}
                 />
@@ -177,7 +184,7 @@ const AddProduct = () => {
                   type='number'
                   placeholder='Selling Price'
                   id="selling_price"
-                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                  className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                   value={sellingPrice}
                   onChange={(e) => setSellingPrice(e.target.value)}
                 />
@@ -185,23 +192,23 @@ const AddProduct = () => {
             </div>
 
             <p>Image</p>
-            <div className={`w-full h-[10%] border rounded-md p-2 flex items-center justify-start ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
+            <div className={`w-full h-[10%] border rounded-md p-2 flex items-center justify-start ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}>
               <input
                 className="bg-transparent w-auto"
                 type='file'
                 onChange={(e) => setFile(e.target.files[0])}
               />
             </div>
-                {error && <div className="text-red-500 mb-4">{error}</div>}
+            {error && <div className="text-red-500 mb-4">{error}</div>}
           </div>
         </div>
       </div>  
 
-      <div className={`w-full h-[10%] px-4 py-6 border-t flex items-center justify-end ${darkMode ? 'bg-light-CARD border-light-ACCENT' : 'bg-dark-CARD border-dark-ACCENT'}`}>
+      <div className={`w-full h-[10%] px-4 py-6 border-t flex items-center justify-end ${darkMode ? 'bg-light-container border-light-primary' : 'bg-dark-container border-dark-primary'}`}>
         <div className="flex items-center gap-4">
-          <button type="button" onClick={handleBackClick} className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-ACCENT text-light-ACCENT' : 'border-dark-ACCENT text-dark-ACCENT'}`}>Cancel</button>
-          <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div>
-          <button type="button" className={`px-6 py-2 rounded-md ${darkMode ? 'bg-light-ACCENT text-light-TEXT' : 'bg-dark-ACCENT text-dark-TEXT'}`} onClick={upload}>Save</button>
+          <button type="button" onClick={handleBackClick} className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Cancel</button>
+          <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>
+          <button type="button" className={`px-6 py-2 rounded-md ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'bg-dark-primary text-dark-textPrimary'}`} onClick={upload}>Save</button>
         </div>
       </div>
     </div>

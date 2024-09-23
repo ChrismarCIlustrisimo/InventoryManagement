@@ -35,7 +35,7 @@ const AddSupplier = () => {
   };
 
   const handleBackClick = () => {
-    navigate('/inventory/supplier');
+    navigate(-1);
   };
 
   return (

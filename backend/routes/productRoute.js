@@ -36,7 +36,7 @@ const upload = multer({ storage });
 // Add a new product with image upload
 router.post('/', upload.single('file'), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock,batch_number, supplierId, buying_price, selling_price } = req.body;
+    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
     const image = req.file ? req.file.path : '';
 
     // Check for required fields
@@ -44,32 +44,18 @@ router.post('/', upload.single('file'), async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // Validate supplierId
-    let supplier = null;
-    if (supplierId && supplierId !== 'NONE') {
-      if (!mongoose.Types.ObjectId.isValid(supplierId)) {
-        return res.status(400).json({ message: 'Invalid supplier ID' });
-      }
-      supplier = await Supplier.findById(supplierId);
-      if (!supplier) {
-        return res.status(404).json({ message: 'Supplier not found' });
-      }
-    }
 
     const productId = await Product.generateProductId(); // Generate product ID
-    const batchNumber  = await Product.generateBatchNumber(); // Generate product ID
-
 
     const product = new Product({
       name,
       category,
       quantity_in_stock,
-      supplier: supplier ? supplier._id : null, // Set to null if no supplier
+      supplier, // This should be the supplier name
       buying_price,
       selling_price,
       image,
-      product_id: productId, // Set the generated product ID
-      batch_number: batchNumber  
+      product_id: productId,
     });
 
     await product.save();

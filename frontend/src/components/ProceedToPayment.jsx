@@ -29,6 +29,18 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
 
   const { user } = useContext(AuthContext);
 
+
+  const validatePhoneNumber = (number) => {
+    const phoneRegex = /^09\d{9}$/; // Matches numbers like 09854875843
+    return phoneRegex.test(number);
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation
+    return emailRegex.test(email);
+  };
+
+
   const calculateDiscount = () => {
     if (discountType === 'percentage') {
       return totalAmount * (discountValue / 100);
@@ -44,6 +56,18 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
   const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
   const handlePayButton = async () => {
+
+    if (!validatePhoneNumber(phoneNumber)) {
+      toast.warning('Please enter a valid phone number (e.g., 09854875843).');
+      return;
+    }
+  
+    // Validate email
+    if (!validateEmail(email)) {
+      toast.warning('Please enter a valid email address (e.g., chris@gmail.com).');
+      return;
+    }
+    
     // Validate paymentAmount
     if (paymentAmount.trim() === '') {
       toast.warning('Please enter a payment amount.');

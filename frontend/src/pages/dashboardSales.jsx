@@ -128,19 +128,19 @@ const DashboardSales = () => {
     
 
     return (
-        <div className={`w-full h-full ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
+        <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
             <DashboardNavbar />
             <div className='pt-[70px] px-6 py-4'>
                 <div className='flex items-center justify-center py-5'>
                     <div className='flex w-[30%]'>
-                        <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                        <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                             Sales
                         </h1>
                     </div>
                     <div className='w-full flex justify-end gap-2'>
                         <SearchBar query={searchQuery} onQueryChange={setSearchQuery}  placeholderMessage={'Search sales by product name'} />
                         <button
-                            className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}
+                            className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
                             onClick={handleAddProductClick}
                         >
                             Generate Report
@@ -148,18 +148,18 @@ const DashboardSales = () => {
                     </div>
                 </div>
                 <div className='flex gap-4'>
-                    <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-CARD' : 'bg-dark-CARD'}`}>
+                    <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
                         <div className='flex flex-col gap-4'>
                             <div className='flex flex-col'>
-                                <label htmlFor='category' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
+                                <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
                                     CATEGORY
                                 </label>
                                 <select
                                     id='category'
                                     value={category}
                                     onChange={handleCategoryChange}
-                                    className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
-                                >
+                                    className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary' }`}
+                                    >
                                     <option value=''>Select Category</option>
                                     <option value='Components'>Components</option>
                                     <option value='Peripherals'>Peripherals</option>
@@ -171,15 +171,15 @@ const DashboardSales = () => {
 
                             {/* Sales Sorting */}
                             <div className='flex flex-col'>
-                                <label htmlFor='salesSortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
+                                <label htmlFor='salesSortBy' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
                                     SALES
                                 </label>
                                 <select
                                     id='salesSortBy'
                                     value={salesSortBy}
                                     onChange={handleSalesSortByChange}
-                                    className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
-                                >
+                                    className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary' }`}
+                                    >
                                     <option value=''>Select Sales Order</option>
                                     <option value='quantity_sold_desc'>Highest to Lowest</option>
                                     <option value='quantity_sold_asc'>Lowest to Highest</option>
@@ -188,15 +188,15 @@ const DashboardSales = () => {
 
                             {/* Total Sales Sorting */}
                             <div className='flex flex-col'>
-                                <label htmlFor='totalSalesSortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
+                                <label htmlFor='totalSalesSortBy' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
                                     TOTAL SALES
                                 </label>
                                 <select
                                     id='totalSalesSortBy'
                                     value={totalSalesSortBy}
                                     onChange={handleTotalSalesSortByChange}
-                                    className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
-                                >
+                                    className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary' }`}
+                                    >
                                     <option value=''>Select Total Sales Order</option>
                                     <option value='total_sales_desc'>Highest to Lowest</option>
                                     <option value='total_sales_asc'>Lowest to Highest</option>
@@ -205,15 +205,15 @@ const DashboardSales = () => {
 
                             {/* Sort By */}
                             <div className='flex flex-col'>
-                                <label htmlFor='sortBy' className={`text-xs mb-2 ${darkMode ? 'text-dark-TABLE' : 'text-light-TABLE'}`}>
+                                <label htmlFor='sortBy' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
                                     SORT BY
                                 </label>
                                 <select
                                     id='sortBy'
                                     value={sortBy}
                                     onChange={handleSortByChange}
-                                    className={`border rounded p-2 my-1 border-none text-primary outline-none ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'}`}
-                                >
+                                    className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary' }`}
+                                    >
                                     <option value=''>Ascending - Descending (A-Z)</option>
                                     <option value='product_name_asc'>Ascending</option>
                                     <option value='product_name_desc'>Descending</option>
@@ -223,7 +223,7 @@ const DashboardSales = () => {
 
                         <div className='flex flex-col gap-2'>
                             <button
-                                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide ${darkMode ? 'bg-light-TABLE text-dark-TEXT' : 'bg-dark-TABLE text-light-TEXT'}`}
+                                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium ${darkMode ? 'bg-light-textSecondary text-dark-textPrimary' : 'bg-dark-textSecondary text-dark-textPrimary' }`}
                                 onClick={handleResetFilters}
                             >
                                 <GrPowerReset className='mr-2' />
@@ -232,10 +232,10 @@ const DashboardSales = () => {
                         </div>
                     </div>
                     {/* Table */}
-                    <div className={`h-[76vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}>
+                    <div className={`h-[76vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
                         {filteredProducts.length > 0 ? (
-                            <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
-                                <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-TABLE bg-light-CARD' : 'border-dark-TABLE bg-dark-CARD'} border-b text-sm`}>
+                            <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                                <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                                     <tr>
                                         <th className='p-2 text-left'>Product</th>
                                         <th className='p-2 text-center'>Category</th>
@@ -248,7 +248,7 @@ const DashboardSales = () => {
                                 </thead>
                                 <tbody>
                                     {filteredProducts.map((product, index) => (
-                                        <tr key={index} className={`border-b cursor-pointer ${darkMode ? 'border-light-TABLE' : 'border-dark-TABLE'}`}>
+                                        <tr key={index} className={`border-b cursor-pointer ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
                                             <td className='flex items-center justify-left p-2'>
                                                 <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
                                                 <p className='text-sm'>{product.name}</p>
@@ -265,7 +265,7 @@ const DashboardSales = () => {
                             </table>
                         ) : (
                             <div className='flex items-center justify-center h-[76vh] text-lg text-center'>
-                                <p className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>No products found matching the filter criteria.</p>
+                                <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No products found matching the filter criteria.</p>
                             </div>
                         )}
                     </div>

@@ -11,7 +11,6 @@ import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import DashboardProfile from './DashboardProfile';
 import { useAuthContext } from '../hooks/useAuthContext';
 import Badge from '@mui/material/Badge';
-import Tooltip from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 
 // Styled Badge components with custom colors
@@ -34,21 +33,21 @@ const DashboardNavbar = () => {
   const baseURL = 'http://localhost:5555';
   const location = useLocation();
   const [selected, setSelected] = useState('');
-  const [isSalesDropdownOpen, setIsSalesDropdownOpen] = useState(false);
-  const [isInventoryDropdownOpen, setIsInventoryDropdownOpen] = useState(false);
+  const [isSalesDropdownOpen, setSalesDropdownOpen] = useState(false); // New state for dropdown visibility
   const { darkMode } = useAdminTheme();
 
   useEffect(() => {
-    if (location.pathname === '/transaction') {
-      setSelected('Transaction');
-    } else if (location.pathname === '/transaction-list') {
-      setSelected('Cashier');
-    } else if (location.pathname === '/orders') {
-      setSelected('Orders');
-    } else if (location.pathname === '/dashboard') {
-      setSelected('Dashboard');
-    } else if (location.pathname === '/sales') {
+    const path = location.pathname;
+    if (path.startsWith('/sales') || path.startsWith('/customer')) { // Update this line
       setSelected('Sales');
+    } else if (path === '/transaction-list') {
+      setSelected('Transaction');
+    } else if (path === '/orders') {
+      setSelected('Orders');
+    } else if (path === '/dashboard') {
+      setSelected('Dashboard');
+    } else if (path === '/inventory/product') {
+      setSelected('Inventory');
     } else {
       setSelected('');
     }
@@ -80,108 +79,78 @@ const DashboardNavbar = () => {
   }, [user]);
 
   return (
-    <div className={` ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG' } text-white flex items-center justify-between px-6 py-1 drop-shadow fixed top-0 left-0 right-0 z-10`}>
-      <img src={`${darkMode ? dark : light }`} alt="Logo" className='w-[10%] my-2 ml-8' />
+    <div className={` ${darkMode ? 'bg-light-bg' : 'dark:bg-dark-bg'} text-white flex items-center justify-between px-6 py-1 drop-shadow fixed top-0 left-0 right-0 z-10`}>
+      <img src={`${darkMode ? dark : light}`} alt="Logo" className='w-[10%] my-2 ml-8' />
       <div className="flex rounded w-[50%] gap-4 items-center">
 
         {/* Dashboard Button */}
         <Link to="/dashboard" className="flex-1">
           <button
-            className={`text-sm p-2 ${selected === 'Dashboard' ? 'border-dark-ACCENT' : 'border-none'} ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' } rounded-[24px] w-full flex items-center justify-center gap-2 border border-opacity-50`}
+            className={`text-sm p-2 ${selected === 'Dashboard' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Dashboard')}
           >
-            <IoHome className='text-dark-ACCENT text-lg' />
-            <span className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Dashboard</span>
+            <IoHome className='text-lg' />
+            <span>Dashboard</span>
           </button>
         </Link>
 
-        {/* Inventory Dropdown */}
-        <div className="relative flex-1">
-          <Tooltip title="Inventory" arrow>
-            <button
-              className={`text-sm p-2 px-4 relative ${selected === 'Inventory' ? 'border-dark-ACCENT' : 'border-none'} ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' } rounded-[24px] w-full flex items-center justify-center gap-2 border border-opacity-50`}
-              onClick={() => {
-                setSelected('Inventory');
-                setIsInventoryDropdownOpen(!isInventoryDropdownOpen);
-              }}
-            >
-              <PiCashRegisterFill className='text-dark-ACCENT text-lg' />
-              <span className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Inventory</span>
-              {isInventoryDropdownOpen ? (
-                <TiArrowSortedUp className='text-dark-ACCENT text-lg ml-2' />
-              ) : (
-                <TiArrowSortedDown className='text-dark-ACCENT text-lg ml-2' />
+        {/* Inventory Link */}
+        <Link to="/inventory/product" className="flex-1">
+          <button
+            className={`text-sm p-2 ${selected === 'Inventory' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            onClick={() => setSelected('Inventory')}
+          >
+            <PiCashRegisterFill className='text-lg' />
+            <span>Inventory</span>
+            {/* Badges for stock status */}
+            <div className="flex gap-2 absolute top-0 right-4">
+              {lowStockCount > 0 && (
+                <LowStockBadge badgeContent={lowStockCount} />
               )}
-              {/* Badges for stock status */}
-              <div className="flex gap-5 absolute top-0 right-[10px]">
-                {lowStockCount > 0 && (
-                  <LowStockBadge badgeContent={lowStockCount} color="warning" />
-                )}
-                {outOfStockCount > 0 && (
-                  <OutOfStockBadge badgeContent={outOfStockCount} color="error" />
-                )}
-              </div>
-            </button>
-          </Tooltip>
-          {isInventoryDropdownOpen && (
-            <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
-              <Link to="/inventory/product" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>
-                Product List 
-                <div className="flex gap-5 absolute top-0 right-[10px]">
-                  {lowStockCount > 0 && (
-                    <LowStockBadge badgeContent={lowStockCount} color="warning" />
-                  )}
-                  {outOfStockCount > 0 && (
-                    <OutOfStockBadge badgeContent={outOfStockCount} color="error" />
-                  )}
-              </div>
-              </Link>
-              <Link to="/inventory/supplier" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Supplier List</Link>
+              {outOfStockCount > 0 && (
+                <OutOfStockBadge badgeContent={outOfStockCount} />
+              )}
             </div>
-          )}
-        </div>
+          </button>
+        </Link>
 
         {/* Transaction Button */}
         <Link to="/transaction-list" className="flex-1">
           <button
-            className={`text-sm p-2 ${selected === 'Transaction' ? 'border-dark-ACCENT' : 'border-none'} ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' } rounded-[24px] w-full flex items-center justify-center gap-2 border border-opacity-50`}
+            className={`text-sm p-2 ${selected === 'Transaction' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Transaction')}
           >
-            <IoMdListBox className='text-dark-ACCENT text-lg' />
-            <span className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Transaction</span>
+            <IoMdListBox className='text-lg' />
+            <span>Transaction</span>
           </button>
         </Link>
 
         {/* Sales Dropdown */}
         <div className="relative flex-1">
           <button
-            className={`text-sm p-2 ${selected === 'Sales' ? 'border-dark-ACCENT' : 'border-none'} ${darkMode ? 'bg-light-CARD' : 'dark:bg-dark-CARD' } rounded-[24px] w-full flex items-center justify-center gap-2 border border-opacity-50`}
-            onClick={() => {
-              setSelected('Sales');
-              setIsSalesDropdownOpen(!isSalesDropdownOpen);
-            }}
+            className={`text-sm p-2 ${selected === 'Sales' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            onClick={() => setSalesDropdownOpen(prev => !prev)} // Toggle dropdown
           >
-            <IoBagHandle className='text-dark-ACCENT text-lg' />
-            <span className={`${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>Sales</span>
-            {isSalesDropdownOpen ? (
-              <TiArrowSortedUp className='text-dark-ACCENT text-lg ml-2' />
+            <IoBagHandle className='text-lg' />
+            <span>Sales</span>
+            {location.pathname.startsWith('/sales') ? (
+              <TiArrowSortedUp className='text-lg ml-2' />
             ) : (
-              <TiArrowSortedDown className='text-dark-ACCENT text-lg ml-2' />
+              <TiArrowSortedDown className='text-lg ml-2' />
             )}
           </button>
-          {isSalesDropdownOpen && (
-            <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-TEXT' : 'dark:bg-dark-ACCENT light:text-light-TEXT'} border border-opacity-50 rounded-lg`}>
-              <Link to="/sales" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Sales</Link>
-              <Link to="/customer" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-TEXT hover:bg-dark-ACCENT' : 'dark:text-dark-TEXT hover:bg-blue-600'}`}>Customer</Link>
+          {isSalesDropdownOpen && ( // Show dropdown based on state
+            <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-textPrimary' : 'dark:bg-dark-primary light:text-light-textPrimary'} border border-opacity-50 rounded-lg`}>
+              <Link to="/sales" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-textPrimary hover:bg-dark-primary' : 'dark:text-dark-textPrimary hover:bg-blue-600'}`} onClick={() => setSalesDropdownOpen(false)}>Sales</Link>
+              <Link to="/customer" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-textPrimary hover:bg-dark-primary' : 'dark:text-dark-textPrimary hover:bg-blue-600'}`} onClick={() => setSalesDropdownOpen(false)}>Customer</Link>
             </div>
           )}
         </div>
-
       </div>
       {/* DashboardProfile wrapped in Link */}
-        <DashboardProfile />
+      <DashboardProfile />
     </div>
   );
-};
+}
 
 export default DashboardNavbar;

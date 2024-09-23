@@ -196,37 +196,37 @@ const AdminProfile = () => {
     };
 
     return (
-        <div className={`w-full h-full ${darkMode ? 'bg-light-BG' : 'bg-dark-BG'}`}>
+        <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
             <DashboardNavbar />
             <ToastContainer theme={darkMode ? 'light' : 'dark'} />
             <div className={`pt-[70px] px-6 py-4 h-full`}>
                 <div className='flex items-center justify-center py-5 flex-col h-full'>
                     <div className='flex w-full items-center justify-start'>
-                        <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>Settings</h1>
+                        <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Settings</h1>
                     </div>
                     <div className='w-full h-full flex'>
                         <div className="flex flex-col text-xl h-full w-[20%] items-start justify-start p-4">
-                            <button onClick={() => handleClick('profile')} className={`p-2 bg-transparent ${activeButton === 'profile' ? 'text-light-ACCENT' : `${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}`} >Profile</button>
-                            <button onClick={() => handleClick('users')} className={`p-2 bg-transparent ${activeButton === 'users' ? 'text-light-ACCENT' : `${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}`} >Users</button>
+                            <button onClick={() => handleClick('profile')} className={`p-2 bg-transparent ${activeButton === 'profile' ? 'text-light-primary' : `${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}`} >Profile</button>
+                            <button onClick={() => handleClick('users')} className={`p-2 bg-transparent ${activeButton === 'users' ? 'text-light-primary' : `${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}`} >Users</button>
                         </div>
-                        <div className={`flex-grow border-l h-full ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}></div>
+                        <div className={`flex-grow border-l h-full ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>
 
                         <div className='flex flex-col w-[80%] items-start justify-start gap-6 p-8 pl-24'>
                             {activeButton === 'profile' && (
                                 <>
-                                    <p className={`text-xl ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>Profile</p>
-                                    <BsPersonCircle className={`w-20 h-20 ${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'}`} />
+                                    <p className={`text-xl ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Profile</p>
+                                    <BsPersonCircle className={`w-20 h-20 ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`} />
                                     {!isChangingPassword && !isEditable && (
                                         <>
-                                            <p className={`text-4xl font-semibold ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{name}</p>
-                                            <p className={`${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'}`}>{user.role.toUpperCase()}</p>
-                                            <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                            <p className={`text-4xl font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{name}</p>
+                                            <p className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'}`}>{user.role.toUpperCase()}</p>
+                                            <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                 Username
-                                                <input type="text"  value={username}  placeholder="Username" disabled className={`w-[100%] border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
+                                                <input type="text"  value={username}  placeholder="Username" disabled className={`w-[100%] border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} />
                                             </label>
-                                            <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                            <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                 Contact
-                                                <input  type="text" value={contact} placeholder="Contact" disabled  className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
+                                                <input  type="text" value={contact} placeholder="Contact" disabled  className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} />
                                             </label>
                                         </>
                                     )}
@@ -234,24 +234,24 @@ const AdminProfile = () => {
                                         <div className='flex flex-col gap-4'>
                                             {(isEditable || !isChangingPassword) && (
                                                 <>
-                                                    <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                    <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                         Name
-                                                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" disabled={!isEditable}  className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
+                                                        <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" disabled={!isEditable}  className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} />
                                                     </label>
-                                                    <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                    <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                         Username
-                                                        <input type="text"  value={username}  onChange={(e) => setUsername(e.target.value)}  placeholder="Username"  disabled={!isEditable}  className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
+                                                        <input type="text"  value={username}  onChange={(e) => setUsername(e.target.value)}  placeholder="Username"  disabled={!isEditable}  className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} />
                                                     </label>
-                                                    <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                    <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                         Contact
-                                                        <input type="text" value={contact}  onChange={(e) => setContact(e.target.value)}  placeholder="Contact" disabled={!isEditable} className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`} />
+                                                        <input type="text" value={contact}  onChange={(e) => setContact(e.target.value)}  placeholder="Contact" disabled={!isEditable} className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} />
                                                     </label>
                                                 </>
                                             )}
                                                 <>
                                                     {isChangingPassword && (
                                                         <>
-                                                            <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                            <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                                 Current Password
                                                                 <div className="relative">
                                                                     <input
@@ -259,7 +259,7 @@ const AdminProfile = () => {
                                                                         value={currentPassword}
                                                                         onChange={(e) => setCurrentPassword(e.target.value)}
                                                                         placeholder="Current Password"
-                                                                        className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                                                        className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                                                     />
                                                                     <div
                                                                         className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-xl"
@@ -269,7 +269,7 @@ const AdminProfile = () => {
                                                                     </div>
                                                                 </div>
                                                             </label>
-                                                            <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                            <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                                 New Password
                                                                 <div className="relative">
                                                                     <input
@@ -277,7 +277,7 @@ const AdminProfile = () => {
                                                                         value={newPassword}
                                                                         onChange={(e) => setNewPassword(e.target.value)}
                                                                         placeholder="New Password"
-                                                                        className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                                                        className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                                                     />
                                                                     <div
                                                                         className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-xl"
@@ -287,7 +287,7 @@ const AdminProfile = () => {
                                                                     </div>
                                                                 </div>
                                                             </label>
-                                                            <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                            <label className={`text-lg font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                                 Confirm Password
                                                                 <div className="relative">
                                                                     <input
@@ -295,7 +295,7 @@ const AdminProfile = () => {
                                                                         value={confirmPassword}
                                                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                                                         placeholder="Confirm Password"
-                                                                        className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                                                                        className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                                                     />
                                                                     <div
                                                                         className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer text-xl"
@@ -315,7 +315,7 @@ const AdminProfile = () => {
                                                 <button
                                                         onClick={isChangingPassword ? toggleChangePassword : toggleEdit}
                                                         className={`px-4 py-2 rounded-md 
-                                                            ${isChangingPassword ? 'bg-dark-ACCENT text-light-text' : 'bg-light-ACCENT text-dark-text'}`}
+                                                            ${isChangingPassword ? 'bg-dark-primary text-light-text' : 'bg-light-primary text-dark-text'}`}
                                                         >
                                                         {isChangingPassword ? 'Save Password' : isEditable ? 'Save Info' : 'Edit Info'}
                                                         </button>
@@ -325,9 +325,9 @@ const AdminProfile = () => {
                                     )}
                                     {!isChangingPassword && !isEditable && (
                                         <div className='flex flex-col gap-4'>
-                                            <button onClick={toggleChangePassword} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}>Change Password</button>
+                                            <button onClick={toggleChangePassword} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Change Password</button>
                                             <div className='flex gap-4'>
-                                                <button  onClick={() => setIsEditable(true)} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`} >Edit Info</button>
+                                                <button  onClick={() => setIsEditable(true)} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} >Edit Info</button>
                                                 <button onClick={() => onLogout()} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-red-600 text-white' : 'bg-red-600 text-white'}`}>Logout</button>
                                             </div>
                                         </div>
@@ -338,11 +338,11 @@ const AdminProfile = () => {
                             {activeButton === 'users' && (
                                 <div className='w-full'>
                                     <div className='flex items-center justify-between'>
-                                        <p className={`text-4xl ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>Users</p>
+                                        <p className={`text-4xl ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Users</p>
                                         <div className='w-full flex justify-end gap-4 my-4'>
                                             <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search User by name'}/>
                                             <button
-                                                className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}
+                                                className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
                                                 onClick={handleAddUserClick}
                                             >
                                                 Add User
@@ -350,9 +350,9 @@ const AdminProfile = () => {
                                         </div>
                                     </div>
                                     <div className='flex flex-col gap-2 w-full'> 
-                                    <div className={`w-full max-h-[480px] overflow-auto rounded-lg ${darkMode ? 'bg-light-CARD1' : 'bg-dark-CARD1'}`}>
+                                    <div className={`w-full max-h-[480px] overflow-auto rounded-lg ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
                                         <table className='w-full border-collapse'>
-                                            <thead className={`sticky top-0 rounded-lg py-6 ${darkMode ? 'border-light-ACCENT bg-light-CARD text-light-TEXT' : 'border-dark-ACCENT bg-dark-CARD text-dark-TEXT'}`}>
+                                            <thead className={`sticky top-0 rounded-lg py-6 border-b ${darkMode ? 'border-light-primary bg-light-container text-light-textPrimary' : 'border-dark-primary bg-dark-container text-dark-textPrimary'}`}>
                                                 <tr>
                                                     <th style={{ width: '40%' }} className={`p-2 py-4 text-left`}>NAME</th>
                                                     <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ROLE</th>
@@ -365,16 +365,16 @@ const AdminProfile = () => {
                                                     .filter(user => user._id !== userId)  // Exclude the current user
                                                     .filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase()))  // Apply search filter
                                                     .map(user => (
-                                                        <tr key={user._id} className={`border-b ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
-                                                            <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center justify-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>
+                                                        <tr key={user._id} className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}>
+                                                            <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center text-left ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                                 <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
                                                                 <p>{user.name}</p>
                                                             </td>
-                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{user.role}</td>
-                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-TEXT' : 'text-dark-TEXT'}`}>{user.contact}</td>
+                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.role}</td>
+                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.contact}</td>
                                                             <td style={{ width: '20%' }} className='text-center gap-4'>
                                                                 <button
-                                                                    className={`px-4 py-2 rounded-md font-semibold mr-4 ${darkMode ? 'bg-light-ACCENT' : 'bg-dark-ACCENT'}`}
+                                                                    className={`px-4 py-2 rounded-md font-semibold mr-4 ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
                                                                     onClick={() => handleViewUserClick(user._id)}
                                                                 >
                                                                     Edit

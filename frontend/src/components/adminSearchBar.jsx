@@ -15,7 +15,7 @@ const AdminSearchBar = ({ query, onQueryChange, placeholderMessage }) => {
   };
 
   return (
-    <div className={`w-[480px] flex items-center px-4 rounded-md ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD dark:text-dark-TEXT'}`}>
+    <div className={`w-[480px] flex items-center px-4 rounded-md border ${darkMode ? 'bg-light-container text-light-textPrimary boder-border' : 'dark:bg-dark-container dark:text-dark-textPrimary boder-border'}`}>
       <input 
         type="text"
         placeholder={placeholderMessage}
@@ -24,9 +24,9 @@ const AdminSearchBar = ({ query, onQueryChange, placeholderMessage }) => {
         onChange={handleChange}       
       />
       {query ? (
-        <IoMdClose className={`${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'} hover:text-white cursor-pointer`} onClick={handleClear} />
+        <IoMdClose className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'} hover:text-white cursor-pointer`} onClick={handleClear} />
       ) : (
-        <FaSearch className={`${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT'} hover:text-white cursor-pointer`} />
+        <FaSearch className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'} hover:text-white cursor-pointer`} />
       )}
     </div>
   );

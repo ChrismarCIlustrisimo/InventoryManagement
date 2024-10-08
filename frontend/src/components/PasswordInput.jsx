@@ -17,7 +17,7 @@ const PasswordInput = ({ value, onChange, placeholder }) => {
       <input
         type={isShowPassword ? 'text' : 'password'}
         placeholder={placeholder || 'Password'}
-        className="w-full text-sm bg-transparent p-2 pl-3 outline-none"
+        className={`w-full text-sm bg-transparent p-2 pl-3 outline-none ${darkMode ? 'text-light-textPrimary' : 'text-black'}`} // Adjusted text color
         value={value}
         onChange={onChange} 
       />

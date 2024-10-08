@@ -4,10 +4,12 @@ import axios from 'axios';
 import light from '../assets/iControlLoginLogo.png';
 import dark from '../assets/iControlLight.png';
 import { useAdminTheme } from '../context/AdminThemeContext';
-import { IoMdListBox } from "react-icons/io";
-import { PiCashRegisterFill } from "react-icons/pi";
-import { IoBagHandle, IoHome } from "react-icons/io5";
+import { GrTransaction } from "react-icons/gr";
+import { PiCubeBold } from "react-icons/pi";
+import { RiDashboard2Line } from "react-icons/ri";
 import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
+import { BiSolidReport } from "react-icons/bi";
+import { BsArrowRepeat } from "react-icons/bs";
 import DashboardProfile from './DashboardProfile';
 import { useAuthContext } from '../hooks/useAuthContext';
 import Badge from '@mui/material/Badge';
@@ -16,13 +18,13 @@ import { styled } from '@mui/material/styles';
 // Styled Badge components with custom colors
 const LowStockBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-dot': {
-    backgroundColor: 'yellow', // Custom color for LOW STOCK
+    backgroundColor: '#d39e00', // Darker Yellow for LOW STOCK
   },
 }));
 
 const OutOfStockBadge = styled(Badge)(({ theme }) => ({
   '& .MuiBadge-dot': {
-    backgroundColor: '#dc3545', // Custom color for OUT OF STOCK
+    backgroundColor: '#c82333', // Darker Red for OUT OF STOCK
   },
 }));
 
@@ -30,10 +32,10 @@ const DashboardNavbar = () => {
   const { user } = useAuthContext();
   const [lowStockCount, setLowStockCount] = useState(0);
   const [outOfStockCount, setOutOfStockCount] = useState(0);
+  const [products, setProducts] = useState([]); // Define products state
   const baseURL = 'http://localhost:5555';
   const location = useLocation();
   const [selected, setSelected] = useState('');
-  const [isSalesDropdownOpen, setSalesDropdownOpen] = useState(false); // New state for dropdown visibility
   const { darkMode } = useAdminTheme();
 
   useEffect(() => {
@@ -48,6 +50,10 @@ const DashboardNavbar = () => {
       setSelected('Dashboard');
     } else if (path === '/inventory/product') {
       setSelected('Inventory');
+    } else if (path === '/rma') { // New path for RMA
+      setSelected('RMA');
+    } else if (path === '/reporting') { // New path for Reporting
+      setSelected('Reporting');
     } else {
       setSelected('');
     }
@@ -60,13 +66,41 @@ const DashboardNavbar = () => {
           'Authorization': `Bearer ${user.token}`
         }
       });
-      const productData = response.data.data;
 
-      const lowStockProducts = productData.filter(product => product.current_stock_status === "LOW").length;
-      const outOfStockProducts = productData.filter(product => product.current_stock_status === "OUT OF STOCK").length;
+      const productData = response.data.data;
+      if (!Array.isArray(productData)) {
+        console.error('Expected product data to be an array');
+        return; // Exit if the product data is not an array
+      }
+
+      // Update stock status based on available units using product-specific thresholds
+      const updatedProducts = productData.map(product => {
+        const availableUnits = product.units.filter(unit => unit.status === 'in_stock').length;
+        const { low_stock_threshold, near_low_stock_threshold } = product; // Use thresholds from product
+
+        let stockStatus = 'IN STOCK';
+        if (availableUnits === 0) {
+          stockStatus = 'OUT OF STOCK';
+        } else if (availableUnits <= low_stock_threshold) {
+          stockStatus = 'LOW';
+        } else if (availableUnits <= near_low_stock_threshold) {
+          stockStatus = 'NEAR LOW';
+        }
+
+        return {
+          ...product,
+          current_stock_status: stockStatus,
+        };
+      });
+
+      // Count low and out of stock products
+      const lowStockProducts = updatedProducts.filter(product => product.current_stock_status === "LOW").length;
+      const outOfStockProducts = updatedProducts.filter(product => product.current_stock_status === "OUT OF STOCK").length;
 
       setLowStockCount(lowStockProducts);
       setOutOfStockCount(outOfStockProducts);
+      setProducts(updatedProducts); // Update the state with the new products
+
     } catch (error) {
       console.error('Error fetching updated products:', error);
     }
@@ -76,39 +110,38 @@ const DashboardNavbar = () => {
     if (user && user.token) {
       fetchUpdatedProducts();
     }
-  }, [user]);
+  }, [user, location.pathname]);
 
   return (
     <div className={` ${darkMode ? 'bg-light-bg' : 'dark:bg-dark-bg'} text-white flex items-center justify-between px-6 py-1 drop-shadow fixed top-0 left-0 right-0 z-10`}>
       <img src={`${darkMode ? dark : light}`} alt="Logo" className='w-[10%] my-2 ml-8' />
       <div className="flex rounded w-[50%] gap-4 items-center">
-
         {/* Dashboard Button */}
         <Link to="/dashboard" className="flex-1">
           <button
             className={`text-sm p-2 ${selected === 'Dashboard' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Dashboard')}
           >
-            <IoHome className='text-lg' />
+            <RiDashboard2Line className='text-lg' />
             <span>Dashboard</span>
           </button>
         </Link>
 
         {/* Inventory Link */}
-        <Link to="/inventory/product" className="flex-1">
+        <Link to="/inventory/product" className="flex-1 relative">
           <button
-            className={`text-sm p-2 ${selected === 'Inventory' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            className={`text-sm p-2 ${selected === 'Inventory' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Inventory')}
           >
-            <PiCashRegisterFill className='text-lg' />
+            <PiCubeBold className='text-lg' />
             <span>Inventory</span>
             {/* Badges for stock status */}
-            <div className="flex gap-2 absolute top-0 right-4">
+            <div className="flex gap-6 absolute top-0 right-2">
               {lowStockCount > 0 && (
-                <LowStockBadge badgeContent={lowStockCount} />
+                <LowStockBadge badgeContent={lowStockCount} color="warning" />
               )}
               {outOfStockCount > 0 && (
-                <OutOfStockBadge badgeContent={outOfStockCount} />
+                <OutOfStockBadge badgeContent={outOfStockCount} color="error" />
               )}
             </div>
           </button>
@@ -120,37 +153,38 @@ const DashboardNavbar = () => {
             className={`text-sm p-2 ${selected === 'Transaction' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Transaction')}
           >
-            <IoMdListBox className='text-lg' />
+            <GrTransaction className='text-lg' />
             <span>Transaction</span>
           </button>
         </Link>
 
-        {/* Sales Dropdown */}
-        <div className="relative flex-1">
+        {/* RMA Button */}
+        <Link to="/rma" className="flex-1">
           <button
-            className={`text-sm p-2 ${selected === 'Sales' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
-            onClick={() => setSalesDropdownOpen(prev => !prev)} // Toggle dropdown
+            className={`text-sm p-2 ${selected === 'RMA' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            onClick={() => setSelected('RMA')}
           >
-            <IoBagHandle className='text-lg' />
-            <span>Sales</span>
-            {location.pathname.startsWith('/sales') ? (
-              <TiArrowSortedUp className='text-lg ml-2' />
-            ) : (
-              <TiArrowSortedDown className='text-lg ml-2' />
-            )}
+            <BsArrowRepeat className='text-lg' />
+            <span>RMA</span>
           </button>
-          {isSalesDropdownOpen && ( // Show dropdown based on state
-            <div className={`absolute top-full left-0 mt-2 w-full border-none outline-none ${darkMode ? 'bg-white text-dark-textPrimary' : 'dark:bg-dark-primary light:text-light-textPrimary'} border border-opacity-50 rounded-lg`}>
-              <Link to="/sales" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-textPrimary hover:bg-dark-primary' : 'dark:text-dark-textPrimary hover:bg-blue-600'}`} onClick={() => setSalesDropdownOpen(false)}>Sales</Link>
-              <Link to="/customer" className={`block px-4 py-2 text-sm hover:text-white ${darkMode ? 'text-light-textPrimary hover:bg-dark-primary' : 'dark:text-dark-textPrimary hover:bg-blue-600'}`} onClick={() => setSalesDropdownOpen(false)}>Customer</Link>
-            </div>
-          )}
-        </div>
+        </Link>
+
+        {/* Reporting Button */}
+        <Link to="/reporting" className="flex-1">
+          <button
+            className={`text-sm p-2 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            onClick={() => setSelected('Reporting')}
+          >
+            <BiSolidReport className='text-lg' />
+            <span>Reporting</span>
+          </button>
+        </Link>
       </div>
-      {/* DashboardProfile wrapped in Link */}
+
+      {/* User Profile */}
       <DashboardProfile />
     </div>
   );
-}
+};
 
 export default DashboardNavbar;

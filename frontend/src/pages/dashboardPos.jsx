@@ -143,7 +143,7 @@ const DashboardPos = () => {
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
+                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container' : 'dark:border-dark-container'}`}>
                     <DatePicker
                       selected={startDate}
                       onChange={handleStartDateChange}

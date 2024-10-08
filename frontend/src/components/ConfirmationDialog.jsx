@@ -7,7 +7,7 @@ const ConfirmationDialog = ({ isOpen, onConfirm, onCancel, message }) => {
 
   return (
     <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
-      <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-TEXT bg-light-CARD1' : 'text-dark-TEXT bg-dark-CARD1'} `}>
+      <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'text-dark-textPrimary bg-dark-container'} `}>
         <p className="text-lg mb-4">{message}</p>
         <div className="flex justify-end gap-4">
           <button

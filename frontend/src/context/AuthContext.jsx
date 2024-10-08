@@ -30,8 +30,6 @@ export const AuthContextProvider = ({ children }) => {
 
     const userName = state.user ? state.user.name : 'No user logged in';
 
-    console.log('AuthContext state:', state);
-    console.log('Logged in user name:', userName);
 
     return (
         <AuthContext.Provider value={{ ...state, dispatch }}>

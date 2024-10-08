@@ -30,7 +30,6 @@ const generateTransactionId = async () => {
 };
 
 // routes/transactionRoutes.js
-// routes/transactionRoutes.js
 router.post('/', async (req, res) => {
   try {
     const { products, customer, total_price, transaction_date, total_amount_paid, payment_status, cashier } = req.body;
@@ -40,47 +39,87 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Products, customer, total_price, transaction_date, and payment_status are required' });
     }
 
-    // Process products
+    console.log('Received transaction data:', req.body);
+
     const productItems = await Promise.all(products.map(async (item) => {
-      const { product: productId, quantity } = item;
+      const { product: productId, serial_number: unitIds } = item;
+
+      // Check for valid serial numbers
+      if (!Array.isArray(unitIds) || unitIds.length === 0) {
+        throw new Error(`Serial numbers (unit IDs) are missing or not in the correct format for product ID ${productId}`);
+      }
+
       const productDoc = await Product.findById(productId);
       if (!productDoc) {
-        throw new Error(`Product with id ${productId} not found`);
+        throw new Error(`Product with ID ${productId} not found`);
       }
+
+      console.log(`Units for product ${productId}:`, productDoc.units);
+
+      const processedUnits = [];
+
+      // Process each unit ID
+      for (let unitId of unitIds) {
+        console.log(`Processing product ${productId} with unit ID ${unitId}`);
+
+        const productUnit = productDoc.units.find(unit => 
+          unit._id.toString() === unitId && unit.status === 'in_stock'
+        );
+
+        if (!productUnit) {
+          console.warn(`Skipping unit ID ${unitId} - already sold or unavailable`);
+          continue;
+        }
+
+        // Mark the unit as 'sold'
+        productUnit.status = 'sold';
+        
+        processedUnits.push({
+          product: productId,
+          serial_number: productUnit.serial_number,
+          price: productDoc.selling_price // Keeping the price for transaction purposes
+        });
+      }
+
+      // Check processed units
+      if (processedUnits.length === 0) {
+        throw new Error(`No available units for product ID ${productId}`);
+      }
+
+      await productDoc.save(); // Save the product document to update the status of units
+
       return {
         product: productId,
-        quantity,
-        price: productDoc.selling_price
+        serial_number: processedUnits.map(unit => unit.serial_number),
+        price: productDoc.selling_price,
+        quantity: processedUnits.length // Keep track of how many units were sold
       };
     }));
 
-    // Verify total price
-    const totalPrice = productItems.reduce((acc, curr) => {
-      const productPrice = curr.quantity * curr.price;
-      return acc + productPrice;
-    }, 0);
-
+    // Check total price
+    const totalPrice = productItems.reduce((acc, curr) => acc + (curr.quantity * curr.price), 0);
     if (total_price !== totalPrice) {
       throw new Error(`Total price mismatch. Expected ${totalPrice}, received ${total_price}`);
     }
 
-    // Generate transaction ID
     const transaction_id = await generateTransactionId();
-
-    // Calculate due_date (10 days after transaction_date)
     const dueDate = new Date(transaction_date);
     dueDate.setDate(dueDate.getDate() + 10);
 
-    // Create new transaction
     const newTransaction = new Transaction({
       transaction_id,
-      products: productItems,
+      products: productItems.map(item => ({
+        product: item.product,
+        serial_number: item.serial_number,
+        quantity: item.quantity,
+        price: item.price
+      })),
       customer,
       total_price,
       total_amount_paid,
       transaction_date,
-      due_date: dueDate, // Automatically set due_date
-      payment_status, // Use the payment_status from the request body
+      due_date: dueDate,
+      payment_status,
       cashier
     });
 
@@ -89,9 +128,22 @@ router.post('/', async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    return res.status(500).send('Server Error');
+    return res.status(500).send({ message: error.message });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -168,6 +220,9 @@ router.get('/', async (req, res) => {
     return res.status(500).send('Server Error');
   }
 });
+
+
+
 
 // Get Single Transaction
 router.get('/:transactionId', async (req, res) => {

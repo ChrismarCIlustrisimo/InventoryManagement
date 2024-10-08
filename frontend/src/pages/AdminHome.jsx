@@ -1,343 +1,338 @@
+import axios from 'axios';
 import React, { useState, useEffect } from "react";
 import DashboardNavbar from "../components/DashboardNavbar";
 import { useAdminTheme } from "../context/AdminThemeContext";
-import { GrRefresh } from "react-icons/gr";
-import PieChartComponent from "../charts/PieChartComponent";
-import { GoTriangleRight } from "react-icons/go";
-import { FaCircle } from "react-icons/fa";
-import { AiFillProduct } from "react-icons/ai";
-import { IoMdArrowDropdown } from "react-icons/io";
-import BarChartComponent from "../charts/BarChartComponent";
-import { GiWallet } from "react-icons/gi";
-import { HiMiniWallet } from "react-icons/hi2";
-import axios from "axios";
-import { useAuthContext } from "../hooks/useAuthContext";
-import { useNavigate } from 'react-router-dom';
 import StatsCard from "../components/StatsCard";
-import DateModal from "./DateModal";
+import { useAuthContext } from '../hooks/useAuthContext';
+import { GoAlertFill } from "react-icons/go";
+import BarChart1 from '../charts/BarChart1';
+import BarChart2 from '../charts/BarChart2';
+import BarChart3 from '../charts/BarChart3';
+
+import LineChart from '../charts/LineChart';
 
 const AdminHome = () => {
   const { darkMode } = useAdminTheme();
-  const baseURL = "http://localhost:5555";
   const { user } = useAuthContext();
-  const [topProducts, setTopProducts] = useState([]);
-  const [grossSales, setGrossSales] = useState(0);
-  const [Netsales, setNetSales] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [productCount, setproductCount] = useState([]);
-  const [transactionLog, setTransactionLog] = useState([]);
-  const navigate = useNavigate();
-  const [grossSalesOption, setGrossSalesOption] = useState("Last 7 Days");
-  const [openGrossSalesDropdown, setOpenGrossSalesDropdown] = useState(false);
-  const [netSalesOption, setNetSalesOption] = useState("Last 7 Days"); // Change this to a valid option
-  const [openNetSalesDropdown, setOpenNetSalesDropdown] = useState(false); // New state for net sales dropdown
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
-  const [isCustomDate, setIsCustomDate] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const baseURL = "http://localhost:5555";
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 30 Days'); // Set default timeframe
+  const [products, setProducts] = useState([]);
+  const [productCount, setProductCount] = useState();
+  const [transactionCount, setTransactionCount] = useState([]);
+  const [totalPaidPrice, setTotalPaidPrice] = useState(0);
+  const [changeSalesPercent, setChangeSalesPercent] = useState(0);  // To store the percentage change
+  const [changeProductPercent, setChangeProductPercent] = useState(0);  // To store the percentage change
+  const [transactionChangePercent, setTransactionChangePercent] = useState(0);
+  const [itemsLowStock, setIitemsLowStock] = useState(0);
+  const [latestTransaction, setLatestTransaction] = useState([]);
 
 
-// Inside your AdminHome component
-const navigateToNetSalesTransactions = () => {
-  navigate('/net-sales-transactions'); // This route should point to the transactions page
-};
 
-  const openDateModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/product`, {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
+  
+      const products = response.data.data;
+      const totalCount = response.data.count;
 
-  const handleGrossSalesOptionSelect = (option) => {
-    setGrossSalesOption(option);
-    if (option === "Custom Date") {
-      openDateModal();
-    } else {
-      fetchTransactionData(); // Refetch data for other options
+      // Filter products where no unit is 'in_stock'
+      const outOfStockProducts = products.filter(product => 
+        product.units.every(unit => unit.status !== 'in_stock')
+      );
+
+      setIitemsLowStock(outOfStockProducts.length);
+  
+      // Get current month and year
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+  
+      // Initialize counter for this month
+      let currentMonthCount = 0;
+  
+      // Filter products and count this month's products
+      products.forEach(product => {
+        const createdAtDate = new Date(product.createdAt);
+        if (createdAtDate.getFullYear() === currentYear && createdAtDate.getMonth() === currentMonth) {
+          currentMonthCount++;
+        }
+      });
+
+  
+      // Update stock status and calculate updated products
+        const updatedProducts = products.map(product => {
+        const availableUnits = product.units.filter(unit => unit.status === 'in_stock').length;
+      
+        const lowStockThreshold = product.low_stock_threshold || 0; // Use product-specific thresholds
+  
+        let stockStatus = 'HIGH';
+        if (availableUnits === 0) {
+          stockStatus = 'OUT OF STOCK';
+        } else if (availableUnits <= lowStockThreshold) {
+          stockStatus = 'LOW';
+        }
+  
+        return {
+          ...product,
+          current_stock_status: stockStatus,
+        };
+      });
+  
+      setProducts(updatedProducts);
+      setProductCount(totalCount);
+      
+  
+      // Calculate the remaining products after subtracting this month's count
+      const remainingProductsCount = totalCount - currentMonthCount;
+  
+      // Calculate percentage increase of this month's products relative to the total count
+      let increase = 0;
+      if (totalCount > 0) {
+        increase = (currentMonthCount / totalCount) * 100; // Percentage of products created this month relative to total
+      }
+      setChangeProductPercent(increase);
+  
+    } catch (error) {
+      console.error('Error fetching products:', error.message);
     }
-  };
-
-  const handleNetSalesOptionSelect = (option) => {
-    setNetSalesOption(option);
-    if (option === "Custom Date") {
-      openDateModal();
-    } else {
-      fetchTransactionData(); // Refetch data for other options
-    }
-  };
-
-
-  const getDateRange = (option) => {
-    const now = new Date();
-    switch (option) {
-      case 'Last 7 Days':
-        const startOfLast7Days = new Date(now);
-        startOfLast7Days.setDate(now.getDate() - 6);
-        return { start: startOfLast7Days, end: now };
-      case 'Last 30 Days':
-        const startOfLast30Days = new Date(now);
-        startOfLast30Days.setDate(now.getDate() - 29);
-        return { start: startOfLast30Days, end: now };
-      case 'This Year':
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        return { start: startOfYear, end: now };
-      default:
-        return { start: null, end: null };
-    }
-  };
-
-
-  // Function to refresh the page
-  const handleRefresh = () => {
-    window.location.reload();
-  };
-
-  // Stock color mapping
-  const stockColors = {
-    "IN STOCK": "#28a745", // Green
-    "NEAR LOW": "#fd7e14", // Orange
-    "LOW": "#ffc107", // Yellow
-    "OUT OF STOCK": "#dc3545", // Red
   };
   
-  // Function to format date
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
 
-  const fetchTopSellingProducts = async () => {
+
+  const fetchSalesOrders = async () => {
     try {
-      // Add sorting query parameters to the request
-      const response = await axios.get(`${baseURL}/product`, {
+      const response = await axios.get('http://localhost:5555/transaction', {
         params: {
-          sortBy: "sales", // Sort by sales
-          sortOrder: "desc", // Descending order
+          payment_status: 'paid',
         },
         headers: {
-          Authorization: `Bearer ${user.token}`,
+          'Authorization': `Bearer ${user.token}`,
         },
       });
+  
+      const transactions = response.data.data;
+      const transactionsCount = response.data.count;
 
-      if (response.status !== 200) {
-        throw new Error("Network response was not ok");
-      }
+      
+      setLatestTransaction(transactions.slice(0, 10));
+  
+      // Filter transactions by the current and previous months
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const previousMonth = new Date(now.setMonth(now.getMonth() - 1));
 
-      const result = response.data;
-      setproductCount(result.count);
-
-      // Filter out products with sales equal to 0 and slice to get only the top 5 products
-      const top5Products = result.data
-        .filter((product) => product.sales > 0) // Exclude products with zero sales
-        .slice(0, 5).sort((a, b) => b.sales - a.sales);
-
-      setTopProducts(top5Products);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-   // Move fetchTransactionData outside of useEffect
-   const fetchTransactionData = async () => {
-    const dateRange = getDateRange(netSalesOption);
-    if (!dateRange.start || !dateRange.end) return;
-
-    try {
-      const response = await axios.get(`${baseURL}/transaction`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-        params: {
-          startDate: dateRange.start.toISOString(),
-          endDate: dateRange.end.toISOString(),
-        },
+  
+      const currentMonthTransactions = transactions.filter(transaction => {
+        const transactionDate = new Date(transaction.createdAt);
+        return transactionDate.getMonth() === currentMonth;
       });
-
-      const result = response.data;
-      const paidTransactions = result.data.filter(transaction => transaction.payment_status === 'paid');
-      const grossSales = paidTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
-      const totalCostOfSoldProducts = paidTransactions.reduce((total, transaction) => {
+  
+      const lastMonthTransactions = transactions.filter(transaction => {
+        const transactionDate = new Date(transaction.createdAt);
+        return transactionDate.getMonth() === previousMonth.getMonth();
+      });
+  
+      // Calculate gross sales for each month
+      const currentMonthSales = currentMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
+      const lastMonthSales = lastMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
+  
+      // Calculate percent change
+      const changePercent = lastMonthSales === 0 
+        ? 100  // Avoid division by zero if last month had no sales
+        : ((currentMonthSales - lastMonthSales) / lastMonthSales) * 100;
+  
+      // Format the changePercent to two decimal places
+      const formattedChangePercent = parseFloat(changePercent.toFixed(2)); 
+      // Calculate net sales (same as before)
+      const totalCostOfSoldProducts = currentMonthTransactions.reduce((total, transaction) => {
         return total + transaction.products.reduce((sum, product) => sum + (product.product.buying_price * product.quantity), 0);
       }, 0);
-      const netSales = grossSales - totalCostOfSoldProducts;
 
-      setTransactionLog(paidTransactions.slice(0, 3));
-      setGrossSales(grossSales);
-      setNetSales(netSales);
+      const netSales = currentMonthSales - totalCostOfSoldProducts;
+      // Corrected line
+      const changeCountPercent = lastMonthSales === 0 
+        ? 100 
+        : ((lastMonthTransactions.length - currentMonthTransactions.length) / lastMonthTransactions.length) * 100;
+
+      // Update state with calculated values
+      setTotalPaidPrice(netSales);
+      setTransactionCount(transactionsCount);
+      setChangeSalesPercent(formattedChangePercent);
+      setTransactionChangePercent(changeCountPercent)
     } catch (error) {
-      console.error("Error fetching transaction data:", error);
+      console.error('Error fetching sales orders:', error);
     }
   };
-
+  
+  
+  
+  
   useEffect(() => {
-    if (user.token) {
-      fetchTransactionData();
-      fetchTopSellingProducts();
+    if (user && user.token) {
+      fetchProducts();
+      fetchSalesOrders();
     }
-  }, [user.token, baseURL, netSalesOption]); // Include netSalesOption to refetch transaction data when it changes
+  }, [user, location.pathname]);
 
-  const handleProductClick = (productId) => {
-    navigate(`/update-product/${productId}`);
+
+
+  const handleDropdownChange = (event) => {
+    setSelectedTimeframe(event.target.value); // Update selected timeframe
   };
 
-
-  if (loading) return <p>Loading...</p>;
+    const formatPrice = (price) => {
+      if (price >= 1000) {
+        return (price / 1000).toFixed(1) + 'k';
+      }
+      return price.toString();
+    };
+    
 
   return (
     <div className={`${darkMode ? "bg-light-bg" : "dark:bg-dark-bg"} h-auto flex gap-1 overflow-y-hidden`}>
       <DashboardNavbar />
-      <div className="h-[145vh] w-[100vw] pt-[70px] px-4 flex flex-col gap-4">
-        {/* Header Section */}
-        <div className="w-full h-auto flex justify-between items-center mt-2">
-          <p className={`font-bold text-3xl ${darkMode ? "text-light-textPrimary" : "dark:text-dark-textPrimary"}`}>Dashboard</p>
-          <button onClick={handleRefresh} className={`text-2xl border px-2 py-2 rounded-lg ${darkMode ? "text-light-primary border-light-primary" : "text-dark-primary border-dark-primary"}`}>
-            <GrRefresh />
-          </button>
-        </div>
-  
-        {/* Main Content */}
-        <div className="flex gap-2 w-full h-[30%] py-2">
-          {/* Pie Chart Section */}
-          <div className={`${darkMode ? "bg-light-container text-light-textPrimary" : "bg-dark-container text-dark-textPrimary"} w-[60%] rounded-lg px-4 py-2`}>
-            <p>Stock Level</p>
-            <PieChartComponent />
+      <div className="w-full h-min-full p-6 pt-[100px] flex gap-4">
+        <div className="flex flex-col items-center justify-between w-[60%] h-full gap-4">
+          <div className="h-[15%] flex items-center justify-center gap-4">
+                <StatsCard
+                  title={'Total Product'}
+                  value={productCount}
+                  changeType={changeProductPercent >= 0 ? 'increase' : 'decrease'}
+                  changePercent={changeProductPercent.toFixed(2)} // Displaying 2 decimal places
+                  className={`${darkMode ? 'bg-light-primary' : 'bg-dark-primary'} text-white shadow-lg`}
+                  percenText={'from this month'}
+                />
+                <StatsCard
+                  title={'Total Sales'}
+                  value={formatPrice(totalPaidPrice)}  // Format the totalPaidPrice before displaying it
+                  changeType={changeSalesPercent >= 0 ? 'increase' : 'decrease'}  // Set the type based on percent change
+                  changePercent={Math.abs(changeSalesPercent.toFixed(2))}  // Show the absolute value of the percent change
+                  className={`bg-[#14AE5C] text-white shadow-lg`}  // Additional custom styles
+                  percenText={'from last month'}
+                />
+
+                <StatsCard
+                  title={'Total Transactions'}
+                  value={transactionCount}
+                  changeType={'increase'}
+                  changePercent={Math.abs(transactionChangePercent.toFixed(2))}
+                  className={`bg-[#FF9500] text-white shadow-lg`} // Additional custom styles
+                  percenText={'from last month'}
+                />
+
           </div>
-  
-          {/* Top Selling Products Section */}
-          <div className={`${darkMode ? "bg-light-container" : "bg-dark-container"} w-[40%] rounded-lg px-2`}>
-            <div className="w-full h-[15%] flex items-center justify-between px-2">
-              <p className={`text-2xl ${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>Top 5 Selling Products</p>
-            </div>
-            <div className="w-full h-[82%] flex flex-col gap-3 overflow-y-auto">
-              {topProducts.map((item, index) => {
-                const statusColor = stockColors[item.current_stock_status] || "#000000"; // Default to black if status is not found
-                return (
-                  <div
-                    onClick={() => handleProductClick(item._id)}
-                    key={index}
-                    className={`flex items-center justify-start w-full h-[70px] px-2 py-4 gap-4 ${darkMode ? "bg-light-container1 border-light-primary" : "bg-dark-container1 border-dark-primary"} rounded-md border-b-2`}
+
+          <div className="w-full h-[40%]">
+           <div className={`w-full h-full px-12 py-6 border border-gray-200 rounded-lg shadow-sm  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+              <div className="w-full h-[10%] flex items-center justify-between">
+                 <h2 className="text-center text-lg font-semibold text-orange-600">Sales Overview</h2>
+                 <select
+                    value={selectedTimeframe}
+                    onChange={handleDropdownChange}
+                    className="border border-black text-black rounded-md p-2"
                   >
-                    <img src={`${baseURL}/images/${item.image.substring(14)}`} className="w-14 h-14 object-cover rounded-lg" alt={item.name} />
-                    <div className="flex flex-col w-[80%]">
-                      <p className={`text-sm ${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>{item.name}</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        <p className={`${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>{item.category}</p>
-                        <FaCircle className={`text-[0.65rem] ${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`} />
-                        <p className={`${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>{item.quantity_in_stock} in stock</p>
-                        <FaCircle className={`text-[0.65rem] ${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`} />
-                        <p className={`${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`} style={{ color: statusColor }}>{item.current_stock_status}</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center justify-center w-[10%]">
-                      <p className={`${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>{item.sales}</p>
-                      <p className={`${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>Sales</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-
-        <div className="flex items-center justify-center gap-4">
-          <StatsCard
-            title="TOTAL PRODUCT INVENTORY"
-            value={productCount}
-            icon={AiFillProduct}
-            darkMode={darkMode}
-          />
-
-      <StatsCard
-        title="TOTAL NET SALES"
-        value={`₱ ${Math.round(Netsales) || 0}`}
-        icon={HiMiniWallet}
-        optionLabel="Select Timeframe"
-        options={['Last 7 Days', 'Last 30 Days', 'This Year', 'Custom Date']}
-        onOptionSelect={handleNetSalesOptionSelect}
-        selectedOption={netSalesOption}
-        darkMode={darkMode}
-        toggleDropdown={() => setOpenNetSalesDropdown(!openNetSalesDropdown)}
-        isDropdownOpen={openNetSalesDropdown}
-        onClick={navigateToNetSalesTransactions} // Add the click handler here
-      />
-
-          <StatsCard
-            title="TOTAL GROSS SALES"
-            value={`₱ ${Math.round(grossSales)}`}
-            icon={GiWallet}
-            optionLabel="Select Timeframe"
-            options={['Last 7 Days', 'Last 30 Days', 'This Year', 'Custom Date']}
-            onOptionSelect={handleGrossSalesOptionSelect}
-            selectedOption={grossSalesOption}
-            darkMode={darkMode}
-            toggleDropdown={() => setOpenGrossSalesDropdown(!openGrossSalesDropdown)}
-            isDropdownOpen={openGrossSalesDropdown}
-          />
-
-{isModalOpen && (
-        <DateModal
-          startDate={startDate}
-          endDate={endDate}
-          setStartDate={setStartDate}
-          setEndDate={setEndDate}
-          closeModal={closeModal}
-        />
-      )}
-
-        </div>
-
-  
-        {/* Transaction Log Section */}
-        <div className="flex gap-2 w-full h-[45%] py-2">
-          <div className={`${darkMode ? "bg-light-container" : "bg-dark-container"} w-[50%] rounded-lg`}>
-            <div className="w-full h-[15%] flex items-center justify-between p-4">
-              <p className={`text-2xl font-semibold ${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>Transaction Log</p>
-            </div>
-            <div className="w-full h-[82%] flex flex-col gap-3">
-              <div className="h-[420px] overflow-y-auto px-4 flex flex-col gap-4">
-                {transactionLog.length === 0 ? (
-                  <div className={`w-full h-full flex items-center justify-center ${darkMode ? "text-light-textPrimary" : "text-dark-textPrimary"}`}>
-                    <p className="text-2xl">No Transactions for this week</p>
-                  </div>
-                ) : (
-                  <div className={`w-full h-[100%] flex flex-col gap-4 overflow-y-auto scrollbar-custom ${darkMode ? "bg-light-container" : "bg-dark-container"}`}>
-                    {transactionLog.map((transaction) => (
-                      <div key={transaction._id} className={`rounded-lg p-4 flex gap-4 cursor-pointer w-full ${darkMode ? "bg-light-border" : "dark:bg-dark-border"}`} onClick={() => handleTransactionClick(transaction.transaction_id)}>
-                        <div className="flex justify-between items-center gap-2 w-full h-[100px]">
-                          <div className="p-4 w-[70%] flex flex-col gap-2">
-                            <h1 className={`text-2xl ${darkMode ? "text-light-primary" : "dark:text-dark-primary"} font-bold`}>{transaction.transaction_id}</h1>
-                            {transaction.products.map((item, idx) => (
-                              <p key={idx} className={`text-sm ${darkMode ? "text-light-textPrimary" : "dark:text-dark-textPrimary"}`}>
-                                ({item.quantity}) {item.product.name}
-                              </p>
-                            ))}
-                          </div>
-                          <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? "text-light-border" : "dark:text-dark-border"}`}>
-                            <div className="flex flex-col gap-1">
-                              <p className={`text-xs ${darkMode ? "text-light-textSecondary" : "dark:text-dark-textSecondary"}`}>DATE</p>
-                              <p className={`text-xs ${darkMode ? "text-light-textSecondary" : "dark:text-dark-textSecondary"}`}>CUSTOMER</p>
-                              <p className={`text-xs ${darkMode ? "text-light-textSecondary" : "dark:text-dark-textSecondary"}`}>TOTAL AMOUNT</p>
-                            </div>
-                            <div className={`flex flex-col gap-1 ${darkMode ? "text-light-textPrimary" : "dark:text-dark-textPrimary"}`}>
-                              <p className="text-sm ml-auto">{formatDate(transaction.transaction_date)}</p>
-                              <p className="text-sm ml-auto">{transaction.customer ? transaction.customer.name.toUpperCase() : "None"}</p>
-                              <p className="text-sm ml-auto">₱ {transaction.total_price.toFixed(2)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                    <option value="Last 7 Days">Last 7 Days</option>
+                    <option value="Last 30 Days">Last 30 Days</option>
+                    <option value="Last 3 Months">Last 3 Months</option>
+                    <option value="Last 6 Months">Last 6 Months</option>
+                    <option value="This Year">This Year</option>
+                    <option value="Custom Range">Custom Range</option>
+                  </select>
+              </div>
+              <div className="w-full h-[90%]">
+                <LineChart selectedTimeframe={selectedTimeframe} />
               </div>
             </div>
           </div>
-  
-          <div className={`px-4 py-2 flex flex-col items-center justify-center ${darkMode ? "bg-light-container" : "bg-dark-container"} w-[50%] rounded-lg`}>
-            
+
+          <div className="w-full h-[40%]">
+            <div className={`w-full h-full border px-4 py-4 border-gray-200 rounded-lg shadow-sm  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+              <h2 className="text-left text-lg font-semibold text-orange-600 mb-4">Transaction Overview</h2>
+              
+              {/* Set a fixed height and apply overflow */}
+              <div className="overflow-y-auto h-[420px]"> 
+                <table className="min-w-full bg-white border border-gray-200 shadow rounded text-black">
+                    <thead className="bg-gray-50">
+                      <tr className="text-left text-xs font-semibold text-black uppercase tracking-wider">
+                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Transaction ID</th>
+                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Customer Name</th>
+                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Total Amount</th>
+                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Date and Time</th>
+                      </tr>
+                    </thead>
+                  <tbody>
+                    {latestTransaction.map((transaction, index) => (
+                      <tr key={index} className="border-t border-gray-200">
+                        <td className="px-6 py-4">{transaction.transaction_id}</td>
+                        <td className="px-6 py-4">{transaction.customer?.name || 'None'}</td>
+                        <td className="px-6 py-4">{transaction.total_price}</td>
+                        <td className="px-6 py-4">
+                            {(() => {
+                              const date = new Date(transaction.createdAt);
+                              const day = String(date.getDate()).padStart(2, '0');
+                              const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+                              const year = date.getFullYear();
+                              const hours = String(date.getHours()).padStart(2, '0');
+                              const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                              return `${day}-${month}-${year} ${hours}:${minutes}`;
+                            })()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Right-side content */}
+        <div className="w-[40%] h-full flex flex-col gap-4 ">
+          <div className="w-full h-[100px] flex items-center justify-start px-4 text-red-800 rounded-lg border-2 border-red-800 bg-[#F9DEDC]">
+            <GoAlertFill size={40} className="mr-4" />
+            <p className="text-5xl mr-4">{itemsLowStock || 0}</p>
+            <p className="text-xl">items need restocking</p>
+          </div>
+          <div className="w-full flex flex-col gap-4">
+          <div className={`border border-gray-200 rounded-lg shadow-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+          <div className='w-full border-b border-gray-200 px-4 py-2 flex items-center justify-start'>
+                <h2 className="text-orange-600 font-semibold text-lg">Low Stock Items</h2>
+              </div>
+
+              {/* BarChart for Low Stock Products */}
+              <div className={`p-4 w-full flex items-center justify-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                  <BarChart1 />
+              </div>
+            </div>
+
+            {/* Duplicate BarChart for Low Stock Products */}
+            <div className={`border border-gray-200 rounded-lg shadow-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+              <div className='w-full border-b border-gray-200 px-4 py-2 flex items-center justify-start'>
+                <h2 className="text-orange-600 font-semibold text-lg">Stock by Category</h2>
+              </div>
+              <div className={`p-4 w-full flex items-center justify-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                 <BarChart2 />
+              </div>
+            </div>
+            <div className={`border border-gray-200 rounded-lg shadow-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+              <div className='w-full border-b border-gray-200 px-4 py-2 flex items-center justify-start'>
+                <h2 className="text-orange-600 font-semibold text-lg">Top selling items</h2>
+              </div>
+              <div className={`p-4 w-full flex items-center justify-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                 <BarChart3 />
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
-}  
+};
 
 export default AdminHome;

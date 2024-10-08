@@ -17,6 +17,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ProductLoading from '../components/ProductLoading';
 import useSocket from '../hooks/useSocket';
+import UnitSelectionModal from "../components/UnitSelectionModal";
 
 const baseURL = 'http://localhost:5555';
 
@@ -31,6 +32,8 @@ const PosHome = () => {
   const { darkMode } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const loadingItems = Array.from({ length: 6 });
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isUnitSelectionOpen, setIsUnitSelectionOpen] = useState(false);
   const [categoryCounts, setCategoryCounts] = useState({
     'All Products': 0,
     'Components': 0,
@@ -40,34 +43,57 @@ const PosHome = () => {
     'OS & Software': 0
   });
 
+
+  
   const calculateTotal = () => cart.reduce((total, item) => total + (parseFloat(item.product.selling_price) || 0) * (item.quantity || 0), 0);
 
   const handlePayButton = () => {
+    console.log('Proceed to payment button clicked');
     if (cart.length === 0) {
       toast.error('Cart is empty! Please add products before proceeding.', { background: 'toastify-color-dark' });
-      return;
+    } else {
+      console.log('Opening payment modal');
+      setIsModalOpen(true);
     }
-    setIsModalOpen(true);
   };
+  
+
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${baseURL}/product`, {
+        headers: { 'Authorization': `Bearer ${user.token}` }
+      });
+
+      const availableProducts = response.data.data.filter(product =>
+        product.units.some(unit => unit.status === 'in_stock')
+      );
+
+      setFetchedProducts(availableProducts);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
 
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handlePaymentSuccess = async () => {
     toast.success('Payment successful!');
     setCart([]);
-
-    try {
-      const response = await axios.get(`${baseURL}/product`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
-      });
-      const availableProducts = response.data.data.filter(product => product.quantity_in_stock > 0);
-      setProducts(availableProducts);
-    } catch (error) {
-      console.error('Error fetching updated products:', error);
-    }
+    fetchProducts();
+    setIsModalOpen(false); // Close the payment modal
   };
-
-  const handlePaymentError = () => toast.error('Payment failed!', { background: 'toastify-color-dark' });
+  
+  const handlePaymentError = () => {
+    toast.error('Payment failed!', { background: 'toastify-color-dark' });
+    setIsModalOpen(false); // Close the payment modal
+  };
 
   const updateProducts = (updatedProduct) => {
     setProducts(prevProducts => {
@@ -84,39 +110,33 @@ const PosHome = () => {
   const setFetchedProducts = (fetchedProducts) => {
     setProducts(fetchedProducts);
     setFilteredProducts(fetchedProducts);
-
+  
     const counts = fetchedProducts.reduce((acc, product) => {
-      if (product.quantity_in_stock > 0) {
+      // Count the number of units that are in stock
+      const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
+  
+      if (inStockUnits > 0) {
         const category = product.category || 'Uncategorized';
-        if (!acc[category]) acc[category] = 0;
-        acc[category] += product.quantity_in_stock;
-        acc['All Products'] += product.quantity_in_stock;
+        acc[category] = (acc[category] || 0) + inStockUnits;
+        acc['All Products'] = (acc['All Products'] || 0) + inStockUnits;
       }
       return acc;
-    }, { 'All Products': 0, 'Components': 0, 'Peripherals': 0, 'Accessories': 0, 'PC Furniture': 0, 'OS & Software': 0 });
-    
-
+    }, {
+      'All Products': 0,
+      'Components': 0,
+      'Peripherals': 0,
+      'Accessories': 0,
+      'PC Furniture': 0,
+      'OS & Software': 0,
+    });
+  
     setCategoryCounts(counts);
   };
+  
+  
+  
+  useSocket(setFetchedProducts, updateProducts);
 
-  useSocket(updateProducts, setFetchedProducts);
-
-
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${baseURL}/product`, {
-        headers: { 'Authorization': `Bearer ${user.token}` }
-      });
-      
-      const availableProducts = response.data.data.filter(product => product.quantity_in_stock > 0);
-      setFetchedProducts(availableProducts);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
 
   useEffect(() => {
@@ -125,26 +145,57 @@ const PosHome = () => {
   }, [user]);
 
 
+
   useEffect(() => {
     setFilteredProducts(products.filter(product => {
       const isInCategory = selectedCategory === 'All Products' || product.category === selectedCategory;
-      const matchesSearchQuery = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.product_id.toLowerCase().includes(searchQuery.toLowerCase())
+    
+      const matchesSearchQuery = 
+        (product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (product.product_id && product.product_id.toLowerCase().includes(searchQuery.toLowerCase()));
+    
       return isInCategory && matchesSearchQuery;
     }));
+    
   }, [products, selectedCategory, searchQuery]);
   
 
   
   const handleCategoryChange = (category) => setSelectedCategory(category);
 
-  const handleAddToCart = (product) => setCart(prevCart => {
-    const existingProduct = prevCart.find(item => item.product._id === product._id);
-    if (existingProduct) {
-      return prevCart.map(item => item.product._id === product._id ? { ...item, quantity: item.quantity + 1 } : item);
-    }
-    return [...prevCart, { product, quantity: 1 }];
-  });
+  const handleAddToCart = (product) => {
+    setSelectedProduct(product);
+    setIsUnitSelectionOpen(true); // Open the unit selection modal
+  };
+
+  const handleSelectUnit = (unit) => {
+    setCart(prevCart => {
+      const existingProduct = prevCart.find(item => item.product._id === selectedProduct._id);
+      
+      if (existingProduct) {
+        const updatedCart = prevCart.map(item =>
+          item.product._id === selectedProduct._id
+            ? {
+                ...item,
+                quantity: item.quantity + 1,
+                unitIds: [...item.unitIds, unit._id], // Add the selected unit ID
+              }
+            : item
+        );
+        return updatedCart;
+      } else {
+        return [
+          ...prevCart,
+          {
+            product: selectedProduct,
+            quantity: 1,
+            unitIds: [unit._id], // Start with the selected unit ID
+          },
+        ];
+      }
+    });
+    setIsUnitSelectionOpen(false); // Close the modal after selecting a unit
+  };
 
   const handleRemoveFromCart = (productId) => setCart(prevCart => prevCart.filter(item => item.product._id !== productId));
 
@@ -156,6 +207,7 @@ const PosHome = () => {
     { icon: <MdTableRestaurant className='w-8 h-8' />, label: 'PC Furniture', count: categoryCounts['PC Furniture'] || 0 },
     { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: categoryCounts['OS & Software'] || 0 }
   ];
+  
 
   const safeToFixed = (value, decimals = 2) => {
     if (typeof value !== 'number' || isNaN(value)) {
@@ -202,22 +254,27 @@ const PosHome = () => {
               <ProductLoading key={index} />
             ))
           ) : (
-            filteredProducts.map((product) => (
-              <ProductCard
-                key={product._id}
-                product={{
-                  image: `${baseURL}/images/${product.image.substring(14)}`,
-                  name: product.name,
-                  price: parseFloat(product.selling_price) || 0,
-                  stock: product.quantity_in_stock,
-                }}
-                onClick={() => handleAddToCart(product)}
-              />
-            ))
-            
+            filteredProducts.map((product) => {
+              // Filter the units with 'in_stock' status and get the count
+              const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
+
+              return (
+                <ProductCard
+                  key={product._id}
+                  product={{
+                    image: `${baseURL}/${product.image}`,
+                    name: product.name,
+                    price: parseFloat(product.selling_price) || 0,
+                    stock: inStockUnits, // Number of units in stock
+                  }}
+                  onClick={() => handleAddToCart(product)}
+                />
+              );
+            })
           )}
         </div>
       </div>
+
 
       <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[100px] pb-4 px-4 ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container dark:text-dark-textPrimary'} rounded-xl`}>
         <div className={`overflow-y-auto h-[480px] w-full rounded-lg ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>
@@ -237,7 +294,7 @@ const PosHome = () => {
                   <tr key={idx} className='border-b-2 border-textPrimary gap-2 text-xs'>
                     <td className='flex gap-2 items-center justify-center p-2'>
                       <img
-                        src={`${baseURL}/images/${item.product.image.substring(14)}`}
+                        src={`${baseURL}/${item.product.image}`}
                         className='w-16 h-16 object-cover rounded-lg'
                       />
                       <p className='w-full font-medium'>{item.product.name}</p>
@@ -270,6 +327,14 @@ const PosHome = () => {
           >
             Proceed to Payment
           </button>
+
+          <UnitSelectionModal
+              isOpen={isUnitSelectionOpen}
+              onClose={() => setIsUnitSelectionOpen(false)}
+              product={selectedProduct}
+              onSelectUnit={handleSelectUnit}
+            />
+
           <ProceedToPayment
             isOpen={isModalOpen}
             onClose={handleCloseModal}

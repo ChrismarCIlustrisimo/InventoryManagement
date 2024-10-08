@@ -12,16 +12,17 @@ const router = express.Router();
 //router.use(requireAuth);
 
 // Define category-specific thresholds
+// Define category-specific thresholds
 const categoryThresholds = {
-  'Components': { nearLow: 10, low: 5 },
-  'Peripherals': { nearLow: 15, low: 3 },
-  'Accessories': { nearLow: 20, low: 10 },
-  'PC Furniture': { nearLow: 20, low: 10 },
-  'OS & Software': { nearLow: 10, low: 5 },
+  'Components': { low: 5 },
+  'Peripherals': { low: 3 },
+  'Accessories': { low: 10 },
+  'PC Furniture': { low: 10 },
+  'OS & Software': { low: 5 },
   // Add more categories as needed
 };
 
-// Multer configuration for file upload
+// Multer configuration for multiple file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'public/images'); // Ensure this folder exists or create it
@@ -33,43 +34,81 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Add a new product with image upload
-router.post('/', upload.single('file'), async (req, res) => {
+// Add a new product with units
+router.post('/', upload.fields([
+  { name: 'file', maxCount: 1 }, // For product image
+  { name: 'serialImages', maxCount: 200 } // For serial images
+]), async (req, res) => {
   try {
-    const { name, category, quantity_in_stock, supplier, buying_price, selling_price } = req.body;
-    const image = req.file ? req.file.path : '';
+    const { 
+      name, 
+      category, 
+      supplier, 
+      buying_price, 
+      selling_price, 
+      description, 
+      model,
+      low_stock_threshold,
+      sub_category, 
+      warranty,  // Add warranty here
+      units 
+    } = req.body;
 
     // Check for required fields
-    if (!name || !category || quantity_in_stock === undefined || buying_price === undefined || selling_price === undefined) {
+    if (!name || !category || buying_price === undefined || selling_price === undefined || !units || units.length === 0) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
+    // Parse the units from the incoming JSON string
+    const parsedUnits = JSON.parse(units);
 
-    const productId = await Product.generateProductId(); // Generate product ID
+    const processedUnits = [];
+    const mainImage = req.files['file'] ? req.files['file'][0] : null; // Get the main product image
+    const serialImages = req.files['serialImages'] || []; // Get the serial images
 
+    for (let i = 0; i < parsedUnits.length; i++) {
+      const unit = parsedUnits[i];
+
+      // Ensure the unit has a serial number
+      if (!unit.serial_number) {
+        return res.status(400).json({ message: 'Serial number is required for each unit' });
+      }
+
+      processedUnits.push({
+        serial_number: unit.serial_number,
+        serial_number_image: serialImages[i] ? `images/${serialImages[i].filename}` : '',
+        status: unit.status || 'in_stock',
+        purchase_date: new Date(unit.purchase_date || Date.now()),
+      });
+    }
+
+    // Create the product with processed units
     const product = new Product({
       name,
       category,
-      quantity_in_stock,
-      supplier, // This should be the supplier name
+      supplier,
       buying_price,
       selling_price,
-      image,
-      product_id: productId,
+      description,
+      model,
+      low_stock_threshold: low_stock_threshold ? Number(low_stock_threshold) : undefined,
+      sub_category,
+      warranty, // Add warranty here
+      image: mainImage ? `images/${mainImage.filename}` : '',
+      product_id: await Product.generateProductId(),
+      units: processedUnits,
     });
 
     await product.save();
-
-    // Emit a WebSocket event after adding the product
     req.app.get('io').emit('product-added', product);
-
     return res.status(201).json(product);
-
   } catch (error) {
     console.error('Error:', error.message);
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
+
 
 
 
@@ -94,16 +133,35 @@ router.get('/', async (req, res) => {
 
 
 // Bulk update products
+// Bulk update products
 router.put('/bulk-update', async (req, res) => {
   try {
     const updates = req.body;
-    await Product.bulkWrite(updates);
+
+    // Iterate through the updates to handle each product's update
+    for (const update of updates) {
+      const { filter, update: updateData } = update.updateOne;
+
+      // Update the product using findOneAndUpdate for a single operation
+      await Product.findOneAndUpdate(
+        filter,
+        updateData, // This will contain the $inc operation for quantity and sales
+        { new: true } // Return the updated document
+      );
+    }
+
     return res.status(200).send({ message: 'Products updated successfully' });
   } catch (error) {
     console.error(error);
     return res.status(500).send('Server Error');
   }
 });
+
+
+
+
+
+
 
 // Get a single product by ID
 router.get('/:id', async (req, res) => {
@@ -123,37 +181,35 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Use multer to handle file uploads and body parsing
+
 router.put('/:id', upload.single('file'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, category, quantity_in_stock, supplier, buying_price, selling_price, batchNumber, currentStockStatus, dateAdded, updatedAt } = req.body;
-    const file = req.file;
+    const { name, category, supplier, buying_price, selling_price, sub_category, warranty } = req.body;
+    const file = req.file; // This will contain your uploaded file
 
-    // Convert empty supplier to null
-    const supplierId = supplier === "" ? null : supplier;
+    const updates = { name, category, supplier, buying_price, selling_price, sub_category, warranty };
 
-    // Update the product
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      { name, category, quantity_in_stock, supplier: supplierId, buying_price, selling_price, batchNumber, currentStockStatus, dateAdded, updatedAt },
-      { new: true, runValidators: true }
-    );
+    if (file) {
+      updates.image = `images/${file.filename}`; // Save the image path to your database
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
 
     if (!updatedProduct) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Emit a WebSocket event after updating the product
-    req.app.get('io').emit('product-updated', updatedProduct);
-
     return res.status(200).json(updatedProduct);
-
   } catch (error) {
     console.error('Error updating product:', error.message);
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
+
+
+
 
 
 
@@ -189,19 +245,16 @@ router.post('/update-stock-status', async (req, res) => {
       const thresholds = categoryThresholds[product.category];
 
       // Update thresholds based on category
-      product.near_low_stock_threshold = thresholds.nearLow;
       product.low_stock_threshold = thresholds.low;
 
       // Determine stock status
       let status;
-      const { quantity_in_stock, low_stock_threshold, near_low_stock_threshold } = product;
+      const { quantity_in_stock, low_stock_threshold} = product;
 
       if (quantity_in_stock <= 0) {
         status = 'OUT OF STOCK';
       } else if (quantity_in_stock <= low_stock_threshold) {
         status = 'LOW';
-      } else if (quantity_in_stock <= near_low_stock_threshold) {
-        status = 'NEAR LOW';
       } else {
         status = 'HIGH';
       }
@@ -212,7 +265,6 @@ router.post('/update-stock-status', async (req, res) => {
           update: { 
             $set: { 
               current_stock_status: status,
-              near_low_stock_threshold: product.near_low_stock_threshold,
               low_stock_threshold: product.low_stock_threshold
             } 
           },
@@ -241,13 +293,8 @@ router.get('/', async (req, res) => {
     }
 
     // Fetch products with quantity_in_stock > 0
-    const products = await Product.find({ quantity_in_stock: { $gt: 0 } });
-
-    // Filter out products with sales equal to 0
-    const filteredProducts = products.filter(product => product.sales !== 0);
-
-    // Sort products
-    const sortedProducts = filteredProducts.sort((a, b) => (a.sales - b.sales) * -1);
+    const products = await Product.find();  
+    const sortedProducts = products.sort((a, b) => (a.sales - b.sales) * -1);
 
     // Send response
     return res.status(200).json({
@@ -263,6 +310,125 @@ router.get('/', async (req, res) => {
 
 
 
+
+// Add this below your existing routes in the router file
+router.get('/:id/units', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    return res.status(200).json({ units: product.units });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+router.put('/details/:id', async (req, res) => {
+  try {
+      const product = await Product.findById(req.params.id);
+      if (!product) return res.status(404).send('Product not found.');
+
+      // Update the product units and other fields as needed
+      product.units = req.body.units;
+
+      // This will trigger the pre-save hook to recalculate quantity_in_stock
+      await product.save();
+
+      res.send(product);
+  } catch (error) {
+      res.status(500).send('Error updating product.');
+  }
+});
+
+
+// Route to update a unit by its unit ID
+router.put('/:productId/unit/:unitId', async (req, res) => {
+  try {
+    const { productId, unitId } = req.params;
+    const { serial_number, status, serial_number_image, purchase_date } = req.body; // Include other fields as needed
+
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    const unit = product.units.id(unitId);
+    if (!unit) return res.status(404).json({ message: 'Unit not found' });
+
+    // Update the unit fields
+    if (serial_number !== undefined) unit.serial_number = serial_number;
+    if (status !== undefined) unit.status = status;
+    if (serial_number_image !== undefined) unit.serial_number_image = serial_number_image;
+    if (purchase_date !== undefined) unit.purchase_date = purchase_date;
+
+    await product.save(); // Save the updated product
+
+    res.status(200).json({ message: 'Unit updated successfully', unit }); // Return the updated unit
+  } catch (error) {
+    console.error('Error updating unit:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+});
+
+
+
+
+// Route to delete a unit by its unit ID
+router.delete('/:productId/unit/:unitId', async (req, res) => {
+  try {
+    const { productId, unitId } = req.params;
+
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    // Find the unit within the product's units array using the unit ID
+    const unit = product.units.id(unitId);
+    if (!unit) return res.status(404).json({ message: 'Unit not found' });
+
+    // Remove the unit from the units array
+    product.units = product.units.filter((u) => u.id !== unitId); // Filter out the unit to be deleted
+
+    await product.save(); // Save the updated product
+
+    res.status(200).json({ message: 'Unit deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting unit:', error);
+    res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+});
+
+
+
+// Add units for a specific product
+router.post('/:productId/unit', upload.fields([{ name: 'serial_number_image', maxCount: 100 }]), async (req, res) => {
+  const { productId } = req.params;
+
+  try {
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Map the serial numbers and the corresponding images from the request
+    const units = req.body.serial_number.map((serial_number, index) => ({
+      serial_number,
+      serial_number_image: req.files['serial_number_image'] ? `images/${req.files['serial_number_image'][index].filename}` : null, // Handle file upload properly
+      status: 'in_stock',
+    }));
+
+    product.units.push(...units); // Add the new units to the product's units array
+    await product.save();
+
+    res.status(201).json({ message: 'Units added successfully', units });
+  } catch (error) {
+    console.error("Error adding units:", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 export default router;

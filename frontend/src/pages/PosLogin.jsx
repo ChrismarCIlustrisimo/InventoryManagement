@@ -64,12 +64,12 @@ const PosLogin = () => {
                     <div>
                         <label htmlFor="username" className="block text-gray-700">Username</label>
                         <div className="flex items-center mt-1 border border-gray-300 rounded-lg p-2">
-                            <RiUserLine className="text-xl text-gray-500" />
+                            <RiUserLine className="text-xl text-black" />
                             <input 
                                 id="username" 
                                 type="text" 
                                 placeholder="Enter Username" 
-                                className="w-full pl-3 bg-transparent text-sm outline-none"
+                                className="w-full pl-3 bg-transparent text-sm outline-none text-black" // Added text-black
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                             />

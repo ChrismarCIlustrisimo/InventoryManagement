@@ -250,7 +250,7 @@ const DashboardSales = () => {
                                     {filteredProducts.map((product, index) => (
                                         <tr key={index} className={`border-b cursor-pointer ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
                                             <td className='flex items-center justify-left p-2'>
-                                                <img src={`${baseURL}/images/${product.image.substring(14)}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
+                                                <img src={`${baseURL}/${product.image}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
                                                 <p className='text-sm'>{product.name}</p>
                                             </td>
                                             <td className='text-center text-sm'>{product.category}</td>

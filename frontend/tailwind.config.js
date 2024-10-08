@@ -21,6 +21,7 @@ export default {
           accent3: "#CBD5E0",   // Cool Gray
           hover: "#FF6F41",
           disabled: "#D1D5DB",
+          button: "#007BFF"
         },
         // Define colors for dark mode
         dark: {

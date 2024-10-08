@@ -28,6 +28,11 @@ import ReportPage from './pages/reportPage';
 import { AppProvider } from './context/AppContext';
 import UpdateUser from './pages/UpdateUser'
 import ViewNetSalesTran from './pages/NetSalesTransactions'
+import Receipt from './pages/Receipt'
+import ViewProduct from './pages/ViewProduct';
+import UnitsTable from './pages/UnitsTable';
+import ViewTransaction from './components/ViewTransaction';
+import RMA from './pages/rma';
 
 import Ecommerce from './onlineListing/pages/Ecommerce'; 
 
@@ -49,6 +54,7 @@ const App = () => {
               <Route path="/transaction/:id" element={<PrivateRoute requiredRole="cashier"><SingleTransaction /></PrivateRoute>} />
               <Route path="/transaction" element={<PrivateRoute requiredRole="cashier"><Transaction /></PrivateRoute>} />
               <Route path="/orders" element={<PrivateRoute requiredRole="cashier"><SalesOrder /></PrivateRoute>} />
+              <Route path="/receipt" element={<PrivateRoute requiredRole="cashier"><Receipt /></PrivateRoute>} />
               <Route path="/addproduct" element={<PrivateRoute requiredRole="admin"><AddProduct /></PrivateRoute>} />
               <Route path="/update-product/:productId"  element={<PrivateRoute requiredRole="admin"><UpdateProduct /></PrivateRoute>} />
               <Route path="/inventory/supplier" element={<PrivateRoute requiredRole="admin"><Supplier /></PrivateRoute>} />
@@ -64,6 +70,10 @@ const App = () => {
               <Route path="/addUser" element={<PrivateRoute requiredRole="admin"><AddUser /></PrivateRoute>} />
               <Route path="/update-user/:userId" element={<PrivateRoute requiredRole="admin"><UpdateUser /></PrivateRoute>} />
               <Route path="/net-sales-transactions" element={<PrivateRoute requiredRole="admin"><ViewNetSalesTran /></PrivateRoute>} />
+              <Route path="/view-product/:productId" element={<PrivateRoute requiredRole="admin"><ViewProduct /></PrivateRoute>} />
+              <Route path="/units-product/:productId" element={<PrivateRoute requiredRole="admin"><UnitsTable /></PrivateRoute>} />
+              <Route path="/view-transaction/:transactionId" element={<PrivateRoute requiredRole="admin"><ViewTransaction /></PrivateRoute>} />
+              <Route path="/rma" element={<PrivateRoute requiredRole="admin"><RMA /></PrivateRoute>} />
               <Route path="/ecommerce/irigpc" element={<Ecommerce />} />
               <Route path="*" element={<Navigate to="/" />} />
               <Route path="/unauthorized" element={<Unauthorized />} />

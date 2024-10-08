@@ -9,15 +9,19 @@ import { GrPowerReset } from 'react-icons/gr';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import axios from 'axios';
-import DashboardRefund from '../components/DashboardRefund';
 import { toast, ToastContainer } from 'react-toastify';
-
-
+import { GrView } from "react-icons/gr";
+import { RiRefundLine } from "react-icons/ri";
+import { BsArrowRepeat } from "react-icons/bs";
+import ViewTransaction from '../components/ViewTransaction';
+import RMAPanel from '../components/RMAPanel';
+import RefundPanel from '../components/RefundPanel';
 
 // This component is used to display all sales orders in the dashboard.
 const DashboardTransaction = () => {
     const { user } = useAuthContext();
     const { darkMode } = useAdminTheme();
+    const navigate = useNavigate();
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [minPrice, setMinPrice] = useState('');
@@ -27,8 +31,57 @@ const DashboardTransaction = () => {
     const [salesOrder, setSalesOrder] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [cashierName, setCashierName] = useState('');
+    const [showViewPanel, setShowViewPanel] = useState(false);
+    const [showRMAPanel, setShowRMAPanel] = useState(false);
     const [showRefundPanel, setShowRefundPanel] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
+    
+    const toggleRMAPanel = (transaction, item) => {
+      if (showRMAPanel) {
+        setShowRMAPanel(false); // Close if it's already open
+      } else {
+        closeAllPanels(); // Close other panels before opening
+        setSelectedTransaction({ ...transaction, product: item });
+        setShowRMAPanel(true); // Open the RMA panel
+      }
+    };
+    
+    const toggleRefundPanel = (transaction, item) => {
+      if (showRefundPanel) {
+        setShowRefundPanel(false); // Close if it's already open
+      } else {
+        closeAllPanels(); // Close other panels before opening
+        setSelectedTransaction({ ...transaction, product: item }); // Use item here
+        setShowRefundPanel(true); // Open the Refund panel
+      }
+    };
+    
+    
+    
+    const handleViewTransaction = (transaction, item) => {
+      if (showViewPanel) {
+        setShowViewPanel(false); // Close if it's already open
+      } else {
+        closeAllPanels(); // Close other panels before opening
+        setSelectedTransaction({ ...transaction, product: item });
+        setShowViewPanel(true); // Open the View panel
+      }
+    };
+    
+    const closeAllPanels = () => {
+      setShowViewPanel(false);
+      setShowRMAPanel(false);
+      setShowRefundPanel(false);
+    };
+    
+    // This is the update to ensure the state is set correctly
+    useEffect(() => {
+      if (!showViewPanel && !showRMAPanel && !showRefundPanel) {
+        setSelectedTransaction(null);
+      }
+    }, [showViewPanel, showRMAPanel, showRefundPanel]);
+    
+  
 
     useEffect(() => {
         if (user) { 
@@ -103,11 +156,27 @@ const DashboardTransaction = () => {
         setSortBy('');
       };
 
-      const formatDate = (date) => {
-        if (!date) return 'N/A';
-        return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(new Date(date));
+      const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options).replace(/^(.*?), (.*), (.*)$/, (match, month, day, year) => {
+          return `${month.charAt(0).toUpperCase() + month.slice(1)} ${day}, ${year}`;
+        });
       };
+      
+      
 
+
+      const handleRefundSuccess = () => {
+        toast.success('Refund processed successfully!');
+        setShowViewPanel(false); // Close the refund panel
+        fetchSalesOrders(); // Refresh the sales orders
+    };
+    
+    const handleRefundError = (error) => {
+        toast.error(`Error processing refund: ${error.message}`);
+    };
+    
 
     return (
         <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
@@ -121,18 +190,18 @@ const DashboardTransaction = () => {
                     </div>
                 </div>
                 <div className='flex gap-4'>
-          <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-            <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
-            <div className='flex flex-col'>
-            <label htmlFor='CashierName' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER</label>
-            <input
-              id='CashierName'
-              value={cashierName}
-              onChange={handleCashierNameChange}
-              className={`border rounded p-2 my-1 border-none text-white outline-none ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'dark:bg-dark-primary light:text-light-textPrimary'} placeholder-white`}
-              placeholder='Search by Cashier Name'
-            />
-        </div>
+                    <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                      <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
+                      <div className='flex flex-col'>
+                      <label htmlFor='CashierName' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER</label>
+                      <input
+                        id='CashierName'
+                        value={cashierName}
+                        onChange={handleCashierNameChange}
+                        className={`border rounded p-2 my-1 border-none text-white outline-none ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'dark:bg-dark-primary light:text-light-textPrimary'} placeholder-white`}
+                        placeholder='Search by Cashier Name'
+                      />
+                  </div>
 
 
               <div className='flex flex-col'>
@@ -243,55 +312,109 @@ const DashboardTransaction = () => {
               </button>
             </div>
           </div>
-
+      
           {loading ? (
-            <Spinner />
-          ) : salesOrder.length === 0 ? (
-            <div className='w-[80%] h-[76vh] flex items-center justify-center'>
-              <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No Successful Transactions</p>
-            </div>
-          ) : (
-            <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
-                {salesOrder.map((transaction) => (
-                  <div
-                    key={transaction._id}
-                    className={`rounded-lg p-4 flex gap-4 ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}
-                  >
-                    <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
-                      <h1 className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{transaction.transaction_id || 'N/A'}</h1>
-                    </div>
-                    <div className='flex justify-between items-center w-[85%]'>
-                      <div className='p-4 w-[70%] flex flex-col gap-1'>
-                        {transaction.products.length > 0 ? (
+                <Spinner />
+              ) : salesOrder.length === 0 ? (
+                <div className='w-[80%] h-[76vh] flex items-center justify-center'>
+                  <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No Successful Transactions</p>
+                </div>
+              ) : (
+                <div className='w-[80%] h-[76vh] overflow-y-auto scrollbar-custom'>
+                    <table className={`w-full table-auto ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                      <thead>
+                        <tr className={`border-b-2 ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Transaction ID</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Sales Date</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Cashier</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Customer Name</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Product Name</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Product Code</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Serial Number</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Qty. Sold</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Status</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {salesOrder.flatMap((transaction) =>
                           transaction.products.map((item, idx) => (
-                            <p key={idx} className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
-                              ({item.quantity || 'N/A'}) {item.product?.name || 'Unknown Product'}
-                            </p>
-                          ))
-                        ) : (
-                          <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No products available</p>
-                        )}
-                      </div>
-                      <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-TABLE' : 'dark:text-dark-TABLE'}`}>
-                        <div className='flex flex-col gap-1'>
-                          <p className='text-gray-400'>DATE</p>
-                          <p className='text-gray-400'>CUSTOMER</p>
-                          <p className='text-gray-400'>TOTAL AMOUNT</p>
-                        </div>
-                        <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
-                          <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
-                          <p className='ml-auto'>{transaction.customer?.name || 'None'}</p>
-                          <p className='ml-auto'>₱ {transaction.total_price ? transaction.total_price.toFixed(2) : '0.00'}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                            <tr key={`${transaction._id}-${idx}`} className={`border-b ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {transaction.transaction_id || 'N/A'}
+                              </td>
+                              <td className={`py-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {formatDate(transaction.transaction_date)}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {transaction.cashier || 'N/A'}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {transaction.customer?.name || 'None'}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {item.product?.name || 'Unknown Product'}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {item.product?.product_id || 'N/A'}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {item.serial_number.length > 0 ? item.serial_number.join(', ') : 'N/A'}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {item.quantity || 'N/A'}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {item.item_status || 'N/A'}
+                              </td>
+                              <td className={`p-4 h-full  flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} 
+                                  onClick={() => handleViewTransaction(transaction, item)}>
+                                  <GrView size={20} />
+                              </button>
 
-            </div>
-          )}
+                              <button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} 
+                                  onClick={() => toggleRefundPanel(transaction, item)}>
+                                  <RiRefundLine size={20} />
+                              </button>
+
+                              <button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} 
+                                  onClick={() => toggleRMAPanel(transaction, item)}>
+                                  <BsArrowRepeat size={20} />
+                              </button>
+                              </td>
+                            </tr>
+                          ))  
+                        )}
+                      </tbody>
+                    </table>
+                </div>
+
+              )}
           </div>
         </div>
+        {/* Transaction Detail Modal */}
+        {showViewPanel && (
+            <ViewTransaction transaction={selectedTransaction} 
+                onClose={closeAllPanels} 
+            />
+        )}
+
+        {showRMAPanel && (
+            <RMAPanel 
+                transaction={selectedTransaction} 
+                onClose={closeAllPanels} 
+            />
+        )}
+
+        {showRefundPanel && (
+            <RefundPanel 
+                transaction={selectedTransaction} 
+                onClose={closeAllPanels} 
+            />
+        )}
+
+
       </div>
     );
 }

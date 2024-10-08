@@ -5,8 +5,8 @@ export const useLogout = () => {
 
     const logout = () => {
         dispatch({ type: 'LOGOUT' });
-        window.location.href = '/login'; 
         localStorage.removeItem('user');
+        window.location.href = '/login'; 
     };
 
     return { logout };

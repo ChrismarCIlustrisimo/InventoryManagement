@@ -33,9 +33,9 @@ import ViewProduct from './pages/ViewProduct';
 import UnitsTable from './pages/UnitsTable';
 import ViewTransaction from './components/ViewTransaction';
 import RMA from './pages/rma';
-
+import Reporting from './pages/Reporting';
 import Ecommerce from './onlineListing/pages/Ecommerce'; 
-
+import RMAForm from './pages/RMAForm';
 
 
 const App = () => {
@@ -62,8 +62,7 @@ const App = () => {
               <Route path="/update-supplier/:supplierId" element={<PrivateRoute requiredRole="admin"><UpdateSupplier /></PrivateRoute>} />
               <Route path="/Products" element={<PrivateRoute requiredRole="admin"><Product /></PrivateRoute>} />
               <Route path="/inventory/product" element={<PrivateRoute requiredRole="admin"><DashboardProductList /></PrivateRoute>} /> {/* Updated usage */}
-              <Route path="/transaction-list" element={<PrivateRoute requiredRole="admin"><DashboardTransaction /></PrivateRoute>} />
-              <Route path="/sales" element={<PrivateRoute requiredRole="admin"><DashboardSales /></PrivateRoute>} />
+              <Route path="/sales" element={<PrivateRoute requiredRole="admin"><DashboardTransaction /></PrivateRoute>} />
               <Route path="/customer" element={<PrivateRoute requiredRole="admin"><Customer /></PrivateRoute>} />
               <Route path="/profile" element={<PrivateRoute requiredRole="admin"><AdminProfile /></PrivateRoute>} />
               <Route path="/report-page" element={<PrivateRoute requiredRole="admin"><ReportPage /></PrivateRoute>} />
@@ -74,6 +73,8 @@ const App = () => {
               <Route path="/units-product/:productId" element={<PrivateRoute requiredRole="admin"><UnitsTable /></PrivateRoute>} />
               <Route path="/view-transaction/:transactionId" element={<PrivateRoute requiredRole="admin"><ViewTransaction /></PrivateRoute>} />
               <Route path="/rma" element={<PrivateRoute requiredRole="admin"><RMA /></PrivateRoute>} />
+              <Route path="/reporting" element={<PrivateRoute requiredRole="admin"><Reporting /></PrivateRoute>} />
+              <Route path="/RMAForm" element={<PrivateRoute requiredRole="admin"><RMAForm /></PrivateRoute>} />
               <Route path="/ecommerce/irigpc" element={<Ecommerce />} />
               <Route path="*" element={<Navigate to="/" />} />
               <Route path="/unauthorized" element={<Unauthorized />} />

@@ -4,29 +4,46 @@ import DashboardNavbar from "../components/DashboardNavbar";
 import { useAdminTheme } from "../context/AdminThemeContext";
 import StatsCard from "../components/StatsCard";
 import { useAuthContext } from '../hooks/useAuthContext';
-import { GoAlertFill } from "react-icons/go";
 import BarChart1 from '../charts/BarChart1';
-import BarChart2 from '../charts/BarChart2';
-import BarChart3 from '../charts/BarChart3';
-
+import TopSellingItems from '../charts/TopSellingItems';
+import LowStockItems from '../charts/LowStockItems';
+import PendingRMARequests from '../charts/PendingRMARequests';
 import LineChart from '../charts/LineChart';
+import DateRangeModal from '../components/DateRangeModal';
+import { toast, ToastContainer } from 'react-toastify';
+
 
 const AdminHome = () => {
   const { darkMode } = useAdminTheme();
   const { user } = useAuthContext();
   const baseURL = "http://localhost:5555";
-  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 30 Days'); // Set default timeframe
-  const [products, setProducts] = useState([]);
-  const [productCount, setProductCount] = useState();
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 30 Days');
   const [transactionCount, setTransactionCount] = useState([]);
   const [totalPaidPrice, setTotalPaidPrice] = useState(0);
-  const [changeSalesPercent, setChangeSalesPercent] = useState(0);  // To store the percentage change
-  const [changeProductPercent, setChangeProductPercent] = useState(0);  // To store the percentage change
+  const [changeSalesPercent, setChangeSalesPercent] = useState(0);  
+  const [changeProductPercent, setChangeProductPercent] = useState(0);  
   const [transactionChangePercent, setTransactionChangePercent] = useState(0);
   const [itemsLowStock, setIitemsLowStock] = useState(0);
-  const [latestTransaction, setLatestTransaction] = useState([]);
+  const [topSellingItems, setTopSellingItems] = useState([]);
+  const [lowStockItems, setLowStockItems] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customStart, setCustomStart] = useState(null);
+  const [customEnd, setCustomEnd] = useState(null);
+  const [rmaRequests, setRmaRequests] = useState([]);
 
-
+  useEffect(() => {
+    const fetchRMARequests = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/rma`);
+        setRmaRequests(response.data);
+        console.log("RMA data fetched successfully:", response.data);
+      } catch (err) {
+        console.error("Error fetching RMA data:", err);
+      }
+    };
+  
+      fetchRMARequests();
+  }, []); 
 
   const fetchProducts = async () => {
     try {
@@ -40,11 +57,11 @@ const AdminHome = () => {
       const totalCount = response.data.count;
 
       // Filter products where no unit is 'in_stock'
-      const outOfStockProducts = products.filter(product => 
-        product.units.every(unit => unit.status !== 'in_stock')
+      const lowStockProduct = products.filter(product => 
+        (product.current_stock_status === 'LOW')
       );
 
-      setIitemsLowStock(outOfStockProducts.length);
+      setIitemsLowStock(lowStockProduct.length);
   
       // Get current month and year
       const now = new Date();
@@ -81,10 +98,20 @@ const AdminHome = () => {
           current_stock_status: stockStatus,
         };
       });
-  
-      setProducts(updatedProducts);
-      setProductCount(totalCount);
-      
+
+      // Filter products that have low stock status and at least one unit in stock
+      const filteredProducts = products.filter(product => 
+        product.current_stock_status === 'LOW' &&
+        product.units.some(unit => unit.status === 'in_stock')
+      );
+
+      // Slice the filtered products to get a maximum of 5
+      const limitedProducts = filteredProducts.slice(0, 5);
+
+      const sortedProducts = products.sort((a, b) => b.sales - a.sales).slice(0, 5);
+
+      setTopSellingItems(sortedProducts);
+      setLowStockItems(limitedProducts);
   
       // Calculate the remaining products after subtracting this month's count
       const remainingProductsCount = totalCount - currentMonthCount;
@@ -103,9 +130,9 @@ const AdminHome = () => {
   
 
 
-  const fetchSalesOrders = async () => {
+  const fetchSalesOrders = async () => { 
     try {
-      const response = await axios.get('http://localhost:5555/transaction', {
+      const response = await axios.get(`${baseURL}/transaction`, {
         params: {
           payment_status: 'paid',
         },
@@ -113,62 +140,50 @@ const AdminHome = () => {
           'Authorization': `Bearer ${user.token}`,
         },
       });
-  
-      const transactions = response.data.data;
-      const transactionsCount = response.data.count;
 
-      
-      setLatestTransaction(transactions.slice(0, 10));
-  
-      // Filter transactions by the current and previous months
+      const transactions = response.data.data;
+
+      // Get current and previous month
       const now = new Date();
       const currentMonth = now.getMonth();
       const previousMonth = new Date(now.setMonth(now.getMonth() - 1));
 
-  
+      // Filter transactions by current month
       const currentMonthTransactions = transactions.filter(transaction => {
         const transactionDate = new Date(transaction.createdAt);
-        return transactionDate.getMonth() === currentMonth;
+        return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === now.getFullYear();
       });
-  
-      const lastMonthTransactions = transactions.filter(transaction => {
-        const transactionDate = new Date(transaction.createdAt);
-        return transactionDate.getMonth() === previousMonth.getMonth();
-      });
-  
-      // Calculate gross sales for each month
-      const currentMonthSales = currentMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
-      const lastMonthSales = lastMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
-  
-      // Calculate percent change
-      const changePercent = lastMonthSales === 0 
-        ? 100  // Avoid division by zero if last month had no sales
-        : ((currentMonthSales - lastMonthSales) / lastMonthSales) * 100;
-  
-      // Format the changePercent to two decimal places
-      const formattedChangePercent = parseFloat(changePercent.toFixed(2)); 
-      // Calculate net sales (same as before)
-      const totalCostOfSoldProducts = currentMonthTransactions.reduce((total, transaction) => {
-        return total + transaction.products.reduce((sum, product) => sum + (product.product.buying_price * product.quantity), 0);
-      }, 0);
 
-      const netSales = currentMonthSales - totalCostOfSoldProducts;
-      // Corrected line
-      const changeCountPercent = lastMonthSales === 0 
-        ? 100 
-        : ((lastMonthTransactions.length - currentMonthTransactions.length) / lastMonthTransactions.length) * 100;
+      // Count transactions for the current month
+      const currentMonthTransactionCount = currentMonthTransactions.length;
+
+      // Calculate gross sales for the current month
+      const currentMonthSales = currentMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
 
       // Update state with calculated values
-      setTotalPaidPrice(netSales);
-      setTransactionCount(transactionsCount);
-      setChangeSalesPercent(formattedChangePercent);
-      setTransactionChangePercent(changeCountPercent)
+      setTotalPaidPrice(currentMonthSales);
+      setTransactionCount(currentMonthTransactionCount);
+
+      // Calculate last month sales for percentage change
+      const lastMonthTransactions = transactions.filter(transaction => {
+        const transactionDate = new Date(transaction.createdAt);
+        return transactionDate.getMonth() === previousMonth.getMonth() && transactionDate.getFullYear() === previousMonth.getFullYear();
+      });
+
+      const lastMonthSales = lastMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
+      const changePercent = lastMonthSales === 0 ? 100 : ((currentMonthSales - lastMonthSales) / lastMonthSales) * 100;
+      setChangeSalesPercent(parseFloat(changePercent.toFixed(2))); 
+
+      // Calculate transaction change percentage
+      const transactionChangePercent = lastMonthTransactions.length === 0 ? 100 : ((currentMonthTransactionCount - lastMonthTransactions.length) / lastMonthTransactions.length) * 100;
+      setTransactionChangePercent(parseFloat(transactionChangePercent.toFixed(2)));
+
     } catch (error) {
       console.error('Error fetching sales orders:', error);
     }
   };
   
-  
+
   
   
   useEffect(() => {
@@ -179,159 +194,129 @@ const AdminHome = () => {
   }, [user, location.pathname]);
 
 
-
   const handleDropdownChange = (event) => {
-    setSelectedTimeframe(event.target.value); // Update selected timeframe
+    const value = event.target.value;
+    setSelectedTimeframe(value);
+
+    // Open modal for custom range selection
+    if (value === 'Custom Range') {
+      setIsModalOpen(true);
+    }
   };
 
-    const formatPrice = (price) => {
-      if (price >= 1000) {
-        return (price / 1000).toFixed(1) + 'k';
-      }
-      return price.toString();
-    };
-    
+  const handleDateRangeConfirm = (startDate, endDate) => {
+    setCustomStart(startDate);
+    setCustomEnd(endDate);
+  };
+  
 
+  
   return (
     <div className={`${darkMode ? "bg-light-bg" : "dark:bg-dark-bg"} h-auto flex gap-1 overflow-y-hidden`}>
       <DashboardNavbar />
-      <div className="w-full h-min-full p-6 pt-[100px] flex gap-4">
-        <div className="flex flex-col items-center justify-between w-[60%] h-full gap-4">
-          <div className="h-[15%] flex items-center justify-center gap-4">
-                <StatsCard
-                  title={'Total Product'}
-                  value={productCount}
-                  changeType={changeProductPercent >= 0 ? 'increase' : 'decrease'}
-                  changePercent={changeProductPercent.toFixed(2)} // Displaying 2 decimal places
-                  className={`${darkMode ? 'bg-light-primary' : 'bg-dark-primary'} text-white shadow-lg`}
-                  percenText={'from this month'}
-                />
-                <StatsCard
-                  title={'Total Sales'}
-                  value={formatPrice(totalPaidPrice)}  // Format the totalPaidPrice before displaying it
-                  changeType={changeSalesPercent >= 0 ? 'increase' : 'decrease'}  // Set the type based on percent change
-                  changePercent={Math.abs(changeSalesPercent.toFixed(2))}  // Show the absolute value of the percent change
-                  className={`bg-[#14AE5C] text-white shadow-lg`}  // Additional custom styles
-                  percenText={'from last month'}
-                />
+      <div className="w-[100vw] h-[170vh] pt-6 px-6 pt-[100px] flex gap-4 flex-col border border-red-800">
+        <div className='w-full h-[20%] max-h-[180px]  flex items-center gap-4'>
+        <StatsCard
+            title={'Monthly Total Sales'}
+            value={totalPaidPrice.toLocaleString('en-US', { style: 'currency', currency: 'PHP', minimumFractionDigits: 0, maximumFractionDigits: 0 })} // Format without decimal places
+            changeType={changeSalesPercent >= 0 ? 'increase' : 'decrease'}  // Set the type based on percent change
+            changePercent={Math.abs(changeSalesPercent)}  // Show the absolute value of the percent change
+            bgColor={`bg-[#14AE5C]`}  // Additional custom styles
+            percenText={'from last month'}
+            width="w-[30%]"
+        />
 
-                <StatsCard
-                  title={'Total Transactions'}
-                  value={transactionCount}
-                  changeType={'increase'}
-                  changePercent={Math.abs(transactionChangePercent.toFixed(2))}
-                  className={`bg-[#FF9500] text-white shadow-lg`} // Additional custom styles
-                  percenText={'from last month'}
-                />
+          <StatsCard
+            title={'Monthly Total Transactions'}
+            value={transactionCount}
+            changeType={transactionChangePercent >= 0 ? 'increase' : 'decrease'}  // Set type based on percent change
+            changePercent={Math.abs(transactionChangePercent)} // Absolute value of the percent change
+            bgColor={`bg-[#E8B931]`} // Additional custom styles
+            percenText={'from last month'}
+            width="w-[25%]"
+          />
+        <StatsCard
+            title={'Low Stock Alert'}
+            value={itemsLowStock}
+            changeType={'increase'}
+            bgColor={`bg-[#EC221F]`} // Additional custom styles
+            percenText={'from last month'}
+            showPercent={false} 
+            warning={true}
+            width="w-[22.5%]"
 
-          </div>
+        />
+        <StatsCard
+            title={'Refund / Return Rate'}
+            value={transactionCount}
+            changeType={'increase'}
+            bgColor={`bg-[#14AE5C]`}  // Additional custom styles
+            percenText={'from last month'}
+            showPercent={false} 
+            percent={true}
+            width="w-[22.5%]"
 
-          <div className="w-full h-[40%]">
-           <div className={`w-full h-full px-12 py-6 border border-gray-200 rounded-lg shadow-sm  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-              <div className="w-full h-[10%] flex items-center justify-between">
-                 <h2 className="text-center text-lg font-semibold text-orange-600">Sales Overview</h2>
-                 <select
-                    value={selectedTimeframe}
-                    onChange={handleDropdownChange}
-                    className="border border-black text-black rounded-md p-2"
-                  >
-                    <option value="Last 7 Days">Last 7 Days</option>
-                    <option value="Last 30 Days">Last 30 Days</option>
-                    <option value="Last 3 Months">Last 3 Months</option>
-                    <option value="Last 6 Months">Last 6 Months</option>
-                    <option value="This Year">This Year</option>
-                    <option value="Custom Range">Custom Range</option>
-                  </select>
-              </div>
-              <div className="w-full h-[90%]">
-                <LineChart selectedTimeframe={selectedTimeframe} />
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full h-[40%]">
-            <div className={`w-full h-full border px-4 py-4 border-gray-200 rounded-lg shadow-sm  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-              <h2 className="text-left text-lg font-semibold text-orange-600 mb-4">Transaction Overview</h2>
-              
-              {/* Set a fixed height and apply overflow */}
-              <div className="overflow-y-auto h-[420px]"> 
-                <table className="min-w-full bg-white border border-gray-200 shadow rounded text-black">
-                    <thead className="bg-gray-50">
-                      <tr className="text-left text-xs font-semibold text-black uppercase tracking-wider">
-                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Transaction ID</th>
-                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Customer Name</th>
-                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Total Amount</th>
-                        <th className="px-6 py-3 sticky top-0 bg-gray-50 z-10">Date and Time</th>
-                      </tr>
-                    </thead>
-                  <tbody>
-                    {latestTransaction.map((transaction, index) => (
-                      <tr key={index} className="border-t border-gray-200">
-                        <td className="px-6 py-4">{transaction.transaction_id}</td>
-                        <td className="px-6 py-4">{transaction.customer?.name || 'None'}</td>
-                        <td className="px-6 py-4">{transaction.total_price}</td>
-                        <td className="px-6 py-4">
-                            {(() => {
-                              const date = new Date(transaction.createdAt);
-                              const day = String(date.getDate()).padStart(2, '0');
-                              const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
-                              const year = date.getFullYear();
-                              const hours = String(date.getHours()).padStart(2, '0');
-                              const minutes = String(date.getMinutes()).padStart(2, '0');
-
-                              return `${day}-${month}-${year} ${hours}:${minutes}`;
-                            })()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
+        />
         </div>
+        <div className='w-full h-[80%] '>
+          <div className='w-full h-full flex flex-col gap-4'>
+              <div className='w-full h-[50%] flex gap-4 pb-4'>
+                  <div className={`w-[60%] h-full px-12 py-6 border border-gray-200 rounded-lg shadow-lg  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                    <div className="w-full h-[10%] flex items-center justify-between">
+                      <h2 className="text-center text-lg font-semibold text-orange-600">Sales Overview</h2>
+                      <select
+                        value={selectedTimeframe}
+                        onChange={handleDropdownChange}
+                        className={`border-none outline-none bg-transparent ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
+                      >
+                        <option value="Last 7 Days" disabled={selectedTimeframe === 'Last 7 Days'}>Last 7 Days</option>
+                        <option value="Last 30 Days" disabled={selectedTimeframe === 'Last 30 Days'}>Last 30 Days</option>
+                        <option value="Last 3 Months" disabled={selectedTimeframe === 'Last 3 Months'}>Last 3 Months</option>
+                        <option value="Last 6 Months" disabled={selectedTimeframe === 'Last 6 Months'}>Last 6 Months</option>
+                        <option value="This Year" disabled={selectedTimeframe === 'This Year'}>This Year</option>
+                        <option value="Custom Range" disabled={selectedTimeframe === 'Custom Range'}>Custom Range</option>
+                      </select>
 
-        {/* Right-side content */}
-        <div className="w-[40%] h-full flex flex-col gap-4 ">
-          <div className="w-full h-[100px] flex items-center justify-start px-4 text-red-800 rounded-lg border-2 border-red-800 bg-[#F9DEDC]">
-            <GoAlertFill size={40} className="mr-4" />
-            <p className="text-5xl mr-4">{itemsLowStock || 0}</p>
-            <p className="text-xl">items need restocking</p>
-          </div>
-          <div className="w-full flex flex-col gap-4">
-          <div className={`border border-gray-200 rounded-lg shadow-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-          <div className='w-full border-b border-gray-200 px-4 py-2 flex items-center justify-start'>
-                <h2 className="text-orange-600 font-semibold text-lg">Low Stock Items</h2>
+                        <DateRangeModal
+                          isOpen={isModalOpen}
+                          onClose={() => setIsModalOpen(false)}
+                          onConfirm={handleDateRangeConfirm}
+                        />
+
+
+                     </div>
+                     <div className="w-full h-[90%]">
+                      <LineChart 
+                        selectedTimeframe={selectedTimeframe} 
+                        customStart={customStart}
+                        customEnd={customEnd}
+                      />
+                    </div>
+                  </div>
+
+                    <div className={`w-[40%] h-full px-12 py-6 border border-gray-200 rounded-lg shadow-lg  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                        <div className="w-full h-[10%] flex items-center justify-between">
+                          <h2 className="text-center text-lg font-semibold text-orange-600">Sales Overview</h2>
+                        </div>
+                        <div className="w-full h-[90%]">
+                          <BarChart1 />
+                        </div>
+                    </div>
+
+          
               </div>
 
-              {/* BarChart for Low Stock Products */}
-              <div className={`p-4 w-full flex items-center justify-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-                  <BarChart1 />
+              <div className='w-full h-[50%] flex gap-4'>
+                <TopSellingItems topSellingItems={topSellingItems} />
+                <LowStockItems lowStockItems={lowStockItems} />
+                <PendingRMARequests rmaRequests={rmaRequests} />
               </div>
-            </div>
+              <ToastContainer />
 
-            {/* Duplicate BarChart for Low Stock Products */}
-            <div className={`border border-gray-200 rounded-lg shadow-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-              <div className='w-full border-b border-gray-200 px-4 py-2 flex items-center justify-start'>
-                <h2 className="text-orange-600 font-semibold text-lg">Stock by Category</h2>
-              </div>
-              <div className={`p-4 w-full flex items-center justify-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-                 <BarChart2 />
-              </div>
-            </div>
-            <div className={`border border-gray-200 rounded-lg shadow-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-              <div className='w-full border-b border-gray-200 px-4 py-2 flex items-center justify-start'>
-                <h2 className="text-orange-600 font-semibold text-lg">Top selling items</h2>
-              </div>
-              <div className={`p-4 w-full flex items-center justify-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-                 <BarChart3 />
-              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

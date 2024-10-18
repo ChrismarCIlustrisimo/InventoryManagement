@@ -120,8 +120,6 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         payment_status: 'paid'
       };
 
-      // Log the transaction data
-      console.log('Received transaction data:', transactionData);
 
       // Validate and flatten serial numbers
       const serialNumbersToUpdate = transactionData.products.flatMap(product => {
@@ -138,12 +136,15 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
       }
 
       // Step 3: Create the Transaction
-      await axios.post(`${baseURL}/transaction`, transactionData, {
+      const transactionResponse = await axios.post(`${baseURL}/transaction`, transactionData, {
         headers: {
           'Authorization': `Bearer ${user.token}`,
           'Content-Type': 'application/json'
         }
       });
+  
+
+      const transactionId = transactionResponse.data.transaction_id; 
 
       // Step 4: Update Sales Only
       const updates = cart.map(item => ({
@@ -165,7 +166,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         },
       });
 
-      navigate('/receipt', { state: { transaction: transactionData } });
+      navigate('/receipt', { state: { transaction: transactionData,  transactionId: transactionId } });
       onClose(); // Close the modal
       onPaymentSuccess(transactionData);
     } catch (error) {

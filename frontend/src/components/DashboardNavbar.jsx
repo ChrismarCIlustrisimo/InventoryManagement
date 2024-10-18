@@ -4,16 +4,15 @@ import axios from 'axios';
 import light from '../assets/iControlLoginLogo.png';
 import dark from '../assets/iControlLight.png';
 import { useAdminTheme } from '../context/AdminThemeContext';
-import { GrTransaction } from "react-icons/gr";
 import { PiCubeBold } from "react-icons/pi";
 import { RiDashboard2Line } from "react-icons/ri";
-import { TiArrowSortedDown, TiArrowSortedUp } from "react-icons/ti";
 import { BiSolidReport } from "react-icons/bi";
 import { BsArrowRepeat } from "react-icons/bs";
 import DashboardProfile from './DashboardProfile';
 import { useAuthContext } from '../hooks/useAuthContext';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
+import { BiReceipt } from "react-icons/bi";
 
 // Styled Badge components with custom colors
 const LowStockBadge = styled(Badge)(({ theme }) => ({
@@ -40,7 +39,7 @@ const DashboardNavbar = () => {
 
   useEffect(() => {
     const path = location.pathname;
-    if (path.startsWith('/sales') || path.startsWith('/customer')) { // Update this line
+    if (path.startsWith('/sales') || path.startsWith('/customer')) {
       setSelected('Sales');
     } else if (path === '/transaction-list') {
       setSelected('Transaction');
@@ -50,9 +49,9 @@ const DashboardNavbar = () => {
       setSelected('Dashboard');
     } else if (path === '/inventory/product') {
       setSelected('Inventory');
-    } else if (path === '/rma') { // New path for RMA
+    } else if (path === '/rma') {
       setSelected('RMA');
-    } else if (path === '/reporting') { // New path for Reporting
+    } else if (path === '/reporting') {
       setSelected('Reporting');
     } else {
       setSelected('');
@@ -76,7 +75,7 @@ const DashboardNavbar = () => {
       // Update stock status based on available units using product-specific thresholds
       const updatedProducts = productData.map(product => {
         const availableUnits = product.units.filter(unit => unit.status === 'in_stock').length;
-        const { low_stock_threshold, near_low_stock_threshold } = product; // Use thresholds from product
+        const { low_stock_threshold, near_low_stock_threshold } = product;
 
         let stockStatus = 'IN STOCK';
         if (availableUnits === 0) {
@@ -147,14 +146,14 @@ const DashboardNavbar = () => {
           </button>
         </Link>
 
-        {/* Transaction Button */}
-        <Link to="/transaction-list" className="flex-1">
+        {/* Sales Button */}
+        <Link to="/sales" className="flex-1">
           <button
-            className={`text-sm p-2 ${selected === 'Transaction' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` }  rounded-[24px] w-full flex items-center justify-center gap-2 border`}
-            onClick={() => setSelected('Transaction')}
+            className={`text-sm p-2 ${selected === 'Sales' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            onClick={() => setSelected('Sales')}
           >
-            <GrTransaction className='text-lg' />
-            <span>Transaction</span>
+            <BiReceipt className='text-lg' />
+            <span>Sales</span>
           </button>
         </Link>
 
@@ -180,8 +179,6 @@ const DashboardNavbar = () => {
           </button>
         </Link>
       </div>
-
-      {/* User Profile */}
       <DashboardProfile />
     </div>
   );

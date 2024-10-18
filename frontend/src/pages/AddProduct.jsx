@@ -35,7 +35,6 @@ const AddProduct = () => {
   const [warranty, setWarranty] = useState('');
   const fileInputRef = useRef(null);
   const [serialNumberImages, setSerialNumberImages] = useState([]); 
-  const [currentProgress, setCurrentProgress] = useState(0);
   const [editModes, setEditModes] = useState(Array(serialNumbers.length).fill(false));
   const [savedCount, setSavedCount] = useState(0);
   const [subCategories, setSubCategories] = useState([]);
@@ -93,7 +92,6 @@ const handleCheckClick = (index) => {
     return newEditModes;
   });
 
-  setCurrentProgress(prev => Math.min(prev + 1, quantity)); // Increase progress after save
   setSavedCount(prevCount => Math.min(prevCount + 1, quantity)); // Increment saved count
 };
 
@@ -106,7 +104,6 @@ const handleEditClick = (index) => {
   });
 
   setSavedCount(prevCount => Math.max(prevCount - 1, 0));   // Decrement the saved count when entering edit mode
-  setCurrentProgress(prev => Math.max(prev - 1, 0));   // Decrement progress as well 
 };
 
 
@@ -235,7 +232,6 @@ const handleEditClick = (index) => {
 
   const handleQuantityChange = (value) => {
     setQuantity(value);
-    setCurrentProgress(0);
     setSerialNumbers(Array.from({ length: value }, () => ({ serialNumber: '', image: null })));
     setSerialNumberImages(Array(value).fill(null));
   };
@@ -383,7 +379,6 @@ const handleEditClick = (index) => {
               <ProductModal
                 openModal={openModal}
                 handleCloseModal={handleCloseModal}
-                currentProgress={currentProgress}
                 quantity={quantity}
                 handleQuantityChange={handleQuantityChange}
                 serialNumbers={serialNumbers}
@@ -395,7 +390,6 @@ const handleEditClick = (index) => {
                 handleCheckClick={handleCheckClick}
                 handleSerialNumberImageChange={handleSerialNumberImageChange}
                 upload={upload}
-                darkMode={darkMode}
             />
       
 

@@ -7,6 +7,7 @@ import customerRoutes from './routes/customerRoute.js';
 import transactionRoutes from './routes/transactionRoute.js';
 import userRoute from './routes/userRoute.js';
 import SupplierRoute from './routes/supplierRoute.js';
+import RMARoute from './routes/RMARoute.js';
 import Counter from './models/counterModel.js';
 import { mongoDBURL, PORT } from './config.js';
 import cleanupExpiredTransactions from './middleware/cleanupExpiredTransactions.js';
@@ -48,6 +49,8 @@ app.use('/customer', customerRoutes);
 app.use('/transaction', transactionRoutes);
 app.use('/user', userRoute);
 app.use('/supplier', SupplierRoute);
+app.use('/rma', RMARoute);
+
 
 // WebSocket connection
 io.on('connection', (socket) => {

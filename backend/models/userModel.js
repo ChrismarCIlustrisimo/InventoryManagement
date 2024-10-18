@@ -65,10 +65,12 @@ userSchema.statics.login = async function(username, password, role) {
         throw new Error('Incorrect password');
     }
 
-    // Check if the provided role matches the user’s actual role
-    if (role === 'cashier' && user.role !== 'cashier') {
+    // Allow admin to access cashier functionality
+    if (role === 'cashier' && user.role !== 'cashier' && user.role !== 'admin') {
         throw new Error('User is not a cashier');
     }
+
+    // If the user is an admin, allow them to log in regardless of the specified role
     if (role === 'admin' && user.role !== 'admin') {
         throw new Error('User is not an admin');
     }

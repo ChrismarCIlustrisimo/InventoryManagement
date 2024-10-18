@@ -144,7 +144,7 @@ const UpdateProduct = () => {
   };
 
   return (
-    <div className={`flex flex-col h-screen ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-dark-bg'}`}>
+    <div className={`flex flex-col h-auto ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-dark-bg'}`}>
       <div className='flex items-center justify-between h-[8%] p-4'>
         <button className={`flex gap-2 items-center py-2 px-4 rounded-md ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} hover:underline`} onClick={handleBackClick}>
           <IoCaretBackOutline /> Back to inventory
@@ -250,7 +250,7 @@ const UpdateProduct = () => {
       </div>
 
       {/* Footer Section */}
-      <div className={`w-full h-[10%] px-4 py-6 border-t flex items-center justify-end ${darkMode ? 'bg-light-CARD border-light-primary' : 'bg-dark-CARD border-dark-primary'}`}>
+      <div className={`w-full h-[10%] px-4 py-3 border-t flex items-center justify-end ${darkMode ? 'bg-light-CARD border-light-primary' : 'bg-dark-CARD border-dark-primary'}`}>
         <div className="flex items-center gap-4">
           <button type="button" onClick={handleBackClick} className={`px-4 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Cancel</button>
           <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>

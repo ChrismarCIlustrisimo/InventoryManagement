@@ -117,7 +117,7 @@ const ViewProduct = () => {
       <div className="p-8 bg-transparent"> {/* Removed min-h-screen */}
       {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800">{product.name}</h1>
+          <h1 className={`text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{product.name}</h1>
           <div className="flex space-x-4">
           <button
                 className="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded-md transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg"
@@ -127,7 +127,7 @@ const ViewProduct = () => {
               </button>
             <button
                 className={`${
-                  darkMode ? 'bg-light-button hover:bg-light-button-hover' : 'bg-dark-button hover:bg-dark-button-hover'
+                  darkMode ? 'bg-light-button hover:bg-light-button-hover' : 'bg-dark-textSecondary hover:bg-dark-button-hover'
                 } text-dark-textPrimary py-2 px-4 rounded-md transition-transform duration-200 ease-in-out transform hover:scale-105 hover:shadow-lg`}
                 onClick={() => setIsModalOpen(true)}
               >
@@ -142,11 +142,11 @@ const ViewProduct = () => {
         <div className="grid grid-cols-3 gap-8 ">
           {/* Left Section: Image */}
           <div className="col-span-1">
-            <div className=' bg-white rounded-lg shadow-md p-4 flex items-center justify-center'>
+            <div className={`rounded-lg shadow-md p-4 flex items-center justify-center ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
                <img src={`${baseURL}/${product.image}`} alt={product.name} className='w-[300px] h-[300px] object-cover rounded-md' />
             </div>
 
-            <div className='mt-4 text-md bg-white rounded-lg shadow-md p-4 font-medium flex py-4'>
+            <div className={`mt-4 text-md rounded-lg shadow-md p-4 font-medium flex py-4 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
               <div className='w-[40%] flex flex-col justify-between h-full gap-4'>
                 <p>Date Added</p>
                 <p>Date Updated</p>
@@ -159,7 +159,7 @@ const ViewProduct = () => {
           </div>
 
           {/* Middle Section: Basic Information */}
-          <div className="col-span-1 bg-white rounded-lg shadow-md p-6 w-full h-full">
+          <div className={`col-span-1 rounded-lg shadow-md p-6 w-full h-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
             <h2 className="text-xl font-bold mb-4">Basic information</h2>
             <div className='mt-4 text-md p-4 font-medium flex py-4'>
               <div className={`w-[50%] flex flex-col justify-between h-full gap-6 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
@@ -187,7 +187,7 @@ const ViewProduct = () => {
           {/* Right Section: Purchase Info and Stock Level */}
           <div className="col-span-1 space-y-8">
             {/* Purchase Information */}
-            <div className="bg-white rounded-lg shadow-md p-6">
+            <div className={`rounded-lg shadow-md p-6 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
               <h2 className="text-xl font-bold mb-4">Purchase information</h2>
               <div className='mt-4 text-md p-4 font-medium flex py-4'>
               <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
@@ -204,7 +204,7 @@ const ViewProduct = () => {
             </div>
 
             {/* Stock Level */}
-            <div className="bg-white rounded-lg shadow-md p-6 w-full ">
+            <div className={`rounded-lg shadow-md p-6 w-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
               <h2 className="text-xl font-bold mb-4">Stock Level</h2>
               <div className='mt-4 text-md p-4 font-medium flex py-4 '>
               <div className={`w-[70%] flex flex-col justify-between h-full gap-4  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>

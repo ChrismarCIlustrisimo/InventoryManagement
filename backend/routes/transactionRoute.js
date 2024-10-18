@@ -156,17 +156,17 @@ router.get('/', async (req, res) => {
     if (req.query.payment_status) {
       query.payment_status = req.query.payment_status;
     }
-    
 
     if (req.query.transaction_id) {
-      query.transaction_id = { $regex: req.query.transaction_id, $options: 'i' }; // Partial match for transaction_id
+      query.transaction_id = { $regex: req.query.transaction_id, $options: 'i' };
     }
 
-    // Add condition for cashier name with partial matching
+    // Filter by cashier name with partial matching
     if (req.query.cashier) {
       query.cashier = { $regex: req.query.cashier, $options: 'i' }; 
     }
 
+    // Date filtering
     if (req.query.startDate && req.query.endDate) {
       query.transaction_date = {
         $gte: new Date(req.query.startDate),
@@ -177,41 +177,47 @@ router.get('/', async (req, res) => {
     } else if (req.query.endDate) {
       query.transaction_date = { $lte: new Date(req.query.endDate) };
     }
-    
 
-    if (req.query.minPrice && req.query.maxPrice) {
-      query.total_price = {
-        $gte: parseInt(req.query.minPrice),
-        $lte: parseInt(req.query.maxPrice),
-      };
-    } else if (req.query.minPrice) {
-      query.total_price = { $gte: parseInt(req.query.minPrice) };
-    } else if (req.query.maxPrice) {
-      query.total_price = { $lte: parseInt(req.query.maxPrice) };
+    // Apply status filters
+    if (req.query.statusFilters) {
+      const statusFilters = JSON.parse(req.query.statusFilters);
+      const itemStatusConditions = [];
+      
+      if (statusFilters.Completed) {
+        itemStatusConditions.push({ item_status: 'Completed' });
+      }
+      if (statusFilters.Refunded) {
+        itemStatusConditions.push({ item_status: 'Refunded' });
+      }
+      
+      if (itemStatusConditions.length > 0) {
+        query.products = {
+          $elemMatch: { $or: itemStatusConditions }
+        };
+
+        
+      }
     }
 
+
+
+    // Sorting
     let sort = {};
 
-    if (req.query.sortBy === 'price_asc') {
-      sort = { total_price: 1 };
-    } else if (req.query.sortBy === 'price_desc') {
-      sort = { total_price: -1 };
-    } else if (req.query.sortBy === 'customer_name_asc') {
-      sort = { 'customer.name': 1 };
-    } else if (req.query.sortBy === 'customer_name_desc') {
-      sort = { 'customer.name': -1 };
-    } else if (req.query.sortBy === 'transaction_id_desc') {
-      sort = { transaction_id: -1 };
-    } else if (req.query.sortBy === 'transaction_id_asc') {
-      sort = { transaction_id: 1 };
-    } else {
-      sort = { transaction_id: 1 };
-    }
-
+    // Populate customer while querying
     const transactions = await Transaction.find(query)
       .populate('products.product')
       .populate('customer')
       .sort(sort);
+
+    // If a customer name filter is applied, filter the results after population
+    if (req.query.customer) {
+      const customerRegex = new RegExp(req.query.customer, 'i'); // Case-insensitive regex
+      const filteredTransactions = transactions.filter(transaction =>
+        transaction.customer && customerRegex.test(transaction.customer.name)
+      );
+      return res.status(200).json({ count: filteredTransactions.length, data: filteredTransactions });
+    }
 
     return res.status(200).json({ count: transactions.length, data: transactions });
 
@@ -220,6 +226,9 @@ router.get('/', async (req, res) => {
     return res.status(500).send('Server Error');
   }
 });
+
+
+
 
 
 
@@ -349,5 +358,8 @@ router.delete('/:id', async (req, res) => {
     return res.status(500).send('Server Error');
   }
 });
+
+
+
 
 export default router;

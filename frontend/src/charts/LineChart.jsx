@@ -17,17 +17,17 @@ import axios from 'axios';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-const LineChart = ({ selectedTimeframe }) => {
+const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
   const [salesData, setSalesData] = useState([]);
   const { user } = useAuthContext();
-  const { darkMode } = useAdminTheme(); // Access darkMode from AdminThemeContext
+  const { darkMode } = useAdminTheme(); 
 
   const fetchSalesOrders = async () => {
     try {
-      const endDate = new Date();
+      let endDate = new Date();
       let startDate = new Date();
   
-      // Adjust date range based on selected timeframe
+      // Adjust date range based on selected timeframe or custom dates
       switch (selectedTimeframe) {
         case 'Last 7 Days':
           startDate.setDate(endDate.getDate() - 7);
@@ -42,7 +42,13 @@ const LineChart = ({ selectedTimeframe }) => {
           startDate.setMonth(endDate.getMonth() - 6);
           break;
         case 'This Year':
-          startDate.setMonth(0, 1); // January 1st of this year
+          startDate.setMonth(0, 1);
+          break;
+        case 'Custom Range':
+          if (customStart && customEnd) {
+            startDate = new Date(customStart);
+            endDate = new Date(customEnd);
+          }
           break;
         default:
           break;
@@ -62,7 +68,7 @@ const LineChart = ({ selectedTimeframe }) => {
       const transactions = response.data.data;
   
       const groupedData = transactions.reduce((acc, transaction) => {
-        const date = new Date(transaction.createdAt).toISOString().split('T')[0]; // Group by day
+        const date = new Date(transaction.createdAt).toISOString().split('T')[0]; 
         if (!acc[date]) {
           acc[date] = 0;
         }
@@ -70,7 +76,6 @@ const LineChart = ({ selectedTimeframe }) => {
         return acc;
       }, {});
 
-      // Handle monthly grouping for longer timeframes
       if (['Last 3 Months', 'Last 6 Months', 'This Year'].includes(selectedTimeframe)) {
         const monthlyData = {};
         const monthKey = (date) => new Date(date).toLocaleString('default', { month: 'short' });
@@ -96,10 +101,11 @@ const LineChart = ({ selectedTimeframe }) => {
       console.error('Error fetching sales orders:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchSalesOrders();
-  }, [selectedTimeframe]);
+  }, [selectedTimeframe, customStart, customEnd]); // Add customStart and customEnd as dependencies
+  
 
   // Chart data
   const lineChartData = {

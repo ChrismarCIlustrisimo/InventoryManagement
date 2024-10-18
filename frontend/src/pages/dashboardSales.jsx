@@ -148,7 +148,7 @@ const DashboardSales = () => {
                     </div>
                 </div>
                 <div className='flex gap-4'>
-                    <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                    <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
                         <div className='flex flex-col gap-4'>
                             <div className='flex flex-col'>
                                 <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
@@ -232,7 +232,7 @@ const DashboardSales = () => {
                         </div>
                     </div>
                     {/* Table */}
-                    <div className={`h-[76vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                    <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
                         {filteredProducts.length > 0 ? (
                             <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                 <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
@@ -264,7 +264,7 @@ const DashboardSales = () => {
                                 </tbody>
                             </table>
                         ) : (
-                            <div className='flex items-center justify-center h-[76vh] text-lg text-center'>
+                            <div className='flex items-center justify-center h-[78vh] text-lg text-center'>
                                 <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No products found matching the filter criteria.</p>
                             </div>
                         )}

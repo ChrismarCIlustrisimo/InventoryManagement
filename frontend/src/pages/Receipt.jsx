@@ -13,6 +13,7 @@ const Receipt = () => {
   const componentRef = useRef();
   const { state } = useLocation();
   const transaction = state.transaction;
+  const transactionId = state.transactionId;
   const [customer, setCustomer] = useState(null);
   const [products, setProducts] = useState([]);
 
@@ -49,10 +50,18 @@ const Receipt = () => {
     }
   };
 
+  
+
   useEffect(() => {
     fetchProducts();
     fetchCustomer();
   }, [transaction.customer]);
+
+  // Calculate the tax amount (12%)
+  const taxRate = 0.12; // 12%
+  const totalPrice = transaction.total_price; // Assuming this is the total before tax
+  const taxAmount = totalPrice * taxRate;
+  const totalWithTax = totalPrice + taxAmount;
 
   return (
     <div className={`w-full flex items-center justify-center flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
@@ -93,9 +102,9 @@ const Receipt = () => {
           />
         </div>
 
-        <div ref={componentRef} className={`mt-4 w-full items-center flex flex-col justify-start border px-12 ${darkMode ? 'text-light-textPrimary border-light-border' : 'text-dark-textPrimary border-dark-border'} p-4 rounded-md`}>
+        <div ref={componentRef} className={`w-full items-center flex flex-col justify-start border px-12 ${darkMode ? 'text-light-textPrimary border-light-border' : 'text-dark-textPrimary border-dark-border'} p-4 rounded-md`}>
           
-          <div className='flex w-full items-center justify-between border-b-2 border-black py-4'>
+          <div className='flex w-full items-center justify-between border-b-2 border-black'>
                 <div className='text-left mb-6'>
                   <h2 className='font-bold'>Irig Computer Trading</h2>
                   <p>23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p>
@@ -105,10 +114,10 @@ const Receipt = () => {
                 </div>
 
                 <div className='text-right mb-6'>
-                  <h2 className='text-xl font-bold'>Invoice No:</h2>
-                  <p>{transaction.transaction_id}</p>
+                  <h2 className='text-2xl font-bold'>Invoice No:</h2>
+                  <p className='text-xl font-bold'>{transactionId}</p>
                   <p>Issued date:</p>
-                  <p>{new Date(transaction.transaction_date).toLocaleDateString('en-US', {
+                  <p className='font-bold'>{new Date(transaction.transaction_date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
@@ -117,7 +126,7 @@ const Receipt = () => {
           </div>
 
           {/* Transaction Details */}
-          <div className='w-full flex justify-start py-8 border-b-2 border-black'>
+          <div className='w-full flex justify-start py-4 border-b-2 border-black'>
             <div>
               <h4 className='font-bold'>Billed to</h4>
               {customer ? (
@@ -133,7 +142,7 @@ const Receipt = () => {
             </div>
           </div>
 
-          <div className='w-full w-min-[500px] py-8'>
+          <div className='w-full w-min-[500px] py-4'>
             {/* Products Table */}
             <table className='w-full text-left mb-6'>
               <thead>
@@ -176,12 +185,20 @@ const Receipt = () => {
           <div className='w-full flex items-center justify-end'>
             <div className='w-[40%] h-[120px]'>
               <div className='flex justify-between py-2'>
+                <span>VATABLE Sales</span>
+                <span>₱ {transaction.total_price} </span>
+              </div>
+              <div className='flex justify-between py-2'>
+                <span>12% VAT</span>
+                <span>₱ {taxAmount.toLocaleString()}</span>
+              </div>
+            {/*<div className='flex justify-between py-2'>
                 <span>Total Amount Paid</span>
                 <span>₱ {transaction.total_amount_paid.toLocaleString()}</span>
-              </div>
+              </div>*/}
               <div className='flex justify-between border-t-2 border-black py-4'>
-                <span>Total Amount</span>
-                <span>₱ {transaction.total_price}</span>
+                <span>Total Amount with Tax</span>
+                <span>₱ {totalWithTax.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -196,6 +213,10 @@ const Receipt = () => {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className='flex items-center justify-start py-6 text-sm'>
+            <p>Thank you for your purchase!</p>
           </div>
         </div>
       </div>

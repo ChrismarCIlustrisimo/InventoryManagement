@@ -348,10 +348,10 @@ router.put('/details/:id', async (req, res) => {
 
 
 // Route to update a unit by its unit ID
-router.put('/:productId/unit/:unitId', async (req, res) => {
+router.put('/:productId/unit/:unitId', upload.single('serial_number_image'), async (req, res) => {
   try {
     const { productId, unitId } = req.params;
-    const { serial_number, status, serial_number_image, purchase_date } = req.body; // Include other fields as needed
+    const { serial_number, status, purchase_date } = req.body; // Include other fields as needed
 
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -362,8 +362,12 @@ router.put('/:productId/unit/:unitId', async (req, res) => {
     // Update the unit fields
     if (serial_number !== undefined) unit.serial_number = serial_number;
     if (status !== undefined) unit.status = status;
-    if (serial_number_image !== undefined) unit.serial_number_image = serial_number_image;
     if (purchase_date !== undefined) unit.purchase_date = purchase_date;
+
+    // Check if a new image was uploaded and update the serial_number_image field
+    if (req.file) {
+      unit.serial_number_image = `images/${req.file.filename}`;
+    }
 
     await product.save(); // Save the updated product
 
@@ -373,7 +377,6 @@ router.put('/:productId/unit/:unitId', async (req, res) => {
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 });
-
 
 
 
@@ -390,7 +393,7 @@ router.delete('/:productId/unit/:unitId', async (req, res) => {
     if (!unit) return res.status(404).json({ message: 'Unit not found' });
 
     // Remove the unit from the units array
-    product.units = product.units.filter((u) => u.id !== unitId); // Filter out the unit to be deleted
+    product.units = product.units.filter((u) => u.id !== unitId);
 
     await product.save(); // Save the updated product
 
@@ -412,12 +415,15 @@ router.post('/:productId/unit', upload.fields([{ name: 'serial_number_image', ma
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
+    
+    const unitID = await Product.generateUnitID(); // Generate a unique unit ID
 
     // Map the serial numbers and the corresponding images from the request
     const units = req.body.serial_number.map((serial_number, index) => ({
       serial_number,
       serial_number_image: req.files['serial_number_image'] ? `images/${req.files['serial_number_image'][index].filename}` : null, // Handle file upload properly
       status: 'in_stock',
+      unit_id: unitID, 
     }));
 
     product.units.push(...units); // Add the new units to the product's units array

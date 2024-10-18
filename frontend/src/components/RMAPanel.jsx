@@ -122,7 +122,7 @@ const RMAPanel = ({ transaction, onClose }) => {
           </button>
           <button
             onClick={onClose}
-            className={`px-4 py-4 rounded-md  w-[50%] flex items-center justify-center gap-2 border ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary'}`}
+            className={`text-white px-4 py-4 rounded-md w-[50%] flex items-center justify-center gap-2 ${darkMode ? 'bg-light-primary' : 'bg-light-primary'}`}
             >
             Cancel
           </button>

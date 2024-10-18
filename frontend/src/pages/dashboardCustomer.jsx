@@ -147,7 +147,7 @@ const handleUpdate = (updatedCustomer) => {
                     </div>
                 </div>
                 <div className='flex gap-4'>
-                    <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                    <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
                         <div className='flex flex-col gap-4 justify-between h-full'>
                             {/* Category Filter */}
                             <div className='flex flex-col gap-4'>
@@ -232,7 +232,7 @@ const handleUpdate = (updatedCustomer) => {
                             onUpdate={handleUpdate}
                         />
                     </div>
-                    <div className={`h-[76vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container1' : 'dark:bg-dark-container1'}`}>
+                    <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container1' : 'dark:bg-dark-container1'}`}>
                         {filteredCustomers.length > 0 ? (
                             <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                 <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
@@ -260,7 +260,7 @@ const handleUpdate = (updatedCustomer) => {
                                 </tbody>
                             </table>
                         ) : (
-                            <div className='flex items-center justify-center h-[76vh] text-lg text-center'>
+                            <div className='flex items-center justify-center h-[78vh] text-lg text-center'>
                                 <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No customers found.</p>
                             </div>
                         )}

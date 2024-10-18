@@ -122,7 +122,7 @@ const DashboardPos = () => {
           </div>
         </div>
         <div className='flex gap-4'>
-          <div className={`h-[76vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+          <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
             <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
 
               <div className='flex flex-col'>
@@ -237,11 +237,11 @@ const DashboardPos = () => {
           {loading ? (
                 <Spinner />
               ) : salesOrder.length === 0 ? (
-                <div className='w-[80%] h-[76vh] flex items-center justify-center'>
+                <div className='w-[80%] h-[78vh] flex items-center justify-center'>
                   <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No Successful Transactions</p>
                 </div>
               ) : (
-                <div className='w-[80%] h-[76vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
+                <div className='w-[80%] h-[78vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
                   {salesOrder.map((transaction) => (
                     <div
                       key={transaction._id}

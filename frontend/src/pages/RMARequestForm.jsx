@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useAdminTheme } from "../context/AdminThemeContext";
+import { BsArrowRepeat } from "react-icons/bs";
 
 const RMARequestForm = ({ onClose }) => {
   const { darkMode } = useAdminTheme();
@@ -56,209 +57,199 @@ const RMARequestForm = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div
-        className={`p-6 max-w-xl w-full bg-white rounded-md shadow-md relative overflow-hidden overflow-y-auto ${
-          darkMode ? "text-light-textPrimary bg-light-bg" : "text-dark-textPrimary bg-white"
-        }`}
-        style={{ maxHeight: "80%" }}
-      >
+      <div className={`p-6 max-w-2xl w-full rounded-md shadow-md relative overflow-hidden overflow-y-auto ${darkMode ? "text-light-textPrimary bg-light-bg" : "text-dark-textPrimary bg-dark-bg"}`} style={{ maxHeight: "90%" }}>
         <div className="absolute top-2 right-2">
-          <button
-            className="text-gray-500 hover:text-gray-700"
-            onClick={onClose}
-          >
-            ✖
-          </button>
+          <button className="absolute top-2 right-4 text-black  hover:text-gray-700"  onClick={onClose}>✖</button>
         </div>
-        <h2 className="text-2xl font-bold mb-6">New RMA Request Form</h2>
+        <h2 className={`text-2xl font-bold mb-6 flex items-center justify-center gap-4 border-b py-3 ${darkMode ? 'border-light-textSecondary' : 'border-dark-textSecondary'}`}>
+            <BsArrowRepeat />
+            <span>New RMA Request Form</span>
+        </h2>
 
-        {/* Scrollable content */}
-        <div className="overflow-y-auto" style={{ maxHeight: "calc(80% - 4rem)" }}>
+        <div className="overflow-y-auto px-8" style={{ maxHeight: "calc(80% - 4rem)" }}>
           {/* Customer Information */}
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col">
-              <label className="font-medium">Customer</label>
-              <input
-                type="text"
-                name="customer"
-                value={formData.customer}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
+          <div className="flex flex-col gap-12 w-full">
+            <div className="flex flex-col gap-4 w-full">
+              <p className={`text-xl font-semibold mb-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                Transaction Detail
+              </p>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>TRANSACTION ID</label>
+                <input
+                  type="text"
+                  name="transaction"
+                  className={`border border-gray-300 rounded w-[40%] p-1`}
+                  placeholder="Enter Transaction ID"
+                />
+              </div>
             </div>
 
-            <div className="flex flex-col">
-              <label className="font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
+            <div className="flex flex-col gap-4 w-full">
+              <p className={`text-xl font-semibold mb-2  ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                Customer Detail
+              </p>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CUSTOMER</label>
+                <input
+                  type="text"
+                  name="customer"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  placeholder="Enter Customer Name"
+                />
+              </div>
+
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>EMAIL</label>
+                <input
+                  type="email"
+                  name="email"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  placeholder="Enter Email"
+                />
+              </div>
             </div>
 
-            <div className="flex flex-col">
-              <label className="font-medium">Transaction ID</label>
-              <input
-                type="text"
-                name="transactionId"
-                value={formData.transactionId}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
+            <div className="flex flex-col gap-4 w-full">
+              <p className={`text-xl font-semibold mb-2  ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                Product Information
+              </p>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PRODUCT NAME</label>
+                <select
+                  name="productName"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                >
+                  <option value="">Select a Product</option>
+                  <option value="Product A">Product A</option>
+                  <option value="Product B">Product B</option>
+                </select>
+              </div>
+
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SERIAL NUMBER</label>
+                <input
+                  type="text"
+                  name="serialNumber"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  placeholder="Enter Serial Number"
+                />
+              </div>
+
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PURCHASE DATE</label>
+                <input
+                  type="date"
+                  name="purchaseDate"
+                  className="border border-gray-300 rounded w-[40%]"
+                />
+              </div>
+
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>INVOICE NUMBER</label>
+                <input
+                  type="text"
+                  name="invoiceNumber"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  placeholder="Enter Invoice Number"
+                />
+              </div>
             </div>
 
-            {/* Product Information */}
-            <div className="flex flex-col">
-              <label className="font-medium">Product Name</label>
-              <select
-                name="productName"
-                value={formData.productName}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              >
-                <option value="">Select a Product</option>
-                <option value="Product A">Product A</option>
-                <option value="Product B">Product B</option>
-              </select>
-            </div>
+            <div className="flex flex-col gap-5 w-full">
+              <p className={`text-xl font-semibold mb-2  ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                RMA Details
+              </p>
 
-            <div className="flex flex-col">
-              <label className="font-medium">Location</label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
-            </div>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>REQUEST TYPE</label>
+                <select
+                  name="requestType"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                >
+                  <option value="">Select Type</option>
+                  <option value="Return">Return</option>
+                  <option value="Repair">Repair</option>
+                </select>
+              </div>
 
-            <div className="flex flex-col">
-              <label className="font-medium">Serial Number</label>
-              <input
-                type="text"
-                name="serialNumber"
-                value={formData.serialNumber}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
-            </div>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>REASON</label>
+                <input
+                  type="text"
+                  name="reason"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  placeholder="Enter Reason"
+                />
+              </div>
 
-            <div className="flex flex-col">
-              <label className="font-medium">Purchase Date</label>
-              <input
-                type="date"
-                name="purchaseDate"
-                value={formData.purchaseDate}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
-            </div>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PRODUCT CONDITION</label>
+                <select
+                  name="productCondition"
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                >
+                  <option value="">Select Condition</option>
+                  <option value="New">New</option>
+                  <option value="Used">Used</option>
+                  <option value="Damaged">Damaged</option>
+                </select>
+              </div>
 
-            <div className="flex flex-col">
-              <label className="font-medium">Invoice Number</label>
-              <input
-                type="text"
-                name="invoiceNumber"
-                value={formData.invoiceNumber}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
-            </div>
+              <div className="flex">
+                <div className="flex flex-col items-start gap-2 w-full ">
+                  <p className="uppercase text-md">Received in original packaging</p>
+                  <p className="uppercase text-md">is the product complete?</p>
+                </div>
+                <div className="flex flex-col items-start py-1 justify-start gap-2 w-full ">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="receivedInOriginalPackaging"
+                      className="w-5 h-5 "
+                    />
+                  </div>
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name="isProductComplete"
+                      className="w-5 h-5 "
+                    />
+                  </div>
+                </div>
+              </div>
 
-            {/* RMA Details */}
-            <div className="flex flex-col">
-              <label className="font-medium">Request Type</label>
-              <select
-                name="requestType"
-                value={formData.requestType}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              >
-                <option value="">Select Type</option>
-                <option value="Return">Return</option>
-                <option value="Repair">Repair</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium">Reason</label>
-              <input
-                type="text"
-                name="reason"
-                value={formData.reason}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium">Product Condition</label>
-              <select
-                name="productCondition"
-                value={formData.productCondition}
-                onChange={handleChange}
-                className="border border-gray-300 rounded"
-              >
-                <option value="">Select Condition</option>
-                <option value="New">New</option>
-                <option value="Used">Used</option>
-                <option value="Damaged">Damaged</option>
-              </select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="receivedInOriginalPackaging"
-                checked={formData.receivedInOriginalPackaging}
-                onChange={handleChange}
-                className="w-5 h-5"
-              />
-              <label className="font-medium">
-                Received in Original Packaging
-              </label>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="isProductComplete"
-                checked={formData.isProductComplete}
-                onChange={handleChange}
-                className="w-5 h-5"
-              />
-              <label className="font-medium">Is the Product Complete?</label>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium">Notes</label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                className="border border-gray-300 rounded h-24"
-              ></textarea>
+              <div className="flex flex-col max-h-[200px] h-[150px] gap-2">
+                <label className={`font-medium w-[100%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>NOTES</label>
+                <textarea
+                  name="notes"
+                  className="border border-gray-300 rounded w-[100%] h-full px-4 py-2"
+                  placeholder="Enter any notes here..."
+                ></textarea>
+              </div>
             </div>
           </div>
+
+
 
           {/* Action Buttons */}
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4 pt-8">
             <button
-              onClick={handleSubmit}
-              className="bg-blue-500 text-white px-4 py-3 rounded w-full"
+                onClick={handleSubmit}
+                className={`text-white px-4 py-4 rounded-md w-[50%] flex items-center justify-center gap-2 
+                  ${darkMode ? 'bg-light-primary' : 'bg-light-primary'} 
+                  hover:bg-opacity-80 active:bg-opacity-90`}
             >
-              Submit
+                Submit
             </button>
             <button
-              onClick={handleReset}
-              className="bg-gray-300 text-gray-700 px-4 py-3 rounded w-full"
+                onClick={onClose}
+                className={`px-4 py-4 rounded-md w-[50%] flex items-center justify-center gap-2 border 
+                  ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary'} 
+                  hover:bg-opacity-10 active:bg-opacity-20`}
             >
-              Cancel
+                Cancel
             </button>
-          </div>
+        </div>
         </div>
       </div>
     </div>

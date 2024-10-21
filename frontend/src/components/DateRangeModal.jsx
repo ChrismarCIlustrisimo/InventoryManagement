@@ -6,21 +6,18 @@ const DateRangeModal = ({ isOpen, onClose, onConfirm }) => {
   const [endDate, setEndDate] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const { darkMode } = useAdminTheme();
-
+  
   const handleConfirm = () => {
-    // Validate dates
     if (new Date(startDate) > new Date(endDate)) {
-      setErrorMessage('Start date cannot be later than end date');
-      return;
+        setErrorMessage('Start date cannot be later than end date');
+        return;
     }
 
-    // Clear error message
-    setErrorMessage('');
-
-    // Pass dates back to parent component
-    onConfirm(startDate, endDate);
+    setErrorMessage(''); // Clear error message
+    onConfirm(new Date(startDate), new Date(endDate)); // Pass dates back as Date objects
     onClose();
-  };
+};
+
 
   return (
     isOpen && (

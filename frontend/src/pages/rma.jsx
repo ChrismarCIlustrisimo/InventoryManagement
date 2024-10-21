@@ -8,8 +8,6 @@ import ViewRMA from '../components/ViewRMA';
 import { HiOutlineRefresh } from "react-icons/hi";
 import axios from 'axios';
 
-
-
 const Rma = () => {
     const { user } = useAuthContext();
     const { darkMode } = useAdminTheme();
@@ -248,7 +246,7 @@ const Rma = () => {
                     <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
                         {filteredRMA.length > 0 ? (
                             <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                                <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
+                                <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                                     <tr>
                                         <th className='p-2 text-center'>RMA ID</th>
                                         <th className='p-2 text-center'>TRANSACTION ID</th>

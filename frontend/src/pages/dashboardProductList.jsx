@@ -319,12 +319,12 @@ const filteredProducts = products
                     value={sortBy} // Set the value of the select to the state
                     onChange={handleSortByChange}
                     className={`border rounded p-2 my-1 
-                      ${selectedCategory === '' 
+                      ${sortBy === '' 
                         ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                         : (darkMode 
                           ? 'bg-light-activeLink text-light-primary' 
                           : 'bg-transparent text-black')} 
-                      outline-none font-semibold`}
+                      outline-none font-semibold`}S
                   >
                     <option value=''>Select Option</option>
                     <option value='price_asc'>Price Lowest to Highest</option>
@@ -380,6 +380,7 @@ const filteredProducts = products
 
 
                 <div className={`flex justify-between items-center gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+
                   <div className={`flex flex-col`}>
                     <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? `border-black` : `border-white`}` : (darkMode ? 'border-light-primary' : 'dark:border-dark-primary')}`}>
                       <input
@@ -437,7 +438,7 @@ const filteredProducts = products
           <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
               {filteredProducts.length > 0 ? (
                 <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                  <thead className={`sticky top-0 z-10 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
+                  <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                     <tr>
                       <th className='p-2 text-center' style={{ width: '400px' }}>Product Name</th>
                       <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>

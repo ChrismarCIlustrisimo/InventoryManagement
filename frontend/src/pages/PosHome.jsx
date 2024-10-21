@@ -18,6 +18,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import ProductLoading from '../components/ProductLoading';
 import useSocket from '../hooks/useSocket';
 import UnitSelectionModal from "../components/UnitSelectionModal";
+import { FaLaptop } from "react-icons/fa";
+import { FaDesktop } from "react-icons/fa";
 
 const baseURL = 'http://localhost:5555';
 
@@ -40,7 +42,9 @@ const PosHome = () => {
     'Peripherals': 0,
     'Accessories': 0,
     'PC Furniture': 0,
-    'OS & Software': 0
+    'OS & Software': 0,
+    'Laptops': 0,
+    'Desktops': 0,
   });
 
 
@@ -128,6 +132,8 @@ const PosHome = () => {
       'Accessories': 0,
       'PC Furniture': 0,
       'OS & Software': 0,
+      'Laptops': 0,
+      'Desktops': 0,
     });
   
     setCategoryCounts(counts);
@@ -197,6 +203,7 @@ const PosHome = () => {
     setIsUnitSelectionOpen(false); // Close the modal after selecting a unit
   };
 
+
   const handleRemoveFromCart = (productId) => setCart(prevCart => prevCart.filter(item => item.product._id !== productId));
 
   const buttons = [
@@ -205,7 +212,9 @@ const PosHome = () => {
     { icon: <FaMouse className='w-8 h-8' />, label: 'Peripherals', count: categoryCounts['Peripherals'] || 0 },
     { icon: <MdCable className='w-8 h-8' />, label: 'Accessories', count: categoryCounts['Accessories'] || 0 },
     { icon: <MdTableRestaurant className='w-8 h-8' />, label: 'PC Furniture', count: categoryCounts['PC Furniture'] || 0 },
-    { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: categoryCounts['OS & Software'] || 0 }
+    { icon: <CgSoftwareDownload className='w-8 h-8' />, label: 'OS & Software', count: categoryCounts['OS & Software'] || 0 },
+    { icon: <FaLaptop className='w-8 h-8' />, label: 'Laptops', count: categoryCounts['Laptops'] || 0 },
+    { icon: <FaDesktop className='w-8 h-8' />, label: 'Desktops', count: categoryCounts['Desktops'] || 0 },
   ];
   
 
@@ -222,7 +231,7 @@ const PosHome = () => {
       <ToastContainer theme={darkMode ? 'light' : 'dark'} />
       <Navbar />
       <div className='h-[100vh] pt-[70px] px-2'>
-        <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-4'>
+        <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-2'>
           <p className={`font-bold text-3xl pt-6 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Cashier</p>
           {buttons.map((button, index) => (
             <button
@@ -230,12 +239,14 @@ const PosHome = () => {
               onClick={() => handleCategoryChange(button.label)}
               className={`flex items-center justify-center w-[100%] h-[40%] rounded-xl ${selectedCategory === button.label ? `bg-dark-activeLink ${darkMode ? 'text-light-primary' : 'text-dark-primary bg-'}` : `bg-transparent border-2 ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} transition-all duration-200`}
             >
-              <div className='w-[30%]'>
-                {button.icon}
-              </div>
-              <div className={`w-70% flex flex-col font-semibold`}>
-                <p className={`w-full text-sm ${darkMode ? 'text-light-primary' : 'dark:text-dark-primary'}`}>{button.label}</p>
-                <p className={`w-full text-xs text-start ${darkMode ? 'text-light-textSecondary' : 'dark:text-dark-textSecondary'}`} >{button.count}</p>
+              <div className="flex w-full pl-6">
+                <div className='w-[30%] text-start'>
+                  {button.icon}
+                </div>
+                <div className={`w-70% flex flex-col font-semibold`}>
+                  <p className={`w-full text-sm ${darkMode ? 'text-light-primary' : 'dark:text-dark-primary'}`}>{button.label}</p>
+                  <p className={`w-full text-xs text-start ${darkMode ? 'text-light-textSecondary' : 'dark:text-dark-textSecondary'}`} >{button.count}</p>
+                </div>
               </div>
             </button>
           ))}
@@ -277,15 +288,15 @@ const PosHome = () => {
 
 
       <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[100px] pb-4 px-4 ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container dark:text-dark-textPrimary'} rounded-xl`}>
-        <div className={`overflow-y-auto h-[480px] w-full rounded-lg ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>
-          <div style={{ width: '100%' }}> {/* Adjust this container width if needed */}
+        <div className={`overflow-y-auto h-[480px] w-full rounded-lg border className="border" ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>
+          <div style={{ width: '100%' }} > {/* Adjust this container width if needed */}
             <table className='border-collapse table-fixed h-auto w-full'>
               <thead>
               <tr className="border-b-2 border-textPrimary relative">
-                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>PRODUCT</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>PRICE</th>
-                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>QTY</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>TOTAL</th>
+                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Product</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Unit Price</th>
+                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Qty</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Total</th>
                   <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-border'}`}></th>
                 </tr>
               </thead>
@@ -316,7 +327,7 @@ const PosHome = () => {
         </div>
 
         <div className='flex flex-col gap-3 justify-center items-center pt-2 w-full'>
-          <div className='flex flex-col gap-2 tracking-wider items-center justify-center'>
+          <div className='flex flex-col gap-2 tracking-wider items-center justify-center font-semibold'>
             <p className='text-gray-400'>Subtotal</p>
             <p className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>₱ {calculateTotal().toLocaleString()}</p>
           </div>
@@ -333,7 +344,8 @@ const PosHome = () => {
               onClose={() => setIsUnitSelectionOpen(false)}
               product={selectedProduct}
               onSelectUnit={handleSelectUnit}
-            />
+              image={selectedProduct?.image} // Assuming selectedProduct contains an 'imageUrl' field
+              />
 
           <ProceedToPayment
             isOpen={isModalOpen}

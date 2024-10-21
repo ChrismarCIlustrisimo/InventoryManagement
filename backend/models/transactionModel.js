@@ -6,7 +6,6 @@ const ProductItemSchema = new mongoose.Schema({
   serial_number: { type: [String], required: true },
   item_status: { type: String, enum: ['Completed', 'Refunded'],default: 'Completed'},  
   reason_for_refund: { type: String }
-
 });
 
 const TransactionSchema = new mongoose.Schema(
@@ -18,6 +17,9 @@ const TransactionSchema = new mongoose.Schema(
     total_amount_paid: { type: Number },
     transaction_date: { type: Date, default: Date.now },
     due_date: { type: Date, required: true },
+    discount: { type: Number },
+    vat: { type: Number },
+    status: { type: String, enum: ['Completed', 'Pending', 'Refunded'], default: 'Pending'},
     payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
     cashier: { type: String },
     payment_method: {
@@ -25,7 +27,7 @@ const TransactionSchema = new mongoose.Schema(
       enum: [
         'Cash',
         'GCash',
-        'GGives',
+        'GGvices',
         'Bank Transfer',
         'BDO Credit Card',
         'Credit Card - Online'

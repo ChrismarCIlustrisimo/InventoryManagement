@@ -5,6 +5,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'; // Ensure you import useNavigate
+import { BiArrowBack } from "react-icons/bi";
 
 const formatNumber = (value) => {
   if (value === '' || isNaN(value)) return '';
@@ -20,7 +21,6 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
   if (!isOpen) return null;
   const baseURL = 'http://localhost:5555';
   const { darkMode } = useTheme();
-  const [discountType, setDiscountType] = useState('percentage');
   const [discountValue, setDiscountValue] = useState(0);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [customerName, setCustomerName] = useState('');
@@ -29,9 +29,14 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
   const [email, setEmail] = useState('');
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-
+  const [isCustomerInput, setIsCustomerInput] = useState(true);
+  const [paymentMethod, setPaymentMethod] = useState(''); // Add this line
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
+};
+  
   const validatePhoneNumber = (number) => {
-    const phoneRegex = /^09\d{9}$/; // Matches numbers like 09854875843
+    const phoneRegex = /^09\d{9}$/; 
     return phoneRegex.test(number);
   };
 
@@ -41,17 +46,44 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
   };
 
   const calculateDiscount = () => {
-    if (discountType === 'percentage') {
-      return totalAmount * (discountValue / 100);
-    }
     return discountValue; // Assumes discountValue is a fixed amount
   };
 
   const handleBackgroundClick = (e) => {
     e.stopPropagation();
   };
+  // Calculate total VAT
+// Calculate total VAT
+const calculateTotalVAT = () => {
+  return cart.reduce((acc, item) => {
+    const productPrice = item.product.selling_price; // Ensure this is the selling price
+    const productVAT = productPrice * 0.12; // 12% VAT
 
-  const finalAmount = totalAmount - calculateDiscount();
+    // Log the details for debugging
+    console.log(`Product Price: ${productPrice}`);
+    console.log(`Product VAT (12%): ${productVAT}`);
+    console.log(`Quantity: ${item.quantity}`);
+    console.log(`Accumulated VAT Before Adding: ${acc}`);
+
+    const totalVATForItem = productVAT * item.quantity;
+    const newAcc = acc + totalVATForItem;
+
+    // Log the new accumulated VAT
+    console.log(`Total VAT for this item: ${totalVATForItem}`);
+    console.log(`New Accumulated VAT: ${newAcc}`);
+    
+    return newAcc; // Return the updated accumulator
+    
+  }, 0);
+};
+
+
+
+
+  const totalVAT = calculateTotalVAT();
+  const finalAmount = (totalAmount + totalVAT) - calculateDiscount();
+  {console.log('dasdasdas',finalAmount)}
+
   const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
   const handlePayButton = async () => {
@@ -83,6 +115,12 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
       return;
     }
 
+    // Validate customer information
+    if (paymentMethod === '') {
+      toast.warning('Please select a payment method');
+      return;
+    }
+
     try {
       // Step 1: Create or Find the Customer
       const customerResponse = await axios.post(`${baseURL}/customer`, {
@@ -99,6 +137,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
 
       const customerId = customerResponse.data._id;
 
+
       // Check for serial numbers in the cart
       cart.forEach(item => {
         if (!item.unitIds || item.unitIds.length === 0) {
@@ -106,19 +145,27 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         }
       });
 
+
+    
+      
       const transactionData = {
         products: cart.map(item => ({
           product: item.product._id,
           quantity: item.quantity,
-          serial_number: item.unitIds || []
+          serial_number: item.unitIds || [],
         })),
         customer: customerId,
-        total_price: totalAmount,
+        total_price: finalAmount,
         total_amount_paid: parseNumber(paymentAmount) || 0,
         transaction_date: new Date().toISOString(),
         cashier: user.name,
-        payment_status: 'paid'
+        payment_status: 'paid',
+        status: 'Completed',
+        vat: totalVAT, 
+        discount: discountValue,
+        payment_method: paymentMethod,
       };
+      
 
 
       // Validate and flatten serial numbers
@@ -166,7 +213,7 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
         },
       });
 
-      navigate('/receipt', { state: { transaction: transactionData,  transactionId: transactionId } });
+      navigate('/receipt', { state: { transaction: transactionData,  transactionId: transactionId, totalVAT: totalVAT, discount: discountValue } });
       onClose(); // Close the modal
       onPaymentSuccess(transactionData);
     } catch (error) {
@@ -175,116 +222,221 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
     }
   };
   
-  
+  const handleBackButtonClick = () => {
+    setIsCustomerInput(true); // Reset to customer input
+  };
+
+  const handleContinueClick = async () => {
+    if (!customerName.trim() || !address.trim() || !phoneNumber.trim() || !email.trim()) {
+      toast.warning('Please fill in all customer information fields.');
+      return; 
+    }
+
+      if (!validatePhoneNumber(phoneNumber)) {
+      toast.warning('Please enter a valid phone number with eleven digits (e.g., 09123456789).');
+      return;
+    }
+    
+      if (!validateEmail(email)) {
+      toast.warning('Please enter a valid email address (e.g., chris@gmail.com).');
+      return;
+    }
+
+      setIsCustomerInput(false);
+  };
 
   return (
     <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md"
       onClick={handleBackgroundClick}
     >
-      <div className={`p-2 rounded-2xl shadow-md w-[70%] h-[80%] p-6 ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container' } flex flex-col`}
+      <div className={`p-2 rounded-2xl shadow-md w-[70%] h-[90%] p-6 relative ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container' } flex flex-col`}
         onClick={(e) => e.stopPropagation()}>
-        <div className='w-full flex justify-end'>
-          <button className={`text-4xl font-bold rounded ${darkMode ? 'text-light-textPrimary hover:text-dark-primary' : 'text-dark-textPrimary hover:text-light-primary'}`} onClick={onClose}>
-            <IoIosClose />
-          </button>
-        </div>
 
         <div className='flex gap-2 items-center justify-center w-full h-full'>
+
+        {!isCustomerInput && (
+            <button 
+            className={`flex gap-2 items-center py-4 px-6 outline-none absolute top-[10px] left-[5px] ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} hover:underline`}
+              onClick={handleBackButtonClick}
+            >
+            <BiArrowBack size={30} />
+           </button>
+          )}
+        {isCustomerInput ? (
+
           <div className='w-[40%] h-full'>
-            <p className='mb-2'>Bill To:</p>
+            <p className='mb-2 text-center text-2xl font-semibold py-6'>Billing Information</p>
             <div className='flex flex-col gap-4'>
+            <div>
+              <label htmlFor="customerName" className="block text-sm font-medium mb-1">
+                Customer Name
+              </label>
               <input
+                id="customerName"
                 type="text"
-                placeholder='Customer Name'
+                placeholder='Enter Your Full Name'
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                className={`p-2 rounded-lg ${darkMode ? 'bg-light-border' : 'dark:bg-dark-border' }`}
-              />
-              <input
-                type="text"
-                placeholder='Address'
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className={`p-2 rounded-lg ${darkMode ? 'bg-light-border' : 'dark:bg-dark-border' }`}
-              />
-              <input
-                type="text"
-                placeholder='Phone Number'
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                className={`p-2 rounded-lg ${darkMode ? 'bg-light-border' : 'dark:bg-dark-border' }`}
-              />
-                <input
-                type="text"
-                placeholder='Email'
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={`p-2 rounded-lg ${darkMode ? 'bg-light-border' : 'dark:bg-dark-border' }`}
+                className={`p-2 py-3 rounded-lg border w-full ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
               />
             </div>
+            <div>
+              <label htmlFor="address" className="block text-sm font-medium mb-1">
+                Address
+              </label>
+              <input
+                id="address"
+                type="text"
+                placeholder='Enter Your Complete Address'
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className={`p-2 py-3 rounded-lg border w-full ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+              />
+            </div>
+            <div>
+              <label htmlFor="phoneNumber" className="block text-sm font-medium mb-1">
+                Contact No.
+              </label>
+              <input
+                id="phoneNumber"
+                type="text"
+                placeholder='Enter Your Contact No'
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className={`p-2 py-3 rounded-lg border w-full ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                type="text"
+                placeholder='Enter Your Email'
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={`p-2 py-3 rounded-lg border w-full ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+              />
+            </div>
+            <div className='w-full py-6 flex flex-col gap-4'>
+              <button
+                className={`w-full py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
+                onClick={handleContinueClick}
+                >
+                Continue
+              </button>
+              <button
+                className={`w-full py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
+                onClick={onClose} // Close the modal
+              >
+                Cancel
+              </button>
+            </div>
+
           </div>
 
-          <div className='w-[60%] h-full'>
-            <div className={`flex flex-col w-full h-full px-4 py-4 rounded-2xl gap-6`}>
-              <div className='flex w-full justify-between items-center'>
-                <div className='flex gap-7 flex-col'>
-                   <p>Add Discount</p>
-                  <p>Discount</p>
-                  <p>Amount</p>
-                  <p>Total Amount</p>
-                </div>
-                <div className='flex gap-7 flex-col items-end'>
-                  <div className='flex items-center'>
-                    <select
-                      value={discountType}
-                      onChange={(e) => setDiscountType(e.target.value)}
-                      className={`p-2 ${darkMode ? 'bg-light-border' : 'dark:bg-dark-border'}`}
-                    >
-                      <option value="percentage">Percentage</option>
-                      <option value="amount">Fixed Amount</option>
-                    </select>
+          </div>
+          ) : (
+
+          <div className='w-[60%] '>
+            <div className={`flex flex-col w-full h-full px-4 py-4 rounded-2xl gap-12 font-semibold`}>
+              <div className='flex flex-col w-full justify-between items-center gap-4'>
+
+                <div className='w-full flex items-center py-2'>
+                  <p className='w-[50%]'>Discount</p>
+                  <div className='w-[50%]'>
                     <input
                         type="number"
-                        value={discountValue}
+                        value={discountValue === 0 ? '' : discountValue}
                         onChange={(e) => setDiscountValue(Number(e.target.value))}
-                        placeholder={discountType === 'percentage' ? "0%" : "₱ 0"}
-                        className={`p-2 ml-2 ${darkMode ? 'bg-light-border' : 'dark:bg-dark-border'}`}
+                        placeholder="₱ 0"
+                        className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
                       />
                   </div>
-                  <p>₱ {calculateDiscount().toLocaleString()}</p>
-                  <p className={`border w-[140px] rounded-md font-semibold flex items-center justify-center ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>₱ {totalAmount.toLocaleString()}</p>
-                  <p>₱ {finalAmount.toLocaleString()}</p>
+                </div>
+
+                <div className='w-full flex items-center  '>
+                  <p className='w-[50%]'>Subtotal</p>
+                  <p className='w-[50%]'>₱ {totalAmount.toLocaleString()}</p>
+                </div>
+
+                <div className='w-full flex items-center  '>
+                  <p className='w-[50%]'>VAT</p>
+                  <p className='w-[50%]'>₱ {totalVAT.toLocaleString()}</p>
+                </div>
+
+                <div className='w-full flex items-center  '>
+                  <p className='w-[50%]'>Total Amount</p>
+                  <p className='w-[50%]'>₱ {(totalVAT + totalAmount).toLocaleString()}</p>
                 </div>
               </div>
 
-              <div className='flex w-full justify-between items-center'>
-                <div className='flex gap-7 flex-col'>
-                  <p>Add Payment</p>
-                  <p>Total Amount Paid</p>
-                  <p>Discount</p>
-                  <p>Change</p>
+
+
+              <div className='flex flex-col w-full justify-between items-center gap-4'>
+              <div className='w-full flex items-center   py-2'>
+                  <p className='w-[50%]'>Payment Method</p>
+                  <div className='w-[50%]'>
+                    <select
+                      id='paymentMethod'
+                      value={paymentMethod}
+                      onChange={handlePaymentMethodChange}
+                      className={`border rounded p-2 w-[240px]  ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}
+                        ${paymentMethod === '' 
+                            ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                            : (darkMode 
+                            ? 'bg-light-activeLink text-light-primary' 
+                            : 'bg-transparent text-black')} 
+                              outline-none font-semibold`}>
+                                <option value=''>Select Option</option>
+                                <option value='Cash'>Cash</option>
+                                <option value='GCash'>GCash</option>
+                                <option value='GGvices'>GGvices</option>
+                                <option value='Bank Transfer'>Bank Transfer</option>
+                                <option value='BDO Credit Card'>BDO Credit Card</option>
+                                <option value='Credit Card - Online'>Credit Card - Online</option>
+                  </select>
+                  </div>
                 </div>
-                <div className='flex gap-7 flex-col items-end'>
+
+                <div className='w-full flex items-center  '>
+                  <p className='w-[50%]'>Total Amount Paid</p>
                   <input
                     type="text"
                     value={formatNumber(paymentAmount)}
                     onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
                     placeholder="₱ 0"
-                    className={`p-2 ${darkMode ? 'bg-light-border' : 'dark:bg-dark-border'}`}
+                    className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
                   />
-                  <p className={`border w-[140px] rounded-md font-semibold flex items-center justify-center ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>₱ {formatNumber(paymentAmount)}</p>
-                  <p>₱ {calculateDiscount().toLocaleString()}</p>
-                  <p>{change < 0 ? '₱ 0.00' : change.toLocaleString()}</p>
+                </div>
+
+                <div className='w-full flex items-center  '>
+                  <p className='w-[50%]'>Discount</p>
+                  <p className='w-[50%]'>{discountValue.toLocaleString()}</p>
+                </div>
+
+                <div className='w-full flex items-center  '>
+                  <p className='w-[50%]'>Change</p>
+                  <p className='w-[50%]'>{change < 0 ? '₱ 0.00' : change.toLocaleString()}</p>
                 </div>
               </div>
-              <button
-                className={`mt-4 p-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-dark-textPrimary hover:bg-dark-primary'}`}
-                onClick={handlePayButton}
-              >
-                Proceed to Pay
-              </button>
+              </div>
+              <div className='w-full flex flex-col gap-2 py-2 pt-6'>
+                <button
+                   className={`w-full py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
+                   onClick={handlePayButton}
+                >
+                  Confirm Payment
+                </button>
+                <button
+                  className={`w-full py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}                  onClick={onClose}
+                >
+                  Cancel Transaction
+                </button>
+              </div>
             </div>
-          </div>
+        )}
         </div>
       </div>
     </div>

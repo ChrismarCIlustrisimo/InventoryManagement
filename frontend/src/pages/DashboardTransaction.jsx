@@ -178,7 +178,7 @@ const fetchSalesOrders = async () => {
             <DashboardNavbar />
             <div className='pt-[70px] px-6 py-4 w-full h-full'>
                 <div className='flex items-center justify-center py-5'>
-                    <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Transaction</h1>
+                    <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Sales Transaction</h1>
                     <div className='w-full flex justify-end gap-2'>
                         <AdminSearchBar query={searchQuery} onQueryChange={setSearchQuery}  placeholderMessage={'Search Transaction by transaction id'} />
                     </div>
@@ -346,9 +346,9 @@ const fetchSalesOrders = async () => {
                 </div>
               ) : (
                 <div className='w-[80%] h-[77vh]'>
-                  <div className="overflow-x-auto max-h-[570px] rounded-2xl">
+                  <div className="overflow-x-auto max-h-screen h-[78vh] rounded-2xl">
                     <table className={`w-full table-auto ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-                      <thead className="sticky top-0 z-10">
+                      <thead className="sticky top-0 z-5">
                         <tr className={`border-b-2 ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Transaction ID</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Sales Date</th>

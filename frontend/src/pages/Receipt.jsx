@@ -14,6 +14,8 @@ const Receipt = () => {
   const { state } = useLocation();
   const transaction = state.transaction;
   const transactionId = state.transactionId;
+  const totalVAT = state.totalVAT;
+  const discount = state.discount;
   const [customer, setCustomer] = useState(null);
   const [products, setProducts] = useState([]);
 
@@ -185,20 +187,20 @@ const Receipt = () => {
           <div className='w-full flex items-center justify-end'>
             <div className='w-[40%] h-[120px]'>
               <div className='flex justify-between py-2'>
-                <span>VATABLE Sales</span>
-                <span>₱ {transaction.total_price} </span>
+                <span>Subtotal</span>
+                <span>₱ {((transaction.total_price + discount) - totalVAT)} </span>
               </div>
               <div className='flex justify-between py-2'>
-                <span>12% VAT</span>
-                <span>₱ {taxAmount.toLocaleString()}</span>
+                <span>VAT (12%)</span>
+                <span>₱ {totalVAT.toLocaleString()}</span>
               </div>
-            {/*<div className='flex justify-between py-2'>
-                <span>Total Amount Paid</span>
-                <span>₱ {transaction.total_amount_paid.toLocaleString()}</span>
-              </div>*/}
-              <div className='flex justify-between border-t-2 border-black py-4'>
-                <span>Total Amount with Tax</span>
-                <span>₱ {totalWithTax.toLocaleString()}</span>
+              <div className='flex justify-between py-2'>
+                <span>Discount</span>
+                <span>₱ {discount.toLocaleString()}</span>
+                </div>
+              <div className='flex justify-between border-t-2 border-black py-4 font-semibold'>
+                <span>Total Amount</span>
+                <span>₱ {transaction.total_price.toLocaleString()}</span>
               </div>
             </div>
           </div>

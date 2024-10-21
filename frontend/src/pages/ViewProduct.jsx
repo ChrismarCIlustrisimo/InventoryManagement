@@ -62,10 +62,8 @@ const ViewProduct = () => {
       status = 'OUT OF STOCK';
     } else if (availableUnits <= product.low_stock_threshold) {
       status = 'LOW';
-    } else if (availableUnits <= product.near_low_stock_threshold) {
-      status = 'NEAR LOW';
-    } else {
-      status = 'IN STOCK';
+    }else {
+      status = 'HIGH';
     }
 
     return { status, color: stockColors[status] };

@@ -108,3 +108,15 @@
 input[type='checkbox']:checked + .checkmark + .label-text {
   color:#C85232; /* Adjust to your desired text color */
 }
+
+
+@media print {
+  body {
+    color: black !important; /* Ensures all text is printed in black */
+    opacity: 1 !important;   /* Ensures full opacity */
+  }
+  .your-custom-class {      /* Replace with your specific class if needed */
+    color: black !important; /* Ensures specific elements are black */
+    opacity: 1 !important;   /* Ensures full opacity */
+  }
+}

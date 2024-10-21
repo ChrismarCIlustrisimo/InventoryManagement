@@ -115,47 +115,80 @@ router.post('/', upload.fields([
 // Get all products (filtering out zero-stock products)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({});
-    
-    // Emit a WebSocket event for product list fetch
-    req.app.get('io').emit('products-fetched', products);
+      const products = await Product.find({});
 
-    return res.status(200).json({
-      count: products.length,
-      data: products
-    });
+      // Process each product to determine the stock status
+      products.forEach(product => {
+          const inStockCount = product.units.filter(unit => unit.status === 'in_stock').length;
+          const lowStockThreshold = product.low_stock_threshold; // Assuming this is part of the product data
+
+          // Assign stock status based on inStockCount
+          if (inStockCount === 0) {
+              product.current_stock_status = 'OUT OF STOCK';
+          } else if (inStockCount <= lowStockThreshold) {
+              product.current_stock_status = 'LOW';
+          } else {
+              product.current_stock_status = 'HIGH'; // Assign a default HIGH status if above the threshold
+          }
+      });
+
+      // Emit a WebSocket event for product list fetch
+      req.app.get('io').emit('products-fetched', products);
+
+      return res.status(200).json({
+          count: products.length,
+          data: products
+      });
 
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Server Error' });
+      console.error(error);
+      return res.status(500).json({ message: 'Server Error' });
   }
 });
 
 
-// Bulk update products
-// Bulk update products
+
 router.put('/bulk-update', async (req, res) => {
   try {
-    const updates = req.body;
+      const updates = req.body;
 
-    // Iterate through the updates to handle each product's update
-    for (const update of updates) {
-      const { filter, update: updateData } = update.updateOne;
+      // Iterate through the updates to handle each product's update
+      for (const update of updates) {
+          const { filter, update: updateData } = update.updateOne;
 
-      // Update the product using findOneAndUpdate for a single operation
-      await Product.findOneAndUpdate(
-        filter,
-        updateData, // This will contain the $inc operation for quantity and sales
-        { new: true } // Return the updated document
-      );
-    }
+          // Update the product using findOneAndUpdate for a single operation
+          const product = await Product.findOneAndUpdate(
+              filter,
+              updateData, // This will contain the $inc operation for quantity and sales
+              { new: true } // Return the updated document
+          );
 
-    return res.status(200).send({ message: 'Products updated successfully' });
+          // If the product is found, check the number of in-stock units
+          if (product) {
+              const inStockCount = product.units.filter(unit => unit.status === 'in_stock').length;
+              const lowStockThreshold = product.low_stock_threshold; // Assuming this is part of the product data
+
+              // Assign stock status based on inStockCount
+              if (inStockCount === 0) {
+                  product.current_stock_status = 'OUT OF STOCK';
+              } else if (inStockCount <= lowStockThreshold) {
+                  product.current_stock_status = 'LOW';
+              } else {
+                  product.current_stock_status = 'HIGH'; // Assign a default HIGH status if above the threshold
+              }
+
+              // Save the updated product
+              await product.save();
+          }
+      }
+
+      return res.status(200).send({ message: 'Products updated successfully' });
   } catch (error) {
-    console.error(error);
-    return res.status(500).send('Server Error');
+      console.error(error);
+      return res.status(500).send('Server Error');
   }
 });
+
 
 
 

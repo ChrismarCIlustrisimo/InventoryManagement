@@ -23,6 +23,8 @@
     "chartjs-plugin-annotation": "^3.0.1",
     "chartjs-plugin-datalabels": "^2.2.0",
     "cors": "^2.8.5",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
     "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-awesome-reveal": "^4.2.14",

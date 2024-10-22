@@ -41,8 +41,8 @@ const Navbar = ({ query, onQueryChange, cartItemCount }) => {
                   </div>
                   <nav className={`bg-light-ACCENT w-full py-2 flex justify-center ${isMenuOpen ? 'block' : 'hidden'} md:block`}>
                         <div className="flex flex-col md:flex-row justify-center gap-24 items-center w-full">
-                              <Link to={"/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Home</Link>
-                              <Link to={"/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Products <FaAngleDown className='ml-2 inline' /></Link>
+                              <Link to={"/ecommerce/irigpc/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Home</Link>
+                              <Link to={"/ecommerce/irigpc/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Products <FaAngleDown className='ml-2 inline' /></Link>
                               <Link to={"/ecommerce/irigpc/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Our Store</Link>
                               <Link to={"/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
                         </div>

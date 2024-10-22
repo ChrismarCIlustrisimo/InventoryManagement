@@ -41,7 +41,8 @@ import InventoryReport from './pages/InventoryReport';
 import Refund from './pages/Refund';
 import CashierRMA from './pages/CashierRMA';
 import CashierSalesReport from './pages/CashierSalesReport';
-import OurStore from './onlineListing/pages/Products';
+import StoreLocation from './onlineListing/pages/StoreLocation';
+import Products from './onlineListing/pages/Products';
 import ViewProducts from './onlineListing/components/ViewProducts';
 const App = () => {
       const { user } = useAuthContext();
@@ -88,8 +89,10 @@ const App = () => {
                                           <Route path="/ecommerce/irigpc/" element={<Ecommerce />} />
                                           <Route path="*" element={<Navigate to="/" />} />
                                           <Route path="/unauthorized" element={<Unauthorized />} />
-                                          <Route path="/ecommerce/irigpc/products" element={<OurStore />} />
+                                          <Route path="/ecommerce/irigpc/Products/" element={<Products />} />
+                                          <Route path="/ecommerce/irigpc/our-store" element={<StoreLocation />} />
                                           <Route path="/ecommerce/irigpc/products/view/:id" element={<ViewProducts />} />
+
                                     </Routes>
                               </AdminThemeProvider>
                         </ThemeProvider>

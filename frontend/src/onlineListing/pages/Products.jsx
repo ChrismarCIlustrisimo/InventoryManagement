@@ -207,10 +207,10 @@ const Products = () => {
 
 
                                     {/* right side Products HERE*/}
-                                    <div className='w-full'>
+                                    <div className='ml-6 w-full'>
                                           <h1 className="text-6xl p-20 text-white font-bold mb-4" style={{ background: 'linear-gradient(to right, #E84C19, white)' }}>Laptops</h1>
 
-                                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                          <div className="m-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                                 {displayedProducts.map((product) => (
                                                       <ProductCard key={product.id} product={product} />
                                                 ))}

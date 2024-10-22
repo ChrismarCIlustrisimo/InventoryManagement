@@ -15,9 +15,9 @@ const Navbar = ({ query, onQueryChange, cartItemCount }) => {
       };
 
       return (
-            <header className="fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
-                  <div className="w-[70%] flex items-center justify-between py-2">
-                        <img src={WebsiteLogo} alt="Website Logo" className="w-[118px] h-[52px] max-w-full" />
+            <header className="text-black fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
+                  <div className="w-[70%] flex items-center justify-between py-4">
+                        <img src="/iRig1.png" alt="Website Logo" className=" max-w-full" />
                         <Searchbar
                               query={query}
                               onQueryChange={onQueryChange}

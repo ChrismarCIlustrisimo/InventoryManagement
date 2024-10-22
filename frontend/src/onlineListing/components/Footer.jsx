@@ -1,75 +1,64 @@
-import React from 'react';
-import { FaFacebook, FaInstagram } from 'react-icons/fa';
-import WebsiteLogo from '../../assets/WebsiteLogo.png'; // Make sure the path is correct
+import React from "react";
 
 const Footer = () => {
-  return (
-    <footer className="bg-gray-100 text-gray-700 p-8">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
-        {/* Brand Section */}
-        <div>
-          {/* Responsive image for logo */}
-          <img src={WebsiteLogo} alt="iRIG Logo" className="w-24 md:w-32 h-auto mb-4 mx-auto md:mx-0" />
-          
-          <p className="font-semibold text-sm md:text-base lg:text-lg">Empowering Innovation, One Device at a Time</p>
-          <p className="mt-4 text-sm md:text-base">
-            We are dedicated to offering the latest in computer and tech products,
-            combined with expert support to ensure you get the most out of your technology.
-            Our commitment is to deliver quality, reliability, and innovation in every product
-            we offer and every interaction we have.
-          </p>
+      return (
+            <footer className="bg-[#F1F5F9] py-8 text-black">
+                  <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
 
-          {/* Social Links */}
-          <div className="mt-4 flex justify-center md:justify-start space-x-4">
-            <a href="https://www.facebook.com" className="text-gray-600 text-2xl">
-              <FaFacebook />
-            </a>
-            <a href="https://www.instagram.com" className="text-gray-600 text-2xl">
-              <FaInstagram />
-            </a>
-          </div>
-        </div>
 
-        {/* FAQ Section */}
-        <div>
-          <h3 className="text-lg font-bold mb-4 text-sm md:text-base lg:text-lg">FAQ</h3>
-          <p className="font-semibold text-sm md:text-base">1. What types of products does iRIG Computers offer?</p>
-          <p className="mt-2 text-sm md:text-base">
-            We offer a wide range of computer and tech products including laptops, desktops, peripherals, accessories, and software. Whether you're a gamer, professional, or casual user, we have the right solution for your needs.
-          </p>
-          <p className="font-semibold mt-4 text-sm md:text-base">2. Can I return a product if I’m not satisfied?</p>
-          <p className="mt-2 text-sm md:text-base">
-            Yes, we have a 30-day return policy. If you're not satisfied with your purchase, you can return it within 30 days for a full refund or exchange, provided the product is in its original condition and packaging.
-          </p>
-        </div>
+                        <div className="flex flex-col items-center md:items-start justify-center md:order-1 md:flex-1">
+                              <div className="text-center md:text-left">
+                                    <p>23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p>
+                                    <p>Tel. No: (02) 83646039</p>
+                                    <p>CP. No: 0923-444-1030</p>
+                                    <p>irigcomputers@gmail.com</p>
+                              </div>
+                        </div>
 
-        {/* Customer Service Section */}
-        <div>
-          <h3 className="text-lg font-bold mb-4 text-sm md:text-base lg:text-lg">Customer Service</h3>
-          <p className="font-semibold text-sm md:text-base">Need Assistance? We're Here to Help!</p>
-          <ul className="mt-4 text-sm md:text-base">
-            <li>
-              <span className="font-semibold">Email Support: </span>
-              For general inquiries or support, email us at support@irigcomputers.com
-            </li>
-            <li className="mt-2">
-              <span className="font-semibold">Phone Support: </span>
-              Call us at 1-800-123-4567. Our team is available Monday to Friday, from 9 AM to 6 PM (EST).
-            </li>
-            <li className="mt-2">
-              <span className="font-semibold">Visit Us: </span>
-              Find our nearest store location <a href="/" className="underline">here</a>.
-            </li>
-          </ul>
-        </div>
-      </div>
 
-      {/* Footer Bottom */}
-      <div className="mt-8 text-center border-t border-gray-300 pt-4 text-sm md:text-base">
-        <p>Copyright &copy; 2024 iRIG Computers. All rights reserved.</p>
-      </div>
-    </footer>
-  );
+                        <div className="flex flex-col items-center justify-center md:order-2 md:flex-1">
+                              <h2 className="font-bold text-lg text-center">Customer Service</h2>
+                              <ul className="space-y-1 mt-2 text-left">
+                                    <li>
+                                          <a href="/return-and-exchange" className="text-blue-500 hover:underline">
+                                                Return and Exchange
+                                          </a>
+                                    </li>
+                                    <li>
+                                          <a href="/product-warranty" className="text-blue-500 hover:underline">
+                                                Product Warranty
+                                          </a>
+                                    </li>
+                                    <li>
+                                          <a href="/faqs" className="text-blue-500 hover:underline">
+                                                FAQs
+                                          </a>
+                                    </li>
+                                    <li>
+                                          <a href="/store-locations" className="text-blue-500 hover:underline">
+                                                Store Locations
+                                          </a>
+                                    </li>
+                              </ul>
+                        </div>
+
+
+                        <div className="flex flex-col items-center md:items-end md:order-3 md:flex-1">
+                              <h2 className="font-bold text-lg">Follow Us</h2>
+                              <a href="https://www.facebook.com" className="text-blue-500 hover:underline mt-2">
+                                    <i className="fab fa-facebook-square text-2xl"></i>
+                              </a>
+                        </div>
+                  </div>
+
+                  <br />
+                  <hr />
+
+                  <div className="max-w-6xl mx-auto mt-8 text-center text-sm">
+                        <p>© 2024 iRIG Computers. All Rights Reserved.</p>
+                  </div>
+            </footer>
+      );
 };
 
 export default Footer;

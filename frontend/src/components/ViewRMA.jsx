@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { AiOutlineCheckCircle, AiOutlineCloseCircle } from "react-icons/ai";
 import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import UpdateStatusPopup from './UpdateStatusPopup';
 import AddNotes from './AddNotes';
+import { AiOutlineClose } from "react-icons/ai";
 
 const ViewRMA = ({ rma, onClose, darkMode }) => {
     const baseURL = "http://localhost:5555";
-    const [isUpdatePopupOpen, setUpdatePopupOpen] = useState(false);
+    const [isApproveRMA, setIsApproveRMA] = useState(false);
     const [isAddNotesOpen, setIsAddNotesOpen] = useState(false);
     const [isConfirmCloseOpen, setConfirmCloseOpen] = useState(false); // State for confirmation modal
     const navigate = useNavigate(); // Initialize useNavigate
 
-    const toggleUpdatePopup = () => {
-        setUpdatePopupOpen(!isUpdatePopupOpen);
+    const toggleIsApproveRMA = () => {
+        setIsApproveRMA(!isApproveRMA);
     };
 
     const toggleAddNotes = () => {
@@ -60,7 +60,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                     bgClass: 'bg-[#E5E5EA]',
                 };
                 break;
-            case 'Expired':
+            case 'Rejected':
                 statusStyles = {
                     textClass: 'text-[#EC221F]',
                     bgClass: 'bg-[#FEE9E7]',
@@ -99,7 +99,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
     const warrantyStyles = getWarrantyStyles(rma.warranty_status);
 
 
-    const handleStatusUpdate = async (newStatus) => {
+    const handleStatusUpdate = async (newProcess, newStatus) => {
         try {
             const response = await fetch(`${baseURL}/rma/${rma._id}`, {
                 method: 'PATCH',
@@ -109,18 +109,24 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                 body: JSON.stringify({
                     status: newStatus,
                     notes: rma.notes,
+                    process: newProcess,
                 }),
             });
-
-            if (!response.ok) throw new Error('Failed to update status');
+    
+            if (!response.ok) {
+                const errorMessage = await response.json();
+                throw new Error(errorMessage.message || 'Failed to update status');
+            }
             const updatedRMA = await response.json();
             console.log(updatedRMA);
             onClose();
-            toggleUpdatePopup(); // Close the popup after successful update
+            toggleIsApproveRMA(); // Close the popup after successful update
         } catch (error) {
             console.error(error);
+            alert(error.message); // Display error message to the user
         }
     };
+    
 
     const handleAddNotes = async (newNotes) => {
         try {
@@ -158,10 +164,13 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
 
     return (
         <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`}>
-            <div className={`bg-white shadow-lg rounded-lg p-6 w-[50%] h-[80%] relative ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
+            <div className={`bg-white shadow-lg rounded-lg px-6 py-4 w-[50%] h-[80%] relative ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
                 <div className={`flex flex-col gap-2 w-full h-full ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                    <div className={`text-4xl w-full flex items-center justify-start font-semibold border-b py-2 px-6 ${darkMode ? 'border-light-textSecondary' : 'border-dark-textSecondary'}`}>
-                        <p>{rma.rma_id}</p>
+                    <div className={`w-full flex items-center justify-between border-b p-2 ${darkMode ? 'border-light-textSecondary' : 'border-dark-textSecondary'}`}>
+                        <p className='text-4xl font-semibold'>{rma.rma_id}</p>
+                        <button className='text-red-800 hover:text-red-600 text-xl' onClick={toggleConfirmClose}>
+                              <AiOutlineClose />
+                        </button>
                     </div>
                     <div className='flex flex-col w-full h-full justify-start px-6 py-4 gap-4'>
                         <div className={`text-sm flex items-center justify-between`}>
@@ -203,24 +212,31 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                         <div className="w-full flex flex-col space-y-2 py-4 gap-2">
                             <p className={`text-xl w-full flex items-center justify-start font-semibold py-2`}>RMA Actions</p>
                             <div className='flex gap-2'>
-                                <button className='bg-green-500 text-white px-4 py-2 rounded shadow hover:bg-green-600' onClick={toggleUpdatePopup}>
-                                    Update Status
+                                <button 
+                                    className={`bg-[#14AE5C] text-white font-semibold py-2 px-4 rounded ${rma.status === 'Approved' || rma.status === 'Rejected' ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                    onClick={toggleIsApproveRMA} 
+                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected'}
+                                >
+                                    Approve
                                 </button>
-                                <button className='bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600' onClick={handleGenerateRMAForm}>
+                                <button 
+                                    className={`bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${rma.status === 'Rejected' || rma.status === 'Approved' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    onClick={() => handleStatusUpdate('None', 'Rejected')}
+                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected'}
+                                >
+                                    Reject
+                                </button>
+                                <button className='bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600' onClick={handleGenerateRMAForm}>
                                     Generate RMA Form
                                 </button>
-                                <button className='bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600' onClick={toggleAddNotes}>
+                                <button className='bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600' onClick={toggleAddNotes}>
                                     Add Notes
                                 </button>
-                                <button className='bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600' onClick={toggleConfirmClose}>
-                                    Close RMA
-                                </button>
-
                             </div>
                         </div>
                     </div>
                 </div>
-                {isUpdatePopupOpen && <UpdateStatusPopup onClose={toggleUpdatePopup} rmaId={rma._id}  currentStatus={rma.status} onUpdate={handleStatusUpdate} />}
+                {isApproveRMA && <UpdateStatusPopup onClose={toggleIsApproveRMA} rmaId={rma._id}  currentStatus={rma.status} onUpdate={handleStatusUpdate} />}
                 {isAddNotesOpen && <AddNotes onClose={(newNotes) => {handleAddNotes(newNotes); toggleAddNotes();}} rmaId={rma.rma_id}  />}
                 {isConfirmCloseOpen && (
                      <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`}>

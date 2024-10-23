@@ -3,15 +3,10 @@ import axios from 'axios';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { IoCaretBackOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
-import TextField from '@mui/material/TextField';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import Modal from '@mui/material/Modal';
-import Button from '@mui/material/Button';
 import { BiImages } from 'react-icons/bi';
 import { AiOutlineUpload } from "react-icons/ai";
 import ProductModal from '../components/ProductModal';
 
-const filter = createFilterOptions();
 
 const AddProduct = () => {
   const handleCloseModal = () => setOpenModal(false);
@@ -32,13 +27,14 @@ const AddProduct = () => {
   const [openModal, setOpenModal] = useState(false);
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
-  const [warranty, setWarranty] = useState('');
   const fileInputRef = useRef(null);
   const [serialNumberImages, setSerialNumberImages] = useState([]); 
   const [editModes, setEditModes] = useState(Array(serialNumbers.length).fill(false));
   const [savedCount, setSavedCount] = useState(0);
   const [subCategories, setSubCategories] = useState([]);
-
+  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedNumber, setSelectedNumber] = useState('1');
+  const [selectedUnit, setSelectedUnit] = useState('Year');
   
 
   const categories = [
@@ -65,6 +61,11 @@ const AddProduct = () => {
       subcategories: [ "Home Use Builds", "Productivity Builds", "Gaming Builds"]
     }
   ];
+
+    // Handler to update the combined value
+    const handleChange = (number, unit) => {
+      setSelectedValue(`${number} ${unit}`);
+    };
 
 
 
@@ -197,7 +198,7 @@ const handleEditClick = (index) => {
     formData.append('low_stock_threshold', lowStockThreshold);
     formData.append('buying_price', buyingPrice);
     formData.append('selling_price', sellingPrice);
-    formData.append('warranty', warranty);
+    formData.append('warranty', selectedValue);
 
     // Create an array of units with serial numbers and their respective images
     const units = serialNumbers.map((sn, index) => {
@@ -312,12 +313,36 @@ const handleEditClick = (index) => {
                 </div>
 
                 <div className="flex w-full gap-2 justify-between">
-                  <label htmlFor="warranty" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>WARRANTY</label>
-                  <input type="text"  id="warranty" placeholder="Warranty"
-                    className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
-                    value={warranty}
-                    onChange={(e) => setWarranty(e.target.value)}
-                  />
+                     <label htmlFor="warannty" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>WARRANTY</label>
+                  <div className='flex gap-2  w-[58%]'>
+                  <select
+                      value={selectedNumber}
+                      onChange={(e) => {
+                        setSelectedNumber(e.target.value);
+                        handleChange(e.target.value, selectedUnit);
+                      }}
+                      className="border border-gray-300 rounded p-2 w-[30%]"
+                    >
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          {i + 1}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      value={selectedUnit}
+                      onChange={(e) => {
+                        setSelectedUnit(e.target.value);
+                        handleChange(selectedNumber, e.target.value);
+                      }}
+                      className="border border-gray-300 rounded p-2 w-[70%]"
+                    >
+                      <option value="Year">Year</option>
+                      <option value="Months">Months</option>
+                      <option value="Days">Days</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="flex w-full gap-2 justify-between">

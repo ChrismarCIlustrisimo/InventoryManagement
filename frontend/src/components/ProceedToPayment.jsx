@@ -430,7 +430,8 @@ const calculateTotalVAT = () => {
                   Confirm Payment
                 </button>
                 <button
-                  className={`w-full py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}                  onClick={onClose}
+                  className={`w-full py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
+                  onClick={onClose}
                 >
                   Cancel Transaction
                 </button>

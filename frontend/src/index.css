@@ -31,6 +31,11 @@
         box-sizing: border-box;
     }
 
+    @media screen {
+        .screen-component {
+            width: 60%;
+        }
+    }
     
 }
 

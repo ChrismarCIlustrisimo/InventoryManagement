@@ -106,8 +106,6 @@ router.post('/', async (req, res) => {
           serial_number: processedUnits.map((unit) => unit.serial_number),
           price: productDoc.selling_price,
           quantity: processedUnits.length, // Track sold units
-          item_status: item_status || 'Completed',
-          reason_for_refund,
         };
       })
     );
@@ -205,10 +203,10 @@ router.get('/', async (req, res) => {
       const itemStatusConditions = [];
       
       if (statusFilters.Completed) {
-        itemStatusConditions.push({ item_status: 'Completed' });
+        itemStatusConditions.push({ status: 'Completed' });
       }
       if (statusFilters.Refunded) {
-        itemStatusConditions.push({ item_status: 'Refunded' });
+        itemStatusConditions.push({ status: 'Refunded' });
       }
       
       if (itemStatusConditions.length > 0) {

@@ -3,7 +3,6 @@ import '../App.css'
 import axios from 'axios';
 import ReactToPrint from 'react-to-print';
 import { useAdminTheme } from '../context/AdminThemeContext';
-import DashboardNavbar from '../components/DashboardNavbar';
 import { useAuthContext } from '../hooks/useAuthContext';
 import DateRangeModal from '../components/DateRangeModal'; // Import your modal
 import { HiOutlineRefresh } from "react-icons/hi";
@@ -13,6 +12,8 @@ import SalesByCategory from '../components/reportsComponent/SalesByCategory';
 import PaymentMethods from '../components/reportsComponent/PaymentMethods';
 import RefundSummary from '../components/reportsComponent/RefundSummary';
 import VATSummary from '../components/reportsComponent/VATSummary';
+import { useTheme } from '../context/ThemeContext';
+import Navbar from '../components/Navbar';
 
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
@@ -135,20 +136,20 @@ const handleResetFilters = () => {
   
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
-      <DashboardNavbar />
+      <Navbar />
       <div className='pt-[70px] px-6 py-4 w-full h-full'>
       <div className='flex items-center justify-center  my-2 h-[10%]'>
       <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
             Sales Report
           </h1>
-          <div className='h-full w-[40%] flex items-center justify-center gap-2 '>
-          <ReactToPrint
+          <div className='h-full w-[40%] flex items-center justify-end gap-2 '>
+          <ReactToPrint 
               trigger={() => <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary'}`}>Print Report</button>}
               content={() => componentRef.current}
               pageStyle="print"
               
-            />            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-button'}`}>Export as PDF</button>
-            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-button'}`}>Export as CSV</button>
+            />
+            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-button'}`}>Export as PDF</button>
           </div>
         </div>
         <div className='flex gap-4 items-center justify-center'>

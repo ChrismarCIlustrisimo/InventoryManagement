@@ -61,7 +61,7 @@ const Receipt = () => {
 
   // Calculate the tax amount (12%)
   const taxRate = 0.12; // 12%
-  const totalPrice = transaction.total_price; // Assuming this is the total before tax
+  const totalPrice = transaction.total_price; 
   const taxAmount = totalPrice * taxRate;
   const totalWithTax = totalPrice + taxAmount;
 

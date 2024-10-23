@@ -9,6 +9,7 @@ import userRoute from './routes/userRoute.js';
 import SupplierRoute from './routes/supplierRoute.js';
 import RMARoute from './routes/RMARoute.js';
 import Counter from './models/counterModel.js';
+import refundRoute from './routes/refundRoute.js';
 import { mongoDBURL, PORT } from './config.js';
 import cleanupExpiredTransactions from './middleware/cleanupExpiredTransactions.js';
 import cors from 'cors';
@@ -50,6 +51,7 @@ app.use('/transaction', transactionRoutes);
 app.use('/user', userRoute);
 app.use('/supplier', SupplierRoute);
 app.use('/rma', RMARoute);
+app.use('/refund', refundRoute); // only
 
 
 // WebSocket connection

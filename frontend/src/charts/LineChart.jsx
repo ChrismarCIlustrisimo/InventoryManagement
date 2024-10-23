@@ -66,6 +66,31 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
       });
   
       const transactions = response.data.data;
+
+
+                // Create an array to hold units that are sold
+          let soldUnits = [];
+
+          // Iterate through each transaction
+          transactions.forEach(transaction => {
+            // Check if the transaction status is refunded
+            if (transaction.status === 'Refunded') {
+              // Iterate through each product in the transaction
+              transaction.products.forEach(product => {
+                // Check if the product has units
+                if (product.units && product.units.length > 0) {
+                  // Filter units that have a sold status
+                  const sold = product.units.filter(unit => unit.status === 'sold');
+                  if (sold.length > 0) {
+                    // Add sold units to the soldUnits array
+                    soldUnits = soldUnits.concat(sold);
+                  }
+                }
+              });
+            }
+          });
+
+          console.log("Sold Units in Refunded Transaction",soldUnits);
   
       const groupedData = transactions.reduce((acc, transaction) => {
         const date = new Date(transaction.createdAt).toISOString().split('T')[0]; 

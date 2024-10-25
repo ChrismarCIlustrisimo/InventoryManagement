@@ -153,7 +153,16 @@ const DashboardPos = () => {
     return statusStyles;
   };
   
-  
+  const shortenString = (str) => {
+    if (typeof str === 'string') {
+        const trimmedStr = str.trim();
+        if (trimmedStr.length > 15) {
+            return trimmedStr.slice(0, 15) + '...';
+        }
+        return trimmedStr;
+    }
+    return 'N/A';
+};
 
   return (
 <div className={`h-full ${darkMode ? 'bg-light-bg' : 'dark:bg-dark-bg'}`}>
@@ -309,12 +318,12 @@ const DashboardPos = () => {
                 <tr key={transaction._id} className={`${darkMode ? 'text-light-textPrimary bg-light-container ' : 'dark:text-dark-textPrimary bg-dark-container'} text-sm`}>
                   <td className="p-2 text-center">{transaction.transaction_id || 'N/A'}</td>
                   <td className="p-2 text-center">{formatDate(transaction.transaction_date)}</td>
-                  <td className="p-2 text-center">{transaction.customer?.name || 'None'}</td>
+                  <td className="p-2 text-center">{shortenString(transaction.customer?.name) || 'None'}</td>
                   <td className="p-2 text-center">
                     {transaction.products.length > 0
                       ? transaction.products.map((item, idx) => (
                           <div key={idx}>
-                            <p>{item.product.name}</p>
+                            <p>{shortenString(item.product.name)}</p>
                           </div>
                         ))
                       : 'N/A'}
@@ -352,7 +361,7 @@ const DashboardPos = () => {
                           (() => {
                             const { textClass, bgClass } = getStatusStyles(transaction.status);  // Get styles based on the overall transaction status
                             return (
-                              <div className={`inline-block p-2 rounded ${textClass} ${bgClass}`}>
+                              <div className={`inline-block p-2 w-[90%] rounded ${textClass} ${bgClass}`}>
                                 {transaction.status}
                               </div>
                             );

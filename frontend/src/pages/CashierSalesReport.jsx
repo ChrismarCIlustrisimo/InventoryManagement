@@ -15,6 +15,7 @@ import VATSummary from '../components/reportsComponent/VATSummary';
 import { useTheme } from '../context/ThemeContext';
 import Navbar from '../components/Navbar';
 
+
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();

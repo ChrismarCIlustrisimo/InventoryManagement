@@ -10,13 +10,15 @@ const RMASchema = new mongoose.Schema({
   customer_name: { type: String, required: true },
   reason: { type: String, required: true },
   condition: { type: String, required: true },
-  serial_number: { type: String, required: true },
   product_warranty: { type: String, required: true },
+  product_price: { type: String, required: true },
+  product_id: { type: String, required: true },
+  cashier: { type: String, required: true },
   process: { type: String, enum: ['Refund', 'Replacement','None'], default: 'None' },
   transaction_date: { type: Date, required: true }, // Ensure this is a Date
-  status: { type: String, enum: ['Pending', 'Approved', 'Rejected'], default: 'Pending' },
+  status: { type: String, enum: ['Pending', 'Approved', 'Rejected', 'Completed'], default: 'Pending' },
   warranty_status: { type: String, enum: ['Valid', 'Expired'], default: 'Valid', required: true },
-  notes: { type: String },  // New optional field for notes
+  notes: { type: String },
 }, {
   timestamps: true,
 });

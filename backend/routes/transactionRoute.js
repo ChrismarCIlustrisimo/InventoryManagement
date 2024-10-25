@@ -4,7 +4,7 @@ import Product from '../models/productModel.js';
 import Customer from '../models/customerModel.js';
 import Counter from '../models/counterModel.js';
 import requireAuth from '../middleware/requireAuth.js';
-
+import RMA from '../models/RmaModel.js';
 const router = express.Router();
 
 // requireAuth for all transactions routes
@@ -377,6 +377,84 @@ router.delete('/:id', async (req, res) => {
     return res.status(500).send('Server Error');
   }
 });
+
+router.put('/:transactionId/replace-units', async (req, res) => {
+  try {
+      const { transactionId } = req.params;
+      const { products, rmaId } = req.body;
+
+      // Validate input
+      if (!products || products.length === 0) {
+          return res.status(400).json({ message: 'Products are required for replacement.' });
+      }
+
+      // Find the transaction by its transaction_id
+      const transaction = await Transaction.findOne({ transaction_id: transactionId });
+
+      // Check if transaction exists
+      if (!transaction) {
+          return res.status(404).json({ message: 'Transaction not found.' });
+      }
+
+      // Loop through each product to update the serial numbers
+      for (const { old_serial_number, new_serial_number } of products) {
+          // Find the product in the transaction's products array
+          const productToUpdate = transaction.products.find(product => product.serial_number.includes(old_serial_number));
+
+          // If the product with the old serial number exists, update it
+          if (productToUpdate) {
+              // Update the old serial number status to 'replaced'
+              const updateOldUnit = await Product.updateOne(
+                  { 'units.serial_number': old_serial_number },
+                  { $set: { 'units.$.status': 'replaced' } }
+              );
+
+              if (updateOldUnit.nModified === 0) {
+                  return res.status(500).json({ message: `Failed to update status for old unit ${old_serial_number}.` });
+              }
+
+              // Update the product's serial_number to the new serial number
+              productToUpdate.serial_number = new_serial_number;
+
+              // Update the new serial number status to 'in_stock'
+              const updateNewUnit = await Product.updateOne(
+                  { 'units.serial_number': new_serial_number },
+                  { $set: { 'units.$.status': 'sold' } }
+              );
+
+              if (updateNewUnit.nModified === 0) {
+                  return res.status(500).json({ message: `Failed to update status for new unit ${new_serial_number}.` });
+              }
+
+              // Update the RMA status for the current new_serial_number
+              await RMA.updateOne(
+                  { rma_id: rmaId }, // Assuming rmaId is passed in the request body
+                  { $set: { status: 'Completed'} }
+              );
+          } else {
+              return res.status(400).json({ message: `Serial number ${old_serial_number} not found in the transaction.` });
+          }
+      }
+
+      // Update the transaction status to 'Replaced'
+      transaction.status = 'Replaced';
+
+      // Save the updated transaction
+      await transaction.save();
+      
+      return res.status(200).json({ message: 'Units replaced successfully!', transaction });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server error while processing replacement.', error: error.message });
+  }
+});
+
+
+
+
+
+
+
 
 
 

@@ -11,61 +11,85 @@ import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
 
 const Refund = () => {
-    const { user } = useAuthContext();
-    const { darkMode } = useAdminTheme();
-    const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
-    const [searchQuery, setSearchQuery] = useState('');
-    const [customerName, setCustomerName] = useState(''); // Add this line
-    const [cashierName, setCashierName] = useState('');
-    const [startDate, setStartDate] = useState(null);
-    const [endDate, setEndDate] = useState(null);
-    const [minPrice, setMinPrice] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
-    const isInputsEmpty = minPrice === '' && maxPrice === '';
-    const [paymentMethod, setPaymentMethod] = useState(''); // State to hold selected payment method
-    const [transactionStatus, setTransactionStatus] = useState({
-        Completed: false,
-        Refunded: false
-    });
+  const { user } = useAuthContext();
+  const { darkMode } = useAdminTheme();
+  const navigate = useNavigate();
+  const baseURL = "http://localhost:5555"; // Make sure this is your actual base URL
+  const [searchQuery, setSearchQuery] = useState('');
+  const [customerName, setCustomerName] = useState('');
+  const [cashierName, setCashierName] = useState('');
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const isInputsEmpty = minPrice === '' && maxPrice === '';
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [transactionStatus, setTransactionStatus] = useState({
+      Completed: false,
+      Refunded: false
+  });
+  const [refunds, setRefunds] = useState([]); // State for refund data
 
-    const handleStartDateChange = (date) => setStartDate(date);
-    const handleEndDateChange = (date) => setEndDate(date);
-
-    const handleCheckboxChange = (status) => {
-        setTransactionStatus(prev => ({
-            ...prev,
-            [status]: !prev[status]
-        }));
-    };
-
-    const handlePaymentMethodChange = (e) => {
-        setPaymentMethod(e.target.value);
+  useEffect(() => {
+      const fetchRefunds = async () => {
+          try {
+              const response = await axios.get(`${baseURL}/refund`, {
+                  headers: {
+                      Authorization: `Bearer ${user.token}` // Include token if needed
+                  },
+                  params: {
+                      customerName,
+                      cashierName,
+                      startDate,
+                      endDate,
+                      minPrice,
+                      maxPrice,
+                      paymentMethod,
+                      transactionStatus: Object.keys(transactionStatus).filter(status => transactionStatus[status])
+                  }
+              });
+              setRefunds(response.data); // Assuming response.data is the array of refunds
+          } catch (error) {
+              console.error("Error fetching refunds:", error);
+          }
       };
 
-      const handlePriceRangeFilter = () => {
-        setProducts(prevProducts => prevProducts.filter(product =>
-          (minPrice === '' || product.selling_price >= parseFloat(minPrice)) &&
-          (maxPrice === '' || product.selling_price <= parseFloat(maxPrice))
-        ));
-      };
-    
+      fetchRefunds();
+  }, [customerName, cashierName, startDate, endDate, minPrice, maxPrice, paymentMethod, transactionStatus, user.token]);
 
-      const handleResetFilters = () => {
-        setSearchQuery('');
-        setCustomerName('');
-        setCashierName('');
-        setStartDate(null);
-        setEndDate(null);
-        setMinPrice('')
-        setMaxPrice('')
-        setPaymentMethod('')
-        setTransactionStatus({
-            Completed: false,
-            Refunded: false
-        })
-      }
+  const handleStartDateChange = (date) => setStartDate(date);
+  const handleEndDateChange = (date) => setEndDate(date);
+  
+  const handleCheckboxChange = (status) => {
+      setTransactionStatus(prev => ({
+          ...prev,
+          [status]: !prev[status]
+      }));
+  };
 
+  const handlePaymentMethodChange = (e) => {
+      setPaymentMethod(e.target.value);
+  };
+
+  const handlePriceRangeFilter = () => {
+      // Handle price range filtering if necessary
+  };
+
+  const handleResetFilters = () => {
+      setSearchQuery('');
+      setCustomerName('');
+      setCashierName('');
+      setStartDate(null);
+      setEndDate(null);
+      setMinPrice('');
+      setMaxPrice('');
+      setPaymentMethod('');
+      setTransactionStatus({
+          Completed: false,
+          Refunded: false
+      });
+      setRefunds([]); // Clear refunds on reset
+  };
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
         <Navbar />
@@ -227,32 +251,35 @@ const Refund = () => {
              </div>
        <div className={`h-[78vh] w-[77%] overflow-auto roundead-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
        <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                                <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
-                                    <tr>
-                                        <th className='p-2 text-center'>Refund ID</th>
-                                        <th className='p-2 text-center'>Transsaction ID</th>
-                                        <th className='p-2 text-center text-xs'>Sales Date</th>
-                                        <th className='p-2 text-center text-xs'>Cashier</th>
-                                        <th className='p-2 text-center text-xs'>Refund Amount</th>
-                                        <th className='p-2 text-center text-xs'>Refund Method</th>
-                                        <th className='p-2 text-center text-xs'>Product Name</th>
-                                        <th className='p-2 text-center text-xs'>Serial Number</th>
-                                        <th className='p-2 text-center text-xs'>Reason</th>
+                            <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
+                                <tr>
+                                    <th className='p-2 text-center'>Refund ID</th>
+                                    <th className='p-2 text-center'>Transaction ID</th>
+                                    <th className='p-2 text-center text-xs'>Sales Date</th>
+                                    <th className='p-2 text-center text-xs'>Cashier</th>
+                                    <th className='p-2 text-center text-xs'>Refund Amount</th>
+                                    <th className='p-2 text-center text-xs'>Refund Method</th>
+                                    <th className='p-2 text-center text-xs'>Product Name</th>
+                                    <th className='p-2 text-center text-xs'>Serial Number</th>
+                                    <th className='p-2 text-center text-xs'>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {refunds.map(refund => (
+                                    <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                                        <td className='p-2 text-center'>{refund.refund_id}</td>
+                                        <td className='p-2 text-center'>{refund.transaction_id}</td>
+                                        <td className='p-2 text-center'>{new Date(refund.salesDate).toLocaleDateString()}</td>
+                                        <td className='p-2 text-center'>{refund.cashier}</td>
+                                        <td className='p-2 text-center'>{refund.refund_amount}</td>
+                                        <td className='p-2 text-center'>{refund.refund_method}</td>
+                                        <td className='p-2 text-center'>{refund.product_name}</td>
+                                        <td className='p-2 text-center'>{refund.serial_number}</td>
+                                        <td className='p-2 text-center'>{refund.reason}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                            <tr className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
-                                                <td className='text-center py-4 text-sm'></td>
-                                                <td className='text-center py-4 text-sm'></td>
-                                                <td className='text-center py-4 text-sm'></td>
-                                                <td className='text-center py-4 text-sm'></td>
-                                                <td className='text-center py-4 text-sm'></td>
-                                                <td className='text-center py-4 text-sm'></td>
-                                                <td className='text-center py-4 text-sm'></td>
-
-                                            </tr>
-                                </tbody>
-                            </table>
+                                ))}
+                            </tbody>
+                        </table>
        </div>
       </div>
 

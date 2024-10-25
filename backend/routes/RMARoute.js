@@ -19,6 +19,9 @@ router.post('/', async (req, res) => {
       condition,
       product_warranty,
       transaction_date,
+      cashier,
+      product_price,
+      product_id,
     } = req.body;
 
     // Check for required fields
@@ -40,7 +43,7 @@ router.post('/', async (req, res) => {
     // Update the transaction's status to 'Rma'
     const updatedTransaction = await Transaction.findOneAndUpdate(
       { transaction_id: transaction },
-      { $set: { status: 'Rma' } }, // Set transaction status to 'Rma'
+      { $set: { status: 'RMA' } }, // Set transaction status to 'Rma'
       { new: true } // Return the updated transaction
     );
 
@@ -63,7 +66,10 @@ router.post('/', async (req, res) => {
       notes,
       condition,
       product_warranty,
-      transaction_date
+      transaction_date,
+      cashier,
+      product_price,
+      product_id,
     });
 
     const createdRMA = await newRMA.save();

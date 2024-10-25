@@ -93,7 +93,7 @@ router.post('/', upload.fields([
       model,
       low_stock_threshold: low_stock_threshold ? Number(low_stock_threshold) : undefined,
       sub_category,
-      warranty, // Add warranty here
+      warranty,
       image: mainImage ? `images/${mainImage.filename}` : '',
       product_id: await Product.generateProductId(),
       units: processedUnits,
@@ -468,6 +468,9 @@ router.post('/:productId/unit', upload.fields([{ name: 'serial_number_image', ma
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+
+
 
 
 export default router;

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import RefundForm from './RefundForm';
 import { useTheme } from '../context/ThemeContext';
-import { IoCaretBackOutline } from "react-icons/io5";
 import ProcessRefund from './ProcessRefund';
 import ProcessReplacement from './ProcessReplacement';
+
 
 const ViewRMACashier = ({ onClose, rma }) => {
     const navigate = useNavigate();
@@ -12,23 +12,35 @@ const ViewRMACashier = ({ onClose, rma }) => {
     const { darkMode } = useTheme();
     const [isProcessRefund, setIsProcessRefund] = useState(false);
     const [isProcessReplacement, setIsProcessReplacement] = useState(false);
+    const [rmaProcess, setRmaProcess] = useState(rma.process);
 
-    const handleRefundFormOpen = () => {
-        setIsRefundForm(true);
-    };
 
     const handleRefundFormClose = () => {   
         setIsRefundForm(false);
     };
 
-    const handleProcessOpen = () => {
-        if (rma.process === 'Refund') {
+    useEffect(() => {
+        if (rma && rma.process) {
+            setRmaProcess(rma.process);
+        } else {
+            console.log("RMA process is undefined or empty");
+        }
+    }, [rma]);
+    
+    
+
+    const handleProcessOpen = (process) => {
+        console.log(process);  // Log to check the value of `rmaProcess`
+        if (process === 'Refund') {
             setIsProcessRefund(true);
-        } else if (rma.process === 'Replacement') {
+        } else if (process === 'Replacement') {
             setIsProcessReplacement(true);
         }
     };
-
+    
+    
+    
+    
     const handleProcessClose = () => {
         setIsProcessRefund(false);
         setIsProcessReplacement(false);
@@ -78,7 +90,7 @@ const ViewRMACashier = ({ onClose, rma }) => {
                     bgClass: 'bg-[#E5E5EA]',
                 };
                 break;
-            case 'Expired':
+            case 'Rejected':
                 statusStyles = {
                     textClass: 'text-[#EC221F]',
                     bgClass: 'bg-[#FEE9E7]',
@@ -144,23 +156,19 @@ const ViewRMACashier = ({ onClose, rma }) => {
     };
 
 
-
-    
-
     return (
         <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`} onClick={onClose}>
-            <div className={`bg-white shadow-lg rounded-lg p-6 w-[50%] h-[80%] relative ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
+            <div className={`bg-white shadow-lg rounded-lg p-6 w-[50%] h-[80%] relative ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`} onClick={(e) => e.stopPropagation()}>
                 <div className={`flex flex-col gap-2 w-full h-full ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                     <div className={`w-full flex items-center justify-between border-b py-2 px-4 ${darkMode ? 'border-light-textSecondary' : 'border-dark-textSecondary'}`}>
                         <p className='font-semibold text-4xl'>RMA Details</p>
                         <button 
-                            className={`px-4 py-2 text-white rounded-lg ${darkMode ? 'bg-light-button' : 'bg-blue-700'} ${rma.process === 'None' ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                            onClick={handleProcessOpen}
-                            disabled={rma.process === 'None'}
+                            className={`px-4 py-2 text-white rounded-lg ${darkMode ? 'bg-light-button' : 'bg-blue-700'} ${rma.process === 'None' ||  rma.status === 'Completed' ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                            onClick={() => handleProcessOpen(rma.process)} 
+                            disabled={rma.process === 'None' || rma.status === 'Completed'}
                         >
                             Process RMA
                         </button>
-
                     </div>
                     <div className='flex flex-col w-full h-full justify-start px-6 py-4 gap-4'>
                         <div className={`text-sm flex items-center justify-between`}>
@@ -215,17 +223,26 @@ const ViewRMACashier = ({ onClose, rma }) => {
                         </div>
                     </div>
                 </div>
-                {isProcessRefund && (
+
+
+
+               
+
+              {isProcessRefund && (
                     <ProcessRefund
                         onClose={handleProcessClose}
+                        rma={rma}
+
                     />
                 )}
 
                 {isProcessReplacement && (
                     <ProcessReplacement
                         onClose={handleProcessClose}
+                        rma={rma}
                     />
                 )}
+
 
                 {isRefundForm && (
                     <RefundForm

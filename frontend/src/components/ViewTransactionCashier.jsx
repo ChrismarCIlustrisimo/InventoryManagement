@@ -87,7 +87,21 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
         };
 
     
-
+        const shortenString = (str) => {
+            // Log the input for debugging
+            console.log('Input string:', str);
+        
+            // Check if the input is a valid string and trim it
+            if (typeof str === 'string') {
+                const trimmedStr = str.trim(); // Remove leading and trailing spaces
+                if (trimmedStr.length > 15) {
+                    return trimmedStr.slice(0, 25) + '...'; // Shorten and add ellipsis
+                }
+                return trimmedStr; // Return the original trimmed string if it's 10 characters or less
+            }
+            return 'N/A'; // Return 'N/A' if input is not a string
+        };
+        
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
@@ -174,7 +188,7 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                                         return (
                                             <tr key={index} className="border-y-2">
                                             <td className="p-2 flex flex-col gap-2 text-left">
-                                                <p>{item.product?.name || 'N/A'}</p>
+                                                     <p>{shortenString(item.product?.name)}</p>
                                             </td>
                                             <td className="p-2 text-center">₱ {item.product?.selling_price || 0}</td>
                                             <td className="p-2 text-center">{item.quantity}</td>
@@ -186,7 +200,7 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                                         })
                                     ) : (
                                         <tr>
-                                        <td colSpan={5} className="border p-2 text-center">No products found for this transaction.</td>
+                                             <td colSpan={5} className="border p-2 text-center">No products found for this transaction.</td>
                                         </tr>
                                     )}
                                     </tbody>

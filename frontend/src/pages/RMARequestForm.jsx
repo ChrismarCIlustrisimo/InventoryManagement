@@ -32,6 +32,9 @@ const RMARequestForm = ({ onClose, transaction }) => {
   const [selectedSerial, setSelectedSerial] = useState("");
   const [cashierName, setCashierName] = useState(transaction.cashier || "");
   const [productWarranty, setProductWarranty] = useState("");
+  const [productPrice, setProductPrice] = useState(0); // Initialize with 0 or any default value
+  const [productID, setProductID] = useState('');
+
 
   // Extracting warranty information from the first product in the transaction
   useEffect(() => {
@@ -45,33 +48,57 @@ const RMARequestForm = ({ onClose, transaction }) => {
   useEffect(() => {
     if (transaction.products && transaction.products.length > 0) {
         const newProducts = transaction.products
-            .filter(item => item.serial_number && item.serial_number.length > 0) // Check if serial_number exists
+            .filter(item => item.serial_number && item.serial_number.length > 0)
             .map(item => {
                 const productUnits = item.product?.units || [];
-                
-                // Create an array of serial numbers that have a status of 'sold'
-                const soldSerialNumbers = item.serial_number.filter(serial => {
+
+                // Create an array of serial numbers that have a status of 'sold' and are going to be processed for RMA
+                const rmaSerialNumbers = item.serial_number.filter(serial => {
                     const matchedUnit = productUnits.find(unit => unit.serial_number === serial);
                     return matchedUnit?.status === 'sold'; // Only include if status is 'sold'
                 });
 
-                return {
-                    _id: item._id,
-                    name: item.product.name,
-                    serialNumbers: soldSerialNumbers // Only include sold serial numbers
-                };
-            });
+                // Check if there are any serial numbers ready for RMA processing
+                if (rmaSerialNumbers.length > 0) {
+                    return {
+                        _id: item._id,
+                        name: item.product.name,
+                        sellingPrice: item.product.selling_price,
+                        serialNumbers: rmaSerialNumbers,
+                        soldCount: rmaSerialNumbers.length // Add the count of sold serial numbers
+                    };
+                }
+
+                return null; // Return null if there are no serial numbers for RMA
+            })
+            .filter(item => item !== null); // Filter out null values from the array
 
         setProducts(newProducts);
+
+        // Calculate the total selling price for sold products ready for RMA
+        const totalSellingPrice = newProducts.reduce((total, product) => {
+            return total + (product.sellingPrice * product.soldCount); // Use soldCount instead
+        }, 0);
+
+        // Store the calculated value multiplied by 0.12
+        setProductPrice((totalSellingPrice * 0.12) + totalSellingPrice);
     }
 }, [transaction]);
 
+
+
   
-  const handleProductChange = (e) => {
-    const productName = e.target.value;
-    setSelectedProduct(productName);
-    setSelectedSerial("");
-  };
+const handleProductChange = (event) => {
+  const selectedProductName = event.target.value;
+  
+  // Find the selected product based on the name from the transaction prop
+  const selectedProduct = transaction.products.find(product => product.product.name === selectedProductName);
+  
+  setSelectedProduct(selectedProductName);
+  setProductID(selectedProduct ? selectedProduct.product._id : ''); // Set the product ID
+  setSelectedSerial(""); // Reset selected serial if needed
+};
+
 
   const handleSerialChange = (e) => {
     setSelectedSerial(e.target.value);
@@ -130,6 +157,9 @@ const RMARequestForm = ({ onClose, transaction }) => {
       condition: productCondition,
       product_warranty: productWarranty,
       transaction_date: transactionDate,
+      cashier: cashierName,
+      product_price: productPrice,
+      product_id: productID, 
     };
   
   
@@ -149,6 +179,21 @@ const RMARequestForm = ({ onClose, transaction }) => {
   }
   
   };
+
+  const shortenString = (str) => {
+    // Log the input for debugging
+    console.log('Input string:', str);
+
+    // Check if the input is a valid string and trim it
+    if (typeof str === 'string') {
+        const trimmedStr = str.trim(); // Remove leading and trailing spaces
+        if (trimmedStr.length > 20) {
+            return trimmedStr.slice(0, 20) + '...'; // Shorten and add ellipsis
+        }
+        return trimmedStr; // Return the original trimmed string if it's 10 characters or less
+    }
+    return 'N/A'; // Return 'N/A' if input is not a string
+};
   
 
   return (
@@ -264,7 +309,7 @@ const RMARequestForm = ({ onClose, transaction }) => {
                 >
                   <option value="">Select a product</option>
                   {products.map(product => (
-                    <option key={product._id} value={product.name}>{product.name}</option>
+                    <option key={product._id} value={product.name}>{shortenString(product.name)}</option>
                   ))}
                 </select>
               </div>

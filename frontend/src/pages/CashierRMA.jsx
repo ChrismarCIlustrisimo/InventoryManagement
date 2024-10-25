@@ -9,6 +9,7 @@ import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
 import { useTheme } from '../context/ThemeContext';
 import ViewRMACashier from '../components/ViewRMACashier';
+import ProcessRefund from '../components/ProcessRefund';
 
 const CashierRMA = () => {
     const { user } = useAuthContext();
@@ -98,24 +99,28 @@ const CashierRMA = () => {
     
     const handleCloseRMACashier = () => {
         setIsViewRMAOpen(false); // Close the modal
-        setSelectedRma(null); // Clear the selected RMA
     };
 
 
 
-    const filteredRMA = rmaData.filter(rma => {
-        const matchesSearchQuery = rma.rma_id.includes(searchQuery);
-        const matchesCustomerName = rma.customer_name.includes(customerNameFilter);
-        const matchesWarrantyStatus = warranty_status ? rma.warranty_status === warranty_status : true;
-        const matchesDateRange = (startDate ? new Date(rma.date_initiated) >= new Date(startDate) : true) &&
-                                  (endDate ? new Date(rma.date_initiated) <= new Date(endDate) : true);
-        const matchesStatus = Object.keys(statusFilters).some(status => statusFilters[status] && rma.status === status) || 
-                              Object.values(statusFilters).every(value => !value);
-        
-        return matchesSearchQuery && matchesCustomerName && matchesWarrantyStatus && matchesDateRange && matchesStatus;
-    });
+// Filter logic
+const filteredRMA = (rmaData || []).filter(rma => {
+    const matchesSearchQuery = searchQuery ? rma?.rma_id?.includes(searchQuery) : true;
+    const matchesCustomerName = customerName ? rma?.customer_name?.includes(customerName) : true;
+    const matchesCashierName = cashierName ? rma?.cashier?.includes(cashierName) : true;
+    const matchesWarrantyStatus = warranty_status ? rma?.warranty_status === warranty_status : true;
+    const matchesDateRange = (startDate ? new Date(rma?.date_initiated) >= new Date(startDate) : true) &&
+                             (endDate ? new Date(rma?.date_initiated) <= new Date(endDate) : true);
+    const matchesPriceRange = (!minPrice || rma?.selling_price >= parseFloat(minPrice)) &&
+                              (!maxPrice || rma?.selling_price <= parseFloat(maxPrice));
+    const matchesStatus = Object.keys(statusFilters).some(status => statusFilters[status] && rma?.status === status) ||
+                          Object.values(statusFilters).every(value => !value);
 
-    
+    return matchesSearchQuery && matchesCustomerName && matchesCashierName && matchesWarrantyStatus &&
+           matchesDateRange && matchesPriceRange && matchesStatus;
+});
+
+
     
 
     const getStatusStyles = (status, warranty_status, process) => {
@@ -145,14 +150,14 @@ const CashierRMA = () => {
                 break;
             case 'Completed':
                 statusStyles = {
-                    textClass: 'text-[#8E8E93]',
-                    bgClass: 'bg-[#E5E5EA]',
+                    textClass: 'text-[#14AE5C]',
+                    bgClass: 'bg-[#CFF7D3]',
                 };
                 break;
             case 'Expired':
                 statusStyles = {
                     textClass: 'text-[#EC221F]',
-                    bgClass: 'bg-[#FEE9E7]',
+                    bgClass: 'bg-[#CFF7D3]',
                 };
                 break;
         }
@@ -215,7 +220,21 @@ const CashierRMA = () => {
         });
       };
 
-
+      const shortenString = (str) => {
+        // Log the input for debugging
+        console.log('Input string:', str);
+    
+        // Check if the input is a valid string and trim it
+        if (typeof str === 'string') {
+            const trimmedStr = str.trim(); // Remove leading and trailing spaces
+            if (trimmedStr.length > 12) {
+                return trimmedStr.slice(0, 12) + '...'; // Shorten and add ellipsis
+            }
+            return trimmedStr; // Return the original trimmed string if it's 10 characters or less
+        }
+        return 'N/A'; // Return 'N/A' if input is not a string
+    };
+      
 
 
 
@@ -397,14 +416,17 @@ const CashierRMA = () => {
                                                 <td className='text-center py-4 text-sm'>{rmaRequest.rma_id}</td>
                                                 <td className='text-center py-4 text-sm'>{rmaRequest.transaction}</td>
                                                 <td className='text-center py-4 text-sm'>{formatDate(rmaRequest.date_initiated)}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.customer_name}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.product}</td>
+                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.customer_name)}</td>
+                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.product)}</td>
                                                 <td className='text-center py-4 text-sm'>{rmaRequest.serial_number}</td>
                                                 <td className={`text-center py-4 rounded-md px-2 text-sm`}>
                                                     <p className={`${statusStyles.textClass} ${statusStyles.bgClass} p-2 rounded-md`}>
                                                         {rmaRequest.status}
                                                     </p>
                                                 </td>
+                                                {    console.log(rmaRequest)
+                                                }
+
 
                                                 <td className={`text-center py-4 rounded-md px-2 text-sm`}>
                                                     <p className={`${processStyles.textClass} ${processStyles.bgClass} p-2 rounded-md`}>
@@ -435,7 +457,10 @@ const CashierRMA = () => {
                         )}
                     </div>
                 </div>
+                
             </div>
+
+
 
      {isViewRMAOpen && (
             <ViewRMACashier

@@ -112,7 +112,7 @@ const ViewProduct = () => {
         </div>
       </div>
 
-      <div className="p-8 bg-transparent"> {/* Removed min-h-screen */}
+      <div className="p-8 bg-transparent h-full"> {/* Removed min-h-screen */}
       {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className={`text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{product.name}</h1>
@@ -137,7 +137,7 @@ const ViewProduct = () => {
 
 
         {/* Content */}
-        <div className="grid grid-cols-3 gap-8 ">
+        <div className="grid grid-cols-3 gap-8 py-4">
           {/* Left Section: Image */}
           <div className="col-span-1">
             <div className={`rounded-lg shadow-md p-4 flex items-center justify-center ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
@@ -165,7 +165,6 @@ const ViewProduct = () => {
                 <p>Sub-Category</p>
                 <p>Model</p>
                 <p>Warranty</p>
-                <p>Location</p>
                 <p>Status</p>
                 <p>Note</p>
               </div>
@@ -175,9 +174,8 @@ const ViewProduct = () => {
                 <p>{product.sub_category || 'N/A'}</p>
                 <p>{product.model || 'N/A'}</p>
                 <p>{product.warranty || 'N/A'}</p>
-                <p>{product.location || 'N/A'}</p>
                 <p style={{ color: stockStatus.color }}>{stockStatus.status}</p> {/* Apply color dynamically */}
-                <p>{product.description || 'N/A'}</p>
+                <p className='h-[80px] overflow-y-auto'>{product.description || 'N/A'}</p>
               </div>
             </div>
           </div>

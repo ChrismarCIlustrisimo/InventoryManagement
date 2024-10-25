@@ -382,9 +382,9 @@ const fetchSalesOrders = async () => {
                               <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
                                 {transaction.total_price || 'N/A'}
                               </td>
-                              <td className={`p-4 text-sm font-semibold ${getStatusStyles(item.item_status).textClass} text-center`}>
-                                <span className={`px-4 py-2 rounded ${getStatusStyles(item.item_status).bgClass}`}>
-                                  {item.item_status || 'N/A'}
+                              <td className={`p-4 text-sm font-semibold ${getStatusStyles(transaction.status).textClass} text-center`}>
+                                <span className={`px-4 py-2 rounded ${getStatusStyles(transaction.status).bgClass}`}>
+                                  {transaction.status || 'N/A'}
                                 </span>
                               </td>
                               <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>

@@ -6,7 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { BiImages } from 'react-icons/bi';
 import { AiOutlineUpload } from "react-icons/ai";
 import ProductModal from '../components/ProductModal';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AddProduct = () => {
   const handleCloseModal = () => setOpenModal(false);
@@ -33,8 +34,8 @@ const AddProduct = () => {
   const [savedCount, setSavedCount] = useState(0);
   const [subCategories, setSubCategories] = useState([]);
   const [selectedValue, setSelectedValue] = useState('');
-  const [selectedNumber, setSelectedNumber] = useState('1');
-  const [selectedUnit, setSelectedUnit] = useState('Year');
+  const [selectedNumber, setSelectedNumber] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState('');
   
 
   const categories = [
@@ -64,9 +65,13 @@ const AddProduct = () => {
 
     // Handler to update the combined value
     const handleChange = (number, unit) => {
-      setSelectedValue(`${number} ${unit}`);
+      if (!number || !unit) {
+        setSelectedValue("N/A"); // Use "N/A" if either field is not selected
+      } else {
+        setSelectedValue(`${number} ${unit}`);
+      }
     };
-
+    
 
 
   const handleCategoryChange = (e) => {
@@ -132,13 +137,15 @@ const handleEditClick = (index) => {
   };
 
   const validate = () => {
-    if (!name) return 'Product name is required';
-    if (!category) return 'Product category is required';
-    if (!subCategory) return 'Sub-category is required'; 
-    if (!buyingPrice || isNaN(buyingPrice) || buyingPrice <= 0) return 'Valid buying price is required';
-    if (!sellingPrice || isNaN(sellingPrice) || sellingPrice <= 0) return 'Valid selling price is required';
-    if (!lowStockThreshold || isNaN(lowStockThreshold) || lowStockThreshold < 0) return 'Valid low stock threshold is required';
-    if (!file) return 'Product image is required';
+    if (!name) return toast.error('Product name is required');
+    if (!category) return toast.error('Product category is required');
+    if (!subCategory) return toast.error('Sub-category is required'); 
+    if (!buyingPrice || isNaN(buyingPrice) || buyingPrice <= 0) return toast.error('Valid buying price is required');
+    if (!sellingPrice || isNaN(sellingPrice) || sellingPrice <= 0) return toast.error('Valid selling price is required');
+    if (!lowStockThreshold || isNaN(lowStockThreshold) || lowStockThreshold < 0) return toast.error('Valid low stock threshold is required');
+    if (!file) return toast.error('Product image is required');
+    if (!selectedNumber) return toast.error('Select Number for Warranty');
+    if (!selectedUnit) return toast.error('Select Number for Time Frame');
     return ''; // No errors
 };
 
@@ -313,37 +320,42 @@ const handleEditClick = (index) => {
                 </div>
 
                 <div className="flex w-full gap-2 justify-between">
-                     <label htmlFor="warannty" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>WARRANTY</label>
-                  <div className='flex gap-2  w-[58%]'>
-                  <select
-                      value={selectedNumber}
-                      onChange={(e) => {
-                        setSelectedNumber(e.target.value);
-                        handleChange(e.target.value, selectedUnit);
-                      }}
-                      className="border border-gray-300 rounded p-2 w-[30%]"
-                    >
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>
-                          {i + 1}
-                        </option>
-                      ))}
-                    </select>
+                    <label htmlFor="warranty" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                      WARRANTY
+                    </label>
+                    <div className='flex gap-2 w-[58%]'>
+                      <select
+                        value={selectedNumber}
+                        onChange={(e) => {
+                          setSelectedNumber(e.target.value);
+                          handleChange(e.target.value, selectedUnit);
+                        }}
+                        className="border border-gray-300 rounded p-2 w-[30%]"
+                      >
+                        <option value="">0</option> {/* Placeholder option */}
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <option key={i + 1} value={i + 1}>
+                            {i + 1}
+                          </option>
+                        ))}
+                      </select>
 
-                    <select
-                      value={selectedUnit}
-                      onChange={(e) => {
-                        setSelectedUnit(e.target.value);
-                        handleChange(selectedNumber, e.target.value);
-                      }}
-                      className="border border-gray-300 rounded p-2 w-[70%]"
-                    >
-                      <option value="Year">Year</option>
-                      <option value="Months">Months</option>
-                      <option value="Days">Days</option>
-                    </select>
+                      <select
+                        value={selectedUnit}
+                        onChange={(e) => {
+                          setSelectedUnit(e.target.value);
+                          handleChange(selectedNumber, e.target.value);
+                        }}
+                        className="border border-gray-300 rounded p-2 w-[70%]"
+                      >
+                        <option value="">Time Frame</option> {/* Placeholder option */}
+                        <option value="Year">Year</option>
+                        <option value="Months">Months</option>
+                        <option value="Days">Days</option>
+                      </select>
+                    </div>
                   </div>
-                </div>
+
 
                 <div className="flex w-full gap-2 justify-between">
                   <label htmlFor="description" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>DESCRIPTION</label>
@@ -420,7 +432,7 @@ const handleEditClick = (index) => {
 
           </div>
           {error && <p className='text-red-500 text-xl text-center'>{error}</p>}
-
+          <ToastContainer />
           <div className={`w-full h-[10%] px-4 py-6 border-t-2 flex items-center justify-end ${darkMode ? 'bg-light-container border-light-border' : 'bg-dark-container border-dark-border'}`}>
             <div className="flex items-center gap-4"> 
               <button type="button" onClick={() => handleBackClick()} className={`px-8 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Cancel</button> 

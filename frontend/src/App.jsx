@@ -41,8 +41,13 @@ import InventoryReport from './pages/InventoryReport';
 import Refund from './pages/Refund';
 import CashierRMA from './pages/CashierRMA';
 import CashierSalesReport from './pages/CashierSalesReport';
-import OurStore from './onlineListing/pages/OurStore';
-
+import StoreLocation from './onlineListing/pages/StoreLocation';
+import Products from './onlineListing/pages/Products';
+import ViewProducts from './onlineListing/components/ViewProducts';
+import ContactUs from './onlineListing/pages/ContactUs';
+import Faq from './onlineListing/pages/Faq';
+import ReturnPolicy from './onlineListing/pages/ReturnPolicy';
+import Warranty from './onlineListing/pages/Warranty';
 const App = () => {
       const { user } = useAuthContext();
 
@@ -88,7 +93,14 @@ const App = () => {
                                           <Route path="/ecommerce/irigpc/" element={<Ecommerce />} />
                                           <Route path="*" element={<Navigate to="/" />} />
                                           <Route path="/unauthorized" element={<Unauthorized />} />
-                                          <Route path="/ecommerce/irigpc/our-store" element={<OurStore />} />
+                                          <Route path="/ecommerce/irigpc/products/" element={<Products />} />
+                                          <Route path="/ecommerce/irigpc/our-store" element={<StoreLocation />} />
+                                          <Route path="/ecommerce/irigpc/products/view/:id" element={<ViewProducts />} />
+                                          <Route path="/ecommerce/irigpc/contact-us/" element={<ContactUs />} />
+                                          <Route path="/ecommerce/irigpc/warranty/" element={<Warranty />} />
+                                          <Route path="/ecommerce/irigpc/return-policy/" element={<ReturnPolicy />} />
+                                          <Route path="/ecommerce/irigpc/faq/" element={<Faq />} />
+
                                     </Routes>
                               </AdminThemeProvider>
                         </ThemeProvider>

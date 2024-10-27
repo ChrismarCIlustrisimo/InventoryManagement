@@ -44,7 +44,7 @@ const Navbar = ({ query, onQueryChange, cartItemCount }) => {
                               <Link to={"/ecommerce/irigpc/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Home</Link>
                               <Link to={"/ecommerce/irigpc/products"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Products <FaAngleDown className='ml-2 inline' /></Link>
                               <Link to={"/ecommerce/irigpc/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Our Store</Link>
-                              <Link to={"/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
+                              <Link to={"/ecommerce/irigpc/contact-us"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
                         </div>
                   </nav>
             </header>

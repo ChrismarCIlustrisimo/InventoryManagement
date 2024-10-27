@@ -74,9 +74,13 @@ router.post('/', upload.fields([
         return res.status(400).json({ message: 'Serial number is required for each unit' });
       }
 
+      // Generate a unique unit_id for each unit
+      const unit_id = await Product.generateUnitID();
+
       processedUnits.push({
         serial_number: unit.serial_number,
         serial_number_image: serialImages[i] ? `images/${serialImages[i].filename}` : '',
+        unit_id, // Add generated unit_id
         status: unit.status || 'in_stock',
         purchase_date: new Date(unit.purchase_date || Date.now()),
       });
@@ -107,6 +111,7 @@ router.post('/', upload.fields([
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 
 

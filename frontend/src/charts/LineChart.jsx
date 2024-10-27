@@ -56,7 +56,6 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
   
       const response = await axios.get('http://localhost:5555/transaction', {
         params: {
-          payment_status: 'paid',
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),
         },
@@ -66,41 +65,51 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
       });
   
       const transactions = response.data.data;
-
-
-                // Create an array to hold units that are sold
-          let soldUnits = [];
-
-          // Iterate through each transaction
-          transactions.forEach(transaction => {
-            // Check if the transaction status is refunded
-            if (transaction.status === 'Refunded') {
-              // Iterate through each product in the transaction
-              transaction.products.forEach(product => {
-                // Check if the product has units
-                if (product.units && product.units.length > 0) {
-                  // Filter units that have a sold status
-                  const sold = product.units.filter(unit => unit.status === 'sold');
-                  if (sold.length > 0) {
-                    // Add sold units to the soldUnits array
-                    soldUnits = soldUnits.concat(sold);
-                  }
-                }
-              });
+  
+      // Filter for Completed, RMA, and Replaced transactions
+      const validTransactions = transactions.filter(transaction => 
+        ['Completed', 'RMA', 'Replaced'].includes(transaction.status) &&
+        transaction.payment_status === 'paid'
+      );
+  
+      let totalSales = 0; // Total sales from valid transactions
+  
+      // Calculate total sales from valid transactions
+      validTransactions.forEach(transaction => {
+        totalSales += transaction.total_price; // Add total price to totalSales
+      });
+  
+      // Now check for refunded transactions that have sold products
+      const refundedTransactions = transactions.filter(transaction => transaction.status === 'Refunded');
+  
+      refundedTransactions.forEach(transaction => {
+        if (transaction.products) { // Ensure transaction.products exists
+          transaction.products.forEach(product => {
+            if (product.units) { // Ensure product.units exists
+              const soldUnits = product.units.filter(unit => unit.status === 'sold');
+  
+              if (soldUnits.length > 0) {
+                const additionalSales = product.selling_price * 0.12; 
+                totalSales += additionalSales; // Add to total sales
+              }
             }
           });
-
-          console.log("Sold Units in Refunded Transaction",soldUnits);
+        }
+      });
   
-      const groupedData = transactions.reduce((acc, transaction) => {
+      console.log("Total Sales including additional from refunded transactions:", totalSales);
+  
+      // Group data for the chart
+      const groupedData = validTransactions.reduce((acc, transaction) => {
         const date = new Date(transaction.createdAt).toISOString().split('T')[0]; 
         if (!acc[date]) {
           acc[date] = 0;
         }
-        acc[date] += transaction.total_price;
+        acc[date] += transaction.total_price; // Group total price for each date
         return acc;
       }, {});
-
+  
+      // Prepare sales data for the chart, including sales from refunded transactions
       if (['Last 3 Months', 'Last 6 Months', 'This Year'].includes(selectedTimeframe)) {
         const monthlyData = {};
         const monthKey = (date) => new Date(date).toLocaleString('default', { month: 'short' });
@@ -110,14 +119,14 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
           if (!monthlyData[month]) {
             monthlyData[month] = 0;
           }
-          monthlyData[month] += value;
+          monthlyData[month] += value; // Group by month
         });
   
         setSalesData(Object.entries(monthlyData).map(([date, value]) => ({ date, value })));
       } else {
         const formattedData = Object.entries(groupedData).map(([date, value]) => ({
           date,
-          value,
+          value, // Total sales for that date
         }));
         setSalesData(formattedData);
       }
@@ -126,6 +135,7 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
       console.error('Error fetching sales orders:', error);
     }
   };
+  
 
   useEffect(() => {
     fetchSalesOrders();
@@ -196,3 +206,4 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
 };
 
 export default LineChart;
+

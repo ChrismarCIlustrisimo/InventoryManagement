@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useAdminTheme } from '../context/AdminThemeContext';
+import { toast, ToastContainer } from 'react-toastify';  // Importing toast and ToastContainer
+import 'react-toastify/dist/ReactToastify.css';  // Importing styles for the toast
 
 const UpdateStatusPopup = ({ onClose, onUpdate }) => {
     const [newProcess, setNewProcess] = useState('');  // Initialize as an empty string
@@ -8,11 +10,12 @@ const UpdateStatusPopup = ({ onClose, onUpdate }) => {
     const handleSubmit = () => {
         // Check if a valid process is selected
         if (!newProcess) {
-            alert("Please select a valid status.");
+            toast.error("Please select a valid status.");  // Use toast instead of alert
             return;
         }
 
         onUpdate(newProcess, 'Approved');
+        toast.success("Status updated successfully!");  // Notify on successful update
         onClose();
     };
 
@@ -54,6 +57,7 @@ const UpdateStatusPopup = ({ onClose, onUpdate }) => {
                     </button>
                 </div>
             </div>
+            <ToastContainer /> {/* Place the ToastContainer here */}
         </div>
     );
 };

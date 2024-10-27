@@ -109,7 +109,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                 body: JSON.stringify({
                     status: newStatus,
                     notes: rma.notes,
-                    process: newProcess === '' ? `${newProcess = 'Replacement'}` : `${newProcess = 'Replacement'}`,
+                    process: newProcess
                 }),
             });
     

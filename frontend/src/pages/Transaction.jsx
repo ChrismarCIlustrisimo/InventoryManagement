@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import BackNavbar from '../components/BackNavbar';
-import Spinner from '../components/Spinner';
 import { useTheme } from '../context/ThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { IoCaretBackOutline } from 'react-icons/io5';
 
 const Transaction = () => {
   const { id } = useParams();
@@ -14,11 +13,19 @@ const Transaction = () => {
   const [loading, setLoading] = useState(true);
   const [discountType, setDiscountType] = useState('percentage');
   const [discountValue, setDiscountValue] = useState(0);
-  const [paymentAmount, setPaymentAmount] = useState('');
+  const [paymentAmount, setPaymentAmount] = useState(0);
   const baseURL = 'http://localhost:5555';
   const { darkMode } = useTheme(); 
   const { user } = useAuthContext(); 
   const navigate = useNavigate();
+  const [showPaymentSummary, setShowPaymentSummary] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [total_price, setTotal_price] = useState(0);
+  const [units, setUnits] = useState([]);
+
+  const handlePaymentMethodChange = (e) => {
+    setPaymentMethod(e.target.value);
+};
 
 
   const fetchTransaction = async () => {
@@ -30,6 +37,7 @@ const Transaction = () => {
       });
       setTransaction(response.data);
       setLoading(false);
+      console.log(units)
     } catch (error) {
       console.error('Error fetching transaction:', error);
       toast.error('Failed to fetch transaction. Please try again.');
@@ -42,95 +50,62 @@ const Transaction = () => {
   }, [id, user.token]);
 
   const formatDate = (date) => {
-    try {
-      const parsedDate = new Date(date);
-      if (isNaN(parsedDate.getTime())) {
-        return 'Invalid date';
-      }
-
-      const day = new Intl.DateTimeFormat('en-GB', { day: 'numeric' }).format(parsedDate);
-      const month = new Intl.DateTimeFormat('en-GB', { month: 'long' }).format(parsedDate);
-      const year = new Intl.DateTimeFormat('en-GB', { year: 'numeric' }).format(parsedDate);
-
-      return `${day} ${month}, ${year}`;
-    } catch (error) {
-      console.error('Error formatting date:', error);
-      return 'Invalid date';
-    }
-  };
+    if (!date) return 'N/A';
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short', // Use 'short' for abbreviated month
+      day: '2-digit',
+      year: 'numeric',
+      hour: '2-digit', // Include hour
+      minute: '2-digit', // Include minute
+      hour12: true, // Use 12-hour clock format (AM/PM)
+    }).format(new Date(date));
+};
 
 
-  const addDays = (date, days) => {
-    const result = new Date(date);
-    result.setDate(result.getDate() + days);
-    return result;
-  };
+const handlePayButton = () => {
+  if (paymentAmount <= 0) {
+    toast.error('Please enter a valid payment amount.');
+    return;
+  }
 
-  const dueDate = transaction ? addDays(transaction.transaction_date, 10) : null;
+  setTotal_price(transaction.vat + transaction.total_price);
+  console.log(transaction.vat + transaction.total_price)
+  processPayment();
+};
 
-  
+const handlePayment = () => {
+  setShowPaymentSummary(true); //
+};
 
-  const formatNumber = (value) => {
-    if (value === '' || isNaN(value)) return '';
-    const number = Number(value.replace(/,/g, ''));
-    return number.toLocaleString();
-  };
+const processPayment = async () => { 
+  try {
+    await axios.put(`${baseURL}/transaction/${id}`, {
+      payment_status: 'paid', // Set payment status to 'paid'
+      cashier: user.name, // Set the cashier's name
+      discount: discountValue, // Include discount value
+      status: 'Completed', // Set status to 'Completed'
+      payment_method: paymentMethod, // Include payment method
+      total_amount_paid: paymentAmount, // Include the amount paid
+      products: transaction.products // Include the products array for updating units
+    }, {
+      headers: {
+        Authorization: `Bearer ${user.token}`, // Include authorization token
+      },
+    });
 
-  const parseNumber = (value) => {
-    return value.replace(/,/g, '');
-  };
+    toast.success('Payment processed successfully.');
+    
+    setTimeout(() => {
+      navigate('/orders'); // Redirect to orders after processing
+    }, 2000);
+  } catch (error) {
+    console.error('Error processing payment:', error);
+    toast.error('Failed to process payment. Please try again.'); // Show error message
+  }
+};
 
-  const calculateDiscount = () => {
-    if (!transaction) return 0;
-    if (discountType === 'percentage') {
-      return transaction.total_price * (discountValue / 100);
-    }
-    return discountValue; // Assumes discountValue is a fixed amount
-  };
 
-  const finalAmount = transaction ? transaction.total_price - calculateDiscount() : 0;
-  const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
-  const handlePayment = () => {
-    const payment = parseNumber(paymentAmount);
-
-    if (!paymentAmount) {
-      toast.warning('Payment amount cannot be empty.');
-      return;
-    }
-
-    if (payment < finalAmount) {
-      toast.warning('Payment amount is less than the total amount due.');
-      return;
-    }
-
-    // Process the payment
-    processPayment(payment);
-  };
-
-  const processPayment = async (amount) => {
-    try {
-      await axios.put(`${baseURL}/transaction/${id}`, {
-        total_amount_paid: amount,
-        payment_status: 'paid',
-        cashier: user.name
-      }, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
-
-      toast.success('Payment processed successfully.');
-      
-      // Set a timer to navigate to /orders after 5 seconds
-      setTimeout(() => {
-        navigate('/orders');
-      }, 5000); // 5000ms = 5 seconds
-    } catch (error) {
-      console.error('Error processing payment:', error);
-      toast.error('Failed to process payment. Please try again.');
-    }
-  };
 
   if (loading) {
     return <p className={`w-full h-full flex items-center justify-center text-4xl ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>Please Wait</p>;
@@ -144,157 +119,232 @@ const Transaction = () => {
     );
   }
 
-  console.log(transaction.customer)
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
+
 
   return (
-    <div className={`pt-20 px-20 pb-5 h-auto w-full ${darkMode ? 'bg-light-BG' : 'dark:bg-dark-BG'}`}>
-      <BackNavbar id={transaction._id} />
-      <div className='flex flex-col justify-center items-center gap-4 h-full'>
-        {/* Left Section */}
-        <div className='flex flex-col items-end justify-start h-[40%] w-[80%] p-4 gap-2'>
-            <div className='w-full h-auto flex items-center justify-between'>
-              <p className={`text-left text-4xl font-semibold py-2 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                Order Number: {transaction.transaction_id}
-              </p>
-            </div>
+    <div className={`w-full items-start justify-center flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
+      <ToastContainer />
+      <div className='px-6 py-4 flex flex-col items-start justify-center w-full '>
+        <div className='flex items-center justify-between w-full mb-4'>
+          <button
+            className={`flex gap-2 items-center py-2 px-4 rounded-md ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+            onClick={handleBackClick}
+          >
+            <IoCaretBackOutline /> Back to Reservation
+          </button>
+          <button
+            className={`py-2 px-4 rounded-md ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'bg-light-primary text-dark-textPrimary'}`}
+            onClick={handlePayment} // Now defined
+          >
+            Process Payment
+          </button>
+        </div>
+        <div className='w-full h-[90%] flex items-center justify-center'>
+                    <div className={`w-[80%] items-center flex flex-col justify-start border px-12  ${darkMode ? 'text-light-textPrimary border-light-border' : 'text-light-textPrimary border-light-border'} p-4 rounded-md`}>
+                        <div className='flex flex-col w-full items-start justify-between gap-4'>
+                            <div className='flex w-full py-6'>
+                                <h2 className='text-2xl font-bold mr-2'>Transaction ID: </h2>
+                                <p className='text-2xl font-bold'>{transaction.transaction_id}</p>
+                            </div>
+                            <div className='flex w-full items-start justify-start  '>
+                                    <div className={`w-[15%] flex flex-col gap-2 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                                        <p className='w-full '>ORDER DATE</p>
+                                        <p className='w-full '>SALES DATE</p>
+                                    </div>
+                                    <div className={`w-[30%] flex flex-col gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                                        <p className='w-full text-start font-semibold'>{formatDate(transaction.transaction_date)}</p>
+                                        <p className='w-full text-start font-semibold'>{formatDate(transaction.due_date)}</p>
+                                    </div>
+                            </div>
+                        </div>
 
-            <div className=' flex w-full'>
-              <div className={`flex flex-col gap-4 w-full ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                <h4 className={`font-medium text-xl ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`}>
-                  Order Details
-                </h4>
-                <div className='flex items-center w-[70%] justify-between'>
-                  <div className='flex items-start justify-between flex-col text-l gap-3 text-[#9C9C9C]'>
-                    <p>TRANSACTION DATE</p>
-                    <p>DUE DATE</p>
-                  </div>
-                  <div className='flex items-start justify-between flex-col text-l gap-3'>
-                    <p className='tracking-wider'>{formatDate(transaction.transaction_date)}</p>
-                    <p className='text-l tracking-wider'>{dueDate ? formatDate(dueDate) : 'Calculating...'}</p>
-                  </div>
-                </div>
+                        <div className='w-full flex justify-start pt-8 '>
+                            <div className='flex flex-col w-full items-start justify-start  '>
+                                <p className='font-bold text-xl py-2'>Customer Information</p>
+                                <div className='flex w-[80%] py-2'>
+                                  <div className={`w-[30%] flex flex-col gap-2 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                                        <p className='w-full '>CUSTOMER NAME</p>
+                                        <p className='w-full '>ADDRESS</p>
+                                        <p className='w-full '>EMAIL</p>
+                                        <p className='w-full '>PHONE NUMBER</p>
+                                    </div>
+                                    <div className={`w-70%] flex flex-col gap-2 font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                                       <p>{transaction.customer?.name || 'N/A'}</p>
+                                        <p>{transaction.customer?.address || 'N/A'}</p>
+                                        <p>{transaction.customer?.email || 'N/A'}</p>
+                                        <p>{transaction.customer?.phone || 'N/A'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className='w-full py-4'>
+                            <p className='font-bold text-xl py-6'>Product Ordered</p>
+                            <table className='w-full text-left mb-6'>
+                                <thead>
+                                    <tr className={`${darkMode ? 'bg-dark-header' : 'bg-light-header'} border-y-2`}>
+                                        <th className='p-2 text-left'>Product</th>
+                                        <th className='p-2 text-center '>Price</th>
+                                        <th className='p-2 text-center '>Quantity</th>
+                                        <th className='p-2 text-center '>Serial Number</th>
+                                        <th className='p-2 text-center '>Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {transaction.products.length > 0 ? (
+                                        transaction.products.map((item, index) => {
+                                        return (
+                                            <tr key={index} className="border-y-2">
+                                            <td className="p-2 flex flex-col gap-2 text-left">
+                                                     <p>{item.product?.name}</p>
+                                            </td>
+                                            <td className="p-2 text-center">₱ {item.product?.selling_price || 0}</td>
+                                            <td className="p-2 text-center">{item.quantity}</td>
+                                            <td className="p-2 text-center">{item.serial_number.length > 0 ? item.serial_number.join(', ') : 'N/A'}</td>
+                                            <td className="p-2 text-center">₱ {item.quantity * item.product?.selling_price}</td>
+                                            </tr>
+                                        );
+                                        })
+                                    ) : (
+                                        <tr>
+                                             <td colSpan={5} className="border p-2 text-center">No products found for this transaction.</td>
+                                        </tr>
+                                    )}
+                                    </tbody>
+                            </table>
+                        </div>
+
+              <div className='w-full flex items-center justify-end'>
+                <div className='w-[40%] h-[120px]'>
+                    <div className='flex justify-between py-2'>
+                        <span>Subtotal</span>
+                        <span>₱ {transaction.total_price}</span>
+                    </div>
+                    <div className='flex justify-between py-2'>
+                        <span>VAT (12%)</span>
+                        <span>₱ {transaction.vat}</span>
+                    </div>
+                    <div className='flex justify-between border-t-2 border-black text-xl py-4 font-semibold'>
+                        <span>Total</span>
+                        <span>₱ {transaction.total_price + transaction.vat}</span>
+                    </div>
+                 </div>
               </div>
-
-              <div className={`flex flex-col gap-4 w-full h-[100%] ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                <h4 className={`font-medium text-lg ${darkMode ? 'text-light-ACCENT' : 'dark:text-dark-ACCENT'}`}>
-                  Customer Details
-                </h4>
-                <div className='flex items-center w-[95%] justify-between text-base '>
-                  <div className='flex items-start justify-between flex-col gap-3 text-[#9C9C9C]'>
-                    <p>CUSTOMER NAME</p>
-                    <p>CONTACT NUMBER</p>
-                    <p>EMAIL</p>
-                    <p>ADDRESS</p>
-                  </div>
-                  <div className={`flex items-start justify-between text-l flex-col gap-3 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'}`}>
-                  <p className='tracking-wider'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
-                  <p className='tracking-wider'>{transaction.customer && transaction.customer.phone !== "" ? transaction.customer.phone : 'None'}</p>
-                  <p className='tracking-wider'>{transaction.customer && transaction.customer.email !== "" ? transaction.customer.email : 'None'}</p>
-                  <p className='tracking-wider'>{transaction.customer && transaction.customer.address !== "" ? transaction.customer.address : 'None'}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-        {/* Right Section */}
-        <div className={` h-[65%] w-[100%] p-6 rounded-2xl ${darkMode ? 'bg-light-CARD text-light-TEXT' : 'dark:bg-dark-CARD text-dark-TEXT'}`}>
-          {/* Invoices */}
-          <div className='flex gap-6'>
-            <div className='overflow-y-auto h-[360px] w-full'>
-             <p className={`text-2xl py-2 font-semibold ${darkMode ? 'text-light-ACCENT' : 'text-dark-ACCENT' }`}>Product Order</p>
-              <table className='m-w-full border-collapse table-fixed h-[120px]'>
-                <thead>
-                  <tr className={`border-b ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
-                    <th className={`sticky top-0 px-4 py-2 text-left`}>Product</th>
-                    <th className={`sticky top-0 px-4 py-2 text-left`}>Unit Price</th>
-                    <th className={`sticky top-0 px-4 py-2 text-left`}>Qty</th>
-                    <th className={`sticky top-0 px-4 py-2 text-left`}>Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transaction.products.map((item, idx) => (
-                    <tr key={idx} className='border-b border-dark-ACCENT gap-2'>
-                      <td className='px-4 py-1 flex gap-4 items-center justify-start'>
-                        <img
-                          src={`${baseURL}/images/${item.product.image.substring(14)}`}
-                          className='w-16 h-16 object-cover rounded-lg'
-                        />
-                        <p className='text-sm w-full'>{item.product.name}</p>
-                      </td>
-                      <td className='px-4 py-2'>{item.product.selling_price}</td>
-                      <td className='px-4 py-2'>{item.quantity}</td>
-                      <td className='px-4 py-2'>{(item.quantity * item.product.selling_price).toFixed(2)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className={`flex flex-col w-full px-4 rounded-2xl gap-4`}>
-              <div className='flex w-full justify-between items-center'>
-                <div className='flex gap-3 flex-col w-[50%]'>
-                  <p>Add Discount</p>
-                  <p>Amount</p>
-                  <p>Total Amount</p>
-                </div>
-                <div className='flex gap-3 flex-col items-end'>
-                  <div className={`flex items-end w-[80%] border ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'dark:bg-dark-CARD1  dark:border-dark-ACCENT'}`}>
-                    <select
-                      value={discountType}
-                      onChange={(e) => setDiscountType(e.target.value)}
-                      className={`p-2 ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}
-                    >
-                      <option value="percentage">Percentage</option>
-                      <option value="amount">Fixed Amount</option>
-                    </select>
-                    <input
-                      type="number"
-                      value={discountValue}
-                      onChange={(e) => setDiscountValue(Number(e.target.value))}
-                      placeholder={discountType === 'percentage' ? "0%" : "₱ 0"}
-                      className={`p-2 ml-2 w-[80%] ${darkMode ? 'bg-light-CARD1' : 'dark:bg-dark-CARD1'}`}
-                    />
-                  </div>
-                  <p className={`${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ {transaction.total_price.toLocaleString()}</p>
-                  <p>₱ {finalAmount.toLocaleString()}</p>
-                </div>
-              </div>
-
-              <div className='flex w-full justify-between items-center'>
-                <div className='flex gap-4 flex-col'>
-                  <p>Add Payment</p>
-                  <p>Total Amount Paid</p>
-                  <p>Discount</p>
-                  <p>Change</p>
-                </div>
-                <div className='flex gap-4 flex-col items-end'>
-                  <input
-                    type="text"
-                    value={formatNumber(paymentAmount)}
-                    onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
-                    placeholder="₱ 0"
-                    className={`border p-2 w-[40%] ${darkMode ? 'bg-light-CARD1 border-light-ACCENT' : 'dark:bg-dark-CARD1  dark:border-dark-ACCENT'}`}
-                  />
-                  <p className={`${darkMode ? 'border-light-ACCENT' : 'dark:border-dark-ACCENT'}`}>₱ {formatNumber(paymentAmount)}</p>
-                  <p>₱ {calculateDiscount().toLocaleString()}</p>
-                  <p>{change < 0 ? '₱ 0.00' : change.toLocaleString()}</p>
-                </div>
-              </div>
-              <button
-                onClick={handlePayment}
-                className={`w-full py-3 mb-4 rounded text-black font-semibold ${darkMode ? 'bg-light-ACCENT text-dark-TEXT' : 'dark:bg-dark-ACCENT text-dark-TEXT'}`}
-              >
-                Pay
-              </button>
-            </div>
           </div>
         </div>
-      </div>
 
-      <ToastContainer
-        theme="dark"
-      />
+        {showPaymentSummary && (
+            <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md">
+              <div className={`p-2 rounded-2xl shadow-md w-[70%] h-[90%] p-6 relative ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary' } flex flex-col`}>
+                <div className='flex gap-2 items-center justify-center w-full h-full'>
+                  <div className='w-[60%]'>
+                    <div className={`flex flex-col w-full h-full px-4 py-4 rounded-2xl gap-12 font-semibold`}>
+                      <div className='flex flex-col w-full justify-between items-center gap-4'>
+                        <div className='w-full flex items-center py-2'>
+                          <p className='w-[50%]'>Discount</p>
+                          <div className='w-[50%]'>
+                            <input
+                              type="number"
+                              value={discountValue === 0 ? '' : discountValue}
+                              onChange={(e) => setDiscountValue(Number(e.target.value))}
+                              placeholder="₱ 0"
+                              className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                            />
+                          </div>
+                        </div>
+
+                        <div className='w-full flex items-center'>
+                          <p className='w-[50%]'>Subtotal</p>
+                          <p className='w-[50%]'>₱ {transaction.total_price}</p>
+                        </div>
+
+                        <div className='w-full flex items-center'>
+                          <p className='w-[50%]'>VAT</p>
+                          <p className='w-[50%]'>₱ {transaction.vat}</p>
+                        </div>
+
+                        <div className='w-full flex items-center'>
+                          <p className='w-[50%]'>Total Amount</p>
+                          <p className='w-[50%]'>₱ {(transaction.vat + transaction.total_price - discountValue)}</p>
+                        </div>
+                      </div>
+
+                      <div className='flex flex-col w-full justify-between items-center gap-4'>
+                        <div className='w-full flex items-center py-2'>
+                          <p className='w-[50%]'>Payment Method</p>
+                          <div className='w-[50%]'>
+                            <select
+                              id='paymentMethod'
+                              value={paymentMethod}
+                              onChange={handlePaymentMethodChange}
+                              className={`border rounded p-2 w-[240px]  ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}
+                              ${paymentMethod === '' 
+                                  ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                                  : (darkMode 
+                                  ? 'bg-light-activeLink text-light-primary' 
+                                  : 'bg-transparent text-black')} 
+                                    outline-none font-semibold`}>
+                              <option value=''>Select Option</option>
+                              <option value='Cash'>Cash</option>
+                              <option value='GCash'>GCash</option>
+                              <option value='GGvices'>GGvices</option>
+                              <option value='Bank Transfer'>Bank Transfer</option>
+                              <option value='BDO Credit Card'>BDO Credit Card</option>
+                              <option value='Credit Card - Online'>Credit Card - Online</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className='w-full flex items-center'>
+                          <p className='w-[50%]'>Total Amount Paid</p>
+                          <input
+                            type="text"
+                            value={paymentAmount}
+                            onChange={(e) => setPaymentAmount(e.target.value)}
+                            placeholder="₱ 0"
+                            className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                          />
+                        </div>
+
+                        <div className='w-full flex items-center'>
+                          <p className='w-[50%]'>Discount</p>
+                          <p className='w-[50%]'>{discountValue}</p>
+                        </div>
+
+                        <div className='w-full flex items-center'>
+                          <p className='w-[50%]'>Change</p>
+                          <p className='w-[50%]'>
+                            {paymentAmount ? (paymentAmount - (transaction.vat + transaction.total_price - discountValue)).toFixed(2) : '₱ 0.00'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className='w-full flex flex-col gap-2 py-2 pt-6'>
+                      <button
+                        className={`w-full py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
+                        onClick={handlePayButton}
+                      >
+                        Confirm Payment
+                      </button>
+                      <button
+                        className={`w-full py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
+                        onClick={() => setShowPaymentSummary(false)} // Hide summary on cancel
+                      >
+                        Cancel Transaction
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+      </div>
     </div>
   );
 };

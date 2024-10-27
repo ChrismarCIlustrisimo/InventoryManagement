@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../App.css'
 import axios from 'axios';
 import ReactToPrint from 'react-to-print';
-import { useAdminTheme } from '../context/AdminThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import DateRangeModal from '../components/DateRangeModal'; // Import your modal
 import { HiOutlineRefresh } from "react-icons/hi";
@@ -18,13 +17,11 @@ import Navbar from '../components/Navbar';
 
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
-  const { darkMode } = useAdminTheme();
+  const { darkMode } = useTheme();
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [transactionCount, setTransactionCount] = useState(0);
   const [salesData, setSalesData] = useState([]);
-  const [salesDataData, setSalesDataData] = useState([]);
   const [filteredSalesData, setFilteredSalesData] = useState([]); // New state for filtered data
   const [salesDataStatus, setSalesDataStatus] = useState({
     Completed: false,
@@ -105,13 +102,6 @@ const CashierSalesReport = () => {
       filteredData = filteredData.filter(item => item.category === selectedCategory);
     }
 
-    // Filter by sales status
-    if (Object.keys(salesDataStatus).some(key => salesDataStatus[key])) {
-      filteredData = filteredData.filter(item =>
-        (salesDataStatus['Completed'] && item.status === 'Completed') ||
-        (salesDataStatus['Refunded'] && item.status === 'Refunded')
-      );
-    }
 
     // Update filtered sales data state
     setFilteredSalesData(filteredData);
@@ -178,21 +168,6 @@ const handleResetFilters = () => {
                     <option value='Custom Date'>Custom Date</option>
                   </select>
                 </div>
-                <div className='flex flex-col'>
-                  <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Sales Status</span>
-                  {Object.keys(salesDataStatus).map((status) => (
-                    <label key={status} className='custom-checkbox flex items-center'>
-                      <input 
-                        type='checkbox' 
-                        checked={salesDataStatus[status]} 
-                        onChange={() => handleCheckboxChange(status)} 
-                      />
-                      <span className='checkmark'></span>
-                      <span className={`label-text ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{status}</span>
-                    </label>
-                  ))}
-                </div>
-
 
 
                 {/* Category Dropdown */}

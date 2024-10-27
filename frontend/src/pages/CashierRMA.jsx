@@ -261,7 +261,10 @@ const filteredRMA = (rmaData || []).filter(rma => {
                         placeholder='Enter Customer Name'
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
-                        className={`border rounded bg-transparent border-3 pl-1 ${customerName === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'dark:border-dark-primary')} w-full p-2`}
+                        className={`border rounded p-2 my-1 ${customerName === '' 
+                            ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                            : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                          outline-none font-semibold`}
                     />
                     </div>
 
@@ -273,7 +276,10 @@ const filteredRMA = (rmaData || []).filter(rma => {
                         placeholder='Enter Cashier Name'
                         value={cashierName}
                         onChange={(e) => setCashierName(e.target.value)}
-                        className={`border rounded bg-transparent border-3 pl-1 outline-none ${cashierName === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'dark:border-dark-primary')} w-full p-2`}
+                        className={`border rounded p-2 my-1 ${cashierName === '' 
+                            ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                            : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                          outline-none font-semibold`}
                     />
                     </div>
 
@@ -299,7 +305,7 @@ const filteredRMA = (rmaData || []).filter(rma => {
                     {/* AMOUNT RANGE */}
                     <div className={`flex justify-between items-center gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                     <div className='flex flex-col'>
-                        <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'dark:border-dark-primary')}`}>
+                        <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'dark:border-dark-primary text-dark-primary')}`}>
                         <input
                             type='number'
                             id='minPrice'
@@ -308,7 +314,7 @@ const filteredRMA = (rmaData || []).filter(rma => {
                             setMinPrice(e.target.value);
                             handleMinPriceChange(e);
                             }}
-                            className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none'
+                            className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none`}
                             min='0'
                             placeholder='Min'
                         />
@@ -316,7 +322,7 @@ const filteredRMA = (rmaData || []).filter(rma => {
                     </div>
                     <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
                     <div className='flex flex-col'>
-                        <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'dark:border-dark-primary')}`}>
+                        <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'dark:border-dark-primary text-dark-primary')}`}>
                         <input
                             type='number'
                             id='maxPrice'
@@ -339,35 +345,36 @@ const filteredRMA = (rmaData || []).filter(rma => {
                     </button>
                     </div>
 
-                    {/* SALES DATE */}
                     <div className='flex flex-col'>
-                    <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
-                    <div className='flex justify-center items-center'>
-                        <div className='flex flex-col'>
-                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                            <DatePicker
-                            selected={startDate}
-                            onChange={handleStartDateChange}
-                            dateFormat='MM-dd-yyyy'
-                            className='p-1 bg-transparent w-[100%] outline-none'
-                            placeholderText='MM-DD-YYYY'
-                            />
+                        <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
+                            SALES DATE
+                        </label>
+                        <div className='flex justify-center items-center'>
+                            <div className='flex flex-col'>
+                                <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+                                    <DatePicker
+                                        selected={startDate}
+                                        onChange={handleStartDateChange}
+                                        dateFormat='MM-dd-yyyy'
+                                        className='p-1 bg-transparent w-[100%] outline-none'
+                                        placeholderText='MM-DD-YYYY'
+                                    />
+                                </div>
+                            </div>
+                            <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
+                            <div className='flex flex-col'>
+                                <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+                                    <DatePicker
+                                        selected={endDate}
+                                        onChange={handleEndDateChange}
+                                        dateFormat='MM-dd-yyyy'
+                                        className='bg-transparent w-[100%] p-1 outline-none'
+                                        placeholderText='MM-DD-YYYY'
+                                        minDate={startDate}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        </div>
-                        <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
-                        <div className='flex flex-col'>
-                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                            <DatePicker
-                            selected={endDate}
-                            onChange={handleEndDateChange}
-                            dateFormat='MM-dd-yyyy'
-                            className='bg-transparent w-[100%] p-1 outline-none'
-                            placeholderText='MM-DD-YYYY'
-                            minDate={startDate}
-                            />
-                        </div>
-                        </div>
-                    </div>
                     </div>
                 </div>
 

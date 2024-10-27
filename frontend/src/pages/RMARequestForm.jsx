@@ -21,6 +21,7 @@ const RMARequestForm = ({ onClose, transaction }) => {
   const [transactionId, setTransactionId] = useState(transaction.transaction_id);
   const [customer, setCustomer] = useState(transaction.customer?.name);
   const [email, setEmail] = useState(transaction.customer?.email);
+  const [customerID, setCustomerID] = useState(transaction.customer);
   const [products, setProducts] = useState([]);
   const [SalesDate, setSalesDate] = useState(formatDate(transaction.transaction_date));
   const [transactionDate, setTransactionDate] = useState(transaction.transaction_date);
@@ -160,6 +161,7 @@ const handleProductChange = (event) => {
       cashier: cashierName,
       product_price: productPrice,
       product_id: productID, 
+      customerID: customerID,
     };
   
   

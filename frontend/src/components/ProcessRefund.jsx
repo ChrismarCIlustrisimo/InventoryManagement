@@ -1,44 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react"; 
 import { useTheme } from '../context/ThemeContext';
 import { RiRefundLine } from "react-icons/ri";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom"; 
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ConfirmationDialog from "./ConfirmationDialog";
+import RefundReceipt from "./RefundReceipt";
 
-const ProcessRefund = ({rma, onClose}) => {
+const ProcessRefund = ({ rma, onClose }) => {
   const { darkMode } = useTheme();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate(); 
   const [reasonForReturn, setReasonForReturn] = useState("");
   const [totalRefundAmount, setTotalRefundAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
+  const [refundData, setRefundData] = useState(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  
   const baseURL = "http://localhost:5555";
 
   const formatDate = (dateString) => {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric'
-      });
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
 
+
   const handleChange = (event) => {
-      setReasonForReturn(event.target.value);
+    setReasonForReturn(event.target.value);
   };
 
   const handlePaymentMethodChange = (event) => {
-      setPaymentMethod(event.target.value);
+    setPaymentMethod(event.target.value);
   };
 
   const handleRefundSubmit = () => {
-      setIsDialogOpen(true);
+    // Open the confirmation dialog instead of processing immediately
+    setShowConfirmDialog(true);
   };
 
-  const confirmRefund = () => {
-    // Process the refund after confirmation
+  const handleConfirm = () => {
     const refundData = {
       transaction_id: rma.transaction,
       customer_name: rma.customer_name,
@@ -51,31 +56,40 @@ const ProcessRefund = ({rma, onClose}) => {
       cashier: rma.cashier,
       sales_date: rma.transaction_date,
     };
-  
-    console.log("Sending refund data:", refundData); // Log the refund data being sent
-  
+
+    console.log("Sending refund data:", refundData);
+
     axios.post(`${baseURL}/refund`, refundData)
-      .then(() => {
+      .then((response) => {
+        const createdRefund = response.data.refund;
+        setRefundData(createdRefund);
+        setIsReceiptOpen(true);
         toast.success("Refund processed successfully!");
-        navigate(-1);  
       })
       .catch((error) => {
-        console.error("Refund failed: ", error); // Log the error
+        console.error("Refund failed: ", error);
         if (error.response) {
-          console.error("Error response data:", error.response.data); // Log error response data
+          console.error("Error response data:", error.response.data);
         }
         toast.error("Failed to process refund.");
       });
-    
-    setIsDialogOpen(false);
+
+    setShowConfirmDialog(false); // Close the confirmation dialog
   };
-  
-  
+
+  const handleCancel = () => {
+    setShowConfirmDialog(false); // Close the confirmation dialog without processing refund
+  };
+
+  const closeReceipt = () => {
+    setIsReceiptOpen(false);
+    navigate(-1);
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <ToastContainer />
-      <div className={`max-w-2xl w-full rounded-md shadow-md relative h-[94%] ${darkMode ? "text-light-textPrimary bg-light-bg" : "text-dark-textPrimary bg-dark-bg"}`}>
+      <div className={`max-w-3xl w-full rounded-md shadow-md relative h-[94%] ${darkMode ? "text-light-textPrimary bg-light-bg" : "text-dark-textPrimary bg-dark-bg"}`}>
         <div className="absolute top-2 right-2">
           <button className="absolute top-2 right-4 text-black hover:text-gray-700" onClick={onClose}>✖</button>
         </div>
@@ -129,7 +143,7 @@ const ProcessRefund = ({rma, onClose}) => {
                   type="number"
                   name="totalRefundAmount"
                   value={totalRefundAmount}
-                  onChange={(e) => setTotalRefundAmount(e.target.value)} // Add onChange handler
+                  onChange={(e) => setTotalRefundAmount(e.target.value)}
                   className="border border-gray-300 rounded w-[40%] p-2"
                   placeholder="Enter Total Refund Amount"
                 />
@@ -151,17 +165,17 @@ const ProcessRefund = ({rma, onClose}) => {
                 </select>
               </div>
             </div>
-            <div className="flex items-center justify-start gap-4 mt-12 pr-12">
+            <div className="flex items-center justify-start gap-4 mt-12 pb-6 pr-12">
               <button
                 onClick={handleRefundSubmit}
                 className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
               >
-                Confirm Refund
+                Process Refund
               </button>
-
               <button
                 onClick={onClose}
-                className={`w-[46%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>
+                className={`w-[50%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
+                >
                 Cancel
               </button>
             </div>
@@ -169,13 +183,28 @@ const ProcessRefund = ({rma, onClose}) => {
         </div>
       </div>
 
-      <ConfirmationDialog
-        isOpen={isDialogOpen}
-        onCancel={() => setIsDialogOpen(false)}
-        onConfirm={confirmRefund}
-        title="Confirm Refund"
-        message={`Are you sure you want to confirm the refund?`}
-      />
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+                <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
+          <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Confirm Refund</h3>
+            <p className={`mb-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Are you sure you want to process this refund?</p>
+            <div className="flex items-center justify-center gap-4 mt-12">
+               <button onClick={handleConfirm}className={`w-[50%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}>Yes</button>
+              <button onClick={handleCancel} className={`w-[50%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Refund Receipt */}
+      {isReceiptOpen && (
+        <RefundReceipt 
+          refundData={refundData} 
+          onClose={closeReceipt}
+          rma={rma} 
+        />
+      )}
     </div>
   );
 };

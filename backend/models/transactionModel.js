@@ -14,10 +14,10 @@ const TransactionSchema = new mongoose.Schema(
     total_price: { type: Number, required: true },
     total_amount_paid: { type: Number },
     transaction_date: { type: Date, default: Date.now },
-    due_date: { type: Date, required: true },
+    due_date: { type: Date },
     discount: { type: Number },
     vat: { type: Number },
-    status: { type: String, enum: ['Completed', 'Replaced', 'Refunded','RMA'], default: 'Completed'},
+    status: { type: String, enum: ['Completed', 'Replaced', 'Refunded','RMA', 'Reserved'], default: 'Reserved'},
     payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
     cashier: { type: String },
     payment_method: {

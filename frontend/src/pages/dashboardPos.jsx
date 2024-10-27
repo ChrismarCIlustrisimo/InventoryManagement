@@ -5,7 +5,7 @@ import { useAuthContext } from '../hooks/useAuthContext';
 import { useTheme } from '../context/ThemeContext';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { GrPowerReset } from 'react-icons/gr';
+import { HiOutlineRefresh } from "react-icons/hi";
 import Spinner from '../components/Spinner2';
 import SearchBar from '../components/SearchBar';
 import ViewTransactionCashier from '../components/ViewTransactionCashier';
@@ -19,12 +19,15 @@ const DashboardPos = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('');
+  const [date, setDate] = useState('');
+
   const [loading, setLoading] = useState(false);
   const [salesOrder, setSalesOrder] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [cashierName, setCashierName] = useState('');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const isInputsEmpty = minPrice === '' && maxPrice === '' ;
 
   const handleViewTransaction = (transaction) => {
     setSelectedTransaction(transaction);
@@ -61,11 +64,7 @@ const DashboardPos = () => {
         },
       });
   
-      // Log the response for debugging
-      console.log(response.data);
-  
-      // Sort transactions by date descending
-      const sortedOrders = response.data.data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+        const sortedOrders = response.data.data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
       setSalesOrder(sortedOrders);
     } catch (error) {
       console.error('Error fetching sales orders:', error.message);
@@ -74,32 +73,39 @@ const DashboardPos = () => {
     }
   };
   
+  const handleDateFilter = (event) => {
+    const value = event.target.value;
+    setDate(value); // This should set the date state
+    setDateFilter(value); // Assuming this is another state or function
 
-  const handleDateFilter = (e) => {
-    const value = e.target.value;
-    const today = new Date();
-    
-    if (value === 'today') {
-      const startOfDay = new Date(today.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // Set end of day
-      setStartDate(startOfDay);
-      setEndDate(endOfDay);
-    } else if (value === 'this_week') {
-      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 1)); // Start of week (Monday)
-      const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 7)); // End of week (Sunday)
-      startOfWeek.setHours(0, 0, 0, 0); // Set start of day
-      endOfWeek.setHours(23, 59, 59, 999); // Set end of day
-      setStartDate(startOfWeek);
-      setEndDate(endOfWeek);
-    } else if (value === 'this_month') {
-      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      startOfMonth.setHours(0, 0, 0, 0);
-      endOfMonth.setHours(23, 59, 59, 999);
-      setStartDate(startOfMonth);
-      setEndDate(endOfMonth);
+    const now = new Date();
+    switch (value) {
+        case 'today':
+            setStartDate(now);
+            setEndDate(now);
+            break;
+        case 'this_week':
+            const startOfWeek = new Date(now);
+            startOfWeek.setDate(now.getDate() - now.getDay());
+            const endOfWeek = new Date(now);
+            endOfWeek.setDate(now.getDate() + (6 - now.getDay()));
+            setStartDate(startOfWeek);
+            setEndDate(endOfWeek);
+            break;
+        case 'this_month':
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            setStartDate(startOfMonth);
+            setEndDate(endOfMonth);
+            break;
+        default:
+            setStartDate(null);
+            setEndDate(null);
+            break;
     }
-  };
+};
+
+
   
   const handleStartDateChange = (date) => setStartDate(date);
   const handleEndDateChange = (date) => setEndDate(date);
@@ -112,17 +118,16 @@ const DashboardPos = () => {
     setMinPrice('');
     setMaxPrice('');
     setSortBy('');
-    setSearchQuery(''); // Added to reset searchQuery
-    setCashierName(''); // Added to reset cashierName
+    setSearchQuery(''); 
+    setCashierName('');
 };
 
   const handleCashierNameChange = (event) => setCashierName(event.target.value);
 
-  // Utility function for formatting date
   const formatDate = (date) => {
     if (!date) return 'N/A';
     return new Intl.DateTimeFormat('en-US', {
-      month: 'short', // Use 'short' for abbreviated month
+      month: 'short',
       day: '2-digit',
       year: 'numeric'
     }).format(new Date(date));
@@ -131,20 +136,20 @@ const DashboardPos = () => {
 
   const getStatusStyles = (item_status) => {
     let statusStyles = {
-      textClass: 'text-[#8E8E93]',  // Default grey text
-      bgClass: 'bg-[#E5E5EA]',      // Default grey background
+      textClass: 'text-[#8E8E93]',  
+      bgClass: 'bg-[#E5E5EA]',      
     };
   
     switch (item_status) {
       case 'Completed':
         statusStyles = {
-          textClass: 'text-[#14AE5C]',  // Green text for Completed
-          bgClass: 'bg-[#CFF7D3]',      // Green background for Completed
+          textClass: 'text-[#14AE5C]',  
+          bgClass: 'bg-[#CFF7D3]',     
         };
         break;
       case 'Refunded':
         statusStyles = {
-          textClass: 'text-[#EC221F]',  // Red text for Refunded
+          textClass: 'text-[#EC221F]',  
           bgClass: 'bg-[#FEE9E7]',      // Red background for Refunded
         };
         break;
@@ -182,25 +187,30 @@ const DashboardPos = () => {
       <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
         <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
           <div className='flex flex-col'>
-            <label htmlFor='startDate' className='text-[#9C9C9C]'>DATE</label>
+            <label htmlFor='date' className='text-[#9C9C9C]'>DATE</label>
             <select
-              id='startDate'
-              onChange={handleDateFilter}
-              className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary'}`}
+                id='date'
+                onChange={handleDateFilter}
+                value={date}
+                className={`border rounded p-2 my-1 ${date === '' 
+                  ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                  : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                outline-none font-semibold`} 
             >
-              <option value=''>Select Option</option>
-              <option value='today'>Today</option>
-              <option value='this_week'>This Week</option>
-              <option value='this_month'>This Month</option>
+                <option value=''>Select Option</option>
+                <option value='today'>Today</option>
+                <option value='this_week'>This Week</option>
+                <option value='this_month'>This Month</option>
             </select>
+
           </div>
 
           <label className='text-sm text-[#9C9C9C] mb-1'>DATE RANGE</label>
 
           <div className='flex justify-center items-center'>
             <div className='flex flex-col'>
-              <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container' : 'dark:border-dark-container'}`}>
-                <DatePicker
+            <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+            <DatePicker
                   selected={startDate}
                   onChange={handleStartDateChange}
                   dateFormat='MM-dd-yyyy'
@@ -213,8 +223,8 @@ const DashboardPos = () => {
             <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
             <div className='flex flex-col'>
-              <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                <DatePicker
+            <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+            <DatePicker
                   selected={endDate}
                   onChange={handleEndDateChange}
                   dateFormat='MM-dd-yyyy'
@@ -230,8 +240,8 @@ const DashboardPos = () => {
 
           <div className='flex justify-center items-center'>
             <div className='flex flex-col'>
-              <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                <input
+            <div className={`w-[130px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'dark:border-dark-primary text-dark-primary')}`}>
+            <input
                   type='number'
                   id='minPrice'
                   value={minPrice}
@@ -246,8 +256,8 @@ const DashboardPos = () => {
             <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
             <div className='flex flex-col'>
-              <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                <input
+            <div className={`w-[130px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'dark:border-dark-primary text-dark-primary')}`}>
+            <input
                   type='number'
                   id='maxPrice'
                   value={maxPrice}
@@ -266,8 +276,10 @@ const DashboardPos = () => {
               id='sortBy'
               value={sortBy}
               onChange={handleSortByChange}
-              className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary'}`}
-            >
+              className={`border rounded p-2 my-1 ${sortBy === '' 
+                ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+              outline-none font-semibold`}            >
               <option value=''>Select Option</option>
               <option value='price_asc'>Price Lowest to Highest</option>
               <option value='price_desc'>Price Highest to Lowest</option>
@@ -281,11 +293,12 @@ const DashboardPos = () => {
 
         <div className='flex flex-col gap-2'>
           <button
-            className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium ${darkMode ? 'bg-light-textSecondary text-dark-textPrimary' : 'bg-dark-textSecondary text-dark-textPrimary'}`}
-            onClick={handleResetFilters}
+              className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
+              ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
+              onClick={handleResetFilters}
           >
-            <GrPowerReset className='mr-2' />
-            <p>Reset Filters</p>
+              <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`} />
+              <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`}>Reset Filters</p>
           </button>
         </div>
       </div>
@@ -354,7 +367,7 @@ const DashboardPos = () => {
                       ? transaction.products.reduce((acc, item) => acc + item.quantity, 0)
                       : '0'}
                   </td>
-                  <td className="p-2 text-center">{transaction.total_price || '0.00'}</td>
+                  <td className="p-2 text-center">₱ {transaction.total_price || '0.00'}</td>
                   <td className="p-2 text-center">
                         {transaction.status ? (
                           // Get styles based on transaction status

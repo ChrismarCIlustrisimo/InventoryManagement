@@ -37,7 +37,7 @@ router.post('/', async (req, res) => {
       customer,
       total_price,
       transaction_date,
-      total_amount_paid,
+      total_amount_paid_paid,
       payment_status,
       cashier,
       discount,
@@ -118,7 +118,7 @@ router.post('/', async (req, res) => {
 
     const transaction_id = await generateTransactionId();
     const dueDate = new Date(transaction_date);
-    dueDate.setDate(dueDate.getDate() + 10);
+    dueDate.setDate(dueDate.getDate() + 1);
 
     const newTransaction = new Transaction({
       transaction_id,
@@ -132,7 +132,7 @@ router.post('/', async (req, res) => {
       })),
       customer,
       total_price,
-      total_amount_paid,
+      total_amount_paid_paid,
       transaction_date,
       due_date: dueDate,
       payment_status,
@@ -166,7 +166,6 @@ router.post('/', async (req, res) => {
 
 
 
-// Get All Transactions
 router.get('/', async (req, res) => {
   try {
     let query = {};
@@ -197,31 +196,38 @@ router.get('/', async (req, res) => {
       query.transaction_date = { $lte: new Date(req.query.endDate) };
     }
 
+    // Log the incoming request query
+    console.log('Request Query:', req.query);
+
     // Apply status filters
     if (req.query.statusFilters) {
       const statusFilters = JSON.parse(req.query.statusFilters);
       const itemStatusConditions = [];
-      
+
+      // Check for each status and add it to the conditions if checked
       if (statusFilters.Completed) {
         itemStatusConditions.push({ status: 'Completed' });
       }
       if (statusFilters.Refunded) {
         itemStatusConditions.push({ status: 'Refunded' });
       }
-      
-      if (itemStatusConditions.length > 0) {
-        query.products = {
-          $elemMatch: { $or: itemStatusConditions }
-        };
+      if (statusFilters.Replaced) {
+        itemStatusConditions.push({ status: 'Replaced' });
+      }
 
-        
+      // If any statuses were selected, add them to the query
+      if (itemStatusConditions.length > 0) {
+        query.$or = itemStatusConditions; // Use $or for top-level query
       }
     }
 
 
 
+    // Log the constructed query before executing it
+    console.log('Constructed Query:', query);
+
     // Sorting
-    let sort = {};
+    let sort = {}; // Define your sorting logic if needed
 
     // Populate customer while querying
     const transactions = await Transaction.find(query)
@@ -252,6 +258,7 @@ router.get('/', async (req, res) => {
 
 
 
+
 // Get Single Transaction
 router.get('/:transactionId', async (req, res) => {
   try {
@@ -271,32 +278,58 @@ router.get('/:transactionId', async (req, res) => {
   }
 });
 
-// Update Transaction (for total price and payment status)
 router.put('/:transactionId', async (req, res) => {
   try {
     const { transactionId } = req.params;
-    const { payment_status, total_price, cashier } = req.body;
+    const { payment_status, cashier, discount, status, payment_method, total_amount_paid, products } = req.body;
 
-    // Validate input
+    // Validate payment_status input
     if (payment_status && !['paid', 'unpaid'].includes(payment_status)) {
       return res.status(400).json({ message: 'Invalid payment status' });
     }
 
+    // Validate discount input
+    if (discount !== undefined && typeof discount !== 'number') {
+      return res.status(400).json({ message: 'Invalid discount value' });
+    }
+
+    // Prepare update object for the transaction
+    const updateFields = {};
+    if (payment_status) updateFields.payment_status = payment_status;
+    if (cashier) updateFields.cashier = cashier;
+    if (discount !== undefined) updateFields.discount = discount; // Add discount
+    if (status) updateFields.status = status; // Add status
+    if (payment_method) updateFields.payment_method = payment_method; // Add payment method
+    if (total_amount_paid !== undefined) updateFields.total_amount_paid = total_amount_paid; // Add total amount
+
     // Update transaction
     const updatedTransaction = await Transaction.findOneAndUpdate(
       { transaction_id: transactionId },
-      {
-        $set: {
-          payment_status,
-          total_price,
-          cashier,
-        }
-      },
+      { $set: updateFields },
       { new: true } // Return the updated document
     );
 
     if (!updatedTransaction) {
       return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    // Update the status of each unit (serial number) to "sold"
+    if (products && Array.isArray(products)) {
+      const unitUpdates = products.map(product => {
+        return {
+          updateOne: {
+            filter: { 
+              "units.serial_number": { $in: product.serial_number } // Filter by serial number
+            },
+            update: {
+              $set: { "units.$.status": 'sold' } // Set status to 'sold'
+            }
+          }
+        };
+      });
+
+      // Perform bulk update for all units
+      await Product.bulkWrite(unitUpdates);
     }
 
     return res.status(200).json(updatedTransaction);
@@ -306,15 +339,18 @@ router.put('/:transactionId', async (req, res) => {
   }
 });
 
+
+
+
 // Update Transaction
 router.put('/:id', async (req, res) => {
   try {
-    const { products, customer, total_amount_paid, source, cashier } = req.body;
+    const { products, customer, total_amount_paid_paid, source, cashier } = req.body;
     const { id } = req.params;
 
     // Validate required fields
-    if (!products || !total_amount_paid || !cashier) {
-      return res.status(400).send({ message: 'Products, total_amount_paid, and cashier are required' });
+    if (!products || !total_amount_paid_paid || !cashier) {
+      return res.status(400).send({ message: 'Products, total_amount_paid_paid, and cashier are required' });
     }
 
     // Process products
@@ -344,7 +380,7 @@ router.put('/:id', async (req, res) => {
       products: productItems,
       customer,
       total_price,
-      total_amount_paid,
+      total_amount_paid_paid,
       payment_status,
       cashier // Update cashier information
     }, { new: true });

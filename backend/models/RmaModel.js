@@ -14,6 +14,7 @@ const RMASchema = new mongoose.Schema({
   product_price: { type: String, required: true },
   product_id: { type: String, required: true },
   cashier: { type: String, required: true },
+  customerID: { type: String, required: true },
   process: { type: String, enum: ['Refund', 'Replacement','None'], default: 'None' },
   transaction_date: { type: Date, required: true }, // Ensure this is a Date
   status: { type: String, enum: ['Pending', 'Approved', 'Rejected', 'Completed'], default: 'Pending' },

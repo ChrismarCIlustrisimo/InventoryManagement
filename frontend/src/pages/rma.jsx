@@ -120,7 +120,7 @@ const Rma = () => {
                     bgClass: 'bg-[#E5E5EA]',
                 };
                 break;
-            case 'Expired':
+            case 'Rejected':
                 statusStyles = {
                     textClass: 'text-[#EC221F]',
                     bgClass: 'bg-[#FEE9E7]',
@@ -159,6 +159,21 @@ const Rma = () => {
           year: 'numeric'
         });
       };
+      
+      const shortenString = (str) => {
+        // Log the input for debugging
+        console.log('Input string:', str);
+    
+        // Check if the input is a valid string and trim it
+        if (typeof str === 'string') {
+            const trimmedStr = str.trim(); // Remove leading and trailing spaces
+            if (trimmedStr.length > 20) {
+                return trimmedStr.slice(0, 20) + '...'; // Shorten and add ellipsis
+            }
+            return trimmedStr; // Return the original trimmed string if it's 10 characters or less
+        }
+        return 'N/A'; // Return 'N/A' if input is not a string
+    };
       
 
 
@@ -254,7 +269,6 @@ const Rma = () => {
                                         <th className='p-2 text-center text-xs'>Customer Name</th>
                                         <th className='p-2 text-center text-xs'>Product Name</th>
                                         <th className='p-2 text-center text-xs'>Serial Number</th>
-                                        <th className='p-2 text-center text-xs'>Request Type</th>
                                         <th className='p-2 text-center text-xs'>Status</th>
                                         <th className='p-2 text-center text-xs'>Warranty Status</th>
                                         <th className='p-2 text-center text-xs'>Action</th>
@@ -267,12 +281,11 @@ const Rma = () => {
                                         return (
                                             <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
                                                 <td className='text-center py-4 text-sm'>{rmaRequest.rma_id}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.transaction?.transaction_id}</td>
+                                                <td className='text-center py-4 text-sm'>{rmaRequest.transaction}</td>
                                                 <td className='text-center py-4 text-sm'>{formatDate(rmaRequest.date_initiated)}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.customer_name}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.product?.name}</td>
+                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.customer_name)}</td>
+                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.product)}</td>
                                                 <td className='text-center py-4 text-sm'>{rmaRequest.serial_number}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.request_type}</td>
                                                 <td className={`text-center py-4 rounded-md px-2 text-sm`}>
                                                     <p className={`${statusStyles.textClass} ${statusStyles.bgClass} p-2 rounded-md`}>
                                                         {rmaRequest.status}

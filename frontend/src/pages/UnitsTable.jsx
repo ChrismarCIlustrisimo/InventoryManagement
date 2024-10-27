@@ -29,7 +29,7 @@ const UnitsTable = () => {
       try {
         const response = await axios.get(`${baseURL}/product/${productId}`);
         const inStockUnits = response.data.units.filter(unit => unit.status === 'in_stock');
-        setUnits(inStockUnits);
+        setUnits(response.data.units);
         setProductName(response.data.name);
       } catch (error) {
         console.error("Error fetching product units:", error.message);
@@ -37,6 +37,8 @@ const UnitsTable = () => {
     };
     fetchUnits();
   }, [productId]);
+
+  console.log("Fetching product units", units)
 
   const handleBackClick = (num) => {
     navigate(num);

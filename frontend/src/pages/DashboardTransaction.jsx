@@ -32,6 +32,7 @@ const DashboardTransaction = () => {
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [customerName, setCustomerName] = useState(''); // Add this line
     const [paymentMethod, setPaymentMethod] = useState(''); // State to hold selected payment method
+    const [filteredSalesOrder, setFilteredSalesOrder] = useState([]);
 
     const handlePaymentMethodChange = (e) => {
       setPaymentMethod(e.target.value);
@@ -42,16 +43,17 @@ const DashboardTransaction = () => {
     const [statusFilters, setStatusFilters] = useState({
       Completed: false,
       Refunded: false,
+      Replaced: false,
     });
-
+    
     const handleCheckboxChange = (status) => {
       setStatusFilters(prevFilters => ({
         ...prevFilters,
         [status]: !prevFilters[status],
       }));
+    
+      fetchSalesOrders();  
     };
-    
-    
     
     
     const handleViewTransaction = (transaction, item) => {
@@ -83,39 +85,40 @@ const DashboardTransaction = () => {
       }
     }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user, statusFilters, customerName, paymentMethod]);
     
-// Fetch sales orders function
-const fetchSalesOrders = async () => {
-  setLoading(true);
-  try {
-    const response = await axios.get('http://localhost:5555/transaction', {
-      params: {
-        payment_status: 'paid',
-        transaction_id: searchQuery,
-        cashier: cashierName,
-        customer: customerName,
-        startDate: startDate ? startDate.toISOString() : undefined,
-        endDate: endDate ? endDate.toISOString() : undefined,
-        sortBy: sortBy,
-        statusFilters: JSON.stringify(statusFilters),
-        payment_method: paymentMethod,
-      },
-      headers: {
-        'Authorization': `Bearer ${user.token}`,
-      },
-    });
+    const fetchSalesOrders = async () => {
+      setLoading(true);
+      
+      try {
+        const response = await axios.get('http://localhost:5555/transaction', {
+          params: {
+            payment_status: 'paid',
+            transaction_id: searchQuery,
+            cashier: cashierName,
+            customer: customerName,
+            startDate: startDate ? startDate.toISOString() : undefined,
+            endDate: endDate ? endDate.toISOString() : undefined,
+            sortBy: sortBy,
+            payment_method: paymentMethod,
+            statusFilters: JSON.stringify(statusFilters), // Send the status filters
+          },
+          headers: {
+            'Authorization': `Bearer ${user.token}`,
+          },
+        });
+    
+        setSalesOrder(response.data.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching sales orders:', error);
+        setLoading(false);
+      }
+    };
     
     
 
-    setSalesOrder(response.data.data);
-    setLoading(false);
-  } catch (error) {
-    console.error('Error fetching sales orders:', error);
-    setLoading(false);
-  }
-};
-
     
 
+    
 
 
  
@@ -382,9 +385,9 @@ const fetchSalesOrders = async () => {
                               <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
                                 {transaction.total_price || 'N/A'}
                               </td>
-                              <td className={`p-4 text-sm font-semibold ${getStatusStyles(item.item_status).textClass} text-center`}>
-                                <span className={`px-4 py-2 rounded ${getStatusStyles(item.item_status).bgClass}`}>
-                                  {item.item_status || 'N/A'}
+                              <td className={`p-4 text-sm font-semibold ${getStatusStyles(transaction.status).textClass} text-center`}>
+                                <span className={`px-4 py-2 rounded ${getStatusStyles(transaction.status).bgClass}`}>
+                                  {transaction.status || 'N/A'}
                                 </span>
                               </td>
                               <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>

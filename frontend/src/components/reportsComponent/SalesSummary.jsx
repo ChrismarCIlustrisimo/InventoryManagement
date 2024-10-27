@@ -9,7 +9,6 @@ const SalesSummary = ({ salesData }) => {
   let totalTransactions = salesData.length; // Number of transactions
   let totalUnitsSold = 0;
   let totalDiscountApplied = 0;
-  let totalRefunds = 0;
   let totalVAT = 0; // Total VAT calculated directly from product sales
   let totalNetSales = 0; // To store net sales after discount and VAT
 
@@ -26,10 +25,6 @@ const SalesSummary = ({ salesData }) => {
       // Calculate total units sold
       totalUnitsSold += itemQuantity;
 
-      // Calculate total refunds if applicable
-      if (item.item_status === 'Refunded') {
-        totalRefunds += itemPrice * itemQuantity; // Calculate refund based on item price and quantity
-      }
 
       // Calculate VAT for each item and accumulate total VAT
       const vat = itemTotal * 0.12; // 12% VAT on the total for the item
@@ -64,10 +59,6 @@ const SalesSummary = ({ salesData }) => {
         <div className={`flex justify-between font-semibold py-2`}>
           <p className='border-b w-[60%]'>Total Units Sold</p>
           <p className='w-[40%] text-start border-b'>{totalUnitsSold}</p>
-        </div>
-        <div className={`flex justify-between font-semibold py-2`}>
-          <p className='border-b w-[60%]'>Total Refunds</p>
-          <p className='w-[40%] text-start border-b'>₱ {totalRefunds.toFixed(2)}</p>
         </div>
         <div className={`flex justify-between font-semibold py-2`}>
           <p className='border-b w-[60%]'>Total Discount Applied</p>

@@ -30,20 +30,59 @@ const AdminHome = () => {
   const [customStart, setCustomStart] = useState(null);
   const [customEnd, setCustomEnd] = useState(null);
   const [rmaRequests, setRmaRequests] = useState([]);
+  const [refunds, setRefunds] = useState([]);
+  const [currentMonthCount, setCurrentMonthCount] = useState(0); // State for current month count
+  const [lastMonthCount, setLastMonthCount] = useState(0);
 
-  useEffect(() => {
-    const fetchRMARequests = async () => {
-      try {
-        const response = await axios.get(`${baseURL}/rma`);
-        setRmaRequests(response.data);
-        console.log("RMA data fetched successfully:", response.data);
-      } catch (err) {
-        console.error("Error fetching RMA data:", err);
-      }
-    };
+  const fetchRMARequests = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/rma`);
+      setRmaRequests(response.data);
+      console.log("RMA data fetched successfully:", response.data);
+    } catch (err) {
+      console.error("Error fetching RMA data:", err);
+    }
+  };
   
-      fetchRMARequests();
-  }, []); 
+
+
+  const fetchRefunds = async () => {
+    try {
+      const response = await axios.get('http://localhost:5555/refund', {
+        headers: {
+          'Authorization': `Bearer ${user.token}`, // Include authorization token if needed
+        },
+      });
+      
+      setRefunds(response.data); // Store all refunds
+      
+      // Calculate counts
+      const currentCount = countRefundsForMonth(response.data, new Date());
+      const lastCount = countRefundsForMonth(response.data, new Date(new Date().setMonth(new Date().getMonth() - 1)));
+      
+      setCurrentMonthCount(currentCount);
+      setLastMonthCount(lastCount);
+      
+      console.log("Refund data fetched successfully:", response.data);
+    } catch (error) {
+      console.error('Error fetching refunds:', error);
+    }
+  };
+
+  const countRefundsForMonth = (refunds, date) => {
+    const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0); // Last day of the month
+    return refunds.filter(refund => {
+      const createdAt = new Date(refund.createdAt); // Convert createdAt to Date
+      return createdAt >= startOfMonth && createdAt <= endOfMonth;
+    }).length;
+  };
+
+  const calculatePercentageChange = () => {
+    if (lastMonthCount === 0) return 100; // Assuming 100% increase if there were no refunds last month
+    return ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
+  };
+
 
   const fetchProducts = async () => {
     try {
@@ -129,7 +168,6 @@ const AdminHome = () => {
   };
   
 
-
   const fetchSalesOrders = async () => { 
     try {
       const response = await axios.get(`${baseURL}/transaction`, {
@@ -137,47 +175,67 @@ const AdminHome = () => {
           payment_status: 'paid',
         },
         headers: {
-          'Authorization': `Bearer ${user.token}`,
+          'Authorization': `Bearer ${user?.token}`,
         },
       });
-
-      const transactions = response.data.data;
-
-      // Get current and previous month
+  
+      const transactions = response.data?.data || [];
+  
+      // Filter transactions for valid statuses and paid transactions
+      const validTransactions = transactions.filter(transaction => 
+        ['Completed', 'RMA', 'Replaced'].includes(transaction?.status) &&
+        transaction?.payment_status === 'paid'
+      );
+  
+      // Calculate initial total sales from valid transactions
+      let totalSales = validTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
+  
+      // Calculate additional sales from refunded transactions with sold units
+      const refundedTransactions = transactions.filter(transaction => transaction?.status === 'Refunded');
+  
+      refundedTransactions.forEach(transaction => {
+        if (transaction?.products) {
+          transaction.products.forEach(product => {
+            if (product?.units) {
+              const soldUnits = product.units.filter(unit => unit?.status === 'sold');
+              if (soldUnits.length > 0) {
+                const additionalSales = (product?.selling_price || 0) * 0.12;
+                totalSales += additionalSales;
+              }
+            }
+          });
+        }
+      });
+  
+      // Update state with total sales calculated
+      setTotalPaidPrice(totalSales);
+  
+      // Proceed with current code for other calculations
       const now = new Date();
       const currentMonth = now.getMonth();
       const previousMonth = new Date(now.setMonth(now.getMonth() - 1));
-
-      // Filter transactions by current month
+  
       const currentMonthTransactions = transactions.filter(transaction => {
         const transactionDate = new Date(transaction.createdAt);
         return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === now.getFullYear();
       });
-
-      // Count transactions for the current month
+  
       const currentMonthTransactionCount = currentMonthTransactions.length;
-
-      // Calculate gross sales for the current month
-      const currentMonthSales = currentMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
-
-      // Update state with calculated values
-      setTotalPaidPrice(currentMonthSales);
+  
       setTransactionCount(currentMonthTransactionCount);
-
-      // Calculate last month sales for percentage change
+  
       const lastMonthTransactions = transactions.filter(transaction => {
         const transactionDate = new Date(transaction.createdAt);
         return transactionDate.getMonth() === previousMonth.getMonth() && transactionDate.getFullYear() === previousMonth.getFullYear();
       });
-
-      const lastMonthSales = lastMonthTransactions.reduce((total, transaction) => total + transaction.total_price, 0);
-      const changePercent = lastMonthSales === 0 ? 100 : ((currentMonthSales - lastMonthSales) / lastMonthSales) * 100;
-      setChangeSalesPercent(parseFloat(changePercent.toFixed(2))); 
-
-      // Calculate transaction change percentage
+  
+      const lastMonthSales = lastMonthTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
+      const changePercent = lastMonthSales === 0 ? 100 : ((totalSales - lastMonthSales) / lastMonthSales) * 100;
+      setChangeSalesPercent(parseFloat(changePercent.toFixed(2)));
+  
       const transactionChangePercent = lastMonthTransactions.length === 0 ? 100 : ((currentMonthTransactionCount - lastMonthTransactions.length) / lastMonthTransactions.length) * 100;
       setTransactionChangePercent(parseFloat(transactionChangePercent.toFixed(2)));
-
+  
     } catch (error) {
       console.error('Error fetching sales orders:', error);
     }
@@ -190,6 +248,8 @@ const AdminHome = () => {
     if (user && user.token) {
       fetchProducts();
       fetchSalesOrders();
+      fetchRefunds();
+      fetchRMARequests();
     }
   }, [user, location.pathname]);
 
@@ -208,7 +268,8 @@ const AdminHome = () => {
     setCustomStart(startDate);
     setCustomEnd(endDate);
   };
-  
+  const percentageChange = calculatePercentageChange();
+
 
   
   return (
@@ -239,24 +300,22 @@ const AdminHome = () => {
             title={'Low Stock Alert'}
             value={itemsLowStock}
             changeType={'increase'}
-            bgColor={`bg-[#EC221F]`} // Additional custom styles
+            bgColor={`${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} // Additional custom styles
             percenText={'from last month'}
             showPercent={false} 
             warning={true}
             width="w-[22.5%]"
 
         />
-        <StatsCard
-            title={'Refund / Return Rate'}
-            value={transactionCount}
-            changeType={'increase'}
-            bgColor={`bg-[#14AE5C]`}  // Additional custom styles
-            percenText={'from last month'}
-            showPercent={false} 
-            percent={true}
-            width="w-[22.5%]"
-
-        />
+      <StatsCard 
+        title={'Refund / Return Rate'}
+        value={percentageChange}
+        bgColor={`bg-[#14AE5C]`}  // Additional custom styles
+        percenText={'from last month'}
+        showPercent={false}
+        percent={Math.abs(percentageChange).toFixed(2)} // Display the absolute value for percent, fixed to 2 decimal places
+        width="w-[22.5%]"
+      />
         </div>
         <div className='w-full h-[80%] '>
           <div className='w-full h-full flex flex-col gap-4'>

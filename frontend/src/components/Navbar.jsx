@@ -28,7 +28,7 @@ const Navbar = () => {
       setSelected('Orders');
     } else if (location.pathname === '/cashier-rma') {
       setSelected('RMA');
-    } else if (location.pathname.includes('/cashier-SalesReport') || location.pathname.includes('/InventoryReport') || location.pathname.includes('/RMAReport')) {
+    } else if (location.pathname.includes('/cashier-SalesReport')) {
       setSelected('Reporting');
     } else {
       setSelected('');
@@ -113,37 +113,16 @@ const Navbar = () => {
 
 
 
-        {/* Reporting Dropdown */}
-        <div className="relative flex-1">
+        {/* RMA Button */}
+        <Link to="/cashier-SalesReport" className="flex-1">
           <button
             className={`text-sm p-2 px-3 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} rounded-[24px] w-full flex items-center justify-center gap-2 border`}
-            onClick={toggleDropdown}
+            onClick={() => setSelected('Reporting')}
           >
-            <BiSolidReport className='text-lg' />
+            <BsArrowRepeat className='text-lg' />
             <span>Reporting</span>
-            <GoTriangleDown className={`text-lg transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
           </button>
-          {/* Dropdown menu */}
-          {dropdownOpen && (
-            <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-full ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
-              <Link to="/cashier-SalesReport">
-                <div className={`text-sm p-2 z-100 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
-                  Sales Report
-                </div>
-              </Link>
-              <Link to="/InventoryReport">
-                <div className={`text-sm p-2 z-50 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
-                  Inventory Report
-                </div>
-              </Link>
-              <Link to="/RMAReport">
-                <div className={`text-sm p-2 z-50 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
-                  RMA Report
-                </div>
-              </Link>
-            </div>
-          )}
-        </div>
+        </Link>
 
       </div>
       <ProfileInfo />

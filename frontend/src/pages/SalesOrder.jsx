@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import Spinner from '../components/Spinner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { GrPowerReset } from 'react-icons/gr';
+import { HiOutlineRefresh } from "react-icons/hi";
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useTheme } from '../context/ThemeContext';
 import SearchBar from '../components/SearchBar';
@@ -22,6 +22,7 @@ const SalesOrder = () => {
   const { user } = useAuthContext(); 
   const { darkMode } = useTheme(); 
   const [searchQuery, setSearchQuery] = useState('');
+  const isInputsEmpty = minPrice === '' && maxPrice === '' ;
 
   useEffect(() => {
     if (user) {
@@ -164,8 +165,8 @@ const SalesOrder = () => {
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-border' : 'dark:border-dark-border' }`}>
-                    <DatePicker
+                <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+                <DatePicker
                       selected={startDate}
                       onChange={handleStartDateChange}
                       dateFormat='MM-dd-yyyy'
@@ -178,8 +179,8 @@ const SalesOrder = () => {
                 <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                 <div className='flex flex-col'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-border' : 'dark:border-dark-border' }`}>
-                    <DatePicker
+                <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+                <DatePicker
                       selected={endDate}
                       onChange={handleEndDateChange}
                       dateFormat='MM-dd-yyyy'
@@ -195,13 +196,13 @@ const SalesOrder = () => {
 
               <div className='flex justify-center items-center'>
                 <div className='flex flex-col'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1' }`}>
-                    <input
+                <div className={`w-[130px] rounded pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary bg-light-activeLink' : 'dark:border-dark-primary text-dark-primary bg-dark-activeLink')}`}>
+                <input
                       type='number'
                       id='minPrice'
                       value={minPrice}
                       onChange={handleMinPriceChange}
-                      className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none'
+                      className='border-none px-2 py-1 text-sm  w-[100%] outline-none'
                       min='0'
                       placeholder='Min'
                     />
@@ -211,13 +212,13 @@ const SalesOrder = () => {
                 <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                 <div className='flex flex-col'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1' }`}>
-                    <input
+                <div className={`w-[130px] rounded pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary bg-light-activeLink' : 'dark:border-dark-primary text-dark-primary bg-dark-activeLink')}`}>
+                <input
                       type='number'
                       id='maxPrice'
                       value={maxPrice}
                       onChange={handleMaxPriceChange}
-                      className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none'
+                      className='border-none px-2 py-1 text-sm w-[100%] outline-none'
                       min='0'
                       placeholder='Max'
                     />
@@ -244,14 +245,15 @@ const SalesOrder = () => {
               </div>
             </div>
             <div className='flex flex-col gap-2'>
-              <button
-                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium ${darkMode ? 'bg-light-textSecondary text-dark-textPrimary' : 'bg-dark-textSecondary text-dark-textPrimary' }`}
-                onClick={handleResetFilters}
-              >
-                <GrPowerReset className='mr-2' />
-                <p>Reset Filters</p>
-              </button>
-            </div>
+          <button
+              className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
+              ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
+              onClick={handleResetFilters}
+          >
+                <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`} />
+                <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`}>Reset Filters</p>
+            </button>
+          </div>
           </div>
 
           {/* Main Content */}

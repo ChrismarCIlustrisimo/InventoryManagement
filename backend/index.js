@@ -9,8 +9,8 @@ import userRoute from './routes/userRoute.js';
 import SupplierRoute from './routes/supplierRoute.js';
 import RMARoute from './routes/RMARoute.js';
 import Counter from './models/counterModel.js';
+import refundRoute from './routes/refundRoute.js';
 import { mongoDBURL, PORT } from './config.js';
-import cleanupExpiredTransactions from './middleware/cleanupExpiredTransactions.js';
 import cors from 'cors';
 
 const app = express();
@@ -39,7 +39,6 @@ app.options('*', cors({
 
 app.use(express.json());
 app.use(express.static('public'));
-app.use(cleanupExpiredTransactions);
 
 app.set('io', io);
 
@@ -50,6 +49,7 @@ app.use('/transaction', transactionRoutes);
 app.use('/user', userRoute);
 app.use('/supplier', SupplierRoute);
 app.use('/rma', RMARoute);
+app.use('/refund', refundRoute);
 
 
 // WebSocket connection

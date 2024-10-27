@@ -61,7 +61,7 @@ const Receipt = () => {
 
   // Calculate the tax amount (12%)
   const taxRate = 0.12; // 12%
-  const totalPrice = transaction.total_price; // Assuming this is the total before tax
+  const totalPrice = transaction.total_price; 
   const taxAmount = totalPrice * taxRate;
   const totalWithTax = totalPrice + taxAmount;
 
@@ -210,7 +210,7 @@ const Receipt = () => {
               <span className='text-xl font-semibold'>Payment method:</span>
               <div className='flex flex-col justify-between py-2'>
                 <div className='flex items-center justify-start gap-4'>
-                  <p>Gcash</p>
+                  <p>{transaction.payment_method}</p>
                   <p className='bg-[#EBFFEE] text-[#14AE5C] py-2 px-4 rounded-md italic'>Paid</p>
                 </div>
               </div>

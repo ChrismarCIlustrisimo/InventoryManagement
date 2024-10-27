@@ -4,8 +4,6 @@ const ProductItemSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   quantity: { type: Number, required: true },
   serial_number: { type: [String], required: true },
-  item_status: { type: String, enum: ['Completed', 'Refunded'],default: 'Completed'},  
-  reason_for_refund: { type: String }
 });
 
 const TransactionSchema = new mongoose.Schema(
@@ -16,10 +14,10 @@ const TransactionSchema = new mongoose.Schema(
     total_price: { type: Number, required: true },
     total_amount_paid: { type: Number },
     transaction_date: { type: Date, default: Date.now },
-    due_date: { type: Date, required: true },
+    due_date: { type: Date },
     discount: { type: Number },
     vat: { type: Number },
-    status: { type: String, enum: ['Completed', 'Pending', 'Refunded'], default: 'Pending'},
+    status: { type: String, enum: ['Completed', 'Replaced', 'Refunded','RMA', 'Reserved'], default: 'Reserved'},
     payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
     cashier: { type: String },
     payment_method: {

@@ -28,11 +28,7 @@ const SalesReport = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [dateFilter, setDateFilter] = useState('');
-  
-  const [salesDataStatus, setSalesDataStatus] = useState({
-    Completed: false,
-    Refunded: false,
-  });
+
 
   const formatDate = (date) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -84,12 +80,7 @@ const SalesReport = () => {
     setSelectedCategory(e.target.value); // Update the selected category
   };
 
-  const handleCheckboxChange = (status) => {
-    setSalesDataStatus((prevState) => ({
-      ...prevState,
-      [status]: !prevState[status],
-    }));
-  };
+
 
   const handleCheckboxChangeReports = (status) => {
     setReportIncluded((prevState) => ({
@@ -142,13 +133,6 @@ const SalesReport = () => {
       );
     }
 
-    // Filter by sales status
-    if (Object.values(salesDataStatus).some(Boolean)) {
-      filteredData = filteredData.filter(item =>
-        (salesDataStatus['Completed'] && item.status === 'Completed') ||
-        (salesDataStatus['Refunded'] && item.status === 'Refunded')
-      );
-    }
 
     if (startDate && endDate) {
       filteredData = filteredData.filter(item => {
@@ -160,15 +144,11 @@ const SalesReport = () => {
 
     // Update filtered sales data state
     setFilteredSalesData(filteredData);
-  }, [salesData, selectedCategory, salesDataStatus, startDate, endDate]);
+  }, [salesData, selectedCategory, startDate, endDate]);
 
 
 const handleResetFilters = () => {
   setSelectedDate('');
-  setSalesDataStatus({
-    Completed: false,
-    Refunded: false,
-  });
   setReportIncluded({
     'Sales by Category': false,
     'Payment Method': false,
@@ -286,20 +266,7 @@ const handleExportPdf = () => {
                       <option value='Custom Date'>Custom Date</option>
                   </select>      
                 </div>
-                <div className='flex flex-col'>
-                  <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Sales Status</span>
-                  {Object.keys(salesDataStatus).map((status) => (
-                    <label key={status} className='custom-checkbox flex items-center'>
-                      <input 
-                        type='checkbox' 
-                        checked={salesDataStatus[status]} 
-                        onChange={() => handleCheckboxChange(status)} 
-                      />
-                      <span className='checkmark'></span>
-                      <span className={`label-text ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{status}</span>
-                    </label>
-                  ))}
-                </div>
+
 
 
 

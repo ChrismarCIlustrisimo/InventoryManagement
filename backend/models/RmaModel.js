@@ -3,17 +3,23 @@ import Counter from './counterModel.js';
 
 const RMASchema = new mongoose.Schema({
   rma_id: { type: String, required: true, unique: true },
-  transaction: { type: mongoose.Schema.Types.ObjectId, ref: 'Transaction', required: true },
-  product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+  transaction: { type: String, required: true },
+  product: { type: String, required: true },
   serial_number: { type: String, required: true },
   date_initiated: { type: Date, default: Date.now },
   customer_name: { type: String, required: true },
-  request_type: { type: String, enum: ['Return', 'Exchange'], required: true },
   reason: { type: String, required: true },
-  serial_number: { type: String, required: true },
-  status: { type: String, enum: ['Pending', 'Approved', 'In Progress', 'Completed', 'Expired'], default: 'Pending' },
-  warranty_status: { type: String, enum: ['Valid', 'Expired'], required: true },
-  notes: { type: String },  // New optional field for notes
+  condition: { type: String, required: true },
+  product_warranty: { type: String, required: true },
+  product_price: { type: String, required: true },
+  product_id: { type: String, required: true },
+  cashier: { type: String, required: true },
+  customerID: { type: String, required: true },
+  process: { type: String, enum: ['Refund', 'Replacement','None'], default: 'None' },
+  transaction_date: { type: Date, required: true }, // Ensure this is a Date
+  status: { type: String, enum: ['Pending', 'Approved', 'Rejected', 'Completed'], default: 'Pending' },
+  warranty_status: { type: String, enum: ['Valid', 'Expired'], default: 'Valid', required: true },
+  notes: { type: String },
 }, {
   timestamps: true,
 });

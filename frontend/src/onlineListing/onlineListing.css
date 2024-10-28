@@ -1,0 +1,75 @@
+/* Add this to your CSS file */
+
+/* For mobile devices (max-width: 768px) */
+@media (max-width: 768px) {
+      /* Adjust the layout and styling for mobile devices */
+      .Navbar {
+        height: 60px; /* Adjust the Navbar height */
+      }
+      .Carousel {
+        width: 100%; /* Make the Carousel full-width */
+      }
+      .ProductGrid {
+        grid-template-columns : repeat(2, 1fr); /* Adjust the grid layout for mobile devices */
+      }
+      .ProductSection {
+        flex-direction: column; /* Make the ProductSection layout vertical */
+      }
+      .ProductSection > * {
+        width: 100%; /* Make the ProductSection children full-width */
+      }
+    }
+    
+    /* For tablet devices (min-width: 769px and max-width: 1024px) */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      /* Adjust the layout and styling for tablet devices */
+      .Navbar {
+        height: 80px; /* Adjust the Navbar height */
+      }
+      .Carousel {
+        width: 80%; /* Make the Carousel 80% wide */
+      }
+      .ProductGrid {
+        grid-template-columns: repeat(3, 1fr); /* Adjust the grid layout for tablet devices */
+      }
+      .ProductSection {
+        flex-direction: row; /* Make the ProductSection layout horizontal */
+      }
+      .ProductSection > * {
+        width: 50%; /* Make the ProductSection children 50% wide */
+      }
+    }
+    
+    /* For desktop devices (min-width: 1025px) */
+    @media (min-width: 1025px) {
+      /* Adjust the layout and styling for desktop devices */
+      .Navbar {
+        height: 100px; /* Adjust the Navbar height */
+      }
+      .Carousel {
+        width: 60%; /* Make the Carousel 60% wide */
+      }
+      .ProductGrid {
+        grid-template-columns: repeat(4, 1fr); /* Adjust the grid layout for desktop devices */
+      }
+      .ProductSection {
+        flex-direction: row; /* Make the ProductSection layout horizontal */
+      }
+      .ProductSection > * {
+        width: 33.33%; /* Make the ProductSection children 33.33% wide */
+      }
+    }
+
+    /* Styles for large screens (e.g. desktops) */
+@media (min-width: 768px) {
+      .product-card {
+        width: 300px; /* Example width */
+      }
+    }
+    
+    /* Styles for smaller screens (e.g. mobile) */
+    @media (max-width: 767px) {
+      .product-card {
+        width: 100%; /* Full width for mobile */
+      }
+    }

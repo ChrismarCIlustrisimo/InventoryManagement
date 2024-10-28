@@ -42,7 +42,7 @@ import Refund from './pages/Refund';
 import CashierRMA from './pages/CashierRMA';
 import CashierSalesReport from './pages/CashierSalesReport';
 import StoreLocation from './onlineListing/pages/StoreLocation';
-import Products from './onlineListing/pages/Products';
+import Laptops from './onlineListing/pages/productPage/Laptops';
 import ViewProducts from './onlineListing/components/ViewProducts';
 import ContactUs from './onlineListing/pages/ContactUs';
 import Faq from './onlineListing/pages/Faq';
@@ -96,7 +96,7 @@ const App = () => {
                                           <Route path="/iRIG/" element={<Ecommerce />} />
                                           <Route path="*" element={<Navigate to="/iRIG/" />} />
                                           <Route path="/unauthorized" element={<Unauthorized />} />
-                                          <Route path="/iRIG/products/" element={<Products />} />
+                                          <Route path="/iRIG/laptops/" element={<Laptops />} />
                                           <Route path="/iRIG/our-store" element={<StoreLocation />} />
                                           <Route path="/iRIG/products/view/:id" element={<ViewProducts />} />
                                           <Route path="/iRIG/contact-us/" element={<ContactUs />} />

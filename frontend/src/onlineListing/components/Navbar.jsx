@@ -14,7 +14,7 @@ const categories = [
       { name: "Accessories", path: "/accessories" },
       { name: "PC Furniture", path: "/pc-furniture" },
       { name: "OS & Software", path: "/os-software" },
-      { name: "Laptops", path: "/laptops" },
+      { name: "Laptops", path: "/iRIG/laptops" },
       { name: "Desktops", path: "/desktops" },
 ];
 
@@ -80,9 +80,9 @@ const Navbar = ({ query, onQueryChange }) => {
                                     {isCategoryPopupOpen && (
                                           <div className="absolute z-50 bg-white shadow-md rounded-md mt-2 p-2 w-64">
                                                 {categories.map((category) => (
-                                                      <Link 
-                                                            key={category.name} 
-                                                            to={category.path} 
+                                                      <Link
+                                                            key={category.name}
+                                                            to={category.path}
                                                             className="block py-1 hover:bg-gray-200 transition"
                                                       >
                                                             {category.name}

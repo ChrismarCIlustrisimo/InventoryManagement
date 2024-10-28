@@ -65,14 +65,14 @@ const Ecommerce = () => {
                   <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
 
                   {/* Adjusted the margin and spacing for mobile responsiveness */}
-                  <div className='mt-[130px] w-full bg-gray-200 flex items-center justify-center flex-col'>
+                  <div className='md:mt-[130px] w-full bg-gray-200 flex items-center justify-center flex-col'>
                         <Carousel />
 
                         {/* Added more padding and ensured responsive container height */}
                         <ProductGrid products={[...latestProducts, ...topSellers]} />
 
                         {/* Adjusted main tag height for mobile view */}
-                        <main className='w-full max-w-[1200px] flex flex-col items-center p-4 border border-red-800 h-auto'>
+                        <main className='w-full max-w-[1200px] flex flex-col items-center p-4 h-auto'>
                               <ProductSection
                                     title="Latest Products"
                                     products={displayedLatestProducts}

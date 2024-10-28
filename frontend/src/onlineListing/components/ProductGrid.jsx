@@ -55,7 +55,7 @@ const CategoryCard = ({ category }) => {
         <h2 className="text-2xl font-semibold text-gray-800">{category.title}</h2>
         <a href="/" className="text-blue-700 font-medium">View All</a>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
         {category.products.map((product, index) => (
           <ProductCard key={index} product={product} />
         ))}

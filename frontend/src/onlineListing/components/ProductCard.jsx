@@ -6,11 +6,11 @@ const ProductCard = ({ product }) => {
       const navigate = useNavigate();
 
       const handleViewProduct = () => {
-            navigate(`/ecommerce/irigpc/products/view/${product.id}`, { state: { product } });
+            navigate(`/iRIG/products/view/${product.id}`, { state: { product } });
       };
 
       return (
-            <div className="rounded-lg bg-white p-2 text-center hover:shadow-lg transition duration-200 w-48 h-64 flex flex-col">
+            <div className="rounded-lg bg-white rounded-md border border-gray-200 p-2 text-center hover:shadow-lg transition duration-200 w-48 h-64 flex flex-col">
                   <div className='flex items-center justify-center'>
                         <img
                               src={product.image}

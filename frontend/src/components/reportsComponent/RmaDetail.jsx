@@ -33,7 +33,7 @@ const RmaDetail = ({ filteredRMA }) => {
                   <td className='p-2 text-center'>{formatDate(rma.createdAt)}</td>
                   <td className='p-2 text-center'>{rma.reason}</td>
                   <td className='p-2 text-center'>{rma.status}</td>
-                  <td className='p-2 text-center'>{rma.actionTaken}</td>
+                  <td className='p-2 text-center'>{rma.process}</td>
                 </tr>
               ))
             ) : (

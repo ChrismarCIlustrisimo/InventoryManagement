@@ -38,7 +38,6 @@ const AdminHome = () => {
     try {
       const response = await axios.get(`${baseURL}/rma`);
       setRmaRequests(response.data);
-      console.log("RMA data fetched successfully:", response.data);
     } catch (err) {
       console.error("Error fetching RMA data:", err);
     }
@@ -63,7 +62,6 @@ const AdminHome = () => {
       setCurrentMonthCount(currentCount);
       setLastMonthCount(lastCount);
       
-      console.log("Refund data fetched successfully:", response.data);
     } catch (error) {
       console.error('Error fetching refunds:', error);
     }
@@ -79,7 +77,8 @@ const AdminHome = () => {
   };
 
   const calculatePercentageChange = () => {
-    if (lastMonthCount === 0) return 100; // Assuming 100% increase if there were no refunds last month
+    if (lastMonthCount === 0) return 100;
+    if(lastMonthCount === 0 && currentMonthCount === 0) return 0;
     return ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
   };
 

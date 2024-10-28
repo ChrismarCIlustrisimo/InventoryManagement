@@ -48,6 +48,7 @@ import ContactUs from './onlineListing/pages/ContactUs';
 import Faq from './onlineListing/pages/Faq';
 import ReturnPolicy from './onlineListing/pages/ReturnPolicy';
 import Warranty from './onlineListing/pages/Warranty';
+import CartPage from './onlineListing/pages/CartPage';
 const App = () => {
       const { user } = useAuthContext();
 
@@ -90,16 +91,18 @@ const App = () => {
                                           <Route path="/RMAReport" element={<PrivateRoute requiredRole="admin"><RMAReport /></PrivateRoute>} />
                                           <Route path="/InventoryReport" element={<PrivateRoute requiredRole="admin"><InventoryReport /></PrivateRoute>} />
                                           <Route path="/RMAForm" element={<PrivateRoute requiredRole="admin"><RMAForm /></PrivateRoute>} />
-                                          <Route path="/ecommerce/irigpc/" element={<Ecommerce />} />
+                                          <Route path="/iRIG/" element={<Ecommerce />} />
                                           <Route path="*" element={<Navigate to="/" />} />
                                           <Route path="/unauthorized" element={<Unauthorized />} />
-                                          <Route path="/ecommerce/irigpc/products/" element={<Products />} />
-                                          <Route path="/ecommerce/irigpc/our-store" element={<StoreLocation />} />
-                                          <Route path="/ecommerce/irigpc/products/view/:id" element={<ViewProducts />} />
-                                          <Route path="/ecommerce/irigpc/contact-us/" element={<ContactUs />} />
-                                          <Route path="/ecommerce/irigpc/warranty/" element={<Warranty />} />
-                                          <Route path="/ecommerce/irigpc/return-policy/" element={<ReturnPolicy />} />
-                                          <Route path="/ecommerce/irigpc/faq/" element={<Faq />} />
+                                          <Route path="/iRIG/products/" element={<Products />} />
+                                          <Route path="/iRIG/our-store" element={<StoreLocation />} />
+                                          <Route path="/iRIG/products/view/:id" element={<ViewProducts />} />
+                                          <Route path="/iRIG/contact-us/" element={<ContactUs />} />
+                                          <Route path="/iRIG/warranty/" element={<Warranty />} />
+                                          <Route path="/iRIG/return-policy/" element={<ReturnPolicy />} />
+                                          <Route path="/iRIG/faq/" element={<Faq />} />
+                                          <Route path="/iRIG/view-cart" element={<CartPage />} />
+
 
                                     </Routes>
                               </AdminThemeProvider>

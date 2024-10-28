@@ -34,7 +34,7 @@ const ViewProducts = () => {
 
                   <div className="container mx-auto mt-40 p-4">
                         <p className='mb-8 text-black'>Home &gt; Laptops &gt; {product.name} </p>
-                        <div className="grid grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                               {/* Left column for the image */}
                               <div className="flex justify-center">
                                     <img

@@ -1,6 +1,7 @@
 import React from 'react';
 import { IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
+import '../onlineListing.css';
 
 const ProductCard = ({ product }) => {
       const navigate = useNavigate();
@@ -10,7 +11,7 @@ const ProductCard = ({ product }) => {
       };
 
       return (
-            <div className="rounded-lg bg-white rounded-md border border-gray-200 p-2 text-center hover:shadow-lg transition duration-200 w-48 h-64 flex flex-col">
+            <div className="rounded-lg bg-white border border-gray-200 p-2 text-center hover:shadow-lg transition duration-200 w-48 h-64 flex flex-col">
                   <div className='flex items-center justify-center'>
                         <img
                               src={product.image}

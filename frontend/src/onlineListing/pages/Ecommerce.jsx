@@ -4,7 +4,7 @@ import ProductGrid from '../components/ProductGrid';
 import Footer from '../components/Footer';
 import Carousel from '../components/Carousel';
 import ProductSection from '../components/ProductSection';
-
+import '../onlineListing.css';
 const Ecommerce = () => {
       const [query, setQuery] = useState('');
       const [currentIndexLatest, setCurrentIndexLatest] = useState(0);

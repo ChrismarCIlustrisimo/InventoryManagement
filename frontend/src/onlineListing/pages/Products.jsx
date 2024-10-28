@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import ProductHeader from '../components/ProductHeader';
 
 const Products = () => {
       const [query, setQuery] = useState('');
@@ -78,12 +79,12 @@ const Products = () => {
                   <div className='w-full  text-black flex flex-col bg-white'>
                         <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
 
-                        <div className="container w-full mt-40 mx-auto p-4">
-                              <p className='mb-8'>Home &gt; Laptops</p>
+                        <div className="container w-full mt-40 mx-auto md:p-4">
+                              <p className=' p-4 mb-8'>Home &gt; Laptops</p>
 
                               <div className='flex w-full'>
                                     {/* left side Filter HERE*/}
-                                    <div className="min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6">
+                                    <div className="max-md:hidden min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6">
                                           <h2 className="text-xl font-semibold mb-4">Filters</h2>
 
                                           {/* Price Range */}
@@ -207,10 +208,9 @@ const Products = () => {
 
 
                                     {/* right side Products HERE*/}
-                                    <div className='ml-6 w-full'>
-                                          <h1 className="text-6xl p-20 text-white font-bold mb-4" style={{ background: 'linear-gradient(to right, #E84C19, white)' }}>Laptops</h1>
-
-                                          <div className="m-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className='md:ml-6 w-full'>
+                                          <ProductHeader header={"hetlog"} />
+                                          <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                                 {displayedProducts.map((product) => (
                                                       <ProductCard key={product.id} product={product} />
                                                 ))}

@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import ProductCard from '../components/ProductCard';
-import ProductHeader from '../components/ProductHeader';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import ProductCard from '../../components/ProductCard';
+import ProductHeader from '../../components/ProductHeader';
 
-const Products = () => {
+const Laptops = () => {
       const [query, setQuery] = useState('');
       const productsPerPage = 10;
       const [products, setProducts] = useState([
@@ -225,4 +225,4 @@ const Products = () => {
       );
 };
 
-export default Products;
+export default Laptops;

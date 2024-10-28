@@ -1,35 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
+import axios from 'axios';
 
 const Peripherals = () => {
     const [query, setQuery] = useState('');
     const productsPerPage = 10;
-    const [products, setProducts] = useState([
-        {
-            id: 1,
-            name: 'Logitech Wireless Mouse',
-            price: 20,
-            image: 'https://cdn.pixabay.com/photo/2014/04/03/10/33/keyboard-310084_1280.png',
-            category: 'Mice',
-            brand: 'Logitech',
-            discount: 15,
-            isTopSelling: true // Example property for top-selling
-        },
-        {
-            id: 2,
-            name: 'Razer Mechanical Keyboard',
-            price: 100,
-            image: 'https://cdn.pixabay.com/photo/2014/04/02/10/27/mouse-304207_1280.png',
-            category: 'Keyboards',
-            brand: 'Razer',
-            discount: 10,
-            isTopSelling: false // Example property for top-selling
-        },
-        // Add more products here if needed
-    ]);
+    const [products, setProducts] = useState([]);
+    const baseURL = "http://localhost:5555";
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get(`${baseURL}/product`);
+                const filteredData = response.data.data.filter(r => r.category === "Peripherals");
+                setProducts(filteredData); // Set the filtered products
+            } catch (error) {
+                console.error('Error fetching products:', error.message);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
 
     const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
@@ -61,27 +56,10 @@ const Peripherals = () => {
         });
     };
 
-    const filteredProducts = products.filter((product) => {
-        const isMatched = product.name.toLowerCase().includes(query.toLowerCase());
-        const isPriceInRange = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
-        const isCategoryMatched = filters.category.length === 0 || filters.category.includes(product.category);
-        const isBrandMatched = filters.brand.length === 0 || filters.brand.includes(product.brand);
-        const isDiscountMatched = filters.discount.length === 0 || filters.discount.includes(product.discount);
-        const isTopSellingMatched = !filters.isTopSelling || product.isTopSelling;
 
-        return (
-            isMatched &&
-            isPriceInRange &&
-            isCategoryMatched &&
-            isBrandMatched &&
-            isDiscountMatched &&
-            isTopSellingMatched
-        );
-    });
 
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
-    const displayedProducts = filteredProducts.slice(startIndex, endIndex);
 
     return (
         <div className='w-full text-black flex flex-col bg-white'>
@@ -165,7 +143,7 @@ const Peripherals = () => {
                     <div className='md:ml-6 w-full'>
                         <ProductHeader header={"Peripherals"} />
                         <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {displayedProducts.map((product) => (
+                            {products.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>

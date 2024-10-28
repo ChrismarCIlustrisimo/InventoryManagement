@@ -14,7 +14,8 @@ const StatsCard = ({
   showPercent = true, // control to display percentage
   currency = false, // control to display currency symbol
   warning = false, // control to display warning component
-  percent = false
+  percent = false,
+  onClick, 
 }) => {
   // Set the color for increase or decrease
   const changeColor = changeType === 'increase' ? 'text-green-400' : 'text-red-400';
@@ -23,7 +24,7 @@ const StatsCard = ({
   const textColor = bgColor === 'bg-white' ? 'text-black' : 'text-white';
 
   return (
-    <div className={`flex flex-col items-start justify-between gap-4 p-4 rounded-lg shadow-lg h-full ${width} ${bgColor} ${className}`}>
+    <div className={`flex flex-col items-start justify-between gap-4 p-4 rounded-lg shadow-lg h-full cursor-pointer ${width} ${bgColor} ${className}`} onClick={onClick} >
       <h3 className={`text-lg font-normal ${textColor}`}>{title}</h3>
       <div className={`mt-2 ${textColor}`}>
         <span className={`text-6xl font-medium ${warning ? `flex gap-2 items-center justify-center`: ``} ${percent ? `flex gap-2 items-center justify-center`: ``}`}>

@@ -11,6 +11,7 @@ import PendingRMARequests from '../charts/PendingRMARequests';
 import LineChart from '../charts/LineChart';
 import DateRangeModal from '../components/DateRangeModal';
 import { toast, ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 
 const AdminHome = () => {
@@ -32,6 +33,7 @@ const AdminHome = () => {
   const [rmaRequests, setRmaRequests] = useState([]);
   const [refunds, setRefunds] = useState([]);
   const [currentMonthCount, setCurrentMonthCount] = useState(0); // State for current month count
+  const navigate = useNavigate();
 
   const fetchRMARequests = async () => {
     try {
@@ -265,12 +267,33 @@ const AdminHome = () => {
   };
   const percentageChange = calculatePercentageChange();
 
+  const handleGoSalesReport = () => {
+    navigate('/SalesReport');
+  };
 
-  
+  const handleGoInventoryReport = () => {
+    navigate('/InventoryReport');
+  };
+
+  const handleGoRMAReport = () => {
+    navigate('/RMAReport');
+  };
+
+  const handleGoSales = () => {
+    navigate('/sales');
+  };
+
+  const handleGoInventory = () => {
+    navigate('/inventory/product');
+  };
+  const handleGoRMA = () => {
+    navigate('/rma');
+  };
+
   return (
     <div className={`${darkMode ? "bg-light-bg" : "dark:bg-dark-bg"} h-auto flex gap-1 overflow-y-hidden`}>
       <DashboardNavbar />
-      <div className="w-[100vw] h-[170vh] pt-6 px-6 pt-[100px] flex gap-4 flex-col border border-red-800">
+      <div className="w-[100vw] h-[170vh] px-6 pt-[100px] flex gap-4 flex-col border border-red-800">
         <div className='w-full h-[20%] max-h-[180px]  flex items-center gap-4'>
         <StatsCard
             title={'Monthly Total Sales'}
@@ -280,6 +303,8 @@ const AdminHome = () => {
             bgColor={`bg-[#14AE5C]`}  // Additional custom styles
             percenText={'from last month'}
             width="w-[30%]"
+            onClick={handleGoSalesReport}  // Pass the function here
+
         />
 
           <StatsCard
@@ -290,6 +315,7 @@ const AdminHome = () => {
             bgColor={`bg-[#E8B931]`} // Additional custom styles
             percenText={'from last month'}
             width="w-[25%]"
+            onClick={handleGoSales}  // Pass the function here
           />
         <StatsCard
             title={'Low Stock Alert'}
@@ -300,8 +326,9 @@ const AdminHome = () => {
             showPercent={false} 
             warning={true}
             width="w-[22.5%]"
-
+            onClick={handleGoInventory}
         />
+
         <StatsCard 
           title={'Refund / Return Rate'}
           value={percentageChange.toFixed(2)}

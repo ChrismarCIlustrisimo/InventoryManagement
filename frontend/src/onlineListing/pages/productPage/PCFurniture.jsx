@@ -1,33 +1,31 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
+import axios from 'axios';
 
 const PCFurniture = () => {
     const [query, setQuery] = useState('');
     const productsPerPage = 10;
-    const [products, setProducts] = useState([
-        {
-            id: 1,
-            name: 'Ergonomic Gaming Chair',
-            price: 300,
-            image: 'https://cdn.pixabay.com/photo/2017/03/20/21/00/gaming-chair-2161104_1280.jpg',
-            category: 'Chairs',
-            brand: 'TechComfort',
-            discount: 15,
-        },
-        {
-            id: 2,
-            name: 'L-shaped Gaming Desk',
-            price: 450,
-            image: 'https://cdn.pixabay.com/photo/2016/03/27/21/53/architecture-1283632_1280.jpg',
-            category: 'Desks',
-            brand: 'DeskMaster',
-            discount: 10,
-        },
-        // Add more products here if needed
-    ]);
+    const [products, setProducts] = useState([]);
+
+    const baseURL = "http://localhost:5555";
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get(`${baseURL}/product`);
+                const filteredData = response.data.data.filter(r => r.category === "PC Furniture");
+                setProducts(filteredData); // Set the filtered products
+            } catch (error) {
+                console.error('Error fetching products:', error.message);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
 
     const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
@@ -51,23 +49,9 @@ const PCFurniture = () => {
         }));
     };
 
-    const filteredProducts = products.filter((product) => {
-        const isMatched = product.name.toLowerCase().includes(query.toLowerCase());
-        const isPriceInRange = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
-        const isTopSellingMatched = !filters.topSelling || product.discount > 0; // Assuming top-selling products have a discount
-        const isSubcategoryMatched = filters.subcategory.length === 0 || filters.subcategory.includes(product.category);
-
-        return (
-            isMatched &&
-            isPriceInRange &&
-            isTopSellingMatched &&
-            isSubcategoryMatched
-        );
-    });
 
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
-    const displayedProducts = filteredProducts.slice(startIndex, endIndex);
 
     return (
         <div className='w-full text-black flex flex-col bg-white'>
@@ -161,7 +145,7 @@ const PCFurniture = () => {
                     <div className='md:ml-6 w-full'>
                         <ProductHeader header={"PC Furniture"} />
                         <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {displayedProducts.map((product) => (
+                            {products.map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>

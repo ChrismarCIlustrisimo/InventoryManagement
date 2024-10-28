@@ -1,48 +1,48 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
+import axios from 'axios';
 
 const Laptops = () => {
     const [query, setQuery] = useState('');
     const productsPerPage = 10;
-    const [products, setProducts] = useState([
-        {
-            id: 1,
-            name: 'Acer Predator Helios 16 PH16-72-96H6 Gaming Laptop (Abyssal Black)',
-            price: 1500,
-            image: 'https://cdn.pixabay.com/photo/2016/03/27/07/12/apple-1282241_1280.jpg',
-            category: 'Gaming Laptops',
-            subcategory: 'Laptops',
-            processorType: 'Intel i5',
-            brand: 'Acer',
-            discount: 10,
-            sales: 300 // Added sales for top selling filter
-        },
-        {
-            id: 2,
-            name: 'Nigga byte Black Nigger Laptop (Black)',
-            price: 6900,
-            image: 'https://cdn.pixabay.com/photo/2016/03/27/07/12/apple-1282241_1280.jpg',
-            category: 'Laptops',
-            subcategory: 'Laptops',
-            processorType: 'Intel i7',
-            brand: 'Digabyte',
-            discount: 20,
-            sales: 150 // Added sales for top selling filter
-        },
-        // Add more products here if needed
-    ]);
+    const [products, setProducts] = useState([]);
+    const baseURL = "http://localhost:5555";
+
+    const fetchProducts = async () => {
+        try {
+            const response = await axios.get(`${baseURL}/product`, {
+                params: {
+                    category: 'Laptops',
+                },
+            });
+
+            // Adjusting the line below
+            const products = response.data.data; 
+            const laptopProducts = products.filter(product => product.category === 'Laptops');
+
+            // Setting the filtered products
+            setProducts(laptopProducts);
+        } catch (error) {
+            console.error('Error fetching products:', error.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchProducts();
+    }, []);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
         priceRange: [0, 10000],
         category: [],
-        subcategory: [], // Added subcategory filter
+        subcategory: [],
         processorType: [],
         brand: [],
         discount: [],
+        isTopSelling: false, // Added top selling filter
     });
 
     const handleQueryChange = (newQuery) => {
@@ -60,21 +60,23 @@ const Laptops = () => {
 
     const filteredProducts = products.filter((product) => {
         const isMatched = product.name.toLowerCase().includes(query.toLowerCase());
-        const isPriceInRange = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
+        const isPriceInRange = product.selling_price >= filters.priceRange[0] && product.selling_price <= filters.priceRange[1];
         const isCategoryMatched = filters.category.length === 0 || filters.category.includes(product.category);
-        const isSubcategoryMatched = filters.subcategory.length === 0 || filters.subcategory.includes(product.subcategory); // Check subcategory
+        const isSubcategoryMatched = filters.subcategory.length === 0 || filters.subcategory.includes(product.sub_category); // Check subcategory
         const isProcessorTypeMatched = filters.processorType.length === 0 || filters.processorType.includes(product.processorType);
         const isBrandMatched = filters.brand.length === 0 || filters.brand.includes(product.brand);
         const isDiscountMatched = filters.discount.length === 0 || filters.discount.includes(product.discount);
-        
+        const isTopSellingMatched = !filters.isTopSelling || product.sales > 100; // Adjust this condition based on what you consider 'top selling'
+
         return (
             isMatched &&
             isPriceInRange &&
             isCategoryMatched &&
-            isSubcategoryMatched && // Include subcategory check
+            isSubcategoryMatched &&
             isProcessorTypeMatched &&
             isBrandMatched &&
-            isDiscountMatched
+            isDiscountMatched &&
+            isTopSellingMatched
         );
     });
 
@@ -149,19 +151,20 @@ const Laptops = () => {
                             </div>
 
                             <div>
-                            <h3 className="text-lg font-medium mb-2">Top Selling</h3>
+                                <h3 className="text-lg font-medium mb-2">Top Selling</h3>
                                 <div className="flex items-center space-x-2">
                                     <input
                                         type="checkbox"
                                         checked={filters.isTopSelling}
                                         onChange={() => setFilters((prevFilters) => ({
-                                        ...prevFilters,
-                                        isTopSelling: !prevFilters.isTopSelling,
+                                            ...prevFilters,
+                                            isTopSelling: !prevFilters.isTopSelling,
                                         }))}
-                                        className="form-checkbox"/>
-                                        <span className="text-sm text-gray-700">Show Top Selling</span>
+                                        className="form-checkbox"
+                                    />
+                                    <span className="text-sm text-gray-700">Show Top Selling</span>
                                 </div>
-                        </div>
+                            </div>
 
                             {/* Subcategory Filter */}
                             <div className="border-b border-gray-300 pb-4 mb-4">
@@ -186,9 +189,9 @@ const Laptops = () => {
                         {/* right side Products HERE */}
                         <div className='md:ml-6 w-full'>
                             <ProductHeader header={"Laptops"} />
-                            <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                                 {displayedProducts.map((product) => (
-                                    <ProductCard key={product.id} product={product} />
+                                    <ProductCard key={product.product_id} product={product} />
                                 ))}
                             </div>
                         </div>

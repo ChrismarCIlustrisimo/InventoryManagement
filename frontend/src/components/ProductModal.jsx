@@ -37,13 +37,14 @@ const ProductModal = ({
                                 -
                             </button>
                             <input
-                                type='number'
-                                placeholder='0'
-                                id="quantity"
-                                className={`bg-transparent p-2 text-center w-16 outline-none ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
-                                value={quantity}
-                                onChange={(e) => handleQuantityChange(Number(e.target.value))}
-                            />
+                                    type="number"
+                                    placeholder="0"
+                                    id="quantity"
+                                    className={`bg-transparent p-2 text-center w-16 outline-none ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
+                                    value={quantity}
+                                    onChange={(e) => handleQuantityChange(Math.min(Number(e.target.value), 50))} // limit to 50
+                                    max={50} // set max attribute
+                                />
                             <button
                                 onClick={() => handleQuantityChange(quantity + 1)}
                                 className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}

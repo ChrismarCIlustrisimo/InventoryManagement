@@ -7,6 +7,7 @@ import { useProductContext } from '../page'; // Adjust path if necessary
 const ProductCard = ({ product }) => {
       const navigate = useNavigate();
       const { addToCart } = useProductContext();
+      const baseURL = "http://localhost:5555";
 
       const handleViewProduct = () => {
             navigate(`/iRIG/products/view/${product._id}`, { state: { product } });
@@ -15,11 +16,12 @@ const ProductCard = ({ product }) => {
       return (
             <div className="rounded-lg bg-white border border-gray-200 p-2 text-center hover:shadow-lg transition duration-200 w-48 h-64 flex flex-col">
                   <div className='flex items-center justify-center'>
-                        <img src={product.image} alt={product.name} className="w-24 h-24 object-cover" />
+                        <img src={`${baseURL}/${product.image}`} alt={product.name} className="w-24 h-24 object-cover" />
+                        
                   </div>
                   <div className='flex flex-col items-center justify-center flex-grow'>
                         <p className="text-orange-500 text-sm font-bold mb-1 text-left w-full">
-                              ₱{product.price ? product.price.toLocaleString() : "N/A"}
+                              ₱{product.selling_price ? product.selling_price.toLocaleString() : "N/A"}
                         </p>
                         <p className="text-xs font-semibold mb-1 text-left w-full">
                               {product.name || "No Name Available"}

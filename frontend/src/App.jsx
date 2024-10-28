@@ -56,7 +56,7 @@ import Desktops from './onlineListing/pages/productPage/Desktops';
 import OSAndSoftware from './onlineListing/pages/productPage/OSAndSoftware';
 import PCFurniture from './onlineListing/pages/productPage/PCFurniture';
 import Peripherals from './onlineListing/pages/productPage/Peripherals';
-import ProductProvider from './onlineListing/page.jsx'; import ProductProvider from './onlineListing/page.jsx';
+import ProductProvider from './onlineListing/page.jsx';
 const App = () => {
       const { user } = useAuthContext();
 

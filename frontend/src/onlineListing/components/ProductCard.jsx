@@ -9,7 +9,7 @@ const ProductCard = ({ product }) => {
       const { addToCart } = useProductContext();
 
       const handleViewProduct = () => {
-            navigate(`/iRIG/products/view/${product.id}`, { state: { product } });
+            navigate(`/iRIG/products/view/${product._id}`, { state: { product } });
       };
 
       return (
@@ -19,10 +19,10 @@ const ProductCard = ({ product }) => {
                   </div>
                   <div className='flex flex-col items-center justify-center flex-grow'>
                         <p className="text-orange-500 text-sm font-bold mb-1 text-left w-full">
-                              ₱{product.price.toLocaleString()}
+                              ₱{product.price ? product.price.toLocaleString() : "N/A"}
                         </p>
                         <p className="text-xs font-semibold mb-1 text-left w-full">
-                              {product.name}
+                              {product.name || "No Name Available"}
                         </p>
                   </div>
                   <div className="flex gap-1 items-center justify-center">

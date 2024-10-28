@@ -62,7 +62,7 @@ const App = () => {
 
       return (
             <AppProvider>
-                  <ProductProvider>
+                  <ProductProvider >
                         <AuthContextProvider>
                               <ThemeProvider>
                                     <AdminThemeProvider>
@@ -127,7 +127,7 @@ const App = () => {
                               </ThemeProvider>
                         </AuthContextProvider>
                   </ProductProvider>
-            </AppProvider>
+            </AppProvider >
       );
 };
 

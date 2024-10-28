@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import iRig1 from '../assets/iRig1.png';
 import Searchbar from './Searchbar';
 import { MdOutlineShoppingCart } from "react-icons/md";
@@ -7,6 +7,7 @@ import Badge from '@mui/material/Badge';
 import { FaAngleDown } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import CartPopup from './CartPopup';
+import { useProductContext } from '../page.jsx'; // Update import to use the custom hook
 
 const categories = [
       { name: "Components", path: "/iRIG/components" },
@@ -18,29 +19,16 @@ const categories = [
       { name: "Desktops", path: "/iRIG/desktops" },
 ];
 
-const demoCartItems = [
-      { name: 'Acer Predator Helios 16', price: 125995.00 },
-      { name: 'MSI Thin 15', price: 55495.00 },
-      { name: 'Dell G15 Gaming Laptop', price: 79995.00 },
-      { name: 'ASUS ROG Zephyrus', price: 105995.00 },
-];
-
 const Navbar = ({ query, onQueryChange }) => {
       const [isMenuOpen, setIsMenuOpen] = useState(false);
       const [isCartOpen, setIsCartOpen] = useState(false);
       const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
 
-      const toggleMenu = () => {
-            setIsMenuOpen(prev => !prev);
-      };
+      const { cart } = useProductContext(); // Access cart from ProductProvider
 
-      const toggleCart = () => {
-            setIsCartOpen(prev => !prev);
-      };
-
-      const toggleCategoryPopup = () => {
-            setIsCategoryPopupOpen(prev => !prev);
-      };
+      const toggleMenu = () => setIsMenuOpen(prev => !prev);
+      const toggleCart = () => setIsCartOpen(prev => !prev);
+      const toggleCategoryPopup = () => setIsCategoryPopupOpen(prev => !prev);
 
       return (
             <header className="text-black fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
@@ -53,11 +41,11 @@ const Navbar = ({ query, onQueryChange }) => {
                               query={query}
                               onQueryChange={onQueryChange}
                               placeholderMessage="Search..."
-                              className=" w-[90%] md:w-[600px] hidden md:block"
+                              className="w-[90%] md:w-[600px] hidden md:block"
                         />
                         <div className="flex gap-2 items-center text-white text-xl font-medium">
                               <Badge
-                                    badgeContent={demoCartItems.length}
+                                    badgeContent={cart.length} // Use cart from context
                                     sx={{
                                           '& .MuiBadge-badge': {
                                                 backgroundColor: '#E8B931',
@@ -97,7 +85,7 @@ const Navbar = ({ query, onQueryChange }) => {
                   </nav>
 
                   {/* Cart Popup */}
-                  <CartPopup isOpen={isCartOpen} onClose={toggleCart} cartItems={demoCartItems} />
+                  <CartPopup isOpen={isCartOpen} onClose={toggleCart} cartItems={cart} /> {/* Pass cart from context */}
             </header>
       );
 };

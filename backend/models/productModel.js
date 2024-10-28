@@ -13,7 +13,7 @@ const ProductSchema = new mongoose.Schema(
     selling_price: { type: Number, required: true },
     product_id: { type: String, required: true, unique: true },
     image: { type: String },
-    description: { type: String },
+    description: { type: [String] },
     warranty: { type: String },
     sub_category: { type: String },
     model: { type: String },

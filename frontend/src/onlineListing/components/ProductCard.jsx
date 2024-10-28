@@ -3,12 +3,16 @@ import { IoEyeOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
 import '../onlineListing.css';
 
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, addToCart }) => {
       const navigate = useNavigate();
 
       const handleViewProduct = () => {
             navigate(`/iRIG/products/view/${product.id}`, { state: { product } });
       };
+
+      const handleAddToCart = () => {
+            addToCart(product); // Call addToCart when the button is clicked
+        };
 
       return (
             <div className="rounded-lg bg-white border border-gray-200 p-2 text-center hover:shadow-lg transition duration-200 w-48 h-64 flex flex-col">
@@ -28,7 +32,10 @@ const ProductCard = ({ product }) => {
                         </p>
                   </div>
                   <div className="flex gap-1 items-center justify-center">
-                        <button className="bg-orange-600 py-1 px-4 text-white rounded hover:bg-orange-700 transition duration-200 text-sm">
+                        <button
+                              className="bg-orange-600 py-1 px-4 text-white rounded hover:bg-orange-700 transition duration-200 text-sm"
+                              onClick={handleAddToCart} // Add to cart on button click
+                              >
                               Add to Cart
                         </button>
                         <button

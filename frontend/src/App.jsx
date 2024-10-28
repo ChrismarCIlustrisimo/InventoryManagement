@@ -50,6 +50,12 @@ import ReturnPolicy from './onlineListing/pages/ReturnPolicy';
 import Warranty from './onlineListing/pages/Warranty';
 import CartPage from './onlineListing/pages/CartPage';
 import Erceipt from './onlineListing/components/Erceipt';
+import Accessories from './onlineListing/pages/productPage/Accessories';
+import Components from './onlineListing/pages/productPage/Components';
+import Desktops from './onlineListing/pages/productPage/Desktops';
+import OSAndSoftware from './onlineListing/pages/productPage/OSAndSoftware';
+import PCFurniture from './onlineListing/pages/productPage/PCFurniture';
+import Peripherals from './onlineListing/pages/productPage/Peripherals';
 
 const App = () => {
       const { user } = useAuthContext();
@@ -96,7 +102,6 @@ const App = () => {
                                           <Route path="/iRIG/" element={<Ecommerce />} />
                                           <Route path="*" element={<Navigate to="/iRIG/" />} />
                                           <Route path="/unauthorized" element={<Unauthorized />} />
-                                          <Route path="/iRIG/laptops/" element={<Laptops />} />
                                           <Route path="/iRIG/our-store" element={<StoreLocation />} />
                                           <Route path="/iRIG/products/view/:id" element={<ViewProducts />} />
                                           <Route path="/iRIG/contact-us/" element={<ContactUs />} />
@@ -106,6 +111,15 @@ const App = () => {
                                           <Route path="/iRIG/view-cart" element={<CartPage />} />
                                           <Route path="/iRIG/view-cart" element={<CartPage />} />
                                           <Route path="/Ereceipt" element={<Erceipt />} />
+
+                                          <Route path="/iRIG/components" element={<Components />} />
+                                          <Route path="/iRIG/peripherals" element={<Peripherals />} />
+                                          <Route path="/iRIG/accessories" element={<Accessories />} />
+                                          <Route path="/iRIG/pc-furniture" element={<PCFurniture />} />
+                                          <Route path="/iRIG/os-software" element={<OSAndSoftware />} />
+                                          <Route path="/iRIG/laptops" element={<Laptops />} />
+                                          <Route path="/iRIG/desktops" element={<Desktops />} />
+
                                     </Routes>
                               </AdminThemeProvider>
                         </ThemeProvider>

@@ -9,13 +9,13 @@ import { Link } from 'react-router-dom';
 import CartPopup from './CartPopup';
 
 const categories = [
-      { name: "Components", path: "/components" },
-      { name: "Peripherals", path: "/peripherals" },
-      { name: "Accessories", path: "/accessories" },
-      { name: "PC Furniture", path: "/pc-furniture" },
-      { name: "OS & Software", path: "/os-software" },
+      { name: "Components", path: "/iRIG/components" },
+      { name: "Peripherals", path: "/iRIG/peripherals" },
+      { name: "Accessories", path: "/iRIG/accessories" },
+      { name: "PC Furniture", path: "/iRIG/pc-furniture" },
+      { name: "OS & Software", path: "/iRIG/os-software" },
       { name: "Laptops", path: "/iRIG/laptops" },
-      { name: "Desktops", path: "/desktops" },
+      { name: "Desktops", path: "/iRIG/desktops" },
 ];
 
 const demoCartItems = [

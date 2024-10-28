@@ -36,7 +36,9 @@ const AddProduct = () => {
   const [selectedValue, setSelectedValue] = useState('');
   const [selectedNumber, setSelectedNumber] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
-  
+  const [descriptionArray, setDescriptionArray] = useState([]);
+  const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
+
 
   const categories = [
     {
@@ -173,6 +175,11 @@ const handleEditClick = (index) => {
     setLocalInputs(newLocalInputs); 
 };
 
+const handleDescriptionChange = (e) => {
+  const text = e.target.value;
+  setDescription(text);
+  setDescriptionArray(text.split("\n").filter(line => line.trim() !== ""));
+};
 
 
   const upload = () => {
@@ -200,7 +207,7 @@ const handleEditClick = (index) => {
     formData.append('category', category);
     formData.append('sub_category', subCategory);
     formData.append('supplier', supplier);
-    formData.append('description', description);
+    formData.append('description', JSON.stringify(descriptionArray)); // Add descriptionArray to form data
     formData.append('model', model);
     formData.append('low_stock_threshold', lowStockThreshold);
     formData.append('buying_price', buyingPrice);
@@ -357,14 +364,6 @@ const handleEditClick = (index) => {
                   </div>
 
 
-                <div className="flex w-full gap-2 justify-between">
-                  <label htmlFor="description" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>DESCRIPTION</label>
-                  <textarea id="description" placeholder="Description"
-                    className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                </div>
               </div>
 
               <div className="flex flex-col w-[25%] gap-4">
@@ -432,12 +431,46 @@ const handleEditClick = (index) => {
 
           </div>
           {error && <p className='text-red-500 text-xl text-center'>{error}</p>}
+                {/* Description Modal */}
+          {openDescriptionModal && (
+            <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
+                <div className={`p-4 rounded-lg w-1/2 h-[50%] flex flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
+                  <h2 className="text-xl mb-4">Add Product Description</h2>
+                  
+                  {/* Scrollable Textarea */}
+                  <textarea
+                    value={description}
+                    onChange={handleDescriptionChange}
+                    placeholder="Enter product description. Use a new line to add another item."
+                    className={`w-full flex-grow p-2 border rounded-md resize-none overflow-y-auto ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}
+                    style={{ maxHeight: '60%' }}
+                  />
+                  
+                  {/* Buttons Section */}
+                  <div className="flex justify-end gap-2 mt-4">
+                    <button 
+                      onClick={() => setOpenDescriptionModal(false)}
+                      className="px-4 py-2 rounded-md bg-gray-500 text-white hover:bg-gray-600"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={handleOpenModal}
+                      className="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+          )}
           <ToastContainer />
           <div className={`w-full h-[10%] px-4 py-6 border-t-2 flex items-center justify-end ${darkMode ? 'bg-light-container border-light-border' : 'bg-dark-container border-dark-border'}`}>
             <div className="flex items-center gap-4"> 
               <button type="button" onClick={() => handleBackClick()} className={`px-8 py-2 bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Cancel</button> 
               <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}></div> 
-              <button type="button" variant="contained" onClick={handleOpenModal} className={`px-6 py-2 rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Continue</button> 
+              <button type="button" variant="contained" onClick={() => setOpenDescriptionModal(true)} className={`px-6 py-2 rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Continue</button> 
             </div> 
          </div>
         </div>

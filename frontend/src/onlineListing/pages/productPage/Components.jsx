@@ -4,45 +4,41 @@ import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 
-const Laptops = () => {
+const Components = () => {
     const [query, setQuery] = useState('');
     const productsPerPage = 10;
     const [products, setProducts] = useState([
         {
             id: 1,
-            name: 'Acer Predator Helios 16 PH16-72-96H6 Gaming Laptop (Abyssal Black)',
-            price: 1500,
-            image: 'https://cdn.pixabay.com/photo/2016/03/27/07/12/apple-1282241_1280.jpg',
-            category: 'Gaming Laptops',
-            subcategory: 'Laptops',
-            processorType: 'Intel i5',
-            brand: 'Acer',
-            discount: 10,
-            sales: 300 // Added sales for top selling filter
+            name: 'AMD Ryzen 7 Processor',
+            price: 300,
+            image: 'https://cdn.pixabay.com/photo/2017/08/05/15/25/computer-2585259_1280.jpg',
+            category: 'Processors',
+            brand: 'AMD',
+            discount: 5,
+            isTopSelling: true // Sample top-selling flag
         },
         {
             id: 2,
-            name: 'Nigga byte Black Nigger Laptop (Black)',
-            price: 6900,
-            image: 'https://cdn.pixabay.com/photo/2016/03/27/07/12/apple-1282241_1280.jpg',
-            category: 'Laptops',
-            subcategory: 'Laptops',
-            processorType: 'Intel i7',
-            brand: 'Digabyte',
-            discount: 20,
-            sales: 150 // Added sales for top selling filter
+            name: 'NVIDIA GeForce GTX 1660 Graphics Card',
+            price: 450,
+            image: 'https://cdn.pixabay.com/photo/2016/11/19/13/16/computer-1845972_1280.jpg',
+            category: 'Graphics Cards',
+            brand: 'NVIDIA',
+            discount: 10,
+            isTopSelling: false // Sample top-selling flag
         },
         // Add more products here if needed
     ]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
-        priceRange: [0, 10000],
+        priceRange: [0, 1000],
         category: [],
-        subcategory: [], // Added subcategory filter
-        processorType: [],
         brand: [],
         discount: [],
+        subcategories: [], // New filter for subcategories
+        isTopSelling: false, // New filter for top-selling products
     });
 
     const handleQueryChange = (newQuery) => {
@@ -62,19 +58,17 @@ const Laptops = () => {
         const isMatched = product.name.toLowerCase().includes(query.toLowerCase());
         const isPriceInRange = product.price >= filters.priceRange[0] && product.price <= filters.priceRange[1];
         const isCategoryMatched = filters.category.length === 0 || filters.category.includes(product.category);
-        const isSubcategoryMatched = filters.subcategory.length === 0 || filters.subcategory.includes(product.subcategory); // Check subcategory
-        const isProcessorTypeMatched = filters.processorType.length === 0 || filters.processorType.includes(product.processorType);
         const isBrandMatched = filters.brand.length === 0 || filters.brand.includes(product.brand);
         const isDiscountMatched = filters.discount.length === 0 || filters.discount.includes(product.discount);
-        
+        const isTopSellingMatched = !filters.isTopSelling || product.isTopSelling; // Check for top-selling products
+
         return (
             isMatched &&
             isPriceInRange &&
             isCategoryMatched &&
-            isSubcategoryMatched && // Include subcategory check
-            isProcessorTypeMatched &&
             isBrandMatched &&
-            isDiscountMatched
+            isDiscountMatched &&
+            isTopSellingMatched
         );
     });
 
@@ -88,10 +82,10 @@ const Laptops = () => {
                 <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
 
                 <div className="container w-full mt-40 mx-auto md:p-4">
-                    <p className='p-4 mb-8'>Home &gt; Laptops</p>
+                    <p className='p-4 mb-8'>Home &gt; Components</p>
 
                     <div className='flex w-full'>
-                        {/* left side Filter HERE */}
+                        {/* Left Side Filter */}
                         <div className="max-md:hidden min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6">
                             <h2 className="text-xl font-semibold mb-4">Filters</h2>
 
@@ -148,44 +142,44 @@ const Laptops = () => {
                                 </div>
                             </div>
 
+                            {/* Top Selling */}
                             <div>
-                            <h3 className="text-lg font-medium mb-2">Top Selling</h3>
+                                <h3 className="text-lg font-medium mb-2">Top Selling</h3>
                                 <div className="flex items-center space-x-2">
                                     <input
                                         type="checkbox"
                                         checked={filters.isTopSelling}
                                         onChange={() => setFilters((prevFilters) => ({
-                                        ...prevFilters,
-                                        isTopSelling: !prevFilters.isTopSelling,
+                                            ...prevFilters,
+                                            isTopSelling: !prevFilters.isTopSelling,
                                         }))}
-                                        className="form-checkbox"/>
-                                        <span className="text-sm text-gray-700">Show Top Selling</span>
+                                        className="form-checkbox"
+                                    />
+                                    <span className="text-sm text-gray-700">Show Top Selling</span>
                                 </div>
-                        </div>
-
-                            {/* Subcategory Filter */}
-                            <div className="border-b border-gray-300 pb-4 mb-4">
-                                <h3 className="text-lg font-medium mb-2">Subcategory</h3>
-                                <label className="block">
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => handleFilterChange('subcategory', 'Laptops')}
-                                    />
-                                    Laptops
-                                </label>
-                                <label className="block">
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => handleFilterChange('subcategory', 'Chromebooks')}
-                                    />
-                                    Chromebooks
-                                </label>
                             </div>
+
+                            {/* Subcategories */}
+                            <div className="border-b border-gray-300 pb-4 mb-4">
+                                <h3 className="text-lg font-medium mb-2">Subcategories</h3>
+                                {["Chassis Fan", "CPU Cooler", "Graphics Card", "Hard Drive", "Memory", "Motherboard", "PC Case", "Power Supply", "Intel Processor", "Processor Tray", "Solid State Drive (SSD)"].map((subcategory) => (
+                                    <div key={subcategory} className="flex items-center space-x-2">
+                                        <input
+                                            type="checkbox"
+                                            checked={filters.subcategories.includes(subcategory)}
+                                            onChange={() => handleFilterChange('subcategories', subcategory)}
+                                            className="form-checkbox"
+                                        />
+                                        <span className="text-sm text-gray-700">{subcategory}</span>
+                                    </div>
+                                ))}
+                            </div>
+
                         </div>
 
-                        {/* right side Products HERE */}
+                        {/* Right Side Products */}
                         <div className='md:ml-6 w-full'>
-                            <ProductHeader header={"Laptops"} />
+                            <ProductHeader header={"Components"} />
                             <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 {displayedProducts.map((product) => (
                                     <ProductCard key={product.id} product={product} />
@@ -201,4 +195,4 @@ const Laptops = () => {
     );
 };
 
-export default Laptops;
+export default Components;

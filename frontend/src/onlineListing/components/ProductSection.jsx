@@ -5,7 +5,7 @@ import ProductCard from './ProductCard';
 
 const ProductSection = ({ title, products, onPrev, onNext }) => {
   return (
-    <div className='w-full max-w-full w-full flex flex-col flex-wrap mb-4'>
+    <div className='w-full max-w-full flex flex-col flex-wrap mb-4'>
       <div className='flex justify-between items-center p-4'>
         <p className='text-lg text-dark-ACCENT font-medium'>{title}</p>
         <p className='text-lg cursor-pointer hover:underline active:text-white transition duration-200'>View All</p>

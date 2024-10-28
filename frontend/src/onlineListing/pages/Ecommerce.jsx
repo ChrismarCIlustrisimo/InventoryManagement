@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import ProductGrid from '../components/ProductGrid';
 import Footer from '../components/Footer';
-import Carousel from '../components/Carousel';
 import ProductSection from '../components/ProductSection';
 import '../onlineListing.css';
+import IRIGImage from '../assets/IRIGImage.png'
 const Ecommerce = () => {
       const [query, setQuery] = useState('');
       const [currentIndexLatest, setCurrentIndexLatest] = useState(0);
@@ -66,8 +66,9 @@ const Ecommerce = () => {
 
                   {/* Adjusted the margin and spacing for mobile responsiveness */}
                   <div className='md:mt-[130px] w-full bg-gray-200 flex items-center justify-center flex-col'>
-                        <Carousel />
-
+                        <div className='w-full flex items-center justify-center bg-[#201F1D] mt-2'>
+                              <img src={IRIGImage} />
+                        </div>
                         {/* Added more padding and ensured responsive container height */}
                         <ProductGrid products={[...latestProducts, ...topSellers]} />
 

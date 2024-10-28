@@ -49,6 +49,8 @@ import Faq from './onlineListing/pages/Faq';
 import ReturnPolicy from './onlineListing/pages/ReturnPolicy';
 import Warranty from './onlineListing/pages/Warranty';
 import CartPage from './onlineListing/pages/CartPage';
+import Erceipt from './onlineListing/components/Erceipt';
+
 const App = () => {
       const { user } = useAuthContext();
 
@@ -92,7 +94,7 @@ const App = () => {
                                           <Route path="/InventoryReport" element={<PrivateRoute requiredRole="admin"><InventoryReport /></PrivateRoute>} />
                                           <Route path="/RMAForm" element={<PrivateRoute requiredRole="admin"><RMAForm /></PrivateRoute>} />
                                           <Route path="/iRIG/" element={<Ecommerce />} />
-                                          <Route path="*" element={<Navigate to="/" />} />
+                                          <Route path="*" element={<Navigate to="/iRIG/" />} />
                                           <Route path="/unauthorized" element={<Unauthorized />} />
                                           <Route path="/iRIG/products/" element={<Products />} />
                                           <Route path="/iRIG/our-store" element={<StoreLocation />} />
@@ -102,8 +104,8 @@ const App = () => {
                                           <Route path="/iRIG/return-policy/" element={<ReturnPolicy />} />
                                           <Route path="/iRIG/faq/" element={<Faq />} />
                                           <Route path="/iRIG/view-cart" element={<CartPage />} />
-
-
+                                          <Route path="/iRIG/view-cart" element={<CartPage />} />
+                                          <Route path="/Ereceipt" element={<Erceipt />} />
                                     </Routes>
                               </AdminThemeProvider>
                         </ThemeProvider>

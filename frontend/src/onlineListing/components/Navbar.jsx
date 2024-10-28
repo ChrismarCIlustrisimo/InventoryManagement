@@ -7,31 +7,15 @@ import Badge from '@mui/material/Badge';
 import { FaAngleDown } from "react-icons/fa";
 import { Link } from 'react-router-dom';
 import CartPopup from './CartPopup';
-import { RiArrowDropDownLine, RiArrowDropRightLine } from "react-icons/ri";
 
 const categories = [
-      {
-            name: "Components",
-            subcategories: ["Chassis Fan", "CPU Cooler", "Graphics Card", "Hard Drive", "Memory", "Motherboard", "PC Case", "Power Supply", "Intel Processor", "Processor Tray", "Solid State Drive (SSD)"]
-      }, {
-            name: "Peripherals",
-            subcategories: ["CCTV Camera", "Headset", "Keyboard", "Keyboard and Mouse Combo", "Monitor", "Mouse", "Network Devices", "Printer & Scanner", "Projector", "Audio Recorder", "Speaker", "UPS & AVR", "Web & Digital Camera"]
-      }, {
-            name: "Accessories",
-            subcategories: ["Cables", "Earphones", "Gaming Surface", "Power Bank"]
-      }, {
-            name: "PC Furniture",
-            subcategories: ["Chairs", "Tables"]
-      }, {
-            name: "OS & Software",
-            subcategories: ["Antivirus Software", "Office Applications", "Operating Systems"]
-      }, {
-            name: "Laptops",
-            subcategories: ["Chromebooks", "Laptops"]
-      }, {
-            name: "Desktops",
-            subcategories: ["Home Use Builds", "Productivity Builds", "Gaming Builds"]
-      }
+      { name: "Components", path: "/components" },
+      { name: "Peripherals", path: "/peripherals" },
+      { name: "Accessories", path: "/accessories" },
+      { name: "PC Furniture", path: "/pc-furniture" },
+      { name: "OS & Software", path: "/os-software" },
+      { name: "Laptops", path: "/laptops" },
+      { name: "Desktops", path: "/desktops" },
 ];
 
 const demoCartItems = [
@@ -45,7 +29,6 @@ const Navbar = ({ query, onQueryChange }) => {
       const [isMenuOpen, setIsMenuOpen] = useState(false);
       const [isCartOpen, setIsCartOpen] = useState(false);
       const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
-      const [selectedCategory, setSelectedCategory] = useState(null);
 
       const toggleMenu = () => {
             setIsMenuOpen(prev => !prev);
@@ -58,13 +41,6 @@ const Navbar = ({ query, onQueryChange }) => {
       const toggleCategoryPopup = () => {
             setIsCategoryPopupOpen(prev => !prev);
       };
-
-      const handleCategoryClick = (category) => {
-            setSelectedCategory(selectedCategory === category ? null : category);
-      };
-
-      // Count the items in the demo cart
-      const cartItemCount = demoCartItems.length;
 
       return (
             <header className="text-black fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
@@ -81,7 +57,7 @@ const Navbar = ({ query, onQueryChange }) => {
                         />
                         <div className="flex gap-2 items-center text-white text-xl font-medium">
                               <Badge
-                                    badgeContent={cartItemCount}
+                                    badgeContent={demoCartItems.length}
                                     sx={{
                                           '& .MuiBadge-badge': {
                                                 backgroundColor: '#E8B931',
@@ -104,26 +80,13 @@ const Navbar = ({ query, onQueryChange }) => {
                                     {isCategoryPopupOpen && (
                                           <div className="absolute z-50 bg-white shadow-md rounded-md mt-2 p-2 w-64">
                                                 {categories.map((category) => (
-                                                      <div key={category.name} className="py-1">
-                                                            <button
-                                                                  className="flex justify-between w-full text-left hover:bg-gray-200"
-                                                                  onClick={() => handleCategoryClick(category.name)}
-                                                            >
-                                                                  {category.name}
-                                                                  {selectedCategory === category.name ? (
-                                                                        <RiArrowDropRightLine />
-                                                                  ) : (
-                                                                        <RiArrowDropDownLine />
-                                                                  )}
-                                                            </button>
-                                                            {selectedCategory === category.name && (
-                                                                  <div className="absolute left-full top-0 bg-gray-100 rounded-md p-2 w-40">
-                                                                        {category.subcategories.map((subcategory) => (
-                                                                              <p key={subcategory} className="py-1 hover:bg-gray-200">{subcategory}</p>
-                                                                        ))}
-                                                                  </div>
-                                                            )}
-                                                      </div>
+                                                      <Link 
+                                                            key={category.name} 
+                                                            to={category.path} 
+                                                            className="block py-1 hover:bg-gray-200 transition"
+                                                      >
+                                                            {category.name}
+                                                      </Link>
                                                 ))}
                                           </div>
                                     )}

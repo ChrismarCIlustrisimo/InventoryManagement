@@ -97,7 +97,6 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
         }
       });
   
-      console.log("Total Sales including additional from refunded transactions:", totalSales);
   
       // Group data for the chart
       const groupedData = validTransactions.reduce((acc, transaction) => {

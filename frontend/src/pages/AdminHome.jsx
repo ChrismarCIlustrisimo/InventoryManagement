@@ -32,7 +32,6 @@ const AdminHome = () => {
   const [rmaRequests, setRmaRequests] = useState([]);
   const [refunds, setRefunds] = useState([]);
   const [currentMonthCount, setCurrentMonthCount] = useState(0); // State for current month count
-  const [lastMonthCount, setLastMonthCount] = useState(0);
 
   const fetchRMARequests = async () => {
     try {
@@ -43,6 +42,7 @@ const AdminHome = () => {
     }
   };
   
+  console.log("ASDAS", transactionCount)
 
 
   const fetchRefunds = async () => {
@@ -57,10 +57,8 @@ const AdminHome = () => {
       
       // Calculate counts
       const currentCount = countRefundsForMonth(response.data, new Date());
-      const lastCount = countRefundsForMonth(response.data, new Date(new Date().setMonth(new Date().getMonth() - 1)));
       
       setCurrentMonthCount(currentCount);
-      setLastMonthCount(lastCount);
       
     } catch (error) {
       console.error('Error fetching refunds:', error);
@@ -77,11 +75,9 @@ const AdminHome = () => {
   };
 
   const calculatePercentageChange = () => {
-    if (lastMonthCount === 0) return 100;
-    if(lastMonthCount === 0 && currentMonthCount === 0) return 0;
-    return ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
+    if (transactionCount === 0) return 0;  // Avoid division by zero
+    return (currentMonthCount / transactionCount) * 100;
   };
-
 
   const fetchProducts = async () => {
     try {
@@ -306,15 +302,15 @@ const AdminHome = () => {
             width="w-[22.5%]"
 
         />
-      <StatsCard 
-        title={'Refund / Return Rate'}
-        value={percentageChange}
-        bgColor={`bg-[#14AE5C]`}  // Additional custom styles
-        percenText={'from last month'}
-        showPercent={false}
-        percent={Math.abs(percentageChange).toFixed(2)} // Display the absolute value for percent, fixed to 2 decimal places
-        width="w-[22.5%]"
-      />
+        <StatsCard 
+          title={'Refund / Return Rate'}
+          value={percentageChange.toFixed(2)}
+          bgColor={`bg-[#14AE5C]`}  // Additional custom styles
+          percenText={'from last month'}
+          showPercent={false}
+          percent={Math.abs(percentageChange).toFixed(2)} // Display the absolute value for percent, fixed to 2 decimal places
+          width="w-[22.5%]"
+        />
         </div>
         <div className='w-full h-[80%] '>
           <div className='w-full h-full flex flex-col gap-4'>

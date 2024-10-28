@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ProductCard from '../components/ProductCard';
+import CheckoutModal from '../components/CheckoutModal';
 
 const CartPage = () => {
   const [quantity, setQuantity] = useState(1); // Default quantity is set to 1
@@ -138,25 +139,7 @@ const CartPage = () => {
 
         {/* Popup for Checkout Confirmation */}
         {isPopupOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg mx-auto">
-              <h2 className="text-xl font-semibold mb-4">Checkout Confirmation</h2>
-              <p>Please confirm your reservation for:</p>
-              <div className="flex items-center mb-4">
-                <img src="/path-to-image/laptop.jpg" alt="Acer Predator Helios" className="w-24 h-24 object-cover mr-4" />
-                <div>
-                  <p>Acer Predator Helios 16 PH16-72-96HB Gaming Laptop</p>
-                  <p className="text-red-500 font-bold">₱{125995.00 * quantity}.00</p>
-                </div>
-              </div>
-              <button className="bg-blue-500 text-white w-full py-2 rounded-lg" onClick={handleClosePopup}>
-                Confirm Reservation
-              </button>
-              <button className="text-red-500 w-full mt-2" onClick={handleClosePopup}>
-                Cancel
-              </button>
-            </div>
-          </div>
+          <CheckoutModal isOpen={isPopupOpen} onRequestClose={handleClosePopup}   />
         )}
       </div>
 

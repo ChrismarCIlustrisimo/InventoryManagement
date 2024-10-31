@@ -24,7 +24,7 @@ const Navbar = ({ query, onQueryChange }) => {
       const [isCartOpen, setIsCartOpen] = useState(false);
       const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
 
-      const { cart } = useProductContext(); // Access cart from ProductProvider
+      const { cart, increaseQuantity, decreaseQuantity, removeItem } = useProductContext(); // Access functions from context
 
       const toggleMenu = () => setIsMenuOpen(prev => !prev);
       const toggleCart = () => setIsCartOpen(prev => !prev);
@@ -83,9 +83,15 @@ const Navbar = ({ query, onQueryChange }) => {
                               <Link to={"/iRIG/contact-us"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
                         </div>
                   </nav>
-
-                  {/* Cart Popup */}
-                  <CartPopup isOpen={isCartOpen} onClose={toggleCart} cartItems={cart} /> {/* Pass cart from context */}
+                  <CartPopup 
+                        isOpen={isCartOpen} 
+                        onClose={toggleCart} 
+                        cartItems={cart} // This should already be correct
+                        onIncreaseQuantity={increaseQuantity} 
+                        onDecreaseQuantity={decreaseQuantity} 
+                        onRemoveItem={removeItem} 
+                        />
+   
             </header>
       );
 };

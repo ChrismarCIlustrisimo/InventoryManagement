@@ -175,7 +175,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                     <div className='flex flex-col w-full h-full justify-start px-6 py-4 gap-4'>
                         <div className={`text-sm flex items-center justify-between`}>
                             <p className={`font-medium w-[30%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>TRANSACTION ID</p>
-                            <p className={`w-[70%] font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{rma.transaction?.transaction_id}</p>
+                            <p className={`w-[70%] font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{rma.transaction}</p>
                         </div>
                         <div className={`text-sm flex items-center justify-between`}>
                             <p className={`font-medium w-[30%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>DATE INITIATED</p>
@@ -187,7 +187,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                         </div>
                         <div className={`text-sm flex items-center justify-between`}>
                             <p className={`font-medium w-[30%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PRODUCT</p>
-                            <p className={`w-[70%] font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{rma.product?.name}</p>
+                            <p className={`w-[70%] font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{rma.product}</p>
                         </div>
                         <div className={`text-sm flex items-center justify-between ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                             <p className={`font-medium w-[30%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SERIAL NUMBER</p>
@@ -215,14 +215,14 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                                 <button 
                                     className={`bg-[#14AE5C] text-white font-semibold py-2 px-4 rounded ${rma.status === 'Approved' || rma.status === 'Rejected' ? 'opacity-50 cursor-not-allowed' : ''}`} 
                                     onClick={toggleIsApproveRMA} 
-                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected'}
+                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected' || rma.product_warranty === 'Expired'}
                                 >
                                     Approve
                                 </button>
                                 <button 
                                     className={`bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${rma.status === 'Rejected' || rma.status === 'Approved' ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     onClick={() => handleStatusUpdate('None', 'Rejected')}
-                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected'}
+                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected' || rma.product_warranty === 'Expired'}
                                 >
                                     Reject
                                 </button>

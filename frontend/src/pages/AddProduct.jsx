@@ -66,14 +66,16 @@ const AddProduct = () => {
   ];
 
     // Handler to update the combined value
-    const handleChange = (number, unit) => {
-      if (!number || !unit) {
-        setSelectedValue("N/A"); // Use "N/A" if either field is not selected
-      } else {
-        setSelectedValue(`${number} ${unit}`);
-      }
-    };
-    
+// Handler to update the combined value with plural units
+const handleChange = (number, unit) => {
+  if (!number || !unit) {
+    setSelectedValue("N/A"); // Use "N/A" if either field is not selected
+  } else {
+    // Pluralize unit if number > 1
+    const displayUnit = number > 1 ? `${unit}s` : unit;
+    setSelectedValue(`${number} ${displayUnit}`);
+  }
+};
 
 
   const handleCategoryChange = (e) => {
@@ -356,9 +358,9 @@ const handleDescriptionChange = (e) => {
                         className="border border-gray-300 rounded p-2 w-[70%]"
                       >
                         <option value="">Time Frame</option> {/* Placeholder option */}
-                        <option value="Year">Year</option>
-                        <option value="Months">Months</option>
-                        <option value="Days">Days</option>
+                        <option value={`Year`}>Year{selectedNumber > 1 ? 's' : ''}</option>
+                        <option value={`Month`}>Month{selectedNumber > 1 ? 's' : ''}</option>
+                        <option value={`Day`}>Day{selectedNumber > 1 ? 's' : ''}</option>
                       </select>
                     </div>
                   </div>

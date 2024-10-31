@@ -4,10 +4,12 @@ import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 import axios from 'axios';
+import { ToastContainer } from 'react-toastify';
 
 const Desktops = () => {
     const [products, setProducts] = useState([]);
     const [query, setQuery] = useState('');
+    const [sortOrder, setSortOrder] = useState(''); // Added state for sort order
     const productsPerPage = 10;
     const baseURL = "http://localhost:5555";
 
@@ -24,7 +26,6 @@ const Desktops = () => {
 
         fetchProducts();
     }, []);
-
 
     const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
@@ -49,7 +50,28 @@ const Desktops = () => {
         }));
     };
 
+    const handleSortChange = (event) => {
+        setSortOrder(event.target.value);
+    };
 
+    const sortedProducts = [...products].sort((a, b) => {
+        switch (sortOrder) {
+            case 'A-Z':
+                return a.name.localeCompare(b.name); // Assuming product has a 'name' field
+            case 'Z-A':
+                return b.name.localeCompare(a.name);
+            case 'Price: low to high':
+                return a.selling_price - b.selling_price;
+            case 'Price: high to low':
+                return b.selling_price - a.selling_price;
+            case 'Date: old to new':
+                return new Date(a.createdAt) - new Date(b.createdAt);
+            case 'Date: new to old':
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            default:
+                return 0;
+        }
+    });
 
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
@@ -57,6 +79,15 @@ const Desktops = () => {
     return (
         <div className='w-full text-black flex flex-col bg-white'>
             <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
+            <ToastContainer 
+                position="bottom-right" 
+                autoClose={3000} 
+                hideProgressBar={false} 
+                closeOnClick 
+                pauseOnHover 
+                draggable 
+                theme="light"
+            />
             <div className="container w-full mt-40 mx-auto md:p-4">
                 <p className='p-4 mb-8'>Home &gt; Desktops</p>
                 <div className='flex w-full'>
@@ -140,6 +171,7 @@ const Desktops = () => {
                                 <input
                                     type="checkbox"
                                     onChange={() => handleFilterChange('subcategories', 'Gaming Builds')}
+                                    className='mr-2'
                                 />
                                 Gaming Builds
                             </label>
@@ -147,8 +179,17 @@ const Desktops = () => {
                                 <input
                                     type="checkbox"
                                     onChange={() => handleFilterChange('subcategories', 'Productivity Builds')}
+                                    className='mr-2'
                                 />
                                 Productivity Builds
+                            </label>
+                            <label className="block">
+                                <input
+                                    type="checkbox"
+                                    onChange={() => handleFilterChange('subcategories', 'Home Use Builds')}
+                                    className='mr-2'
+                                />
+                                Home Use Builds
                             </label>
                         </div>
                     </div>
@@ -156,8 +197,23 @@ const Desktops = () => {
                     {/* Right Side Products */}
                     <div className='md:ml-6 w-full'>
                         <ProductHeader header={"Desktops"} />
+                        <div className='w-full px-6 flex items-center justify-end'>
+                            <select
+                                value={sortOrder}
+                                onChange={handleSortChange}
+                                className="border border-gray-300 p-1 rounded"
+                            >
+                                <option value="">Sort By</option>
+                                <option value="A-Z">Alphabetically, A-Z</option>
+                                <option value="Z-A">Alphabetically, Z-A</option>
+                                <option value="Price: low to high">Price, low to high</option>
+                                <option value="Price: high to low">Price, high to low</option>
+                                <option value="Date: old to new">Date, old to new</option>
+                                <option value="Date: new to old">Date, new to old</option>
+                            </select>
+                        </div>
                         <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                            {products.map((product) => (
+                            {sortedProducts.slice(startIndex, endIndex).map((product) => (
                                 <ProductCard key={product.product_id} product={product} />
                             ))}
                         </div>

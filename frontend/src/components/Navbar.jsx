@@ -120,7 +120,7 @@ const Navbar = () => {
             onClick={() => setSelected('Reporting')}
           >
             <BsArrowRepeat className='text-lg' />
-            <span>Reporting</span>
+            <span>Reports</span>
           </button>
         </Link>
 

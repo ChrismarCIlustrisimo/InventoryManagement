@@ -3,11 +3,14 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CheckoutModal from '../components/CheckoutModal';
 import { useProductContext } from '../page'; // Adjust the import path as needed
+import { ToastContainer } from 'react-toastify';
 
 const CartPage = () => {
-    const { cart } = useProductContext(); // Access cart items from context
+    const { cart, increaseQuantity, decreaseQuantity, removeItem } = useProductContext();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const baseURL = "http://localhost:5555";
+
+    console.log("CART", cart);
 
     const handleCheckout = () => {
         setIsPopupOpen(true);
@@ -17,23 +20,18 @@ const CartPage = () => {
         setIsPopupOpen(false);
     };
 
-    // Calculate the total price of the cart, ensuring all values are numbers
     const totalPrice = cart.reduce((total, item) => {
-        const price = Number(item.selling_price) || 0; // Safeguard against NaN
-        const quantity = Number(item.quantity) || 0; // Safeguard against NaN
-        return total + price * quantity; // Calculate total
+        const price = Number(item.selling_price) || 0; 
+        const quantity = Number(item.quantity) || 0; 
+        return total + price * quantity; 
     }, 0);
-
-    console.log('Current Cart:', cart); // Debugging log for cart
 
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
-
             <div className="flex-grow w-full flex flex-col overflow-y-auto">
                 <div className='w-full text-black flex flex-col items-start justify-start pt-[180px] px-12'>
-                    <h1 className='text-2xl font-bold text-center mb-6'>My Cart</h1>
-
+                    <h1 className='text-4xl font-bold text-center mb-6'>My Cart</h1>
                     <div className='flex flex-col lg:flex-row gap-4 w-full items-start justify-center pb-12'>
                         <div className='border border-gray-200 rounded-md w-full lg:w-2/3'>
                             <div className="bg-white p-6 rounded-lg shadow-lg">
@@ -46,34 +44,34 @@ const CartPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {cart.map((item, index) => {
-                                            console.log(`Item ${index}:`, item); // Log each item for debugging
-                                            return (
-                                                <tr key={item._id}>
-                                                    <td className="border-b p-4 flex items-center">
-                                                        <img
-                                                            src={`${baseURL}/${item.image}`}
-                                                            alt={item.name}
-                                                            className="w-24 h-24 object-cover mr-4"
-                                                        />
-                                                        <div className="flex flex-col">
-                                                            <h3 className="text-lg font-semibold">{item.name}</h3>
-                                                            <p className="text-red-500 font-bold">₱{(Number(item.selling_price) || 0).toLocaleString()}</p>
-                                                        </div>
-                                                    </td>
-                                                    <td className="border-b p-4 text-center">
-                                                        <div className="flex items-center justify-center gap-2">
-                                                            <button className="px-2 py-1" onClick={() => onDecreaseQuantity(index)}>-</button>
-                                                            <span className="px-3 text-black">{item.quantity || 1}</span>
-                                                            <button className="px-2 py-1" onClick={() => onIncreaseQuantity(index)}>+</button>
-                                                        </div>
-                                                    </td>
-                                                    <td className="border-b p-4 text-right text-lg font-bold">
-                                                        ₱{((Number(item.selling_price) || 0) * (Number(item.quantity || 1 ) || 0)).toLocaleString() || 0}
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
+                                        {cart.map((item, index) => (
+                                            <tr key={item._id}>
+                                                <td className="border-b p-4 flex items-center">
+                                                    <img
+                                                        src={`${baseURL}/${item.image}`}
+                                                        alt={item.name}
+                                                        className="w-24 h-24 object-cover mr-4"
+                                                    />
+                                                    <div className="flex flex-col">
+                                                        <h3 className="text-lg font-semibold">{item.name}</h3>
+                                                        <p className="text-red-500 font-bold">₱{(Number(item.selling_price) || 0).toLocaleString()}</p>
+                                                    </div>
+                                                </td>
+                                                <td className="border-b p-4 text-center">
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button className="px-2 py-1" onClick={() => decreaseQuantity(index)}>-</button>
+                                                        <span className="px-3 text-black">{item.quantity || 1}</span>
+                                                        <button className="px-2 py-1" onClick={() => increaseQuantity(index)}>+</button>
+                                                    </div>
+                                                </td>
+                                                <td className="border-b p-4 text-right text-lg font-bold">
+                                                    ₱{((Number(item.selling_price) || 0) * (Number(item.quantity) || 0)).toLocaleString()}
+                                                </td>
+                                                <td className="border-b p-4 text-center">
+                                                    <button className="text-red-500" onClick={() => removeItem(index)}>Remove</button>
+                                                </td>
+                                            </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -100,15 +98,9 @@ const CartPage = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className='w-full text-black flex flex-col items-start justify-start pt-[50px] px-12 py-6'>
-                    <h1 className='text-2xl font-bold text-center mb-6'>Customers Who Bought This Item Also Bought</h1>
-                    {/* Additional recommendations or related products can be rendered here */}
-                </div>
-
-                {isPopupOpen && <CheckoutModal isOpen={isPopupOpen} onRequestClose={handleClosePopup} />}
+s
+                {isPopupOpen && <CheckoutModal isOpen={isPopupOpen} onRequestClose={handleClosePopup} items={cart} />}
             </div>
-
             <Footer />
         </div>
     );

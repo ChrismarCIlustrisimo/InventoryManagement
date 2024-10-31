@@ -26,22 +26,22 @@ const Footer = () => {
                               <h2 className="font-bold text-lg text-center">Customer Service</h2>
                               <ul className="space-y-1 mt-2 text-left">
                                     <li>
-                                          <Link to={"/ecommerce/irigpc/return-policy"} className="text-blue-500 hover:underline">
+                                          <Link to={"/iRIG/return-policy/"} className="text-blue-500 hover:underline">
                                                 Return and Exchange
                                           </Link>
                                     </li>
                                     <li>
-                                          <Link to={"/ecommerce/irigpc/warranty"} className="text-blue-500 hover:underline">
+                                          <Link to={"/iRIG/warranty/"} className="text-blue-500 hover:underline">
                                                 Product Warranty
                                           </Link>
                                     </li>
                                     <li>
-                                          <Link to={"/ecommerce/irigpc/faq"} className="text-blue-500 hover:underline">
+                                          <Link to={"/iRIG/faq/"} className="text-blue-500 hover:underline">
                                                 FAQs
                                           </Link>
                                     </li>
                                     <li>
-                                          <Link to={"/ecommerce/irigpc/our-store"} className="text-blue-500 hover:underline">
+                                          <Link to={"/iRIG/our-store/"} className="text-blue-500 hover:underline">
                                                 Store Locations
                                           </Link>
                                     </li>

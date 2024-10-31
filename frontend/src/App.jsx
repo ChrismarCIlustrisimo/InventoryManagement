@@ -21,7 +21,6 @@ import Supplier from './pages/dashboardSupplier';
 import AddSupplier from './pages/AddSupplier'
 import UpdateSupplier from './pages/UpdateSupplier';
 import DashboardTransaction from './pages/DashboardTransaction';
-import DashboardSales from './pages/dashboardSales';
 import AdminProfile from './pages/AdminProfile';
 import Customer from './pages/dashboardCustomer';
 import ReportPage from './pages/reportPage';
@@ -103,7 +102,7 @@ const App = () => {
                                                 <Route path="/iRIG/" element={<Ecommerce />} />
                                                 <Route path="*" element={<Navigate to="/iRIG/" />} />
                                                 <Route path="/unauthorized" element={<Unauthorized />} />
-                                                <Route path="/iRIG/our-store" element={<StoreLocation />} />
+                                                <Route path="/iRIG/our-store/" element={<StoreLocation />} />
                                                 <Route path="/iRIG/contact-us/" element={<ContactUs />} />
                                                 <Route path="/iRIG/warranty/" element={<Warranty />} />
                                                 <Route path="/iRIG/return-policy/" element={<ReturnPolicy />} />

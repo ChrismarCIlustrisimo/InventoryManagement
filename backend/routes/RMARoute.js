@@ -22,6 +22,7 @@ router.post('/', async (req, res) => {
       cashier,
       product_price,
       product_id,
+      customerID,
     } = req.body;
 
     // Check for required fields
@@ -70,6 +71,7 @@ router.post('/', async (req, res) => {
       cashier,
       product_price,
       product_id,
+      customerID,
     });
 
     const createdRMA = await newRMA.save();
@@ -141,9 +143,9 @@ router.get('/', async (req, res) => {
       // Calculate the expiration date based on warranty unit
       if (warrantyUnit === 'Year') {
         expirationDate.setFullYear(expirationDate.getFullYear() + warrantyNumber);
-      } else if (warrantyUnit === 'Months') {
+      } else if (warrantyUnit === 'Month') {
         expirationDate.setMonth(expirationDate.getMonth() + warrantyNumber);
-      } else if (warrantyUnit === 'Days') {
+      } else if (warrantyUnit === 'Day') {
         expirationDate.setDate(expirationDate.getDate() + warrantyNumber);
       }
 

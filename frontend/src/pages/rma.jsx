@@ -98,8 +98,8 @@ const Rma = () => {
         switch (status) {
             case 'Approved':
                 statusStyles = {
-                    textClass: 'text-[#14AE5C]',
-                    bgClass: 'bg-[#CFF7D3]',
+                    textClass: 'text-[#8E8E93]', // Gray for Out of Stock
+                    bgClass: 'bg-[#E5E5EA]',
                 };
                 break;
             case 'Pending':

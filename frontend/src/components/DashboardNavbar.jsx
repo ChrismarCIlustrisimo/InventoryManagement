@@ -54,7 +54,7 @@ const DashboardNavbar = () => {
     } else if (path === '/rma') {
       setSelected('RMA');
     } else if (path === '/SalesReport' || path === '/InventoryReport' || path === '/RMAReport' ) {
-      setSelected('Reporting');
+      setSelected('Reports');
     } else {
       setSelected('');
     }
@@ -143,11 +143,13 @@ const DashboardNavbar = () => {
             {/* Badges for stock status */}
             <div className="flex gap-6 absolute top-0 right-2">
               {lowStockCount > 0 && (
-                <LowStockBadge badgeContent={lowStockCount} color="warning" />
+                <LowStockBadge badgeContent={lowStockCount} color="error" />
               )}
-              {outOfStockCount > 0 && (
+              
+              {/*{outOfStockCount > 0 && (
                 <OutOfStockBadge badgeContent={outOfStockCount} color="error" />
-              )}
+              )}*/}
+
             </div>
           </button>
         </Link>
@@ -174,31 +176,31 @@ const DashboardNavbar = () => {
           </button>
         </Link>
 
-        {/* Reporting Button (Dropdown) */}
+        {/* Reports Button (Dropdown) */}
         <div className="relative flex-1">
           <button
-            className={`text-sm p-2 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            className={`text-sm p-2 ${selected === 'Reports' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={toggleDropdown}
           >
             <BiSolidReport className='text-lg' />
-            <span>Reporting</span>
+            <span>Reports</span>
             <GoTriangleDown className={`text-lg transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
           </button>
           {/* Dropdown menu */}
           {dropdownOpen && (
             <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-full ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
               <Link to="/SalesReport">
-                <div className={`text-sm p-2 z-100 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border  ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
+                <div className={`text-sm p-2 z-100 ${selected === 'Reports' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border  ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
                   Sales Report
                 </div>
               </Link>
               <Link to="/InventoryReport">
-              <div className={`text-sm p-2 z-50 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border  ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
+              <div className={`text-sm p-2 z-50 ${selected === 'Reports' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border  ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
               Inventory Report
                 </div>
               </Link>
               <Link to="/RMAReport">
-              <div className={`text-sm p-2 z-50 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border  ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
+              <div className={`text-sm p-2 z-50 ${selected === 'Reports' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border  ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
               RMA Report
                 </div>
               </Link>

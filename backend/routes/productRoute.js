@@ -112,6 +112,19 @@ router.post('/', upload.fields([
   }
 });
 
+router.get('/search', async (req, res) => {
+  const { name } = req.query; // Get the search query from the request
+
+  try {
+    const products = await Product.find({
+      name: { $regex: name, $options: 'i' }, // Case-insensitive search
+    });
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 
 
@@ -255,7 +268,7 @@ router.put('/:id', upload.single('file'), async (req, res) => {
 
 
 
-// Delete a product by ID
+// Delete a product by ID and fetch all updated products
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -265,13 +278,41 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    return res.status(200).json({ message: 'Product deleted successfully' });
+    // Fetch all products after deletion
+    const products = await Product.find({});
+
+    // Update stock status for each product
+    products.forEach(product => {
+      const inStockCount = product.units.filter(unit => unit.status === 'in_stock').length;
+      const lowStockThreshold = product.low_stock_threshold;
+
+      if (inStockCount === 0) {
+        product.current_stock_status = 'OUT OF STOCK';
+      } else if (inStockCount <= lowStockThreshold) {
+        product.current_stock_status = 'LOW';
+      } else {
+        product.current_stock_status = 'HIGH';
+      }
+    });
+
+    // Emit updated product list to WebSocket
+    req.app.get('io').emit('products-updated', products);
+
+    return res.status(200).json({
+      message: 'Product deleted successfully',
+      products: products,
+    });
 
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
+
+
+
+
 
 // Update stock statuses based on quantity and thresholds
 router.post('/update-stock-status', async (req, res) => {
@@ -473,8 +514,6 @@ router.post('/:productId/unit', upload.fields([{ name: 'serial_number_image', ma
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-
 
 
 

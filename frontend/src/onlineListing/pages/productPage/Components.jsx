@@ -4,19 +4,35 @@ import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 import axios from 'axios';
+import { ToastContainer } from 'react-toastify';
+
+const subcategories = [
+    "Chassis Fan",
+    "CPU Cooler",
+    "Graphics Card",
+    "Hard Drive",
+    "Memory",
+    "Motherboard",
+    "PC Case",
+    "Power Supply",
+    "Intel Processor",
+    "Processor Tray",
+    "Solid State Drive (SSD)"
+];
 
 const Components = () => {
     const [products, setProducts] = useState([]);
     const [query, setQuery] = useState('');
     const productsPerPage = 10;
     const baseURL = "http://localhost:5555";
+    const [sortOrder, setSortOrder] = useState('');
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get(`${baseURL}/product`);
                 const filteredData = response.data.data.filter(r => r.category === "Components");
-                setProducts(filteredData); // Set the filtered products
+                setProducts(filteredData);
             } catch (error) {
                 console.error('Error fetching products:', error.message);
             }
@@ -68,15 +84,37 @@ const Components = () => {
         );
     });
 
+    const sortedProducts = [...filteredProducts].sort((a, b) => {
+        if (sortOrder === "A-Z") return a.name.localeCompare(b.name);
+        if (sortOrder === "Z-A") return b.name.localeCompare(a.name);
+        if (sortOrder === "Price: low to high") return a.selling_price - b.selling_price;
+        if (sortOrder === "Price: high to low") return b.selling_price - a.selling_price;
+        if (sortOrder === "Date: old to new") return new Date(a.createdAt) - new Date(b.createdAt);
+        if (sortOrder === "Date: new to old") return new Date(b.createdAt) - new Date(a.createdAt);
+        return 0; // Default case: no sorting
+    });
+
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
-    const displayedProducts = filteredProducts.slice(startIndex, endIndex);
+    const displayedProducts = sortedProducts.slice(startIndex, endIndex);
+
+    const handleSortChange = (e) => {
+        setSortOrder(e.target.value);
+    };
 
     return (
         <>
             <div className='w-full text-black flex flex-col bg-white'>
                 <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
-
+                <ToastContainer 
+                position="bottom-right" 
+                autoClose={3000} 
+                hideProgressBar={false} 
+                closeOnClick 
+                pauseOnHover 
+                draggable 
+                theme="light"
+            />
                 <div className="container w-full mt-40 mx-auto md:p-4">
                     <p className='p-4 mb-8'>Home &gt; Components</p>
 
@@ -157,31 +195,43 @@ const Components = () => {
                             {/* Subcategory Filter */}
                             <div className="border-b border-gray-300 pb-4 mb-4">
                                 <h3 className="text-lg font-medium mb-2">Subcategory</h3>
-                                <label className="block">
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => handleFilterChange('subcategories', 'Power Supplies')}
-                                    />
-                                    Power Supplies
-                                </label>
-                                <label className="block">
-                                    <input
-                                        type="checkbox"
-                                        onChange={() => handleFilterChange('subcategories', 'Graphics Cards')}
-                                    />
-                                    Graphics Cards
-                                </label>
+                                {subcategories.map((subcategory) => (
+                                    <label key={subcategory} className="block">
+                                        <input
+                                            type="checkbox"
+                                            onChange={() => handleFilterChange('subcategories', subcategory)}
+                                            className='mr-2'
+                                        />
+                                        {subcategory}
+                                    </label>
+                                ))}
                             </div>
                         </div>
 
                         {/* Right Side Products */}
                         <div className='md:ml-6 w-full'>
                             <ProductHeader header={"Components"} />
+                            <div className='w-full px-6 flex items-center justify-end'>
+                                <select
+                                    value={sortOrder}
+                                    onChange={handleSortChange}
+                                    className="border border-gray-300 p-1 rounded"
+                                >
+                                    <option value="">Sort By</option>
+                                    <option value="A-Z">Alphabetically, A-Z</option>
+                                    <option value="Z-A">Alphabetically, Z-A</option>
+                                    <option value="Price: low to high">Price, low to high</option>
+                                    <option value="Price: high to low">Price, high to low</option>
+                                    <option value="Date: old to new">Date, old to new</option>
+                                    <option value="Date: new to old">Date, new to old</option>
+                                </select>
+                            </div>
                             <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                                 {displayedProducts.map((product) => (
                                     <ProductCard key={product.product_id} product={product} />
                                 ))}
                             </div>
+                            {/* Pagination Logic Here */}
                         </div>
                     </div>
                 </div>

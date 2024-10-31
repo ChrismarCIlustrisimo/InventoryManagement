@@ -4,6 +4,7 @@ import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 import axios from 'axios';
+import { ToastContainer } from 'react-toastify';
 
 const Peripherals = () => {
     const [query, setQuery] = useState('');
@@ -64,6 +65,15 @@ const Peripherals = () => {
     return (
         <div className='w-full text-black flex flex-col bg-white'>
             <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
+            <ToastContainer 
+                position="bottom-right" 
+                autoClose={3000} 
+                hideProgressBar={false} 
+                closeOnClick 
+                pauseOnHover 
+                draggable 
+                theme="light"
+            />
             <div className="container w-full mt-40 mx-auto md:p-4">
                 <p className='p-4 mb-8'>Home &gt; Peripherals</p>
                 <div className='flex w-full'>

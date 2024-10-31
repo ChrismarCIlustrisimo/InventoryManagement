@@ -55,9 +55,6 @@ const SalesOrder = () => {
     }
   };
   
-
-  {console.log(salesOrder)}
-
   const handleTransactionClick = (transactionId) => {
     navigate(`/transaction/${transactionId}`);
   };
@@ -268,11 +265,15 @@ const SalesOrder = () => {
               {salesOrder.map((transaction) => (
                 <div
                   key={transaction._id}
-                  className={`rounded-lg p-4 flex gap-4 cursor-pointer ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container' }`}
+                  className={`rounded-lg p-4 flex gap-4 cursor-pointer 
+                              ${darkMode ? 'bg-light-container hover:bg-gray-200' : 'bg-dark-container hover:bg-gray-600'}`}
                   onClick={() => handleTransactionClick(transaction.transaction_id)}
                 >
-                  <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 ${darkMode ? 'border-light-activeLink' : 'dark:border-dark-activeLink' }`} >
-                    <h1 className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>{transaction.transaction_id}</h1>
+                  <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 
+                                  ${darkMode ? 'border-light-activeLink' : 'dark:border-dark-activeLink'}`}>
+                    <h1 className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
+                      {transaction.transaction_id}
+                    </h1>
                   </div>
                   <div className='flex justify-between items-center w-[85%]'>
                     <div className='p-4 w-[70%] flex flex-col gap-1'>

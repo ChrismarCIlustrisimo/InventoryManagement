@@ -37,20 +37,21 @@ const getStatusStyles = (status) => {
       break;
     case 'LOW':
       statusStyles = {
-        textClass: 'text-[#BF6A02]',
-        bgClass: 'bg-[#FFF1C2]',
+        textClass: 'text-[#EC221F]', // Red for Low Stock
+        bgClass: 'bg-[#FEE9E7]',
       };
       break;
     case 'OUT OF STOCK':
       statusStyles = {
-        textClass: 'text-[#EC221F]',
-        bgClass: 'bg-[#FEE9E7]',
+        textClass: 'text-[#8E8E93]', // Gray for Out of Stock
+        bgClass: 'bg-[#E5E5EA]',
       };
       break;
   }
 
   return statusStyles; // Return the status styles directly
 };
+
 
 const DashboardProductList = () => {
   const { user } = useAuthContext();

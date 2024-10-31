@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const ProductItemSchema = new mongoose.Schema({
   product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
   quantity: { type: Number, required: true },
+  product_name: { type: String },
   serial_number: { type: [String], required: true },
 });
 
@@ -28,7 +29,8 @@ const TransactionSchema = new mongoose.Schema(
         'GGvices',
         'Bank Transfer',
         'BDO Credit Card',
-        'Credit Card - Online'
+        'Credit Card - Online',
+        'None',
       ],
       default: 'Cash'
     },  },  

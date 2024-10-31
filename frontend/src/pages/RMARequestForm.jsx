@@ -18,10 +18,12 @@ const RMARequestForm = ({ onClose, transaction }) => {
       year: 'numeric'
     });
   };
+
+
   const [transactionId, setTransactionId] = useState(transaction.transaction_id);
   const [customer, setCustomer] = useState(transaction.customer?.name);
   const [email, setEmail] = useState(transaction.customer?.email);
-  const [customerID, setCustomerID] = useState(transaction.customer);
+  const [customerID, setCustomerID] = useState(transaction.customer._id);
   const [products, setProducts] = useState([]);
   const [SalesDate, setSalesDate] = useState(formatDate(transaction.transaction_date));
   const [transactionDate, setTransactionDate] = useState(transaction.transaction_date);

@@ -1,21 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import axios from 'axios';
+import ProductCard from './ProductCard'; // Import the ProductCard component
+import { ToastContainer } from 'react-toastify';
 
 const ViewProducts = () => {
     const [query, setQuery] = useState('');
+    const [relatedProducts, setRelatedProducts] = useState([]);
     const baseURL = "http://localhost:5555";
 
     const handleQueryChange = (newQuery) => {
         setQuery(newQuery);
     };
 
+    console.log("handle" , relatedProducts)
+
     const location = useLocation();
     const navigate = useNavigate();
     const product = location.state?.product;
-    const categoryPath = location.state?.product.category || "Category"; // Default to "Category" if not provided
-    
+    const categoryPath = location.state?.product.category || "Category";
+
     const categoryMap = {
         "Laptops": "laptops",
         "Desktops": "desktops",
@@ -26,8 +32,26 @@ const ViewProducts = () => {
         "OS & Software": "os-software"
     };
 
-    const categoryDisplayName = categoryMap[categoryPath] || "Category"; // Get the display name
+    const categoryDisplayName = categoryMap[categoryPath] || "Category";
 
+    // Fetch related products based on sub_category
+    useEffect(() => {
+        const fetchRelatedProducts = async () => {
+            if (product && product.sub_category) {
+                try {
+                    const response = await axios.get(`${baseURL}/product`);
+                    const filteredProducts = response.data.data.filter(
+                        (item) => item.sub_category === product.sub_category && item.product_id !== product.product_id
+                    ).slice(0, 5); // Get only 5 products
+                    setRelatedProducts(filteredProducts);
+                } catch (error) {
+                    console.error('Error fetching related products:', error.message);
+                }
+            }
+        };
+
+        fetchRelatedProducts();
+    }, [product]);
 
     if (!product) {
         return (
@@ -49,7 +73,15 @@ const ViewProducts = () => {
     return (
         <>
             <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
-
+            <ToastContainer 
+                position="bottom-right" 
+                autoClose={3000} 
+                hideProgressBar={false} 
+                closeOnClick 
+                pauseOnHover 
+                draggable 
+                theme="light"
+            />
             <div className="container mx-auto mt-40 p-4">
                 {/* Breadcrumb Navigation */}
                 <nav className="mb-8 text-black">
@@ -114,6 +146,16 @@ const ViewProducts = () => {
                             <li key={index} className="text-sm mb-1">{desc}</li>
                         ))}
                     </ul>
+                </div>
+
+                {/* You May Also Like Section */}
+                <div className="mt-12">
+                    <h2 className="text-4xl font-semibold mb-4 text-black w-full text-center py-6 bg-gray-100">You May Also Like</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
+                        {relatedProducts.map((relatedProduct) => (
+                            <ProductCard key={relatedProduct._id} product={relatedProduct} /> // Use _id here
+                        ))}
+                    </div>
                 </div>
             </div>
 

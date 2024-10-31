@@ -4,10 +4,12 @@ import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 import axios from 'axios';
+import { ToastContainer } from 'react-toastify';
 
 const Accessories = () => {
     const [products, setProducts] = useState([]);
     const [query, setQuery] = useState('');
+    const [sortOrder, setSortOrder] = useState(''); // State for sorting
     const productsPerPage = 10;
     const baseURL = "http://localhost:5555";
 
@@ -19,7 +21,6 @@ const Accessories = () => {
         discount: [],
         processorType: [],
         subcategory: [],
-        topSelling: false,
     });
 
     useEffect(() => {
@@ -36,6 +37,33 @@ const Accessories = () => {
         fetchProducts();
     }, []);
 
+    // Sorting function
+    const sortProducts = (products, order) => {
+        switch (order) {
+            case 'A-Z':
+                return [...products].sort((a, b) => a.name.localeCompare(b.name));
+            case 'Z-A':
+                return [...products].sort((a, b) => b.name.localeCompare(a.name));
+            case 'Price: low to high':
+                return [...products].sort((a, b) => a.selling_price - b.selling_price);
+            case 'Price: high to low':
+                return [...products].sort((a, b) => b.selling_price - a.selling_price);
+            case 'Date: old to new':
+                return [...products].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            case 'Date: new to old':
+                return [...products].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            default:
+                return products;
+        }
+    };
+
+    // Handle sort change
+    const handleSortChange = (event) => {
+        const selectedSortOrder = event.target.value;
+        setSortOrder(selectedSortOrder);
+        setProducts((prevProducts) => sortProducts(prevProducts, selectedSortOrder));
+    };
+
     const handleQueryChange = (newQuery) => {
         setQuery(newQuery);
     };
@@ -50,14 +78,19 @@ const Accessories = () => {
         });
     };
 
-
-  
-
     return (
         <>
             <div className='w-full text-black flex flex-col bg-white'>
                 <Navbar query={query} onQueryChange={handleQueryChange} cartItemCount={1} />
-
+                <ToastContainer 
+                position="bottom-right" 
+                autoClose={3000} 
+                hideProgressBar={false} 
+                closeOnClick 
+                pauseOnHover 
+                draggable 
+                theme="light"
+            />
                 <div className="container w-full mt-40 mx-auto md:p-4">
                     <p className='p-4 mb-8'>Home &gt; Accessories</p>
 
@@ -65,6 +98,7 @@ const Accessories = () => {
                         {/* Left Side Filter */}
                         <div className="max-md:hidden min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6">
                             <h2 className="text-xl font-semibold mb-4">Filters</h2>
+
 
                             {/* Price Range */}
                             <div className="border-b border-gray-300 pb-4 mb-4">
@@ -143,6 +177,7 @@ const Accessories = () => {
                                     <input
                                         type="checkbox"
                                         onChange={() => handleFilterChange('subcategory', 'Cables')}
+                                        className='mr-2'
                                     />
                                     Cables
                                 </label>
@@ -150,6 +185,7 @@ const Accessories = () => {
                                     <input
                                         type="checkbox"
                                         onChange={() => handleFilterChange('subcategory', 'Earphones')}
+                                        className='mr-2'
                                     />
                                     Earphones
                                 </label>
@@ -159,6 +195,21 @@ const Accessories = () => {
                         {/* Right Side Products */}
                         <div className='md:ml-6 w-full'>
                             <ProductHeader header={"Accessories"} />
+                            <div className='w-full px-6  flex items-center justify-end'>
+                                <select 
+                                    value={sortOrder} 
+                                    onChange={handleSortChange} 
+                                    className="border border-gray-300 p-1 rounded"
+                                >
+                                    <option value="">Sort By</option>
+                                    <option value="A-Z">Alphabetically, A-Z</option>
+                                    <option value="Z-A">Alphabetically, Z-A</option>
+                                    <option value="Price: low to high">Price, low to high</option>
+                                    <option value="Price: high to low">Price, high to low</option>
+                                    <option value="Date: old to new">Date, old to new</option>
+                                    <option value="Date: new to old">Date, new to old</option>
+                                </select>
+                            </div>
                             <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                                 {products.map((product) => (
                                     <ProductCard key={product.product_id} product={product} />

@@ -14,7 +14,6 @@ const CartPopup = ({
 
     if (!isOpen) return null;
 
-    // Calculate total price based on selling_price and quantity
     const totalPrice = cartItems.reduce((acc, item) => acc + (item.selling_price * (item.quantity || 1)), 0);
 
     const handleViewCart = () => {
@@ -22,8 +21,20 @@ const CartPopup = ({
         onClose();
     };
 
-    console.log(cartItems); // Log cart items to see their structure
-    
+    const handleQuantityChange = (index, value) => {
+        const newQuantity = Math.max(1, parseInt(value) || 1);
+        // Update quantity in context
+        if (newQuantity > cartItems[index].quantity) {
+            for (let i = cartItems[index].quantity; i < newQuantity; i++) {
+                onIncreaseQuantity(index);
+            }
+        } else {
+            for (let i = cartItems[index].quantity; i > newQuantity; i--) {
+                onDecreaseQuantity(index);
+            }
+        }
+    };
+
     return (
         <>
             <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={onClose}></div>
@@ -44,17 +55,18 @@ const CartPopup = ({
                                     />
                                     <div className="flex-1">
                                         <p className="font-semibold">{item.name}</p>
-                                        {/* Calculate item total price based on quantity */}
                                         <p className="text-orange-500 font-bold">
-                                            ₱{(item.selling_price * (item.quantity || 1)).toFixed(2)}
+                                            ₱{(item.selling_price * item.quantity).toFixed(2)}
                                         </p>
                                     </div>
                                     <div className="flex flex-col items-center justify-center gap-2">
-                                        <div className="flex items-center border border-gray-300">
-                                            <button className="px-2 py-1" onClick={() => onDecreaseQuantity(index)}>-</button>
-                                            <span className="px-3 text-black">{item.quantity || 1}</span>
-                                            <button className="px-2 py-1" onClick={() => onIncreaseQuantity(index)}>+</button>
-                                        </div>
+                                        <input
+                                            type="number"
+                                            value={item.quantity || 1}
+                                            min="1"
+                                            className="border border-gray-300 w-12 text-center"
+                                            onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                        />
                                         <button className="text-red-500 text-sm" onClick={() => onRemoveItem(index)}>Remove</button>
                                     </div>
                                 </li>

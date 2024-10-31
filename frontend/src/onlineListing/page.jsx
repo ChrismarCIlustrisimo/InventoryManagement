@@ -17,20 +17,21 @@ const ProductProvider = ({ children }) => {
     const addToCart = (product) => {
         setCart((prevCart) => {
             const existingProductIndex = prevCart.findIndex(
-                (item) => item.name === product.name && item.selling_price === product.selling_price // Add more conditions if necessary
+                (item) => item.name === product.name && item.selling_price === product.selling_price
             );
-
+    
             if (existingProductIndex > -1) {
-                // If product exists, increase its quantity
+                // If product exists, increase its quantity by the specified amount
                 const updatedCart = [...prevCart];
-                updatedCart[existingProductIndex].quantity += 1; // Increase quantity by 1
+                updatedCart[existingProductIndex].quantity += product.quantity; // Use the quantity from the product
                 return updatedCart;
             } else {
-                // If not, add the product with quantity 1
-                return [...prevCart, { ...product, quantity: 1 }];
+                // If not, add the product with the specified quantity
+                return [...prevCart, { ...product, quantity: product.quantity }];
             }
         });
     };
+    
 
     const increaseQuantity = (index) => {
       setCart((prevCart) => {

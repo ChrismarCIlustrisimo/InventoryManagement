@@ -6,46 +6,45 @@
     import axios from 'axios';
     import { ToastContainer } from 'react-toastify';
 
+
     const Laptops = () => {
-        const [query, setQuery] = useState('');
-        const [sortOrder, setSortOrder] = useState(''); // Added sortOrder state
-        const productsPerPage = 10;
         const [products, setProducts] = useState([]);
+        const [query, setQuery] = useState('');
+        const productsPerPage = 10;
         const baseURL = "http://localhost:5555";
+        const [sortOrder, setSortOrder] = useState('');
 
-        const fetchProducts = async () => {
-            try {
-                const response = await axios.get(`${baseURL}/product`, {
-                    params: { category: 'Laptops' },
-                });
-                const products = response.data.data; 
-                const laptopProducts = products.filter(product => product.category === 'Laptops');
-                setProducts(laptopProducts);
-            } catch (error) {
-                console.error('Error fetching products:', error.message);
-            }
-        };
-        
-
+    const subcategories = [
+        "Laptops",
+        "Chromebooks",
+    ];
+    
+    
         useEffect(() => {
+            const fetchProducts = async () => {
+                try {
+                    const response = await axios.get(`${baseURL}/product`);
+                    const filteredData = response.data.data.filter(r => r.category === "Laptops");
+                    setProducts(filteredData);
+                } catch (error) {
+                    console.error('Error fetching products:', error.message);
+                }
+            };
+    
             fetchProducts();
         }, []);
-
+    
         const [currentPage, setCurrentPage] = useState(1);
         const [filters, setFilters] = useState({
-            priceRange: [0, 10000],
-            category: [],
-            subcategory: [],
-            processorType: [],
-            brand: [],
-            discount: [],
-            isTopSelling: false, // Added top selling filter
+            priceRange: [0, 1000000],
+            subcategories: [],
+            isTopSelling: false,
         });
-
+    
         const handleQueryChange = (newQuery) => {
             setQuery(newQuery);
         };
-
+    
         const handleFilterChange = (filterType, filterValue) => {
             setFilters((prevFilters) => ({
                 ...prevFilters,
@@ -54,52 +53,54 @@
                     : [...prevFilters[filterType], filterValue],
             }));
         };
-
+    
         const filteredProducts = products.filter((product) => {
             const isMatched = product.name.toLowerCase().includes(query.toLowerCase());
             const isPriceInRange = product.selling_price >= filters.priceRange[0] && product.selling_price <= filters.priceRange[1];
-            const isSubcategoryMatched = filters.subcategory.length === 0 || filters.subcategory.includes(product.sub_category);
-            const isTopSellingMatched = !filters.isTopSelling || product.sales > 100;
-        
-            console.log('Product:', product, 'Matches:', { isMatched, isPriceInRange, isSubcategoryMatched, isTopSellingMatched }); // Log matches
+            const isTopSellingMatched = !filters.isTopSelling || product.sales > 0; // Only show products with sales > 0
+            const isSubcategoryMatched = filters.subcategories.length === 0 || filters.subcategories.includes(product.sub_category);
         
             return (
                 isMatched &&
                 isPriceInRange &&
-                isSubcategoryMatched &&
-                isTopSellingMatched
+                isTopSellingMatched &&
+                isSubcategoryMatched
             );
         });
         
-        
-
-        // Sort filtered products based on sortOrder
-        const sortedProducts = [...filteredProducts].sort((a, b) => {
-            switch (sortOrder) {
-                case "A-Z":
-                    return a.name.localeCompare(b.name);
-                case "Z-A":
-                    return b.name.localeCompare(a.name);
-                case "Price: low to high":
-                    return a.selling_price - b.selling_price;
-                case "Price: high to low":
-                    return b.selling_price - a.selling_price;
-                case "Date: old to new":
-                    return new Date(a.createdAt) - new Date(b.createdAt);
-                case "Date: new to old":
-                    return new Date(b.createdAt) - new Date(a.createdAt);
-                default:
-                    return 0; // No sorting
-            }
+    
+        // Function to get top selling products
+        const getTopSellingProducts = (products) => {
+            return products
+                .filter(product => product.sales > 0) // Only include products with sales > 0
+                .sort((a, b) => b.sales - a.sales) // Sort in descending order of sales
+                .slice(0, 10); // Limit to the top 10
+        };
+    
+        // If "Show Top Selling" is checked, filter to get top selling products
+        const displayedProducts = filters.isTopSelling 
+            ? getTopSellingProducts(filteredProducts) 
+            : filteredProducts;
+    
+        const sortedProducts = [...displayedProducts].sort((a, b) => {
+            if (sortOrder === "Alphabetically, A-Z") return a.name.localeCompare(b.name);
+            if (sortOrder === "Alphabetically, Z-A") return b.name.localeCompare(a.name);
+            if (sortOrder === "Price: low to high") return a.selling_price - b.selling_price;
+            if (sortOrder === "Price: high to low") return b.selling_price - a.selling_price;
+            if (sortOrder === "Date: old to new") return new Date(a.createdAt) - new Date(b.createdAt);
+            if (sortOrder === "Date: new to old") return new Date(b.createdAt) - new Date(a.createdAt);
+            return 0; // Default case: no sorting
         });
-
+    
         const startIndex = (currentPage - 1) * productsPerPage;
         const endIndex = startIndex + productsPerPage;
-
+        const finalDisplayedProducts = sortedProducts.slice(startIndex, endIndex); // Get only 10 products for the current page
+    
         const handleSortChange = (e) => {
             setSortOrder(e.target.value);
         };
 
+    
         return (
             <>
                 <div className='w-full text-black flex flex-col bg-white'>
@@ -118,8 +119,8 @@
 
                         <div className='flex w-full'>
                             {/* left side Filter HERE */}
-                            <div className="max-md:hidden min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6">
-                                <h2 className="text-xl font-semibold mb-4">Filters</h2>
+                            <div className="max-md:hidden min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6 h-[500px] overflow-y-auto">
+                            <h2 className="text-xl font-semibold mb-4">Filters</h2>
 
                                 {/* Price Range */}
                                 <div className="border-b border-gray-300 pb-4 mb-4">
@@ -128,12 +129,12 @@
                                         <input
                                             type="number"
                                             min="0"
-                                            max="10000"
+                                            max={filters.priceRange[1]} // Ensure max matches current max
                                             value={filters.priceRange[0]}
                                             onChange={(e) =>
                                                 setFilters((prevFilters) => ({
                                                     ...prevFilters,
-                                                    priceRange: [Number(e.target.value), filters.priceRange[1]],
+                                                    priceRange: [Number(e.target.value), prevFilters.priceRange[1]],
                                                 }))
                                             }
                                             className="w-1/3 border border-gray-300 p-1 text-center text-sm"
@@ -142,13 +143,13 @@
                                         <span className="mx-2 text-sm">-</span>
                                         <input
                                             type="number"
-                                            min="0"
-                                            max="10000"
+                                            min={filters.priceRange[0]} // Ensure min matches current min
+                                            max="1000000"
                                             value={filters.priceRange[1]}
                                             onChange={(e) =>
                                                 setFilters((prevFilters) => ({
                                                     ...prevFilters,
-                                                    priceRange: [filters.priceRange[0], Number(e.target.value)],
+                                                    priceRange: [prevFilters.priceRange[0], Number(e.target.value)],
                                                 }))
                                             }
                                             className="w-1/3 border border-gray-300 p-1 text-center text-sm"
@@ -158,12 +159,12 @@
                                     <input
                                         type="range"
                                         min={0}
-                                        max={10000}
+                                        max={1000000} // Update this if you have a different max price
                                         value={filters.priceRange[0]}
                                         onChange={(e) =>
                                             setFilters((prevFilters) => ({
                                                 ...prevFilters,
-                                                priceRange: [Number(e.target.value), filters.priceRange[1]],
+                                                priceRange: [Number(e.target.value), prevFilters.priceRange[1]],
                                             }))
                                         }
                                         className="w-full"
@@ -173,6 +174,7 @@
                                         <span>₱{filters.priceRange[1]}</span>
                                     </div>
                                 </div>
+
 
                                 <div>
                                     <h3 className="text-lg font-medium mb-2">Top Selling</h3>
@@ -192,30 +194,23 @@
 
                                 {/* Subcategory Filter */}
                                 <div className="border-b border-gray-300 pb-4 mb-4">
-                                    <h3 className="text-lg font-medium mb-2">Subcategory</h3>
-                                    <label className="block">
-                                        <input
-                                            type="checkbox"
-                                            onChange={() => handleFilterChange('subcategory', 'Laptops')}
-                                            className='mr-2'
-
-                                        />
-                                        Laptops
-                                    </label>
-                                    <label className="block">
-                                        <input
-                                            type="checkbox"
-                                            onChange={() => handleFilterChange('subcategory', 'Chromebooks')}
-                                            className='mr-2'
-                                        />
-                                        Chromebooks
-                                    </label>
-                                </div>
+                                        <h3 className="text-lg font-medium mb-2">Subcategory</h3>
+                                        {subcategories.map((subcategory) => (
+                                            <label key={subcategory} className="block">
+                                                <input
+                                                    type="checkbox"
+                                                    onChange={() => handleFilterChange('subcategories', subcategory)}
+                                                    className='mr-2'
+                                                />
+                                                {subcategory}
+                                            </label>
+                                        ))}
+                                    </div>
                             </div>
 
                             {/* right side Products HERE */}
-                            <div className='md:ml-6 w-full'>
-                                <ProductHeader header={"Laptops"} />
+                            <div className='md:ml-6 w-full  flex flex-col justify-between'>
+                            <ProductHeader header={"Laptops"} />
                                 <div className='w-full px-6 flex items-center justify-end'>
                                     <select
                                         value={sortOrder}
@@ -232,15 +227,31 @@
                                     </select>
                                 </div>
 
-                                <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                                      {products.length > 0 ? (
-                                        products.map((product) => (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 p-6">
+                                {finalDisplayedProducts.length > 0 ? (
+                                        finalDisplayedProducts.map((product) => (
                                             <ProductCard key={product._id} product={product} />
                                         ))
                                     ) : (
                                         <p>No products found.</p>
                                     )}
                                 </div>
+                                <div className="flex justify-between mt-8  p-6">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(sortedProducts.length / productsPerPage)))}
+                                    disabled={currentPage >= Math.ceil(sortedProducts.length / productsPerPage)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+                                >
+                                    Next
+                                </button>
+                            </div>
                             </div>
                         </div>
                     </div>

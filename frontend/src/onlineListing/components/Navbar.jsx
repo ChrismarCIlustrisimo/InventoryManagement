@@ -10,90 +10,90 @@ import CartPopup from './CartPopup';
 import { useProductContext } from '../page.jsx'; // Update import to use the custom hook
 
 const categories = [
-      { name: "Components", path: "/iRIG/components" },
-      { name: "Peripherals", path: "/iRIG/peripherals" },
-      { name: "Accessories", path: "/iRIG/accessories" },
-      { name: "PC Furniture", path: "/iRIG/pc-furniture" },
-      { name: "OS & Software", path: "/iRIG/os-software" },
-      { name: "Laptops", path: "/iRIG/laptops" },
-      { name: "Desktops", path: "/iRIG/desktops" },
+    { name: "Components", path: "/iRIG/components" },
+    { name: "Peripherals", path: "/iRIG/peripherals" },
+    { name: "Accessories", path: "/iRIG/accessories" },
+    { name: "PC Furniture", path: "/iRIG/pc-furniture" },
+    { name: "OS & Software", path: "/iRIG/os-software" },
+    { name: "Laptops", path: "/iRIG/laptops" },
+    { name: "Desktops", path: "/iRIG/desktops" },
 ];
 
 const Navbar = ({ query, onQueryChange }) => {
-      const [isMenuOpen, setIsMenuOpen] = useState(false);
-      const [isCartOpen, setIsCartOpen] = useState(false);
-      const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
 
-      const { cart, increaseQuantity, decreaseQuantity, removeItem } = useProductContext(); // Access functions from context
+    const { cart, increaseQuantity, decreaseQuantity, removeItem } = useProductContext();
 
-      const toggleMenu = () => setIsMenuOpen(prev => !prev);
-      const toggleCart = () => setIsCartOpen(prev => !prev);
-      const toggleCategoryPopup = () => setIsCategoryPopupOpen(prev => !prev);
+    const toggleMenu = () => setIsMenuOpen(prev => !prev);
+    const toggleCart = () => setIsCartOpen(prev => !prev);
+    const toggleCategoryPopup = () => setIsCategoryPopupOpen(prev => !prev);
 
-      return (
-            <header className="text-black fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
-                  <div className="md:w-[80%] w-full flex items-center justify-around py-2 md:py-4 md:gap-2 gap-12">
-                        <div className='flex gap-2 h-full items-center justify-center'>
-                              <GiHamburgerMenu className="text-5xl cursor-pointer md:hidden text-white" onClick={toggleMenu} />
-                              <img src={iRig1} alt="Website Logo" className="h-8 w-auto max-w-[150px] sm:max-w-[100px] md:max-w-full md:h-12" />
-                        </div>
-                        <Searchbar
-                              query={query}
-                              onQueryChange={onQueryChange}
-                              placeholderMessage="Search..."
-                              className="w-[90%] md:w-[600px] hidden md:block"
-                        />
-                        <div className="flex gap-2 items-center text-white text-xl font-medium">
-                              <Badge
-                                    badgeContent={cart.length} // Use cart from context
-                                    sx={{
-                                          '& .MuiBadge-badge': {
-                                                backgroundColor: '#E8B931',
-                                                color: 'white',
-                                          }
-                                    }}
-                              >
-                                    <MdOutlineShoppingCart className="text-2xl cursor-pointer" onClick={toggleCart} />
-                              </Badge>
-                              <p className="hidden md:block cursor-pointer" onClick={toggleCart}>Cart</p>
-                        </div>
-                  </div>
-                  <nav className={`bg-white w-full py-2 flex justify-center shadow-lg ${isMenuOpen ? 'block' : 'hidden'} md:block`}>
-                        <div className="flex flex-col md:flex-row justify-center gap-24 items-center w-full">
-                              <Link to={"/iRIG/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Home</Link>
-                              <div className="relative">
-                                    <button className="text-dark-TEXT hover:text-gray-400 transition py-2" onClick={toggleCategoryPopup}>
-                                          Products <FaAngleDown className='ml-2 inline' />
-                                    </button>
-                                    {isCategoryPopupOpen && (
-                                          <div className="absolute z-50 bg-white shadow-md rounded-md mt-2 p-2 w-64">
-                                                {categories.map((category) => (
-                                                      <Link
-                                                            key={category.name}
-                                                            to={category.path}
-                                                            className="block py-1 hover:bg-gray-200 transition"
-                                                      >
-                                                            {category.name}
-                                                      </Link>
-                                                ))}
-                                          </div>
-                                    )}
-                              </div>
-                              <Link to={"/iRIG/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Our Store</Link>
-                              <Link to={"/iRIG/contact-us"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
-                        </div>
-                  </nav>
-                  <CartPopup 
-                        isOpen={isCartOpen} 
-                        onClose={toggleCart} 
-                        cartItems={cart} // This should already be correct
-                        onIncreaseQuantity={increaseQuantity} 
-                        onDecreaseQuantity={decreaseQuantity} 
-                        onRemoveItem={removeItem} 
-                        />
-   
-            </header>
-      );
+    return (
+        <header className="text-black fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
+            <div className="md:w-[80%] w-full flex items-center justify-around py-2 md:py-4 md:gap-2 gap-12">
+                <div className='flex gap-2 h-full items-center justify-center'>
+                    <GiHamburgerMenu className="text-5xl cursor-pointer md:hidden text-white" onClick={toggleMenu} />
+                    <img src={iRig1} alt="Website Logo" className="h-8 w-auto max-w-[150px] sm:max-w-[100px] md:max-w-full md:h-12" />
+                </div>
+                <Searchbar
+                    query={query}
+                    onQueryChange={onQueryChange}
+                    placeholderMessage="Search..."
+                    className="w-[90%] md:w-[600px] hidden md:block"
+                />
+                <div className="flex gap-2 items-center text-white text-xl font-medium">
+                    <Badge
+                        badgeContent={cart.length}
+                        sx={{
+                            '& .MuiBadge-badge': {
+                                backgroundColor: '#E8B931',
+                                color: 'white',
+                            }
+                        }}
+                    >
+                        <MdOutlineShoppingCart className="text-2xl cursor-pointer" onClick={toggleCart} />
+                    </Badge>
+                    <p className="hidden md:block cursor-pointer" onClick={toggleCart}>Cart</p>
+                </div>
+            </div>
+            <nav className={`bg-white w-full py-2 flex justify-center shadow-lg ${isMenuOpen ? 'block' : 'hidden'} md:block`}>
+                <div className="flex flex-col md:flex-row justify-center gap-24 items-center w-full">
+                    <Link to={"/iRIG/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Home</Link>
+                    <div className="relative">
+                        <button className="text-dark-TEXT hover:text-gray-400 transition py-2" onClick={toggleCategoryPopup}>
+                            Products <FaAngleDown className='ml-2 inline' />
+                        </button>
+                        {isCategoryPopupOpen && (
+                            <div className="absolute z-50 bg-white shadow-md rounded-md mt-2 p-2 w-64">
+                                {categories.map((category) => (
+                                    <Link
+                                        key={category.name}
+                                        to={category.path}
+                                        className="block py-1 hover:bg-gray-200 transition"
+                                    >
+                                        {category.name}
+                                    </Link>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                    <Link to={"/iRIG/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Our Store</Link>
+                    <Link to={"/iRIG/contact-us"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
+                    <Link to={"/iRIG/add-product"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Add Product</Link> {/* New Add Product link */}
+                </div>
+            </nav>
+            <CartPopup
+                isOpen={isCartOpen}
+                onClose={toggleCart}
+                cartItems={cart}
+                onIncreaseQuantity={increaseQuantity}
+                onDecreaseQuantity={decreaseQuantity}
+                onRemoveItem={removeItem}
+            />
+        </header>
+    );
 };
 
 export default Navbar;

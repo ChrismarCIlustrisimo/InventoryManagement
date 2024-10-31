@@ -54,8 +54,8 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
                 )}
             </div>
             {products.length > 0 && (
-                <ul className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                    {products.map((product) => (
+                <ul className="absolute z-10 top-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                    {products.slice(0, 7).map((product) => ( // Limit the display to 7 products
                         <li
                             key={product._id}
                             className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -63,7 +63,7 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
                         >
                             {product.image && ( // Check if the image exists
                                 <img
-                                   src={`${baseURL}/${product.image}`}// Adjust this property based on your product schema
+                                    src={`${baseURL}/${product.image}`} // Adjust this property based on your product schema
                                     alt={product.name}
                                     className="w-10 h-10 mr-2 object-cover" // Add classes for sizing and spacing
                                 />

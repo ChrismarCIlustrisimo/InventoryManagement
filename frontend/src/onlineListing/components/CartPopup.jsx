@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
+import 'react-toastify/dist/ReactToastify.css'; // Import the toast styles
 
 const CartPopup = ({
     isOpen,
@@ -35,6 +37,12 @@ const CartPopup = ({
         }
     };
 
+    const handleRemoveItem = (index) => {
+        onRemoveItem(index);
+        // Show toast notification
+        toast.success(`${cartItems[index].name} has been removed from your cart!`);
+    };
+
     return (
         <>
             <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={onClose}></div>
@@ -67,7 +75,7 @@ const CartPopup = ({
                                             className="border border-gray-300 w-12 text-center"
                                             onChange={(e) => handleQuantityChange(index, e.target.value)}
                                         />
-                                        <button className="text-red-500 text-sm" onClick={() => onRemoveItem(index)}>Remove</button>
+                                        <button className="text-red-500 text-sm" onClick={() => handleRemoveItem(index)}>Remove</button>
                                     </div>
                                 </li>
                             ))}

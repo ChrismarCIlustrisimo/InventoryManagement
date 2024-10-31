@@ -7,18 +7,19 @@ import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
 
 const PCFurniture = () => {
+    const [products, setProducts] = useState([]);
     const [query, setQuery] = useState('');
     const productsPerPage = 10;
-    const [products, setProducts] = useState([]);
-
     const baseURL = "http://localhost:5555";
+    const [sortOrder, setSortOrder] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState(''); // State for selected category
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get(`${baseURL}/product`);
                 const filteredData = response.data.data.filter(r => r.category === "PC Furniture");
-                setProducts(filteredData); // Set the filtered products
+                setProducts(filteredData);
             } catch (error) {
                 console.error('Error fetching products:', error.message);
             }
@@ -27,14 +28,13 @@ const PCFurniture = () => {
         fetchProducts();
     }, []);
 
-
     const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
-        priceRange: [0, 1000],
-        topSelling: false,
-        brand: [],
+        priceRange: [0, 10000],
+        category: [],
         discount: [],
-        subcategory: [],
+        subcategories: [],
+        isTopSelling: false,
     });
 
     const handleQueryChange = (newQuery) => {
@@ -50,9 +50,52 @@ const PCFurniture = () => {
         }));
     };
 
+    const filteredProducts = products.filter((product) => {
+        const isMatched = product.name.toLowerCase().includes(query.toLowerCase());
+        const isPriceInRange = product.selling_price >= filters.priceRange[0] && product.selling_price <= filters.priceRange[1];
+        const isCategoryMatched = !selectedCategory || product.category === selectedCategory; // Match selected category
+        const isDiscountMatched = filters.discount.length === 0 || filters.discount.includes(product.discount);
+        const isTopSellingMatched = !filters.isTopSelling || product.sales > 0; // Only show products with sales > 0
+        const isSubcategoryMatched = filters.subcategories.length === 0 || filters.subcategories.includes(product.sub_category);
+
+        return (
+            isMatched &&
+            isPriceInRange &&
+            isCategoryMatched &&
+            isDiscountMatched &&
+            isTopSellingMatched &&
+            isSubcategoryMatched
+        );
+    });
+
+    // Function to get top selling products
+    const getTopSellingProducts = (products) => {
+        return products
+            .filter(product => product.sales > 0) // Only include products with sales > 0
+            .sort((a, b) => b.sales - a.sales) // Sort in descending order of sales
+            .slice(0, 10); // Limit to the top 10
+    };
+
+    // If "Show Top Selling" is checked, filter to get top selling products
+    const displayedProducts = filters.isTopSelling ? getTopSellingProducts(filteredProducts) : filteredProducts;
+
+    const sortedProducts = [...displayedProducts].sort((a, b) => {
+        if (sortOrder === "Alphabetically, A-Z") return a.name.localeCompare(b.name);
+        if (sortOrder === "Alphabetically, Z-A") return b.name.localeCompare(a.name);
+        if (sortOrder === "Price: low to high") return a.selling_price - b.selling_price;
+        if (sortOrder === "Price: high to low") return b.selling_price - a.selling_price;
+        if (sortOrder === "Date: old to new") return new Date(a.createdAt) - new Date(b.createdAt);
+        if (sortOrder === "Date: new to old") return new Date(b.createdAt) - new Date(a.createdAt);
+        return 0; // Default case: no sorting
+    });
 
     const startIndex = (currentPage - 1) * productsPerPage;
     const endIndex = startIndex + productsPerPage;
+    const finalDisplayedProducts = sortedProducts.slice(startIndex, endIndex);
+
+    const handleSortChange = (e) => {
+        setSortOrder(e.target.value);
+    };
 
     return (
         <div className='w-full text-black flex flex-col bg-white'>
@@ -69,7 +112,7 @@ const PCFurniture = () => {
             <div className="container w-full mt-40 mx-auto md:p-4">
                 <p className='p-4 mb-8'>Home &gt; PC Furniture</p>
                 <div className='flex w-full'>
-                    <div className="max-md:hidden min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6">
+                    <div className="max-md:hidden min-w-[20%] max-w-[20%] bg-white border border-gray-200 p-4 rounded-lg shadow-lg space-y-6 h-[500px] overflow-y-auto">
                         <h2 className="text-xl font-semibold mb-4">Filters</h2>
                         {/* Price Range Filter */}
                         <div className="mb-4">
@@ -123,42 +166,91 @@ const PCFurniture = () => {
                                 <span>₱{filters.priceRange[1]}</span>
                             </div>
                         </div>
-                                         {/* Top Selling Checkbox */}
+
+                        {/* Top Selling Checkbox */}
                         <div>
                             <h3 className="text-lg font-medium mb-2">Top Selling</h3>
-                                <div className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        checked={filters.isTopSelling}
-                                        onChange={() => setFilters((prevFilters) => ({
-                                        ...prevFilters,
-                                        isTopSelling: !prevFilters.isTopSelling,
-                                        }))}
-                                        className="form-checkbox"/>
-                                        <span className="text-sm text-gray-700">Show Top Selling</span>
-                                </div>
-                        </div>
-                        
-                        {/* Subcategory Filter */}
-                        <h3 className="font-semibold mt-4">Subcategories</h3>
-                        {['Chairs', 'Tables'].map((subcategory) => (
-                            <label key={subcategory} className="block">
+                            <div className="flex items-center space-x-2">
                                 <input
                                     type="checkbox"
-                                    onChange={() => handleFilterChange('subcategory', subcategory)}
-                                    checked={filters.subcategory.includes(subcategory)}
-                                />
-                                {subcategory}
-                            </label>
-                        ))}
-                    </div>
-                    <div className='md:ml-6 w-full'>
-                        <ProductHeader header={"PC Furniture"} />
-                        <div className="m-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {products.map((product) => (
-                                <ProductCard key={product.id} product={product} />
-                            ))}
+                                    checked={filters.isTopSelling}
+                                    onChange={() => setFilters(prev => ({ ...prev, isTopSelling: !prev.isTopSelling }))}
+                                    className="form-checkbox" />
+                                <span className="text-sm text-gray-700">Show Top Selling</span>
+                            </div>
                         </div>
+
+                        {/* Subcategory Filter */}
+                        <div className="border-b border-gray-300 pb-4 mb-4">
+                            <h3 className="text-lg font-medium mb-2">Subcategories</h3>
+                            
+                            <label className="flex items-center mb-2">
+                                <input
+                                    type="checkbox"
+                                    onChange={() => handleFilterChange('subcategories', 'Chairs')}
+                                    checked={filters.subcategories.includes('Chairs')}
+                                    className="mr-2"
+                                />
+                                <span>Chairs</span>
+                            </label>
+                            
+                            <label className="flex items-center">
+                                <input
+                                    type="checkbox"
+                                    onChange={() => handleFilterChange('subcategories', 'Tables')}
+                                    checked={filters.subcategories.includes('Tables')}
+                                    className="mr-2"
+                                />
+                                <span>Tables</span>
+                            </label>
+                        </div>
+
+
+                    </div>
+
+                    <div className='md:ml-6 w-full flex flex-col justify-between'>
+                    <ProductHeader header={"PC Furniture"} />
+                        <div className='w-full px-6 flex items-center justify-end'>
+                            <select 
+                                className="border border-gray-300 p-1 rounded" 
+                                value={sortOrder} 
+                                onChange={handleSortChange}
+                            >
+                                <option value="">Sort By</option>
+                                <option value="Alphabetically, A-Z">Alphabetically, A-Z</option>
+                                <option value="Alphabetically, Z-A">Alphabetically, Z-A</option>
+                                <option value="Price: low to high">Price: low to high</option>
+                                <option value="Price: high to low">Price: high to low</option>
+                                <option value="Date: old to new">Date: old to new</option>
+                                <option value="Date: new to old">Date: new to old</option>
+                            </select>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 p-6">
+                        {finalDisplayedProducts.length === 0 ? (
+                                <div>No products found</div>
+                            ) : (
+                                finalDisplayedProducts.map(product => (
+                                    <ProductCard key={product._id} product={product} />
+                                ))
+                            )}
+                        </div>
+                        <div className="flex justify-between mt-8  p-6">
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, Math.ceil(sortedProducts.length / productsPerPage)))}
+                                    disabled={currentPage >= Math.ceil(sortedProducts.length / productsPerPage)}
+                                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-300"
+                                >
+                                    Next
+                                </button>
+                            </div>
                     </div>
                 </div>
             </div>

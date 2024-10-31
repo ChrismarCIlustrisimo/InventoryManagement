@@ -3,19 +3,21 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import axios from 'axios';
-import ProductCard from './ProductCard'; // Import the ProductCard component
-import { ToastContainer } from 'react-toastify';
+import ProductCard from './ProductCard'; 
+import { ToastContainer, toast } from 'react-toastify'; // Import toast here
+import { useProductContext } from '../page';
 
 const ViewProducts = () => {
     const [query, setQuery] = useState('');
     const [relatedProducts, setRelatedProducts] = useState([]);
+    const [quantity, setQuantity] = useState(1);
     const baseURL = "http://localhost:5555";
+
+    const { addToCart } = useProductContext();
 
     const handleQueryChange = (newQuery) => {
         setQuery(newQuery);
     };
-
-    console.log("handle" , relatedProducts)
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -34,7 +36,6 @@ const ViewProducts = () => {
 
     const categoryDisplayName = categoryMap[categoryPath] || "Category";
 
-    // Fetch related products based on sub_category
     useEffect(() => {
         const fetchRelatedProducts = async () => {
             if (product && product.sub_category) {
@@ -42,7 +43,7 @@ const ViewProducts = () => {
                     const response = await axios.get(`${baseURL}/product`);
                     const filteredProducts = response.data.data.filter(
                         (item) => item.sub_category === product.sub_category && item.product_id !== product.product_id
-                    ).slice(0, 5); // Get only 5 products
+                    ).slice(0, 5);
                     setRelatedProducts(filteredProducts);
                 } catch (error) {
                     console.error('Error fetching related products:', error.message);
@@ -67,8 +68,13 @@ const ViewProducts = () => {
         );
     }
 
-    // Parse the description string into an array
     const descriptions = JSON.parse(product.description);
+
+    const handleAddToCart = () => {
+        addToCart({ ...product, quantity }); // Include the specified quantity
+        toast.success(`${product.name} added to cart!`); // Display success toast
+    };
+    
 
     return (
         <>
@@ -83,7 +89,6 @@ const ViewProducts = () => {
                 theme="light"
             />
             <div className="container mx-auto mt-40 p-4">
-                {/* Breadcrumb Navigation */}
                 <nav className="mb-8 text-black">
                     <Link to="/" className="hover:underline">Home</Link> &gt; 
                     <Link to={`/iRIG/${categoryPath}`} className="hover:underline"> {categoryDisplayName}</Link> &gt; 
@@ -91,7 +96,6 @@ const ViewProducts = () => {
                 </nav>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Left column for the image */}
                     <div className="flex justify-center">
                         <img
                             src={`${baseURL}/${product.image}`}
@@ -100,7 +104,6 @@ const ViewProducts = () => {
                         />
                     </div>
 
-                    {/* Right column for the product details */}
                     <div className="flex flex-col justify-between space-y-4">
                         <div className='text-black text-xl flex flex-col gap-8'>
                             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
@@ -113,23 +116,22 @@ const ViewProducts = () => {
                             </div>
                         </div>
 
-                        {/* Stock, Quantity, and Add to Cart */}
                         <div className="space-y-8">
                             <p className="text-lg font-medium text-green-600">Stock: {product.current_stock_status}</p>
                             <div className="flex items-center space-x-4">
                                 <div>
                                     <label className="text-gray-700 mr-4">Quantity</label>
-                                    <select className="w-20 text-center border text-gray-700 border-gray-300 rounded-md px-2 py-1">
-                                        {[1, 2, 3, 4].map((qty) => (
-                                            <option key={qty} value={qty}>{qty}</option>
-                                        ))}
-                                    </select>
+                                    <input
+                                        type="number"
+                                        value={quantity}
+                                        onChange={(e) => setQuantity(Number(e.target.value))}
+                                        min="1" // Ensure the minimum value is 1
+                                        className="w-20 text-center border text-gray-700 border-gray-300 rounded-md px-2 py-1"
+                                    />
                                 </div>
                             </div>
                             <button
-                                onClick={() => {
-                                    // Handle adding product to cart
-                                }}
+                                onClick={handleAddToCart}
                                 className="bg-light-primary hover:brightness-90 font-semibold px-12 py-2 rounded-md"
                             >
                                 Add to Cart
@@ -138,7 +140,6 @@ const ViewProducts = () => {
                     </div>
                 </div>
 
-                {/* Additional product description below the two columns */}
                 <div className="mt-8 text-black">
                     <h2 className="text-lg font-semibold mb-2">Description</h2>
                     <ul className="list-none pl-0">
@@ -148,18 +149,16 @@ const ViewProducts = () => {
                     </ul>
                 </div>
 
-                {/* You May Also Like Section */}
                 <div className="mt-12">
                     <h2 className="text-4xl font-semibold mb-4 text-black w-full text-center py-6 bg-gray-100">You May Also Like</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
                         {relatedProducts.map((relatedProduct) => (
-                            <ProductCard key={relatedProduct._id} product={relatedProduct} /> // Use _id here
+                            <ProductCard key={relatedProduct._id} product={relatedProduct} />
                         ))}
                     </div>
                 </div>
             </div>
 
-            {/* Footer */}
             <Footer />
         </>
     );

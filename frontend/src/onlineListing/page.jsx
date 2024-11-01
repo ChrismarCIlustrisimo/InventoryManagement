@@ -21,38 +21,40 @@ const ProductProvider = ({ children }) => {
             );
     
             if (existingProductIndex > -1) {
-                // If product exists, increase its quantity by the specified amount
                 const updatedCart = [...prevCart];
-                updatedCart[existingProductIndex].quantity += product.quantity; // Use the quantity from the product
+                updatedCart[existingProductIndex].quantity += product.quantity; // Increase by the passed quantity
                 return updatedCart;
             } else {
-                // If not, add the product with the specified quantity
-                return [...prevCart, { ...product, quantity: product.quantity }];
+                return [...prevCart, { ...product, quantity: product.quantity }]; // Add new product with its quantity
             }
         });
     };
     
+    
+    
 
     const increaseQuantity = (index) => {
-      setCart((prevCart) => {
-          const updatedCart = [...prevCart]; // Create a new array from the previous state
-          if (updatedCart[index]) {
-              updatedCart[index].quantity += 1; // Increase quantity by 1 if the item exists
-          }
-          return updatedCart; // Return the updated cart
-      });
-  };
-  
-    const decreaseQuantity = (index) => {
         setCart((prevCart) => {
             const updatedCart = [...prevCart];
-            if (updatedCart[index].quantity > 1) {
-                updatedCart[index].quantity -= 1;
+            if (updatedCart[index]) {
+                updatedCart[index].quantity += 1; // Increase quantity by 1
             }
             return updatedCart;
         });
     };
-
+    
+    const decreaseQuantity = (index) => {
+        setCart((prevCart) => {
+            const updatedCart = [...prevCart];
+            if (updatedCart[index] && updatedCart[index].quantity > 1) {
+                updatedCart[index].quantity -= 1; // Decrease quantity by 1 if more than 1
+            }
+            return updatedCart;
+        });
+    };
+    
+    
+    
     const removeItem = (index) => {
       console.log("Removing item at index:", index); 
       setCart((prevCart) => prevCart.filter((_, i) => i !== index));

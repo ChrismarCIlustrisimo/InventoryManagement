@@ -16,7 +16,7 @@ const ProductCard = ({ product }) => {
     };
 
     const handleAddToCart = () => {
-        addToCart(product);
+        addToCart({ ...product, quantity: 1 }); // or whatever quantity you want to start with
         toast.success(`${product.name} added to cart!`); // Display success toast
     };
 

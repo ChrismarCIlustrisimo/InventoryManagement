@@ -23,12 +23,19 @@ const Navbar = ({ query, onQueryChange }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isCategoryPopupOpen, setIsCategoryPopupOpen] = useState(false);
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-    const { cart, increaseQuantity, decreaseQuantity, removeItem } = useProductContext();
+    const { cart, increaseQuantity, decreaseQuantity, removeItem, setCart } = useProductContext(); // Make sure to include setCart
 
     const toggleMenu = () => setIsMenuOpen(prev => !prev);
     const toggleCart = () => setIsCartOpen(prev => !prev);
     const toggleCategoryPopup = () => setIsCategoryPopupOpen(prev => !prev);
+
+    const handleCheckoutOpen = () => {
+        setIsCheckoutOpen(true);
+        setIsCartOpen(false); // Close the cart when opening checkout
+    };
+
 
     return (
         <header className="text-black fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
@@ -81,7 +88,6 @@ const Navbar = ({ query, onQueryChange }) => {
                     </div>
                     <Link to={"/iRIG/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Our Store</Link>
                     <Link to={"/iRIG/contact-us"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
-                    <Link to={"/iRIG/add-product"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Add Product</Link> {/* New Add Product link */}
                 </div>
             </nav>
             <CartPopup
@@ -91,6 +97,7 @@ const Navbar = ({ query, onQueryChange }) => {
                 onIncreaseQuantity={increaseQuantity}
                 onDecreaseQuantity={decreaseQuantity}
                 onRemoveItem={removeItem}
+                setCart={setCart}
             />
         </header>
     );

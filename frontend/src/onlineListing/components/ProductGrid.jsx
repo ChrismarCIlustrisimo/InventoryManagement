@@ -58,9 +58,9 @@ const CategoryCard = ({ category }) => {
   return (
     <div style={{ backgroundColor: category.backgroundColor }} className="border border-gray-200 rounded-lg p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">{category.title}</h2>
-        <a href={category.viewAllLink} className="text-blue-700 font-medium">View All</a>
-      </div>
+        <h2 className="text-2xl font-semibold text-white">{category.title}</h2>
+          <a href={category.viewAllLink} className="text-white font-medium hover:underline">View All</a>
+        </div>
       <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
         {category.products.map((product, index) => (
           <ProductCard key={index} product={product} />

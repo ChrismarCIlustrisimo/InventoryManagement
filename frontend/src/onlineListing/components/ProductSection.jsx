@@ -17,8 +17,8 @@ const ProductSection = ({ title, products, onPrev, onNext }) => {
           theme="light"
         />
       <div className='flex justify-between items-center p-4'>
-        <p className='text-lg text-dark-ACCENT font-medium'>{title}</p>
-        <p className='text-lg cursor-pointer hover:underline active:text-white transition duration-200'>View All</p>
+        <p className='text-2xl text-dark-ACCENT font-semibold'>{title}</p>
+        {/*<p className='text-lg cursor-pointer hover:underline active:text-white transition duration-200'>View All</p>*/}
       </div>
       <div className='flex items-center justify-between gap-2 max-h-full'>
         <button onClick={onPrev} className='bg-transparent text-black rounded-lg border border-gray-300 hover:bg-gray-100 transition duration-200 flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10'>

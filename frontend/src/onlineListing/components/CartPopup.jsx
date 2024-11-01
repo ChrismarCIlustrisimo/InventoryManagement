@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
-import 'react-toastify/dist/ReactToastify.css'; // Import the toast styles
+import { ToastContainer, toast } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css'; 
+import CheckoutModal from './CheckoutModal';
+
 
 const CartPopup = ({
     isOpen,
@@ -10,9 +12,12 @@ const CartPopup = ({
     onIncreaseQuantity,
     onDecreaseQuantity,
     onRemoveItem,
+    setCart,
 }) => {
     const navigate = useNavigate();
     const baseURL = "http://localhost:5555";
+    const [ isCheckoutModalOpen, setIsCheckoutModalOpen ] = useState(false);
+
 
     if (!isOpen) return null;
 
@@ -25,21 +30,16 @@ const CartPopup = ({
 
     const handleQuantityChange = (index, value) => {
         const newQuantity = Math.max(1, parseInt(value) || 1);
-        // Update quantity in context
-        if (newQuantity > cartItems[index].quantity) {
-            for (let i = cartItems[index].quantity; i < newQuantity; i++) {
-                onIncreaseQuantity(index);
-            }
-        } else {
-            for (let i = cartItems[index].quantity; i > newQuantity; i--) {
-                onDecreaseQuantity(index);
-            }
-        }
+        // Update the quantity directly in the cart context
+        setCart(prevCart => {
+            const updatedCart = [...prevCart];
+            updatedCart[index].quantity = newQuantity; // Set the new quantity
+            return updatedCart;
+        });
     };
 
     const handleRemoveItem = (index) => {
         onRemoveItem(index);
-        // Show toast notification
         toast.success(`${cartItems[index].name} has been removed from your cart!`);
     };
 
@@ -89,14 +89,32 @@ const CartPopup = ({
                     )}
                     <div className="mt-4 flex justify-start items-center gap-4">
                         <button onClick={handleViewCart} className="px-4 py-2 bg-blue-500 text-white rounded">View Cart</button>
-                        <button onClick={onClose} className={`px-4 py-2 ${cartItems.length > 0 ? 'bg-orange-500' : 'bg-gray-500'} text-white rounded`}>
+                        <button
+                            onClick={() => {
+                                if (cartItems.length > 0) {
+                                    setIsCheckoutModalOpen(true); // Open the checkout modal
+                                } else {
+                                    onClose(); // Close the cart popup if there are no items
+                                }
+                            }}
+                            className={`px-4 py-2 ${cartItems.length > 0 ? 'bg-orange-500' : 'bg-gray-500'} text-white rounded`}
+                        >
                             {cartItems.length > 0 ? 'Checkout' : 'Close'}
                         </button>
                     </div>
                 </div>
             </div>
+    
+            {isCheckoutModalOpen && (
+                <CheckoutModal
+                    isOpen={isCheckoutModalOpen}
+                    onRequestClose={() => setIsCheckoutModalOpen(false)}
+                    items={cartItems}
+                />
+            )}
         </>
     );
+    
 };
 
 export default CartPopup;

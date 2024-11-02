@@ -146,4 +146,22 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+router.get('/check/:transactionId', async (req, res) => {
+  const { transactionId } = req.params;
+  
+  try {
+    const matchingRefunds = await Refund.find({ transaction_id: transactionId });
+    const refundData = matchingRefunds.map(refund => ({
+      refund_id: refund.refund_id,
+      ...refund.toObject() // Include other relevant fields if needed
+    }));
+
+    res.json({ transactionId, refundData });
+  } catch (error) {
+    console.error('Error fetching refunds:', error);
+    res.status(500).json({ message: 'Error fetching refunds', error });
+  }
+});
+
+
 export default router;

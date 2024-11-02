@@ -4,7 +4,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
 import CheckoutModal from './CheckoutModal';
 
-
 const CartPopup = ({
     isOpen,
     onClose,
@@ -16,8 +15,7 @@ const CartPopup = ({
 }) => {
     const navigate = useNavigate();
     const baseURL = "http://localhost:5555";
-    const [ isCheckoutModalOpen, setIsCheckoutModalOpen ] = useState(false);
-
+    const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
     if (!isOpen) return null;
 
@@ -28,16 +26,6 @@ const CartPopup = ({
         onClose();
     };
 
-    const handleQuantityChange = (index, value) => {
-        const newQuantity = Math.max(1, parseInt(value) || 1);
-        // Update the quantity directly in the cart context
-        setCart(prevCart => {
-            const updatedCart = [...prevCart];
-            updatedCart[index].quantity = newQuantity; // Set the new quantity
-            return updatedCart;
-        });
-    };
-
     const handleRemoveItem = (index) => {
         onRemoveItem(index);
         toast.success(`${cartItems[index].name} has been removed from your cart!`);
@@ -46,14 +34,14 @@ const CartPopup = ({
     return (
         <>
             <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={onClose}></div>
-            <div className="absolute md:right-20 mt-16 w-[450px] bg-white border rounded-md shadow-lg z-50">
+            <div className="absolute md:right-20 mt-16 md:w-[550px] bg-white border rounded-md shadow-lg z-50">
                 <div className="p-4 w-full">
                     {cartItems.length === 0 ? (
                         <div className="w-full h-[80%] flex items-center justify-center">
                             <p>Your cart is empty.</p>
                         </div>
                     ) : (
-                        <ul className="max-h-[200px] overflow-y-auto">
+                        <ul className="md:max-h-[200px] h-[50vh] overflow-y-auto">
                             {cartItems.map((item, index) => (
                                 <li key={index} className="flex items-center py-4 border-b">
                                     <img
@@ -67,16 +55,29 @@ const CartPopup = ({
                                             ₱{(item.selling_price * item.quantity).toFixed(2)}
                                         </p>
                                     </div>
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <input
-                                            type="number"
-                                            value={item.quantity || 1}
-                                            min="1"
-                                            className="border border-gray-300 w-12 text-center"
-                                            onChange={(e) => handleQuantityChange(index, e.target.value)}
-                                        />
-                                        <button className="text-red-500 text-sm" onClick={() => handleRemoveItem(index)}>Remove</button>
-                                    </div>
+                                    <td className="border-b p-4 text-center">
+                                        <div className="flex items-center justify-center gap-2 border-2 border-gray-200 px-2">
+                                            <button 
+                                                className="p-1" 
+                                                onClick={() => onDecreaseQuantity(index)} 
+                                            >
+                                                -
+                                            </button>
+                                            <span className="px-1 text-black">{item.quantity || 1}</span>
+                                            <button 
+                                                className="p-1" 
+                                                onClick={() => onIncreaseQuantity(index)} 
+                                            >
+                                                +
+                                            </button>
+                                        </div>
+                                        <button 
+                                            className="text-red-500" 
+                                            onClick={() => handleRemoveItem(index)}
+                                        >
+                                            Remove
+                                        </button>
+                                    </td>
                                 </li>
                             ))}
                         </ul>
@@ -104,7 +105,7 @@ const CartPopup = ({
                     </div>
                 </div>
             </div>
-    
+
             {isCheckoutModalOpen && (
                 <CheckoutModal
                     isOpen={isCheckoutModalOpen}
@@ -114,7 +115,6 @@ const CartPopup = ({
             )}
         </>
     );
-    
 };
 
 export default CartPopup;

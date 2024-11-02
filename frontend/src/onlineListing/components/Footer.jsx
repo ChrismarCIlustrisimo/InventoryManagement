@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaFacebook } from "react-icons/fa";
+import LOGO from '../assets/iRig2.png'
 
 
 
@@ -8,22 +9,25 @@ import { FaFacebook } from "react-icons/fa";
 const Footer = () => {
       return (
             <footer className="bg-[#F1F5F9] py-8 text-black">
-                  <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+                  <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
 
 
-                        <div className="flex flex-col items-center md:items-start justify-center md:order-1 md:flex-1">
-                              <div className="text-center md:text-left">
-                                    <p>23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p>
-                                    <p>Tel. No: (02) 83646039</p>
-                                    <p>CP. No: 0923-444-1030</p>
-                                    <p>irigcomputers@gmail.com</p>
-                              </div>
+                  <div className="flex flex-col gap-12 md:gap-24 items-center md:flex-row md:items-start justify-center md:order-1 md:flex-1">
+                        <img src={LOGO} alt="Logo" />
+
+                        <div className="text-center md:text-left">
+                              <p>23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p>
+                              <p>Tel. No: (02) 83646039</p>
+                              <p>CP. No: 0923-444-1030</p>
+                              <p>irigcomputers@gmail.com</p>
                         </div>
+                  </div>
 
 
 
-                        <div className="flex flex-col items-center justify-center md:order-2 md:flex-1">
-                              <h2 className="font-bold text-lg text-center">Customer Service</h2>
+
+                        <div className="flex flex-col md:items-end items-center justify-center md:order-2 md:flex-1">
+                              <h2 className="font-bold text-lg text-end">Customer Service</h2>
                               <ul className="space-y-1 mt-2 text-left">
                                     <li>
                                           <Link to={"/iRIG/return-policy/"} className="text-blue-500 hover:underline">

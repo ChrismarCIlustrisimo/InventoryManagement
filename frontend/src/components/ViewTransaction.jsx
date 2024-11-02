@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { RiRefundLine } from "react-icons/ri";
 import { BsArrowRepeat } from "react-icons/bs";
 import { IoCaretBackOutline } from "react-icons/io5";
+import axios from 'axios';
 
 const ViewTransaction = ({ transaction, onClose }) => {
   const { darkMode } = useAdminTheme();
@@ -22,9 +23,59 @@ const ViewTransaction = ({ transaction, onClose }) => {
 
   // Extract product and status from the transaction
   const product = transaction.product || {};
-  const status = product.item_status; // Now extracting status from the product
+
+  const getStatusStyles = (status) => {
+    switch (status) {
+      case 'Completed':
+        return {
+          textClass: 'text-[#14AE5C]',
+          bgClass: 'bg-[#CFF7D3]', 
+        };
+      case 'Refunded':
+        return {
+          textClass: 'text-[#EC221F]',
+          bgClass: 'bg-[#FEE9E7]',
+        };
+        case 'RMA':
+          return {
+            textClass: 'text-[#BF6A02]',
+            bgClass: 'bg-[#FFF1C2]',
+          };
+          case 'Replaced':
+            return {
+              textClass: 'text-[#007BFF]',
+              bgClass: 'bg-[#C2D7FF]',
+            };
+      default:
+        return {
+          textClass: 'text-[#8E8E93]',
+          bgClass: 'bg-[#E5E5EA]',
+        };
+    }
+  };
+
+  const statusStyles = getStatusStyles(transaction.status);
 
 
+  const baseURL = "http://localhost:5555";
+  const [refundData, setRefundData] = useState([]);
+  const [rmaData, setRMAData] = useState([]);
+
+  useEffect(() => {
+      const fetchRefundAndRMA = async () => {
+          try {
+              const refundResponse = await axios.get(`${baseURL}/refund/check/${transaction.transaction_id}`);
+              setRefundData(refundResponse.data.refundData);
+
+              const rmaResponse = await axios.get(`${baseURL}/rma/check/${transaction.transaction_id}`);
+              setRMAData(rmaResponse.data.rmaData);
+          } catch (error) {
+              console.error('Error fetching refund or RMA data:', error);
+          }
+      };
+
+      fetchRefundAndRMA();
+  }, [transaction.transaction_id]);
 
   return (
     <>
@@ -37,8 +88,14 @@ const ViewTransaction = ({ transaction, onClose }) => {
             <div className='w-full flex flex-col gap-3 px-10'>
               <h2 className="text-3xl font-bold py-2 ">Transaction ID: {transaction.transaction_id}</h2>
               <div className={`text-md w-full flex items-center justify-between`}>
-                <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>STATUS</div>
-                <div className="text-green-500 font-semibold w-[50%]"><span className='bg-[#CFF7D3] p-2 rounded-md'>{status || 'N/A' }</span></div>
+                <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                  STATUS
+                </div>
+                <div className={`font-semibold w-[50%] ${statusStyles.textClass}`}>
+                  <span className={`${statusStyles.bgClass} p-2 rounded-md`}>
+                    {transaction.status || 'N/A'}
+                  </span>
+                </div>
               </div>
               <div className="text-md w-full flex items-center justify-between">
                 <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>SALE DATE</div>
@@ -84,29 +141,30 @@ const ViewTransaction = ({ transaction, onClose }) => {
               <h3 className="text-xl font-bold py-4">Payment Information</h3>
               <div className="text-md w-full flex items-center justify-between">
                 <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>PAYMENT METHOD</div>
-                <div className='font-semibold w-[50%]'>s</div>
+                <div className='font-semibold w-[50%]'>{transaction.payment_method}</div>
               </div>
 
               <h3 className="text-xl font-bold py-4">Refund/RMA Information</h3>
               <div className="text-md w-full flex items-center justify-between">
                 <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>REFUND STATUS</div>
-                <div className='font-semibold w-[50%]'>Not Requested</div>
+                <div className='font-semibold w-[50%]'>
+                {refundData?.length > 0 ? (
+                  `${refundData.map(refund => refund.refund_id).join(', ')}`
+                ) : (
+                  'Not Requested'
+                )}
+                </div>
               </div>
               <div className="text-md w-full flex items-center justify-between">
                 <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>RMA STATUS</div>
-                <div className='font-semibold w-[50%]'>Not Requested</div>
+                <div className='font-semibold w-[50%]'>
+                {rmaData?.length > 0 ? (
+                    `${rmaData.map(rma => rma.rma_id).join(', ')}`
+                  ) : (
+                    'Not Requested'
+                  )}
+                </div>
               </div>
-            </div>
-
-            <div className="mt-4 w-full flex items-center justify-between gap-2 text-xl py-4 px-10">
-              <button className="bg-blue-500 text-white px-4 py-4 rounded w-[50%] flex items-center justify-center gap-2">
-                <RiRefundLine size={20}/>
-                <p>Refund</p>
-              </button>
-              <button className="bg-blue-500 text-white px-4 py-4 rounded w-[50%] flex items-center justify-center gap-2">
-                <BsArrowRepeat size={20}/>
-                <p>RMA</p>  
-              </button>
             </div>
           </div>
         </div>

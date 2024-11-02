@@ -36,10 +36,9 @@ const Navbar = ({ query, onQueryChange }) => {
         setIsCartOpen(false); // Close the cart when opening checkout
     };
 
-
     return (
         <header className="text-black fixed left-0 right-0 top-0 flex flex-col items-center bg-light-primary z-50">
-            <div className="md:w-[80%] w-full flex items-center justify-around py-2 md:py-4 md:gap-2 gap-12">
+            <div className="md:w-[60%] w-full flex items-center justify-around py-2 md:py-4 md:gap-2 gap-12">
                 <div className='flex gap-2 h-full items-center justify-center'>
                     <GiHamburgerMenu className="text-5xl cursor-pointer md:hidden text-white" onClick={toggleMenu} />
                     <img src={iRig1} alt="Website Logo" className="h-8 w-auto max-w-[150px] sm:max-w-[100px] md:max-w-full md:h-12" />
@@ -48,7 +47,7 @@ const Navbar = ({ query, onQueryChange }) => {
                     query={query}
                     onQueryChange={onQueryChange}
                     placeholderMessage="Search..."
-                    className="w-[90%] md:w-[600px] hidden md:block"
+                    className="hidden md:block w-[90%] md:w-[600px]" // Hides the search bar on mobile
                 />
                 <div className="flex gap-2 items-center text-white text-xl font-medium">
                     <Badge
@@ -60,20 +59,20 @@ const Navbar = ({ query, onQueryChange }) => {
                             }
                         }}
                     >
-                        <MdOutlineShoppingCart className="text-2xl cursor-pointer" onClick={toggleCart} />
+                        <MdOutlineShoppingCart className="md:text-2xl text-3xl cursor-pointer" onClick={toggleCart} />
                     </Badge>
                     <p className="hidden md:block cursor-pointer" onClick={toggleCart}>Cart</p>
                 </div>
             </div>
             <nav className={`bg-white w-full py-2 flex justify-center shadow-lg ${isMenuOpen ? 'block' : 'hidden'} md:block`}>
-                <div className="flex flex-col md:flex-row justify-center gap-24 items-center w-full">
+                <div className="flex flex-col md:flex-row justify-center md:gap-24 items-start w-full px-4 md:px-0">
                     <Link to={"/iRIG/"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Home</Link>
                     <div className="relative">
                         <button className="text-dark-TEXT hover:text-gray-400 transition py-2" onClick={toggleCategoryPopup}>
                             Products <FaAngleDown className='ml-2 inline' />
                         </button>
                         {isCategoryPopupOpen && (
-                            <div className="absolute z-50 bg-white shadow-md rounded-md mt-2 p-2 w-64">
+                            <div className="md:absolute block z-50 md:bg-white md:shadow-md bg-gray-100 rounded-md mt-2 p-2 md:w-64 w-full ">
                                 {categories.map((category) => (
                                     <Link
                                         key={category.name}

@@ -70,14 +70,14 @@ const Ecommerce = () => {
                 theme="light"
             />
 
-            <div className='md:mt-[130px] w-full bg-gray-200 flex items-center justify-center flex-col'>
+            <div className='md:mt-[130px] mt-[50px] w-full bg-gray-200 flex items-center justify-center flex-col'>
                 <div className='w-full flex items-center justify-center bg-[#201F1D] mt-2'>
                     <img src={IRIGImage} alt="IRIG" />
                 </div>
 
                 <ProductGrid />
 
-                <main className='w-full max-w-[1200px] flex flex-col items-center p-4 h-auto'>
+                <main className='w-full max-w-[1200px] flex flex-col items-center md:p-4 h-auto'>
                     <ProductSection
                         title="Latest Products"
                         products={displayedLatestProducts}

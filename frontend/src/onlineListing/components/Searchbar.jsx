@@ -38,8 +38,8 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
     };
 
     return (
-        <div className="relative w-[40%] md:w-[600px] bg-white text-light-primary flex flex-col">
-            <div className="flex items-center px-4 rounded-md border-2 text-light-TEXT">
+        <div className="relative w-[40%] md:w-[600px] bg-white rounded-xl md:block hidden">
+            <div className="flex items-center px-4 border-2 text-light-TEXT rounded-xl">
                 <input
                     type="text"
                     placeholder={placeholderMessage}
@@ -48,13 +48,13 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
                     onChange={handleChange}
                 />
                 {query ? (
-                    <IoMdClose className="text-light-ACCENT cursor-pointer" onClick={handleClear} />
+                    <IoMdClose className="text-light-primary cursor-pointer" onClick={handleClear} />
                 ) : (
-                    <FaSearch className="text-light-ACCENT cursor-pointer" />
+                    <FaSearch className="text-light-primary cursor-pointer" />
                 )}
             </div>
             {products.length > 0 && (
-                <ul className="absolute z-10 top-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                <ul className="absolute z-10 top-10 mt-2 w-full bg-white border border-gray-300 rounded-xl shadow-lg">
                     {products.slice(0, 7).map((product) => ( // Limit the display to 7 products
                         <li
                             key={product._id}
@@ -68,7 +68,7 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
                                     className="w-10 h-10 mr-2 object-cover" // Add classes for sizing and spacing
                                 />
                             )}
-                            <span>{product.name}</span> {/* Display product name */}
+                            <span className='text-light-TEXT'>{product.name}</span> {/* Display product name */}
                         </li>
                     ))}
                 </ul>

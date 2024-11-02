@@ -1,26 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify'; // Import toast
 import { useProductContext } from '../page';
 
 const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
     const navigate = useNavigate();
     const baseURL = "http://localhost:5555";
-    const { cart ,setCart } = useProductContext(); // Get cart and setCart from context
-
+    const { cart, setCart } = useProductContext(); // Get cart and setCart from context
 
     if (!isOpen) return null;
 
-{/*    items.forEach(item => {
-        console.log(item.quantity);
-        item.units.forEach(unit => {
-          console.log(unit);
-        });
-      }); */}
-      
-      console.log("CARTSSS",items);
-
-      
     // State variable for customer details
     const [customer, setCustomer] = useState({
         firstName: '',
@@ -38,6 +28,12 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
         const price = Number(item.selling_price) || 0;
         const quantity = Number(item.quantity) || 0;
         return acc + price * quantity;
+    }, 0);
+
+    // Calculate VAT
+    const totalVat = items.reduce((acc, item) => {
+        const price = Number(item.selling_price) || 0;
+        return acc + (price * 0.12); // Calculate VAT for each item
     }, 0);
 
     const handleCustomerChange = (e) => {
@@ -59,13 +55,45 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
     };
 
     const handleConfirmReservation = async () => {
+        // Validate customer information
+        const { firstName, lastName, phone, email, address } = customer;
+
+        if (!firstName.trim()) {
+            toast.warning('Please enter your first name.');
+            return;
+        }
+        if (!lastName.trim()) {
+            toast.warning('Please enter your last name.');
+            return;
+        }
+        if (!address.streetAddress.trim()) {
+            toast.warning('Please enter your street address.');
+            return;
+        }
+        if (!address.city.trim()) {
+            toast.warning('Please enter your city.');
+            return;
+        }
+        if (!address.province.trim()) {
+            toast.warning('Please enter your province.');
+            return;
+        }
+        if (!validatePhoneNumber(phone)) {
+            toast.warning('Please enter a valid phone number (e.g., 09854875843).');
+            return;
+        }
+        if (!validateEmail(email)) {
+            toast.warning('Please enter a valid email address (e.g., chris@gmail.com).');
+            return;
+        }
+
         try {
-            const fullName = `${customer.firstName} ${customer.lastName}`;
-            const fullAddress = `${customer.address.streetAddress}, ${customer.address.city}, ${customer.address.province}`;
+            const fullName = `${firstName} ${lastName}`;
+            const fullAddress = `${address.streetAddress}, ${address.city}, ${address.province}`;
             const customerResponse = await axios.post(`${baseURL}/customer`, {
                 name: fullName,
-                email: customer.email,
-                phone: customer.phone,
+                email: email,
+                phone: phone,
                 address: fullAddress,
             });
 
@@ -78,9 +106,9 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
 
                     return {
                         product: item._id,
-                        quantity: requestedQuantity, // Use the requested quantity of available units
+                        quantity: requestedQuantity,
                         product_name: item.name,
-                        serial_number: availableUnits.slice(0, requestedQuantity).map(unit => unit.serial_number), // Adjusted logic
+                        serial_number: availableUnits.slice(0, requestedQuantity).map(unit => unit.serial_number),
                     };
                 }),
                 customer: customerId,
@@ -90,12 +118,11 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
                 cashier: '',
                 payment_status: 'unpaid',
                 status: 'Reserved',
-                vat: 0,
+                vat: totalVat,
                 discount: 0,
                 payment_method: 'None',
             };
-            
-            // Prepare serial numbers for updating stock
+
             const serialNumbersToUpdate = transactionData.products.flatMap(product => product.serial_number);
             if (!serialNumbersToUpdate.length) throw new Error('No serial numbers available for update.');
 
@@ -103,30 +130,26 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
             const transactionId = transactionResponse.data._id;
             const transaction_Id = transactionResponse.data.transaction_id;
 
-            // Update the stock by serial number
             const updates = items.map(item => {
                 const availableUnits = item.units.filter(unit => unit.status === 'in_stock');
                 const requestedQuantity = Math.min(item.quantity, availableUnits.length);
                 return {
                     updateOne: {
                         filter: { 'units.serial_number': { $in: availableUnits.slice(0, requestedQuantity).map(unit => unit.serial_number) } },
-                        update: { $inc: { sales: requestedQuantity } }, // Update the sales count
+                        update: { $inc: { sales: requestedQuantity } },
                     },
                 };
             });
             await axios.put(`${baseURL}/product/bulk-update`, updates);
 
-            // Clear cart from local storage
-            localStorage.removeItem('cart'); // Remove cart from local storage
-            setCart([]); // Clear the cart in context
-
-            navigate('/Ereceipt', { state: { transaction: transactionData, transactionId, transaction_Id, total } });
+            localStorage.removeItem('cart');
+            setCart([]);
+            navigate('/Ereceipt', { state: { transaction: transactionData, transactionId, transaction_Id, total, totalVat } });
             onRequestClose();
         } catch (error) {
             console.error('Payment error:', error.response ? error.response.data : error.message);
         }
     };
-
 
     return (
         <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -227,21 +250,24 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
 
                 <div className="flex justify-between text-red-500 font-bold text-xl mb-4">
                     <p>Total</p>
-                    <p>₱{total.toLocaleString()}</p>
+                    <p>₱{(total + totalVat).toLocaleString()}</p>
                 </div>
 
-                <button
-                    className="bg-blue-500 text-white w-full py-2 rounded-lg"
-                    onClick={handleConfirmReservation}
-
-                >
-                    Confirm Reservation
-                </button>
-
-                
+                <button className="bg-blue-500 text-white w-full py-2 rounded-lg" onClick={handleConfirmReservation} > Confirm Reservation </button>
             </div>
         </div>
     );
+};
+
+// Validation functions for phone and email
+const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^[0-9]{11}$/; // Adjust regex as needed for phone format
+    return phoneRegex.test(phone);
+};
+
+const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation regex
+    return emailRegex.test(email);
 };
 
 export default CheckoutModal;

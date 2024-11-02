@@ -3,6 +3,8 @@ import React, { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import LOGO from '../assets/iRig2.png'
+
 
 const Erceipt = () => {
   const location = useLocation();
@@ -24,6 +26,13 @@ const Erceipt = () => {
     const date = new Date(dateString);
     return date.toLocaleString('en-US', options);
   };
+
+  const addOneDay = (dateString) => {
+    const date = new Date(dateString);
+    date.setDate(date.getDate() + 1);
+    return date.toISOString().split('T')[0]; // Format the date as 'YYYY-MM-DD'
+};
+
 
   const downloadPDF = () => {
     html2canvas(receiptRef.current, { useCORS: true, scale: 2 }).then((canvas) => {
@@ -53,7 +62,7 @@ const Erceipt = () => {
         }
 
         // Set x position for padding
-        const xPosition = 20; // 200px padding on the left
+        const xPosition = 32; // 200px padding on the left
 
         // Add the image to the PDF
         pdf.addImage(imgData, 'PNG', xPosition, 0, pdfWidth, pdfHeight);
@@ -73,6 +82,9 @@ const Erceipt = () => {
   return (
     <div className="w-full h-full flex flex-col p-4 md:p-8 md:pt-4">
       <div ref={receiptRef} className="max-w-xl w-full mx-auto bg-white p-6 rounded-lg shadow-lg text-gray-800">
+        <div className='w-full flex items-center justify-center py-4'>
+          <img src={LOGO} className="max-w-[120px] w-full h-auto" alt="Logo" />
+        </div>
         <header className="text-center mb-6">
           <h2 className="text-xl font-semibold">Order Number</h2> {/* Increased size */}
           <p className="text-6xl font-bold">{transaction_Id || 'N/A'}</p> {/* Increased size */}
@@ -87,7 +99,7 @@ const Erceipt = () => {
           </div>
           <div className="flex flex-row justify-between mt-2">
             <span className="text-sm">EXPIRY DATE</span>
-            <span className="font-semibold text-base">{formatDate(transaction.transaction_date)}</span> {/* Increased size */}
+            <span className="font-semibold text-base">{formatDate(addOneDay(transaction.transaction_date))}</span>
           </div>
         </section>
 

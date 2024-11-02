@@ -215,4 +215,22 @@ router.patch('/:id/process', async (req, res) => {
   }
 });
 
+router.get('/check/:transactionId', async (req, res) => {
+  const { transactionId } = req.params;
+  
+  try {
+    const matchingRMAs = await RMA.find({ transaction: transactionId });
+    const rmaData = matchingRMAs.map(rma => ({
+      rma_id: rma.rma_id, // Adjust field name as per your schema
+      ...rma.toObject() // Include other relevant fields if needed
+    }));
+
+    res.json({ transactionId, rmaData });
+  } catch (error) {
+    console.error('Error fetching RMAs:', error);
+    res.status(500).json({ message: 'Error fetching RMAs', error });
+  }
+});
+
+
 export default router;

@@ -113,13 +113,6 @@ const DashboardTransaction = () => {
         setLoading(false);
       }
     };
-    
-    
-
-    
-
-    
-
 
  
 
@@ -165,6 +158,16 @@ const DashboardTransaction = () => {
               textClass: 'text-[#EC221F]',
               bgClass: 'bg-[#FEE9E7]',
             };
+            case 'RMA':
+              return {
+                textClass: 'text-[#BF6A02]',
+                bgClass: 'bg-[#FFF1C2]',
+              };
+              case 'Replaced':
+                return {
+                  textClass: 'text-[#007BFF]',
+                  bgClass: 'bg-[#C2D7FF]',
+                };
           default:
             return {
               textClass: 'text-[#8E8E93]',

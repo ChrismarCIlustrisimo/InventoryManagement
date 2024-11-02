@@ -249,7 +249,7 @@ const calculateTotalVAT = () => {
     <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md"
       onClick={handleBackgroundClick}
     >
-      <div className={`p-2 rounded-2xl shadow-md w-[70%] h-[90%] p-6 relative ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container' } flex flex-col`}
+      <div className={`rounded-2xl shadow-md w-[70%] h-[90%] p-6 relative ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container' } flex flex-col`}
         onClick={(e) => e.stopPropagation()}>
 
         <div className='flex gap-2 items-center justify-center w-full h-full'>

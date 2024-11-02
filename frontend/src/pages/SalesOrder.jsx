@@ -262,43 +262,46 @@ const SalesOrder = () => {
             </div>
           ) : (
             <div className='w-[80%] h-[78vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
-              {salesOrder.map((transaction) => (
-                <div
-                  key={transaction._id}
-                  className={`rounded-lg p-4 flex gap-4 cursor-pointer 
-                              ${darkMode ? 'bg-light-container hover:bg-gray-200' : 'bg-dark-container hover:bg-gray-600'}`}
-                  onClick={() => handleTransactionClick(transaction.transaction_id)}
-                >
-                  <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 
-                                  ${darkMode ? 'border-light-activeLink' : 'dark:border-dark-activeLink'}`}>
-                    <h1 className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
-                      {transaction.transaction_id}
-                    </h1>
-                  </div>
-                  <div className='flex justify-between items-center w-[85%]'>
-                    <div className='p-4 w-[70%] flex flex-col gap-1'>
-                      {transaction.products.map((item, idx) => (
-                        <p key={idx} className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>
-                          ({item.quantity}) {item.product.name}
-                        </p>
-                      ))}
+              {salesOrder
+                .sort((a, b) => b.transaction_id.localeCompare(a.transaction_id)) // Sort transactions by transaction_id in descending order
+                .map((transaction) => (
+                  <div
+                    key={transaction._id}
+                    className={`rounded-lg p-4 flex gap-4 cursor-pointer 
+                                ${darkMode ? 'bg-light-container hover:bg-gray-200' : 'bg-dark-container hover:bg-gray-600'}`}
+                    onClick={() => handleTransactionClick(transaction.transaction_id)}
+                  >
+                    <div className={`flex items-center justify-center p-4 w-[15%] border-r-2 
+                                    ${darkMode ? 'border-light-activeLink' : 'dark:border-dark-activeLink'}`}>
+                      <h1 className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
+                        {transaction.transaction_id}
+                      </h1>
                     </div>
-                    <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-border' : 'dark:text-dark-border' }`}>
-                      <div className='flex flex-col gap-1'>
-                        <p className='text-gray-400'>DATE</p>
-                        <p className='text-gray-400'>CUSTOMER</p>
-                        <p className='text-gray-400'>TOTAL AMOUNT</p>
+                    <div className='flex justify-between items-center w-[85%]'>
+                      <div className='p-4 w-[70%] flex flex-col gap-1'>
+                        {transaction.products.map((item, idx) => (
+                          <p key={idx} className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
+                            ({item.quantity}) {item.product.name}
+                          </p>
+                        ))}
                       </div>
-                      <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`} >
-                        <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
-                        <p className='tracking-wider ml-auto'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
-                        <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
+                      <div className={`flex gap-6 w-[50%] justify-between ${darkMode ? 'text-light-border' : 'dark:text-dark-border'}`}>
+                        <div className='flex flex-col gap-1'>
+                          <p className='text-gray-400'>RESERVATION DATE</p>
+                          <p className='text-gray-400'>CUSTOMER</p>
+                          <p className='text-gray-400'>TOTAL AMOUNT</p>
+                        </div>
+                        <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
+                          <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
+                          <p className='tracking-wider ml-auto'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
+                          <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
+
           )}
         </div>
       </div>

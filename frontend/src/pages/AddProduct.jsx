@@ -39,6 +39,8 @@ const AddProduct = () => {
   const [descriptionArray, setDescriptionArray] = useState([]);
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
 
+console.log("DASDASDAS", selectedValue)
+
 
   const categories = [
     {

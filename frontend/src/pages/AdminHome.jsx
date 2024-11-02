@@ -12,7 +12,7 @@ import LineChart from '../charts/LineChart';
 import DateRangeModal from '../components/DateRangeModal';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
+import { useStockAlerts } from '../context/StockAlertsContext';
 
 const AdminHome = () => {
   const { darkMode } = useAdminTheme();
@@ -34,6 +34,7 @@ const AdminHome = () => {
   const [refunds, setRefunds] = useState([]);
   const [currentMonthCount, setCurrentMonthCount] = useState(0); // State for current month count
   const navigate = useNavigate();
+  const { stockAlerts, setStockAlerts } = useStockAlerts();
 
   const fetchRMARequests = async () => {
     try {
@@ -44,8 +45,6 @@ const AdminHome = () => {
     }
   };
   
-  console.log("ASDAS", transactionCount)
-
 
   const fetchRefunds = async () => {
     try {
@@ -284,8 +283,10 @@ const AdminHome = () => {
   };
 
   const handleGoInventory = () => {
+    setStockAlerts((prev) => ({ ...prev, LOW: true }));
     navigate('/inventory/product');
   };
+
   const handleGoRMA = () => {
     navigate('/rma');
   };
@@ -317,17 +318,17 @@ const AdminHome = () => {
             width="w-[25%]"
             onClick={handleGoSales}  // Pass the function here
           />
-        <StatsCard
+          <StatsCard
             title={'Low Stock Alert'}
             value={itemsLowStock}
             changeType={'increase'}
-            bgColor={`${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} // Additional custom styles
+            bgColor={`${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
             percenText={'from last month'}
-            showPercent={false} 
+            showPercent={false}
             warning={true}
             width="w-[22.5%]"
-            onClick={handleGoInventory}
-        />
+            onClick={handleGoInventory} // Calls the function on click
+          />
 
         <StatsCard 
           title={'Refund / Return Rate'}

@@ -305,10 +305,10 @@ const formatDate = (dateString) => {
                   </button>
                 </div>
               </div>
+          </div>
 
-             </div>
        <div className={`h-[78vh] w-[77%] overflow-auto roundead-2xl text-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-       <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+            <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                             <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                                 <tr>
                                     <th className='p-2 text-center'>Refund ID</th>
@@ -323,26 +323,31 @@ const formatDate = (dateString) => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredRefunds.map(refund => (
+                                {filteredRefunds.length > 0 ? (
+                                  filteredRefunds.map(refund => (
                                     <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-                                        <td className='p-2 text-center'>{refund.refund_id}</td>
-                                        <td className='p-2 text-center'>{refund.transaction_id}</td>
-                                        <td className='p-2 text-center'>{formatDate(refund.sales_date)}</td>
-                                        <td className='p-2 text-center'>{refund.cashier}</td>
-                                        <td className='p-2 text-center'>{refund.refund_amount}</td>
-                                        <td className='p-2 text-center'>{refund.refund_method}</td>
-                                        <td className='p-2 text-center'>{shortenString(refund.product_name)}</td>
-                                        <td className='p-2 text-center'>{refund.serial_number}</td>
-                                        <td className='p-2 text-center'>{refund.reason}</td>
+                                      <td className='p-2 text-center'>{refund.refund_id}</td>
+                                      <td className='p-2 text-center'>{refund.transaction_id}</td>
+                                      <td className='p-2 text-center'>{formatDate(refund.sales_date)}</td>
+                                      <td className='p-2 text-center'>{refund.cashier}</td>
+                                      <td className='p-2 text-center'>{refund.refund_amount}</td>
+                                      <td className='p-2 text-center'>{refund.refund_method}</td>
+                                      <td className='p-2 text-center'>{shortenString(refund.product_name)}</td>
+                                      <td className='p-2 text-center'>{refund.serial_number}</td>
+                                      <td className='p-2 text-center'>{refund.reason}</td>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-       </div>
-      </div>
-
-     </div>
-    </div>
+                                  ))
+                                ) : (
+                                  <tr>
+                                    <td colSpan={9} className='p-2 text-center text-4xl h-[500px]'>No refunds available</td>
+                                  </tr>
+                                )}
+                              </tbody>
+                          </table>
+                      </div>
+                   </div>
+               </div>
+           </div>
   )
 }
 

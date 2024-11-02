@@ -15,6 +15,7 @@ import { GrView } from "react-icons/gr";
 import { AiOutlineDelete } from "react-icons/ai";
 import { BiEdit } from "react-icons/bi";
 import ConfirmationDialog from '../components/ConfirmationDialog';
+import { useStockAlerts } from '../context/StockAlertsContext';
 
 const stockColors = {
   "HIGH": "#1e7e34", // Darker Green
@@ -73,11 +74,7 @@ const DashboardProductList = () => {
   const [priceRange, setPriceRange] = useState(''); // State to hold selected price range
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isInputsEmpty = minPrice === '' && maxPrice === '';
-  const [stockAlerts, setStockAlerts] = useState({
-    "LOW": false,
-    "HIGH": false,
-    "OUT OF STOCK": false,
-  });
+  const { stockAlerts, setStockAlerts } = useStockAlerts();
 
 
   const handleStockAlertChange = (e) => {
@@ -267,6 +264,11 @@ const filteredProducts = products
     navigate(`/view-product/${productId}`);
   };
 
+  
+  const handleLowReports = () => {
+    navigate(`/InventoryReport`);
+  };
+
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
       <DashboardNavbar />
@@ -281,7 +283,23 @@ const filteredProducts = products
           </div>
           <div className='w-full flex justify-end gap-2'>
             <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search products by name and product id'}/>
-            <button className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'dark:bg-dark-primary'}`} onClick={handleAddProductClick}> Add Product</button>
+              <button 
+                className={`px-4 py-2 rounded-md font-semibold transform transition-transform duration-200 
+                            ${darkMode ? 'bg-light-primary' : 'dark:bg-dark-primary'} 
+                            hover:scale-105`} 
+                             onClick={handleAddProductClick}>
+                               Add Product
+              </button>
+              {stockAlerts.LOW && (
+                  <button
+                    className={`px-4 py-2 rounded-md flex items-center justify-center gap-2 border transform transition-transform duration-200 
+                                ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary'} 
+                                hover:bg-opacity-10 active:bg-opacity-20 hover:scale-105`}
+                    onClick={handleLowReports}
+                  >
+                    Print Low Stock Reports
+                  </button>
+                )}
           </div>
         </div>
         <div className='flex gap-4'>

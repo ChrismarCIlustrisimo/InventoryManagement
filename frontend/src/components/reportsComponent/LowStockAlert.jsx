@@ -12,14 +12,14 @@ const LowStockAlert = ({ inventoryData }) => {
 
     return (
         <div className='border-b-2 border-black w-full pb-12'>
-            <div className='flex flex-col w-[50%] mt-4'>
+            <div className='flex flex-col w-[70%] mt-4'>
                 <p className='text-2xl font-bold py-2'>Low Stock Alert</p>
                 <table className={`min-w-full table-auto mt-4 text-xs`}>
                     <thead>
                         <tr className='border-b'>
-                            <th className='text-center p-2'>Product ID</th>
-                            <th className='text-center p-2'>Name</th>
-                            <th className='text-center p-2'>In Stock</th>
+                            <th className='text-center p-2' style={{ width: '20%' }}>Product ID</th>
+                            <th className='text-left p-2' style={{ width: '60%' }}>Name</th>
+                            <th className='text-center p-2' style={{ width: '20%' }}>In Stock</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,9 +28,9 @@ const LowStockAlert = ({ inventoryData }) => {
                                 const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
                                 return (
                                     <tr key={product.product_id}>
-                                        <td className='text-center p-2'>{product.product_id}</td>
-                                        <td className='text-center p-2'>{product.name}</td>
-                                        <td className='text-center p-2'>{inStockUnits} {inStockUnits > 1 ? 'units' : 'unit'}</td>
+                                        <td className='text-center p-2' style={{ width: '20%' }}>{product.product_id}</td>
+                                        <td className='text-left p-2' style={{ width: '60%' }}>{product.name}</td>
+                                        <td className='text-center p-2' style={{ width: '20%' }}>{inStockUnits} {inStockUnits > 1 ? 'units' : 'unit'}</td>
                                     </tr>
                                 );
                             })
@@ -41,6 +41,7 @@ const LowStockAlert = ({ inventoryData }) => {
                         )}
                     </tbody>
                 </table>
+
             </div>
         </div>
     );

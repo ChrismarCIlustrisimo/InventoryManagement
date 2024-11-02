@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import DashboardNavbar from '../components/DashboardNavbar';
-import { useAuthContext } from '../hooks/useAuthContext';
 import DateRangeModal from '../components/DateRangeModal'; // Import your modal
 import { HiOutlineRefresh } from "react-icons/hi";
 import InventorySummary from '../components/reportsComponent/InventorySummary';
@@ -15,7 +14,6 @@ import reportLogo from '../assets/reportLogo.png';
 
 
 const InventoryReport = () => {
-  const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
   const componentRef = useRef();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -23,14 +21,8 @@ const InventoryReport = () => {
   const [inventoryData, setInventoryData] = useState([]);
   const [SupplierName, setSupplierName] = useState(''); // Initialize SupplierName state
   const [ProducName, setProducName] = useState(''); // Initialize ProducName state
-  const [stockStatus, setStockStatus] = useState({
-    HIGH: false,
-    LOW: false,
-    'OUT OF STOCK': false,
-  });
 
   const [showMetrics, setShowMetrics] = useState(false); // State for showing total stock metrics
-  const [includeLowStockAlert, setIncludeLowStockAlert] = useState(false); // State for low stock alert checkbox
   const formatDate = (date) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(date).toLocaleDateString('en-US', options);
@@ -105,12 +97,6 @@ useEffect(() => {
   const handleResetFilters = () => {
     setSelectedCategory('');
     setSupplierName('');
-    setProductName('');
-    setStockStatus({
-      HIGH: false,
-      LOW: false,
-      'OUT OF STOCK': false,
-    });
     setShowMetrics(false);
     setIncludeLowStockAlert(false);
   };
@@ -252,15 +238,6 @@ useEffect(() => {
                     <span className='checkmark'></span>
                     <span className={`label-text ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Total Stock Metrics</span>
                   </label>
-                  <label className='custom-checkbox flex items-center'>
-                    <input 
-                      type='checkbox' 
-                      checked={includeLowStockAlert} 
-                      onChange={handleLowStockAlertChange} 
-                    />
-                    <span className='checkmark'></span>
-                    <span className={`label-text ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Low Stock Alert</span>
-                  </label>
                 </div>
               </div>
             </div>
@@ -291,7 +268,7 @@ useEffect(() => {
                     </div>
                   </div>
               <InventorySummary inventoryData={filteredInventoryData}/>
-              {includeLowStockAlert && <LowStockAlert inventoryData={filteredInventoryData} />} {/* Conditional rendering of LowStockAlert */}
+              <LowStockAlert inventoryData={filteredInventoryData} />
               {showMetrics && <LowStockMetrics inventoryData={filteredInventoryData} />} {/* Conditional rendering of LowStockMetrics */}
             </div>
           </div>

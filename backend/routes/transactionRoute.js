@@ -203,7 +203,7 @@ router.post('/online-reservation', async (req, res) => {
             continue;
           }
 
-          productUnit.status = 'sold';
+          productUnit.status = 'reserved';
           processedUnits.push({
             product: productId,
             serial_number: productUnit.serial_number,
@@ -234,7 +234,8 @@ router.post('/online-reservation', async (req, res) => {
     // Generate transaction ID and set due date
     const transaction_id = await generateTransactionId();
     const dueDate = new Date(transaction_date);
-    dueDate.setDate(dueDate.getDate() + 1);
+    dueDate.setHours(dueDate.getHours() + 24);
+    
 
     // Create and save the new transaction
     const newTransaction = new Transaction({
@@ -414,7 +415,16 @@ router.get('/:id', async (req, res) => {
 router.put('/:transactionId', async (req, res) => {
   try {
     const { transactionId } = req.params;
-    const { payment_status, cashier, discount, status, payment_method, total_amount_paid, products } = req.body;
+    const { 
+      payment_status, 
+      cashier, 
+      discount, 
+      status, 
+      payment_method, 
+      total_amount_paid, 
+      products, 
+      transaction_date // Add transaction_date here
+    } = req.body;
 
     // Validate payment_status input
     if (payment_status && !['paid', 'unpaid'].includes(payment_status)) {
@@ -434,6 +444,7 @@ router.put('/:transactionId', async (req, res) => {
     if (status) updateFields.status = status; // Add status
     if (payment_method) updateFields.payment_method = payment_method; // Add payment method
     if (total_amount_paid !== undefined) updateFields.total_amount_paid = total_amount_paid; // Add total amount
+    if (transaction_date) updateFields.transaction_date = transaction_date; // Add transaction_date
 
     // Update transaction
     const updatedTransaction = await Transaction.findOneAndUpdate(
@@ -475,10 +486,11 @@ router.put('/:transactionId', async (req, res) => {
 
 
 
+
 // Update Transaction
 router.put('/:id', async (req, res) => {
   try {
-    const { products, customer, total_amount_paid_paid, source, cashier } = req.body;
+    const { products, customer, total_amount_paid_paid, source, cashier,transaction_date } = req.body;
     const { id } = req.params;
 
     // Validate required fields
@@ -515,7 +527,8 @@ router.put('/:id', async (req, res) => {
       total_price,
       total_amount_paid_paid,
       payment_status,
-      cashier // Update cashier information
+      cashier,
+      transaction_date
     }, { new: true });
 
     if (!transaction) {

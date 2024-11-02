@@ -78,6 +78,18 @@ const handlePayment = () => {
 };
 
 const processPayment = async () => { 
+  if (!paymentMethod) {
+    toast.error('Please select a payment method.'); // Show error message
+    return; // Exit the function early
+  }
+
+  // Check if payment amount is less than total price + VAT
+  const totalAmountDue = transaction.total_price + transaction.vat;
+  if (paymentAmount < totalAmountDue) {
+    toast.error('Invalid payment amount. Please enter a valid amount.'); // Show error message
+    return; // Exit the function early
+  }
+
   try {
     await axios.put(`${baseURL}/transaction/${id}`, {
       payment_status: 'paid', // Set payment status to 'paid'
@@ -86,7 +98,8 @@ const processPayment = async () => {
       status: 'Completed', // Set status to 'Completed'
       payment_method: paymentMethod, // Include payment method
       total_amount_paid: paymentAmount, // Include the amount paid
-      products: transaction.products // Include the products array for updating units
+      products: transaction.products, // Include the products array for updating units
+      transaction_date: new Date().toISOString()
     }, {
       headers: {
         Authorization: `Bearer ${user.token}`, // Include authorization token
@@ -152,8 +165,8 @@ const processPayment = async () => {
                             </div>
                             <div className='flex w-full items-start justify-start  '>
                                     <div className={`w-[15%] flex flex-col gap-2 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                                        <p className='w-full '>ORDER DATE</p>
-                                        <p className='w-full '>SALES DATE</p>
+                                        <p className='w-full '>RESERVATION DATE</p>
+                                        <p className='w-full '>EXPIRATION DATE</p>
                                     </div>
                                     <div className={`w-[30%] flex flex-col gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                         <p className='w-full text-start font-semibold'>{formatDate(transaction.transaction_date)}</p>
@@ -239,7 +252,7 @@ const processPayment = async () => {
 
         {showPaymentSummary && (
             <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md">
-              <div className={`p-2 rounded-2xl shadow-md w-[70%] h-[90%] p-6 relative ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary' } flex flex-col`}>
+              <div className={`rounded-2xl shadow-md w-[70%] h-[90%] p-6 relative ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary' } flex flex-col`}>
                 <div className='flex gap-2 items-center justify-center w-full h-full'>
                   <div className='w-[60%]'>
                     <div className={`flex flex-col w-full h-full px-4 py-4 rounded-2xl gap-12 font-semibold`}>
@@ -247,13 +260,13 @@ const processPayment = async () => {
                         <div className='w-full flex items-center py-2'>
                           <p className='w-[50%]'>Discount</p>
                           <div className='w-[50%]'>
-                            <input
+                          <input
                               type="number"
                               value={discountValue === 0 ? '' : discountValue}
                               onChange={(e) => setDiscountValue(Number(e.target.value))}
                               placeholder="₱ 0"
                               className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
-                            />
+                          />
                           </div>
                         </div>
 
@@ -269,7 +282,7 @@ const processPayment = async () => {
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Total Amount</p>
-                          <p className='w-[50%]'>₱ {(transaction.vat + transaction.total_price - discountValue)}</p>
+                          <p className='w-[50%]'>₱ {((transaction.vat + transaction.total_price))}</p>
                         </div>
                       </div>
 
@@ -318,7 +331,7 @@ const processPayment = async () => {
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Change</p>
                           <p className='w-[50%]'>
-                            {paymentAmount ? (paymentAmount - (transaction.vat + transaction.total_price - discountValue)).toFixed(2) : '₱ 0.00'}
+                            {paymentAmount ? (paymentAmount - ((transaction.vat + transaction.total_price) - discountValue)).toFixed(2) : '₱ 0.00'}
                           </p>
                         </div>
                       </div>

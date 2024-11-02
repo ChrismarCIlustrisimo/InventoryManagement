@@ -20,7 +20,7 @@ const Navbar = () => {
   const { darkMode } = useTheme();
 
   useEffect(() => {
-    if (location.pathname === '/transaction') {
+    if (location.pathname === '/transaction' || location.pathname === `/refund`) {
       setSelected('Transaction');
     } else if (location.pathname === '/cashier') {
       setSelected('New Sales');

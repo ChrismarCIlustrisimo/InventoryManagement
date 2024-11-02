@@ -28,7 +28,7 @@ const ProductSchema = new mongoose.Schema(
       serial_number: { type: String, required: true },
       serial_number_image: { type: String },
       unit_id: { type: String, unique: true }, // Add unit_id field
-      status: { type: String, enum: ['in_stock', 'rma', 'sold', 'refunded', 'replaced'], default: 'in_stock' },
+      status: { type: String, enum: ['in_stock', 'rma', 'sold', 'refunded', 'replaced','reserved'], default: 'in_stock' },
       purchase_date: { type: Date, default: Date.now },
     }],
   },

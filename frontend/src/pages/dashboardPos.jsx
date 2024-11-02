@@ -161,8 +161,8 @@ const DashboardPos = () => {
   const shortenString = (str) => {
     if (typeof str === 'string') {
         const trimmedStr = str.trim();
-        if (trimmedStr.length > 15) {
-            return trimmedStr.slice(0, 15) + '...';
+        if (trimmedStr.length > 10) {
+            return trimmedStr.slice(0, 10) + '...';
         }
         return trimmedStr;
     }
@@ -345,7 +345,7 @@ const DashboardPos = () => {
                     {transaction.products.length > 0
                       ? transaction.products.map((item, idx) => (
                           <div key={idx}>
-                            <p>{item.product.model}</p>
+                            <p>{shortenString(item.product.model)}</p>
                           </div>
                         ))
                       : 'N/A'}
@@ -354,7 +354,7 @@ const DashboardPos = () => {
                       {transaction.products.length > 0 ? (
                         transaction.products.map((item, idx) => (
                           <div key={idx}>
-                            <p>{item.serial_number.length > 0 ? item.serial_number.join(', ') : 'N/A'}</p>
+                            <p>{item.serial_number.length > 0 ? shortenString(item.serial_number.join(', '), 20) : 'N/A'}</p>
                           </div>
                         ))
                       ) : (

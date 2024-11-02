@@ -141,11 +141,11 @@ router.get('/', async (req, res) => {
       const expirationDate = new Date(rma.transaction_date);
 
       // Calculate the expiration date based on warranty unit
-      if (warrantyUnit === 'Year') {
+      if (warrantyUnit === 'Year' || warrantyUnit === 'Years' ) {
         expirationDate.setFullYear(expirationDate.getFullYear() + warrantyNumber);
-      } else if (warrantyUnit === 'Month') {
+      } else if (warrantyUnit === 'Month' || warrantyUnit === 'Months') {
         expirationDate.setMonth(expirationDate.getMonth() + warrantyNumber);
-      } else if (warrantyUnit === 'Day') {
+      } else if (warrantyUnit === 'Day' || warrantyUnit === 'Days') {
         expirationDate.setDate(expirationDate.getDate() + warrantyNumber);
       }
 
@@ -214,23 +214,5 @@ router.patch('/:id/process', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
-router.get('/check/:transactionId', async (req, res) => {
-  const { transactionId } = req.params;
-  
-  try {
-    const matchingRMAs = await RMA.find({ transaction: transactionId });
-    const rmaData = matchingRMAs.map(rma => ({
-      rma_id: rma.rma_id, // Adjust field name as per your schema
-      ...rma.toObject() // Include other relevant fields if needed
-    }));
-
-    res.json({ transactionId, rmaData });
-  } catch (error) {
-    console.error('Error fetching RMAs:', error);
-    res.status(500).json({ message: 'Error fetching RMAs', error });
-  }
-});
-
 
 export default router;

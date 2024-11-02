@@ -56,11 +56,15 @@ import OSAndSoftware from './onlineListing/pages/productPage/OSAndSoftware';
 import PCFurniture from './onlineListing/pages/productPage/PCFurniture';
 import Peripherals from './onlineListing/pages/productPage/Peripherals';
 import ProductProvider from './onlineListing/page.jsx';
+import { StockAlertsProvider } from './context/StockAlertsContext.jsx';
+
+
 const App = () => {
       const { user } = useAuthContext();
 
       return (
             <AppProvider>
+               <StockAlertsProvider>
                   <ProductProvider >
                         <AuthContextProvider>
                               <ThemeProvider>
@@ -126,6 +130,7 @@ const App = () => {
                               </ThemeProvider>
                         </AuthContextProvider>
                   </ProductProvider>
+            </StockAlertsProvider>
             </AppProvider >
       );
 };

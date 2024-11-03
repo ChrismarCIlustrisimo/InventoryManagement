@@ -34,8 +34,6 @@ const PosHome = () => {
   const { darkMode } = useTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const loadingItems = Array.from({ length: 6 });
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isUnitSelectionOpen, setIsUnitSelectionOpen] = useState(false);
   const [categoryCounts, setCategoryCounts] = useState({
     'All Products': 0,
     'Components': 0,
@@ -170,38 +168,60 @@ const PosHome = () => {
   const handleCategoryChange = (category) => setSelectedCategory(category);
 
   const handleAddToCart = (product) => {
-    setSelectedProduct(product);
-    setIsUnitSelectionOpen(true); // Open the unit selection modal
-  };
-
-  const handleSelectUnit = (unit) => {
     setCart(prevCart => {
-      const existingProduct = prevCart.find(item => item.product._id === selectedProduct._id);
-      
-      if (existingProduct) {
-        const updatedCart = prevCart.map(item =>
-          item.product._id === selectedProduct._id
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-                unitIds: [...item.unitIds, unit._id], // Add the selected unit ID
-              }
-            : item
-        );
-        return updatedCart;
-      } else {
-        return [
-          ...prevCart,
-          {
-            product: selectedProduct,
-            quantity: 1,
-            unitIds: [unit._id], // Start with the selected unit ID
-          },
-        ];
-      }
+    // Filter units that are in stock
+    const availableUnits = product.units.filter(unit => unit.status === 'in_stock');
+  
+        // Check if the product is already in the cart
+        const existingProduct = prevCart.find(item => item.product._id === product._id);
+    
+        if (existingProduct) {
+            // Get the current unit IDs in the cart for this product
+            const existingUnitIds = existingProduct.unitIds;
+    
+            // Find the next available in-stock unit that isn't already in the cart
+            const nextAvailableUnit = availableUnits.find(unit => !existingUnitIds.includes(unit._id));
+    
+            if (nextAvailableUnit) {
+                // If there's an available unit, update the cart
+                const updatedCart = prevCart.map(item =>
+                    item.product._id === product._id
+                        ? {
+                            ...item,
+                            quantity: item.quantity + 1,  // Increment quantity
+                            unitIds: [...existingUnitIds, nextAvailableUnit._id] // Add the new unit ID
+                          }
+                        : item
+                );
+    
+                // Log the updated cart
+                console.log('Updated Cart:', updatedCart);
+                return updatedCart;
+            } else {
+                console.warn('No more unique in-stock units available to add.');
+                return prevCart; // or handle as needed
+            }
+        } else {
+            // If it's a new product, add it to the cart
+            const newUnit = availableUnits[0]; // Get the first available unit
+            if (newUnit) {
+                const updatedCart = [...prevCart, {
+                    product,
+                    quantity: 1,  // Start with quantity of 1
+                    unitIds: [newUnit._id]
+                }];
+    
+                // Log the updated cart
+                console.log('New product added to cart:', updatedCart);
+                return updatedCart;
+            } else {
+                console.warn('No in-stock units available for this product.');
+                return prevCart; // or handle as needed
+            }
+        }
     });
-    setIsUnitSelectionOpen(false); // Close the modal after selecting a unit
-  };
+    
+};
 
 
   const handleRemoveFromCart = (productId) => setCart(prevCart => prevCart.filter(item => item.product._id !== productId));
@@ -260,7 +280,7 @@ const PosHome = () => {
           placeholderMessage={'Search product by name and product id'}
         />
         <div className='w-full grid grid-cols-4 gap-3 h-[78vh] overflow-auto'>
-          {loading ? (
+        {loading ? (
             loadingItems.map((_, index) => (
               <ProductLoading key={index} />
             ))
@@ -269,12 +289,19 @@ const PosHome = () => {
               // Filter the units with 'in_stock' status and get the count
               const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
 
+              // Determine the font size based on the length of the product name
+              const nameFontSize = product.name.length > 30 ? '12px' : '16px';
+
               return (
                 <ProductCard
                   key={product._id}
                   product={{
                     image: `${baseURL}/${product.image}`,
-                    name: product.name,
+                    name: (
+                      <span style={{ fontSize: nameFontSize }}>
+                        {product.name}
+                      </span>
+                    ),
                     price: parseFloat(product.selling_price) || 0,
                     stock: inStockUnits, // Number of units in stock
                   }}
@@ -283,6 +310,7 @@ const PosHome = () => {
               );
             })
           )}
+
         </div>
       </div>
 
@@ -338,14 +366,6 @@ const PosHome = () => {
           >
             Proceed to Payment
           </button>
-
-          <UnitSelectionModal
-              isOpen={isUnitSelectionOpen}
-              onClose={() => setIsUnitSelectionOpen(false)}
-              product={selectedProduct}
-              onSelectUnit={handleSelectUnit}
-              image={selectedProduct?.image} // Assuming selectedProduct contains an 'imageUrl' field
-              />
 
           <ProceedToPayment
             isOpen={isModalOpen}

@@ -23,6 +23,7 @@ const SalesOrder = () => {
   const { darkMode } = useTheme(); 
   const [searchQuery, setSearchQuery] = useState('');
   const isInputsEmpty = minPrice === '' && maxPrice === '' ;
+  const [selectedDate, setSelectedDate] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -66,13 +67,15 @@ const SalesOrder = () => {
 
   const handleDateFilter = (e) => {
     const value = e.target.value;
+    setSelectedDate(value); // Update state with the selected value
+
     if (value === 'today') {
       const today = new Date();
       const startOfDay = new Date(today);
-      startOfDay.setHours(0, 0, 0, 0); 
+      startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(today);
-      endOfDay.setDate(endOfDay.getDate() + 1); 
-  
+      endOfDay.setDate(endOfDay.getDate() + 1);
+
       setStartDate(startOfDay);
       setEndDate(endOfDay);
     } else if (value === 'this_week') {
@@ -149,7 +152,16 @@ const SalesOrder = () => {
                 <select
                   id='startDate'
                   onChange={handleDateFilter}
-                  className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary' }`}
+                  value={selectedDate}
+                  className={`border rounded p-2 my-1 outline-none font-semibold ${
+                    selectedDate === ''
+                      ? darkMode
+                        ? 'bg-transparent text-black border-black'
+                        : 'bg-transparent'
+                      : darkMode
+                      ? 'bg-light-activeLink text-light-primary'
+                      : 'bg-transparent text-black'
+                  }`}
                 >
                   <option value=''>Select Option</option>
                   <option value='today'>Today</option>
@@ -225,11 +237,19 @@ const SalesOrder = () => {
 
               <div className='flex flex-col'>
               <label className='text-sm text-gray-500 mb-1 font-semibold'>SORT BY</label>
-                <select
+              <select
                   id='sortBy'
                   value={sortBy}
                   onChange={handleSortByChange}
-                  className={`border rounded p-2 my-1 border-none text-activeLink outline-none font-semibold ${darkMode ? 'bg-light-activeLink text-dark-primary' : 'dark:bg-dark-activeLink light:text-light-primary' }`}
+                  className={`border rounded p-2 my-1 outline-none font-semibold ${
+                    sortBy === ''
+                      ? darkMode
+                        ? 'bg-transparent text-black border-black'
+                        : 'bg-transparent'
+                      : darkMode
+                      ? 'bg-light-activeLink text-dark-primary'
+                      : 'bg-transparent text-black'
+                  }`}
                 >
                   <option value=''>Select Option</option>
                   <option value='price_asc'>Price Lowest to Highest</option>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import '../App.css'
+import '../App.css';
 import axios from 'axios';
 import ReactToPrint from 'react-to-print';
 import { useAuthContext } from '../hooks/useAuthContext';
@@ -13,7 +13,9 @@ import RefundSummary from '../components/reportsComponent/RefundSummary';
 import VATSummary from '../components/reportsComponent/VATSummary';
 import { useTheme } from '../context/ThemeContext';
 import Navbar from '../components/Navbar';
-
+import reportLogo from '../assets/reportLogo.png';
+import { jsPDF } from 'jspdf'; // Import jsPDF
+import html2canvas from 'html2canvas'; // Import html2canvas
 
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
@@ -22,11 +24,49 @@ const CashierSalesReport = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [salesData, setSalesData] = useState([]);
-  const [filteredSalesData, setFilteredSalesData] = useState([]); // New state for filtered data
-  const [salesDataStatus, setSalesDataStatus] = useState({
-    Completed: false,
-    Refunded: false,
-  });
+  const [filteredSalesData, setFilteredSalesData] = useState([]);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [dateFilter, setDateFilter] = useState('');
+
+
+  const formatDate = (date) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(date).toLocaleDateString('en-US', options);
+};
+
+  const handleDateFilterChange = (filter) => {
+    setSelectedDate(filter); // Update the selected date filter
+    if (filter === 'Custom Date') {
+        setIsModalOpen(true); // Open the modal when "Custom Date" is selected
+        return; // Exit the function early
+    }
+
+    const today = new Date();
+    
+    // Existing cases...
+    switch (filter) {
+        case 'Today':
+            setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+            break;
+        case 'This Week':
+            const dayOfWeek = today.getDay();
+            const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
+            setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
+            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+            break;
+        case 'This Month':
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            setStartDate(startOfMonth);
+            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+            break;
+        default:
+            setStartDate(null);
+            setEndDate(null);
+    }
+};
+
 
   const [reportIncluded, setReportIncluded] = useState({
     'Sales by Category': false,
@@ -35,24 +75,12 @@ const CashierSalesReport = () => {
     'VAT Summary': false,
   });
 
-  const handleCategoryChange = (e) => {
-    const value = e.target.value;
-    setSelectedDate(value);
-    if (value === 'Custom Date') {
-      setIsModalOpen(true); // Open the modal if Custom Date is selected
-    }
-  };
 
   const handleSelectedCategoryChange = (e) => {
     setSelectedCategory(e.target.value); // Update the selected category
   };
 
-  const handleCheckboxChange = (status) => {
-    setSalesDataStatus((prevState) => ({
-      ...prevState,
-      [status]: !prevState[status],
-    }));
-  };
+
 
   const handleCheckboxChangeReports = (status) => {
     setReportIncluded((prevState) => ({
@@ -62,10 +90,10 @@ const CashierSalesReport = () => {
   };
 
   const handleConfirmDates = (startDate, endDate) => {
-    console.log('Start Date:', startDate);
-    console.log('End Date:', endDate);
+    setStartDate(startDate);
+    setEndDate(endDate);
     setIsModalOpen(false);
-  };
+};
 
   // Create a ref for the content to be printed
   const componentRef = useRef();
@@ -94,27 +122,33 @@ const CashierSalesReport = () => {
   }, [user]);
 
   useEffect(() => {
-    // Filter sales data whenever salesData or filters change
-    let filteredData = salesData;
+    if (!salesData.length) return;
 
-    // Filter by selected category if specified
+    let filteredData = [...salesData];
+
+    // Filter by selected category
     if (selectedCategory) {
-      filteredData = filteredData.filter(item => item.category === selectedCategory);
+      filteredData = filteredData.filter(item => 
+        item.products.some(product => product.product.category === selectedCategory) // Assuming products have a category field
+      );
+    }
+
+
+    if (startDate && endDate) {
+      filteredData = filteredData.filter(item => {
+          const transactionDate = new Date(item.transaction_date);
+          return transactionDate >= startDate && transactionDate <= endDate;
+      });
     }
 
 
     // Update filtered sales data state
     setFilteredSalesData(filteredData);
-  }, [salesData, selectedCategory, salesDataStatus]);
-
+  }, [salesData, selectedCategory, startDate, endDate]);
 
 
 const handleResetFilters = () => {
-  setSelectedCategory('');
-  setSalesDataStatus({
-    Completed: false,
-    Refunded: false,
-  });
+  setSelectedDate('');
   setReportIncluded({
     'Sales by Category': false,
     'Payment Method': false,
@@ -124,24 +158,90 @@ const handleResetFilters = () => {
   setFilteredSalesData(salesData); // Reset filtered data
 };
 
+
+const handleExportPdf = () => {
+  const input = componentRef.current;
+
+  // Use html2canvas to capture the div as an image
+  html2canvas(input, { scale: 2 }).then((canvas) => {
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'pt', 'a4');
+
+    const imgWidth = pdf.internal.pageSize.getWidth() - 20; // Leave some margin
+    const imgHeight = (canvas.height * imgWidth) / canvas.width; // Calculate height based on width
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+    heightLeft -= pdf.internal.pageSize.getHeight();
+
+    while (heightLeft >= 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= pdf.internal.pageSize.getHeight();
+    }
+
+    pdf.save('sales-report.pdf');
+  });
+};
+
+
   
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
       <Navbar />
       <div className='pt-[70px] px-6 py-4 w-full h-full'>
+      <style>
+          {`
+            @media print {
+              .print-header {
+                  width: 100%;
+                  border-bottom: 2px solid black;
+                  padding: 10px 0;
+                  gap: 20px;
+              }
+
+              .print-header img {
+                  max-width: 80%; /* Adjust as necessary */
+                  height: auto; /* Maintain aspect ratio */
+              }
+
+              .print-header h1 {
+                  font-weight: 600;
+                  font-size: 2.25rem;
+                  visibility: visible;
+              }
+
+              /* Hide other elements if necessary */
+              .other-elements { /* Adjust as needed */
+                  display: none;
+              }
+            }
+
+            @media screen {
+              .print-header {
+                  display: none; /* Hide on screen */
+              }
+            }
+          `}
+        </style>
+
       <div className='flex items-center justify-center  my-2 h-[10%]'>
       <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
             Sales Report
           </h1>
-          <div className='h-full w-[40%] flex items-center justify-end gap-2 '>
-          <ReactToPrint 
-              trigger={() => <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary'}`}>Print Report</button>}
-              content={() => componentRef.current}
-              pageStyle="print"
-              
-            />
-            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-button'}`}>Export as PDF</button>
-          </div>
+          <div className='h-full w-[40%] flex items-center justify-end gap-2'>
+            <ReactToPrint
+                trigger={() => <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary'}`}>Print Report</button>}
+                content={() => componentRef.current}
+                pageStyle="print"
+                
+              /> 
+            
+            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-button'}`} onClick={handleExportPdf}>Export as PDF</button>
+            </div>
         </div>
         <div className='flex gap-4 items-center justify-center'>
         <div className={`h-[78vh] max-h-[84%] w-[22%] rounded-2xl p-4 flex flex-col justify-between overflow-y-auto ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
@@ -149,25 +249,25 @@ const handleResetFilters = () => {
               <div className="flex flex-col gap-4">
                 <div className='flex flex-col'>
                   <label htmlFor='date' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Date</label>
-                  <select
-                    id='date'
-                    value={selectedDate}
-                    onChange={handleCategoryChange}
-                    className={`border rounded p-2 my-1 
-                      ${selectedDate === '' 
-                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                        : (darkMode 
-                          ? 'bg-light-activeLink text-light-primary' 
-                          : 'bg-transparent text-black')} 
-                      outline-none font-semibold`}
+                  <select 
+                      id='date'
+                      value={selectedDate}
+                      onChange={(e) => handleDateFilterChange(e.target.value)}
+                      className={`border rounded p-2 my-1 
+                        ${selectedDate === '' 
+                          ? 'bg-transparent text-black border-black' 
+                          : 'bg-transparent text-black'} 
+                        outline-none font-semibold`}
                   >
-                    <option value=''>Select Date</option>
-                    <option value='Today'>Today</option>
-                    <option value='This Week'>This Week</option>
-                    <option value='This Month'>This Month</option>
-                    <option value='Custom Date'>Custom Date</option>
-                  </select>
+                      <option value=''>Select Date</option>
+                      <option value='Today'>Today</option>
+                      <option value='This Week'>This Week</option>
+                      <option value='This Month'>This Month</option>
+                      <option value='Custom Date'>Custom Date</option>
+                  </select>      
                 </div>
+
+
 
 
                 {/* Category Dropdown */}
@@ -226,8 +326,31 @@ const handleResetFilters = () => {
           
           
           <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl px-4 py-2 flex flex-col ${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
-            <div ref={componentRef}>
-                <>
+            <div ref={componentRef} className="sales-report-content">
+                <div className="print-header flex items-center justify-center flex-col">
+                  <img src={reportLogo} alt="Report Logo" className="report-logo" />
+                  <h1 className="report-title">Sales Report</h1>
+                </div>
+                <div className="print-header flex items-center justify-start">
+                  <div className='w-[50%] flex'>
+                    <div className='w-[30%]  flex flex-col items-start justify-start text-gray-400'>
+                      <p>DATE FILTER</p>
+                      <p>GENERATED ON</p>
+                      <p>GENERATED BY</p>
+                    </div>
+                    <div className='w-[70%]  flex items-start justify-start flex-col '>
+                     <p>
+                        {startDate && endDate 
+                          ? `${formatDate(startDate.toLocaleDateString())} - ${formatDate(endDate.toLocaleDateString())}` 
+                          : 'No Date Filter Applied'}
+                      </p>
+                      <p>{formatDate(new Date().toLocaleString())}</p>
+                      <p>{user.name}</p>
+                    </div>
+                  </div>
+                </div>
+
+
                   <SalesSummary salesData={filteredSalesData} />
                   <div className='flex flex-col gap-4'>
                   <SalesBreakdown salesData={filteredSalesData} />
@@ -236,7 +359,6 @@ const handleResetFilters = () => {
                     {reportIncluded['Refunds Summary'] && (<RefundSummary salesData={filteredSalesData} />)}
                     {reportIncluded['VAT Summary'] && (<VATSummary salesData={filteredSalesData} />)}
                   </div>
-                </>
             </div>
           </div>
         </div>
@@ -244,10 +366,12 @@ const handleResetFilters = () => {
 
       {/* Date Range Modal */}
       <DateRangeModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onConfirm={handleConfirmDates} 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          onConfirm={handleConfirmDates} 
       />
+
+
     </div>
   );
 };

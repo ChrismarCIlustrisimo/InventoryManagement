@@ -196,7 +196,7 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
         },
         beginAtZero: true,
         min: 0,
-        max: 300000,
+        max: 400000,
       },
     },
   };

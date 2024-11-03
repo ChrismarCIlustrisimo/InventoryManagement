@@ -212,7 +212,7 @@ const Peripherals = () => {
                         </div>
 
                         {/* Right Side Products */}
-                        <div className='md:ml-6 w-full  relative flex flex-col justify-between border border-red-800'>
+                        <div className='md:ml-6 w-full  relative flex flex-col justify-between'>
                             <ProductHeader header={"Peripherals"} />
                             <div className='w-full px-6 flex items-center justify-end'>
                                 <div className='flex items-center'>
@@ -246,7 +246,6 @@ const Peripherals = () => {
                                 >
                                     Previous
                                 </button>
-                                <span>{currentPage}</span>
                                 <button
                                     onClick={() => setCurrentPage((prev) => Math.min(prev + 1, Math.ceil(sortedProducts.length / productsPerPage)))}
                                     disabled={currentPage === Math.ceil(sortedProducts.length / productsPerPage)}

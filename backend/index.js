@@ -12,6 +12,9 @@ import Counter from './models/counterModel.js';
 import refundRoute from './routes/refundRoute.js';
 import { mongoDBURL, PORT } from './config.js';
 import cors from 'cors';
+import cron from 'node-cron'; // Import node-cron
+import Transaction from './models/transactionModel.js'; // Adjust the path as necessary
+import Product from './models/productModel.js'; // Adjust the path as necessary
 
 const app = express();
 const server = http.createServer(app);
@@ -51,7 +54,6 @@ app.use('/supplier', SupplierRoute);
 app.use('/rma', RMARoute);
 app.use('/refund', refundRoute);
 
-
 // WebSocket connection
 io.on('connection', (socket) => {
   console.log('A user connected');
@@ -77,6 +79,56 @@ const initializeCounter = async () => {
     console.error('Error initializing counter:', error);
   }
 };
+
+// Function to delete transactions and update product status
+const processOldTransactions = async () => {
+  const now = new Date();
+
+  try {
+    // Find transactions that are 'Reserved' and 'unpaid' and past their due date
+    const transactions = await Transaction.find({
+      status: 'Reserved',
+      payment_status: 'unpaid',
+      due_date: { $lt: now }
+    });
+
+    for (const transaction of transactions) { 
+      // Update each product's status to 'in_stock'
+      await Promise.all(
+        transaction.products.map(async (productItem) => {
+          // Find the product by ID
+          const product = await Product.findById(productItem.product);
+    
+          if (product) {
+            // Update status of each unit associated with this product
+            await Promise.all(
+              product.units.map(async (unit) => {
+                // Here you can choose which units to update
+                await Product.findOneAndUpdate(
+                  { _id: product._id, 'units.unit_id': unit.unit_id },
+                  { $set: { 'units.$.status': 'in_stock' } }
+                );
+              })
+            );
+          }
+        })
+      );
+    
+      // Delete the transaction
+      await Transaction.findByIdAndDelete(transaction._id);
+      console.log(`Deleted transaction ${transaction.transaction_id} and updated associated products.`);
+    }
+    
+  } catch (error) {
+    console.error('Error processing old transactions:', error);
+  }
+};
+
+// Schedule the job to run daily at midnight
+cron.schedule('* * * * *', () => {
+  console.log('Running scheduled job to process old transactions...');
+  processOldTransactions();
+});
 
 // Connect to MongoDB and start the server
 mongoose

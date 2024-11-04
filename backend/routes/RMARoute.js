@@ -2,7 +2,12 @@ import express from 'express';
 import RMA from '../models/RmaModel.js';
 import Product from '../models/productModel.js';
 import Transaction from '../models/transactionModel.js';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+import Customer from '../models/customerModel.js';
 
+// Load environment variables
+dotenv.config();
 const router = express.Router();
 
 // Route to create a new RMA
@@ -90,29 +95,6 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.patch('/:id', async (req, res) => {
-  const { status, notes, process } = req.body; // Include process if needed
-
-  try {
-    const updatedRMA = await RMA.findByIdAndUpdate(
-      req.params.id,
-      { status, notes, process }, // Update status, notes, and process
-      { new: true, runValidators: true }
-    ).populate('transaction product');
-
-    if (updatedRMA) {
-      // Emit event to all clients about the updated RMA
-      const io = req.app.get('io');
-      io.emit('rmaUpdated', updatedRMA);
-
-      return res.status(200).json(updatedRMA);
-    } else {
-      return res.status(404).json({ message: 'RMA not found' });
-    }
-  } catch (error) {
-    return res.status(400).json({ message: error.message });
-  }
-});
 
 
 // Route to get all RMAs
@@ -189,6 +171,87 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Create a Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+      user: process.env.EMAIL_USER, // Email address from .env
+      pass: process.env.EMAIL_PASS,  // Email password from .env
+  },
+});
+
+// Example function to send an email
+const sendEmail = (to, subject, text) => {
+  const mailOptions = {
+      from: process.env.EMAIL_USER, // Sender address
+      to: to,                        // Recipient address
+      subject: subject,              // Subject line
+      text: text,                    // Plain text body
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          return console.log('Error occurred: ' + error.message);
+      }
+      console.log('Email sent: ' + info.response);
+  });
+};
+
+
+
+
+
+router.patch('/:id', async (req, res) => {
+  const { status, notes, process } = req.body; // Include process if needed
+
+  try {
+    const updatedRMA = await RMA.findByIdAndUpdate(
+      req.params.id,
+      { status, notes, process }, // Update status, notes, and process
+      { new: true, runValidators: true }
+    ).populate('transaction product');
+
+    if (updatedRMA) {
+      // Emit event to all clients about the updated RMA
+      const io = req.app.get('io');
+      io.emit('rmaUpdated', updatedRMA);
+
+      // Prepare email content
+      let emailSubject, emailText;
+
+      // Fetch the customer to get their email
+      const customer = await Customer.findById(updatedRMA.customerID);
+      const customerEmail = customer ? customer.email : null;
+
+      if (status === 'Approved') {
+        emailSubject = 'Your RMA has been Approved';
+        emailText = `Your RMA request for ${updatedRMA.product} has been approved for ${process}.`;
+      } else if (status === 'Rejected') {
+        emailSubject = 'Your RMA has been Rejected';
+        emailText = `Your RMA request for ${updatedRMA.product} has been rejected. Notes: ${notes}`;
+      }
+
+      // Validate email before sending
+      const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
+      if (emailSubject && customerEmail && isValidEmail(customerEmail)) {
+        await sendEmail(customerEmail, emailSubject, emailText);
+      } else {
+        console.log('No valid email address found for the recipient.');
+      }
+
+      return res.status(200).json(updatedRMA);
+    } else {
+      return res.status(404).json({ message: 'RMA not found' });
+    }
+  } catch (error) {
+    return res.status(400).json({ message: error.message });
+  }
+});
+
+
 router.patch('/:id/process', async (req, res) => {
   const { process } = req.body;  // Get the process field from request body
 
@@ -214,5 +277,24 @@ router.patch('/:id/process', async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.post('/send-email', (req, res) => {
+  const { to, subject, text } = req.body;
+
+  const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: to,
+      subject: subject,
+      text: text,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          return res.status(500).send('Error occurred: ' + error.message);
+      }
+      res.status(200).send('Email sent: ' + info.response);
+  });
+});
+
 
 export default router;

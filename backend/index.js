@@ -15,6 +15,44 @@ import cors from 'cors';
 import cron from 'node-cron'; // Import node-cron
 import Transaction from './models/transactionModel.js'; // Adjust the path as necessary
 import Product from './models/productModel.js'; // Adjust the path as necessary
+import Customer from './models/customerModel.js';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+// Create a Nodemailer transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+      user: process.env.EMAIL_USER, // Email address from .env
+      pass: process.env.EMAIL_PASS,  // Email password from .env
+  },
+});
+
+
+
+// Example function to send an email
+const sendEmail = (to, subject, text) => {
+  const mailOptions = {
+      from: process.env.EMAIL_USER, // Sender address
+      to: to,                        // Recipient address
+      subject: subject,              // Subject line
+      text: text,                    // Plain text body
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          return console.log('Error occurred: ' + error.message);
+      }
+      console.log('Email sent: ' + info.response);
+  });
+};
+
+
 
 const app = express();
 const server = http.createServer(app);
@@ -80,7 +118,6 @@ const initializeCounter = async () => {
   }
 };
 
-// Function to delete transactions and update product status
 const processOldTransactions = async () => {
   const now = new Date();
 
@@ -92,18 +129,19 @@ const processOldTransactions = async () => {
       due_date: { $lt: now }
     });
 
-    for (const transaction of transactions) { 
+    for (const transaction of transactions) {
+      // Get customer email if available
+      const customer = await Customer.findById(transaction.customer);
+      const customerEmail = customer ? customer.email : 'no-email@example.com'; // Fallback email
+
       // Update each product's status to 'in_stock'
       await Promise.all(
         transaction.products.map(async (productItem) => {
-          // Find the product by ID
           const product = await Product.findById(productItem.product);
-    
+
           if (product) {
-            // Update status of each unit associated with this product
             await Promise.all(
               product.units.map(async (unit) => {
-                // Here you can choose which units to update
                 await Product.findOneAndUpdate(
                   { _id: product._id, 'units.unit_id': unit.unit_id },
                   { $set: { 'units.$.status': 'in_stock' } }
@@ -113,7 +151,10 @@ const processOldTransactions = async () => {
           }
         })
       );
-    
+
+      // Send email notification to customer
+      sendEmail(customerEmail, 'Transaction Expired', `Your reservation with ID ${transaction.transaction_id} has expired and has been removed. Please contact support for more information.`);
+
       // Delete the transaction
       await Transaction.findByIdAndDelete(transaction._id);
       console.log(`Deleted transaction ${transaction.transaction_id} and updated associated products.`);
@@ -123,6 +164,7 @@ const processOldTransactions = async () => {
     console.error('Error processing old transactions:', error);
   }
 };
+
 
 // Schedule the job to run daily at midnight
 cron.schedule('* * * * *', () => {

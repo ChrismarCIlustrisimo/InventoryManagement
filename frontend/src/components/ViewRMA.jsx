@@ -95,6 +95,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
         navigate('/RMAForm', { state: { rma } });
     };
 
+
     const statusStyles = getStatusStyles(rma.status);
     const warrantyStyles = getWarrantyStyles(rma.warranty_status);
 

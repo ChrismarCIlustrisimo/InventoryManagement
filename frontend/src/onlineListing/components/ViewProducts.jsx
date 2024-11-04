@@ -104,23 +104,31 @@ const ViewProducts = () => {
                         />
                     </div>
 
-                    <div className="flex flex-col justify-between space-y-4">
-                        <div className='text-black text-xl flex flex-col gap-8'>
+                    <div className="flex flex-col justify-start space-y-4 ">
+                        <div className='text-black text-xl flex flex-col gap-8 '>
                             <h1 className="text-2xl font-bold mb-2">{product.name}</h1>
                             <hr className='border-b-2 border-gray-600' />
+                        </div>
+
+                        <div className="space-y-6">
                             <div className='flex items-center gap-4'>
-                                <p>Price: </p>
-                                <p className="text-5xl font-semibold text-light-primary">
+                            <label className="text-gray-700 mr-4 font-semibold">Price:</label>
+                            <p className="text-5xl font-semibold text-light-primary">
                                     ₱ {product.selling_price.toLocaleString()}
                                 </p>
                             </div>
-                        </div>
-
-                        <div className="space-y-8">
-                            <p className="text-lg font-medium text-green-600">Stock: {product.current_stock_status}</p>
                             <div className="flex items-center space-x-4">
+                                <p className="text-gray-700 mr-4 font-semibold">Stock: </p>
+                                <p className="text-lg font-medium text-green-600">{product.current_stock_status}</p>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                <p className="text-gray-700 mr-4 font-semibold">Stock: </p>
+                                <p className="text-lg font-medium text-green-600">{product.current_stock_status}</p>
+                            </div>
+                            <div className="flex items-center space-x-4">
+                                
                                 <div>
-                                    <label className="text-gray-700 mr-4">Quantity</label>
+                                    <label className="text-gray-700 mr-4 font-semibold">Quantity:</label>
                                     <input
                                         type="number"
                                         value={quantity}
@@ -143,20 +151,47 @@ const ViewProducts = () => {
                 <div className="mt-8 text-black">
                     <h2 className="text-lg font-semibold mb-2">Description</h2>
                     <ul className="list-none pl-0">
-                        {descriptions.map((desc, index) => (
-                            <li key={index} className="text-sm mb-1">{desc}</li>
-                        ))}
+                    {(() => {
+                            try {
+                            const descriptionArray = JSON.parse(product.description);
+                            return Array.isArray(descriptionArray)
+                                ? descriptionArray.map((item, index) => {
+                                    const parts = item.split(':');
+                                    return (
+                                    <div key={index}>
+                                        {parts.length > 1 ? (
+                                        <>
+                                            <span className='font-semibold text-lg'>{parts[0]}:</span>{' '}
+                                            <span>{parts.slice(1).join(':')}</span>
+                                        </>
+                                        ) : (
+                                        <span>{item}</span>
+                                        )}
+                                        <br />
+                                    </div>
+                                    );
+                                })
+                                : product.description || 'N/A';
+                            } catch (e) {
+                            return product.description || 'N/A';
+                            }
+                        })()}
                     </ul>
                 </div>
 
-                <div className="mt-12">
-                    <h2 className="text-4xl font-semibold mb-4 text-black w-full text-center py-6 bg-gray-100">You May Also Like</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
+                {relatedProducts.length > 0 && (
+                    <div className="mt-12">
+                        <h2 className="text-4xl font-semibold mb-4 text-black w-full text-center py-6 bg-gray-100">
+                        You May Also Like
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6">
                         {relatedProducts.map((relatedProduct) => (
                             <ProductCard key={relatedProduct._id} product={relatedProduct} />
                         ))}
+                        </div>
                     </div>
-                </div>
+                    )}
+
             </div>
 
             <Footer />

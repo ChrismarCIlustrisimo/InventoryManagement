@@ -160,28 +160,27 @@ const ViewProduct = () => {
           <div className={`col-span-1 rounded-lg shadow-md p-6 w-full h-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
             <h2 className="text-xl font-bold mb-4">Basic information</h2>
             <div className='mt-4 text-md p-4 font-medium flex py-4'>
-              <div className={`w-[50%] flex flex-col justify-between h-full gap-6 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+              <div className={`w-[50%] flex flex-col justify-between h-full gap-8 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                 <p>Category</p>
                 <p>Sub-Category</p>
                 <p>Model</p>
                 <p>Warranty</p>
                 <p>Status</p>
-                <p>Note</p>
               </div>
               
-              <div className='w-[50%] flex flex-col justify-between h-full gap-6'>
+              <div className='w-[50%] flex flex-col justify-between h-full gap-8'>
                 <p>{product.category}</p>
                 <p>{product.sub_category || 'N/A'}</p>
                 <p>{product.model || 'N/A'}</p>
                 <p>{product.warranty || 'N/A'}</p>
                 <p style={{ color: stockStatus.color }}>{stockStatus.status}</p> {/* Apply color dynamically */}
-                <p className='h-[80px] overflow-y-auto'>{product.description || 'N/A'}</p>
+
               </div>
             </div>
           </div>
 
           {/* Right Section: Purchase Info and Stock Level */}
-          <div className="col-span-1 space-y-8">
+          <div className="col-span-1 space-y-16">
             {/* Purchase Information */}
             <div className={`rounded-lg shadow-md p-6 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
               <h2 className="text-xl font-bold mb-4">Purchase information</h2>
@@ -194,7 +193,7 @@ const ViewProduct = () => {
                 <div className='w-[60%] flex flex-col justify-between h-full gap-4'>
                   <div className="font-bold">₱ {product.selling_price}</div>
                   <div className="font-bold">₱ {product.buying_price}</div>
-                  <div className="font-bold">{product.supplier}</div>
+                  <div className="font-bold">{product.supplier || 'N/A'}</div>
                 </div>
               </div>
             </div>
@@ -205,15 +204,44 @@ const ViewProduct = () => {
               <div className='mt-4 text-md p-4 font-medium flex py-4 '>
               <div className={`w-[70%] flex flex-col justify-between h-full gap-4  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                   <div className="text-gray-500">LOW STOCK</div>
-                  <div className="text-gray-500">NEAR LOW STOCK</div>
                 </div>
                 <div className='w-[30%] flex flex-col justify-between h-full gap-4 font-bold'>
-                  <div>{product.near_low_stock_threshold}</div>
                   <div>{product.low_stock_threshold}</div>
                 </div>
               </div>
             </div>
           </div>
+        </div>          
+        <div className={`rounded-lg shadow-md p-4 flex flex-col items-center justify-center py-2 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+          <h2 className="text-xl w-full text-left font-bold mb-4">Description</h2>
+          <p className='h-auto overflow-y-auto w-full'>
+             {(() => {
+                try {
+                  const descriptionArray = JSON.parse(product.description);
+                  return Array.isArray(descriptionArray)
+                    ? descriptionArray.map((item, index) => {
+                        const parts = item.split(':');
+                        return (
+                          <div key={index}>
+                            {parts.length > 1 ? (
+                              <>
+                                <span className='font-semibold text-lg'>{parts[0]}:</span>{' '}
+                                <span>{parts.slice(1).join(':')}</span>
+                              </>
+                            ) : (
+                              <span>{item}</span>
+                            )}
+                            <br />
+                          </div>
+                        );
+                      })
+                    : product.description || 'N/A';
+                } catch (e) {
+                  return product.description || 'N/A';
+                }
+              })()}
+            </p>
+
         </div>
       </div>
 

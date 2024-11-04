@@ -23,6 +23,8 @@ const UnitsTable = () => {
   const navigate = useNavigate();
   const baseURL = "http://localhost:5555";
   const { darkMode } = useAdminTheme();
+  const [editStatus, setEditStatus] = useState("");
+
 
   useEffect(() => {
     const fetchUnits = async () => {
@@ -44,11 +46,14 @@ const UnitsTable = () => {
     navigate(num);
   };
 
-  const handleEditClick = (index, serialNumber) => {
-    setIsEditing(true);
-    setEditUnitIndex(index);
-    setEditSerialNumber(serialNumber);
-  };
+const handleEditClick = (index) => { 
+  setEditUnitIndex(index);
+  setEditSerialNumber(units[index].serial_number);
+  setEditStatus(units[index].status); // Set initial status value
+  setIsEditing(true);
+};
+
+
 
   const handleCancelClick = () => {
     setIsEditing(false);
@@ -86,33 +91,44 @@ const UnitsTable = () => {
     setUnitToDelete(null);
   };
 
-  const handleUpdateUnit = async (unitId) => {
+  const handleUpdateUnit = async (unitId) => { 
     setLoading(true);
     const formData = new FormData();
     formData.append("serial_number", editSerialNumber);
+    formData.append("status", editStatus); // Append status to form data
+  
     if (editImageFile) {
       formData.append("serial_number_image", editImageFile);
     }
-
+  
     try {
       const response = await axios.put(`${baseURL}/product/${productId}/unit/${unitId}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
+  
       if (response.status === 200) {
         const updatedUnit = response.data.unit;
         const updatedUnits = units.map((unit) => {
           if (unit._id === updatedUnit._id) {
-            return { ...unit, serial_number: updatedUnit.serial_number, serial_number_image: updatedUnit.serial_number_image };
+            return { 
+              ...unit, 
+              serial_number: updatedUnit.serial_number, 
+              serial_number_image: updatedUnit.serial_number_image,
+              status: updatedUnit.status // Update status in the state
+            };
           }
           return unit;
         });
+  
         setUnits(updatedUnits);
         setIsEditing(false);
         setEditUnitIndex(null);
         setEditSerialNumber("");
         setEditImageFile(null);
+        setEditStatus(""); // Reset status
+  
         toast.success("Unit updated successfully!");
       } else {
         console.error('Error updating unit: Unexpected response code', response.status);
@@ -125,6 +141,7 @@ const UnitsTable = () => {
       setLoading(false);
     }
   };
+  
 
   const handleImageClick = (imageSrc) => {
     setModalImage(imageSrc);
@@ -235,7 +252,23 @@ const UnitsTable = () => {
                     )}
                   </td>
 
-                  <td className="px-4 py-2 text-center">{unit.status}</td>
+                  <td className="px-4 py-2 text-center">
+                  {isEditing && editUnitIndex === index ? (
+                        <select
+                        value={editStatus}
+                        onChange={(e) => setEditStatus(e.target.value)}
+                      >
+                        <option value="">Select Status</option>
+                        <option value="in_stock">In Stock</option>
+                        <option value="sold">Sold</option>
+                        <option value="reserved">Reserved</option>
+                        <option value="rma">RMA</option>
+
+                      </select>
+                    ) : (
+                    unit.status
+                   )}
+                  </td>
 
                   <td className="px-4 py-2  gap-4">
                     {isEditing && editUnitIndex === index ? (

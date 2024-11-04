@@ -154,7 +154,7 @@ const Erceipt = () => {
         <div className="w-[39%] min-md:w-[80%] flex flex-col gap-2">
           <button
             onClick={downloadPDF}
-            className="border border-b py-2lue-500 text-blue-500 bg-transparent w-full py-2 rounded-lg transform transition-transform duration-200 hover:scale-105"
+            className="border border-b  border-blue-500 text-blue-500 bg-transparent w-full py-2 rounded-lg transform transition-transform duration-200 hover:scale-105"
           >
             Download PDF Erceipt
           </button>

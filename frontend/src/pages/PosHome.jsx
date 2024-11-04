@@ -21,6 +21,8 @@ import UnitSelectionModal from "../components/UnitSelectionModal";
 import { FaLaptop } from "react-icons/fa";
 import { FaDesktop } from "react-icons/fa";
 
+
+
 const baseURL = 'http://localhost:5555';
 
 const PosHome = () => {

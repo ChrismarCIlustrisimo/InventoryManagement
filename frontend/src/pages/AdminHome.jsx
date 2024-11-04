@@ -296,6 +296,7 @@ const AdminHome = () => {
       <DashboardNavbar />
       <div className="w-[100vw] h-[170vh] px-6 pt-[100px] flex gap-4 flex-col border border-red-800">
         <div className='w-full h-[20%] max-h-[180px]  flex items-center gap-4'>
+
         <StatsCard
             title={'Monthly Total Sales'}
             value={totalPaidPrice.toLocaleString('en-US', { style: 'currency', currency: 'PHP', minimumFractionDigits: 0, maximumFractionDigits: 0 })} // Format without decimal places

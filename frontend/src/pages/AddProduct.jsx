@@ -39,8 +39,7 @@ const AddProduct = () => {
   const [descriptionArray, setDescriptionArray] = useState([]);
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
 
-console.log("DASDASDAS", selectedValue)
-
+  
 
   const categories = [
     {
@@ -119,16 +118,18 @@ const handleEditClick = (index) => {
 };
 
 
-  const handleSerialNumberImageChange = (index, file) => {
-    const newSerialNumbers = [...serialNumbers];
-    newSerialNumbers[index].image = file; // Store the file in the state
-    setSerialNumbers(newSerialNumbers);
-    
-    // Update the serialNumberImages state
-    const newImages = [...serialNumberImages];
-    newImages[index] = file;
-    setSerialNumberImages(newImages);
-  };
+const handleSerialNumberImageChange = (index, file) => {
+  // Update the serialNumbers state with the image file
+  const newSerialNumbers = [...serialNumbers];
+  newSerialNumbers[index].image = file; // Store the file in the serialNumbers state
+  setSerialNumbers(newSerialNumbers);
+  
+  // Update the serialNumberImages state
+  const newImages = [...serialNumberImages];
+  newImages[index] = file; // Store the file in the serialNumberImages state
+  setSerialNumberImages(newImages);
+};
+
 
 
 
@@ -445,7 +446,8 @@ const handleDescriptionChange = (e) => {
                   <textarea
                     value={description}
                     onChange={handleDescriptionChange}
-                    placeholder="Enter product description. Use a new line to add another item."
+                    placeholder="Enter product description and use this format
+TITLE: Description"
                     className={`w-full flex-grow p-2 border rounded-md resize-none overflow-y-auto ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}
                     style={{ maxHeight: '60%' }}
                   />

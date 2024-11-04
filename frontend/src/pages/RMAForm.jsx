@@ -62,13 +62,34 @@ const RMAForm = () => {
 
                 {/* RMA Details */}
                 <div className="mb-4">
-                    <p><strong>RMA ID:</strong> {rma?.rmaId}</p>
-                    <p><strong>Customer Name:</strong> {rma?.customerName}</p>
-                    <p><strong>Date Initiated:</strong> {rma?.date_initiated}</p>
-                    <p><strong>Product Name:</strong> {rma?.productName}</p>
-                    <p><strong>Serial Number:</strong> {rma?.serialNumber}</p>
-                    <p><strong>Reason for RMA:</strong> {rma?.reason}</p>
-                </div>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '40%' }}>
+        <div style={{ display: 'flex', width: '100%' }}>
+            <p style={{ width: '30%' }}><strong>RMA ID:</strong></p>
+            <p style={{ width: '70%' }}>{rma?.rma_id}</p>
+        </div>
+        <div style={{ display: 'flex', width: '100%' }}>
+            <p style={{ width: '30%' }}><strong>Customer Name:</strong></p>
+            <p style={{ width: '70%' }}>{rma?.customer_name}</p>
+        </div>
+        <div style={{ display: 'flex', width: '100%' }}>
+            <p style={{ width: '30%' }}><strong>Date Initiated:</strong></p>
+            <p style={{ width: '70%' }}>{rma?.date_initiated}</p>
+        </div>
+        <div style={{ display: 'flex', width: '100%' }}>
+            <p style={{ width: '30%' }}><strong>Product Name:</strong></p>
+            <p style={{ width: '70%' }}>{rma?.product}</p>
+        </div>
+        <div style={{ display: 'flex', width: '100%' }}>
+            <p style={{ width: '30%' }}><strong>Serial Number:</strong></p>
+            <p style={{ width: '70%' }}>{rma?.serial_number}</p>
+        </div>
+        <div style={{ display: 'flex', width: '100%' }}>
+            <p style={{ width: '30%' }}><strong>Reason for RMA:</strong></p>
+            <p style={{ width: '70%' }}>{rma?.reason}</p>
+        </div>
+    </div>
+</div>
+
 
                 <div className={`border-b-2 border-gray-300 mb-4 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}></div>
 

@@ -17,9 +17,10 @@ const LowStockAlert = ({ inventoryData }) => {
                 <table className={`min-w-full table-auto mt-4 text-xs`}>
                     <thead>
                         <tr className='border-b'>
-                            <th className='text-center p-2' style={{ width: '20%' }}>Product ID</th>
                             <th className='text-left p-2' style={{ width: '60%' }}>Name</th>
-                            <th className='text-center p-2' style={{ width: '20%' }}>In Stock</th>
+                            <th className='text-center p-2' style={{ width: '20%' }}>Current Stock</th>
+                            <th className='text-center p-2' style={{ width: '20%' }}>Status</th>
+
                         </tr>
                     </thead>
                     <tbody>
@@ -28,9 +29,9 @@ const LowStockAlert = ({ inventoryData }) => {
                                 const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
                                 return (
                                     <tr key={product.product_id}>
-                                        <td className='text-center p-2' style={{ width: '20%' }}>{product.product_id}</td>
                                         <td className='text-left p-2' style={{ width: '60%' }}>{product.name}</td>
                                         <td className='text-center p-2' style={{ width: '20%' }}>{inStockUnits} {inStockUnits > 1 ? 'units' : 'unit'}</td>
+                                        <td className='text-center p-2' style={{ width: '20%' }}>{product.current_stock_status}</td>
                                     </tr>
                                 );
                             })

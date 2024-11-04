@@ -6,7 +6,11 @@ import Counter from '../models/counterModel.js';
 import requireAuth from '../middleware/requireAuth.js';
 import RMA from '../models/RmaModel.js';
 const router = express.Router();
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
 
+// Load environment variables
+dotenv.config();
 // requireAuth for all transactions routes
 //router.use(requireAuth)
 
@@ -155,11 +159,43 @@ router.post('/', async (req, res) => {
 
 
 
+
+
+// Create a Nodemailer transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER, // Email address from .env
+        pass: process.env.EMAIL_PASS,  // Email password from .env
+    },
+});
+
+// Example function to send an email
+const sendEmail = (to, subject, text) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER, // Sender address
+        to: to,                        // Recipient address
+        subject: subject,              // Subject line
+        text: text,                    // Plain text body
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log('Error occurred: ' + error.message);
+        }
+        console.log('Email sent: ' + info.response);
+    });
+};
+
+
 router.post('/online-reservation', async (req, res) => {
   try {
     const {
       products,
-      customer,
+      customer: customerId, // This will be the customer ID
       total_price,
       transaction_date,
       total_amount_paid,
@@ -172,7 +208,7 @@ router.post('/online-reservation', async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!products || !customer || !total_price || !transaction_date || payment_status === undefined) {
+    if (!products || !customerId || !total_price || !transaction_date || payment_status === undefined) {
       return res.status(400).json({
         message: 'Products, customer, total_price, transaction_date, and payment_status are required.',
       });
@@ -233,11 +269,8 @@ router.post('/online-reservation', async (req, res) => {
 
     // Generate transaction ID and set due date
     const transaction_id = await generateTransactionId();
-    //const dueDate = new Date(transaction_date);
-    //dueDate.setHours(dueDate.getHours() + 24);
     const dueDate = new Date(transaction_date);
     dueDate.setMinutes(dueDate.getMinutes() + 1); // Set due date to 1 minute later
-
 
     // Create and save the new transaction
     const newTransaction = new Transaction({
@@ -249,7 +282,7 @@ router.post('/online-reservation', async (req, res) => {
         quantity: item.quantity,
         price: item.price,
       })),
-      customer,
+      customer: customerId, // Store the customer ID
       total_price,
       total_amount_paid,
       transaction_date,
@@ -263,13 +296,41 @@ router.post('/online-reservation', async (req, res) => {
     });
 
     const transaction = await newTransaction.save();
-    return res.status(201).json(transaction);
 
+    // Retrieve the customer's email using the customer ID
+    const customer = await Customer.findById(customerId);
+    if (!customer || !customer.email) {
+      console.error("Customer not found or email is missing.");
+      return res.status(404).json({ message: "Customer not found or email is missing." });
+    }
+
+    // Prepare email content
+    const emailText = `
+      Dear ${customer.name},
+      
+      Thank you for your reservation! Here are your transaction details:
+      
+      Transaction ID: ${transaction_id}
+      Total Price: ${total_price}
+      Payment Status: ${payment_status}
+      Transaction Date: ${transaction_date}
+      
+      Products:
+      ${productItems.map(item => `${item.product_name} (Serial: ${item.serial_number.join(', ')}) - Price: ${item.price}`).join('\n')}
+      
+      We appreciate your business!
+    `;
+
+    // Send the confirmation email
+    sendEmail(customer.email, 'Reservation Confirmation', emailText);
+
+    return res.status(201).json(transaction);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: error.message });
   }
 });
+
 
 
 

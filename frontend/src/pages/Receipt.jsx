@@ -149,10 +149,10 @@ const Receipt = () => {
             <table className='w-full text-left mb-6'>
               <thead>
                 <tr className={`${darkMode ? 'bg-dark-header' : 'bg-light-header'}`}>
-                  <th className='p-2 text-left' style={{ width: '40%' }}>Product</th>
-                  <th className='p-2 text-center' style={{ width: '20%' }}>Price</th>
-                  <th className='p-2 text-center' style={{ width: '20%' }}>Quantity</th>
-                  <th className='p-2 text-center' style={{ width: '20%' }}>Amount</th>
+                  <th className='p-2 text-left' style={{ width: '60%' }}>Product</th>
+                  <th className='p-2 text-center' style={{ width: '15%' }}>Price</th>
+                  <th className='p-2 text-center' style={{ width: '10%' }}>Quantity</th>
+                  <th className='p-2 text-center' style={{ width: '15%' }}>Amount</th>
                 </tr>
               </thead>
               <tbody>

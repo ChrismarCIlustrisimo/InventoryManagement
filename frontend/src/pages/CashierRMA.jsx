@@ -160,6 +160,12 @@ const filteredRMA = (rmaData || []).filter(rma => {
                     bgClass: 'bg-[#CFF7D3]',
                 };
                 break;
+                case 'Rejected':
+                    statusStyles = {
+                        textClass: 'text-[#EC221F]',
+                        bgClass: 'bg-[#FEE9E7]',
+                };
+                break;
         }
     
         let warrantyStyles = {
@@ -243,7 +249,7 @@ const filteredRMA = (rmaData || []).filter(rma => {
         <Navbar />
         <div className='pt-[70px] px-6 py-4 w-full h-full'>
             <div className='flex items-center justify-center py-5'>
-            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>RMA Request</h1>
+            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>RMA Requests</h1>
                 <div className='w-full flex justify-end gap-2'>
                     <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search by RMA ID'} />
                 </div>
@@ -406,56 +412,53 @@ const filteredRMA = (rmaData || []).filter(rma => {
                                         <th className='p-2 text-center text-xs'>Serial Number</th>
                                         <th className='p-2 text-center text-xs'>Status</th>
                                         <th className='p-2 text-center text-xs'>Process</th>
-                                        <th className='p-2 text-center text-xs'>Warranty Status</th>
+                                        {/*<th className='p-2 text-center text-xs'>Warranty Status</th>*/}
                                         <th className='p-2 text-center text-xs'>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredRMA.map((rmaRequest, index) => {
-                                        const { statusStyles, warrantyStyles, processStyles } = getStatusStyles(
-                                            rmaRequest.status,
-                                            rmaRequest.warranty_status,
-                                            rmaRequest.process
-                                        );
+                                    {filteredRMA
+                                        .sort((a, b) => (a.status === 'Pending' ? -1 : b.status === 'Pending' ? 1 : 0))
+                                        .map((rmaRequest, index) => {
+                                            const { statusStyles, warrantyStyles, processStyles } = getStatusStyles(
+                                                rmaRequest.status,
+                                                rmaRequest.warranty_status,
+                                                rmaRequest.process
+                                            );
 
-                                        return (
-                                            <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.rma_id}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.transaction}</td>
-                                                <td className='text-center py-4 text-sm'>{formatDate(rmaRequest.date_initiated)}</td>
-                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.customer_name)}</td>
-                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.product)}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.serial_number}</td>
-                                                <td className={`text-center py-4 rounded-md px-2 text-sm`}>
-                                                    <p className={`${statusStyles.textClass} ${statusStyles.bgClass} p-2 rounded-md`}>
-                                                        {rmaRequest.status}
-                                                    </p>
-                                                </td>
-                                                {    console.log(rmaRequest)
-                                                }
-
-
-                                                <td className={`text-center py-4 rounded-md px-2 text-sm`}>
-                                                    <p className={`${processStyles.textClass} ${processStyles.bgClass} p-2 rounded-md`}>
-                                                        {rmaRequest.process}
-                                                    </p>
-                                                </td>
-
-                                                <td className={`text-center py-4 rounded-md px-4 text-sm`}>
-                                                    <p className={`${warrantyStyles.textClass} ${warrantyStyles.bgClass} p-2 rounded-md`}>
-                                                        {rmaRequest.warranty_status}
-                                                    </p>
-                                                </td>
-                                         
-                                                <td className='text-center py-4 text-sm'>
-                                                    <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleViewRMACashier(rmaRequest)}>
-                                                        View
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
+                                            return (
+                                                <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
+                                                    <td className='text-center py-4 text-sm'>{rmaRequest.rma_id}</td>
+                                                    <td className='text-center py-4 text-sm'>{rmaRequest.transaction}</td>
+                                                    <td className='text-center py-4 text-sm'>{formatDate(rmaRequest.date_initiated)}</td>
+                                                    <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.customer_name)}</td>
+                                                    <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.product)}</td>
+                                                    <td className='text-center py-4 text-sm'>{rmaRequest.serial_number}</td>
+                                                    <td className={`text-center py-4 rounded-md px-2 text-sm`}>
+                                                        <p className={`${statusStyles.textClass} ${statusStyles.bgClass} p-2 rounded-md`}>
+                                                            {rmaRequest.status}
+                                                        </p>
+                                                    </td>
+                                                    <td className={`text-center py-4 rounded-md text-sm`}>
+                                                        <p className={`${processStyles.textClass} ${processStyles.bgClass} p-2 rounded-md`}>
+                                                            {rmaRequest.process}
+                                                        </p>
+                                                    </td>
+                                                    <td className={`text-center py-4 rounded-md px-4 text-sm`}>
+                                                        <p className={`${warrantyStyles.textClass} ${warrantyStyles.bgClass} p-2 rounded-md`}>
+                                                            {rmaRequest.warranty_status}
+                                                        </p>
+                                                    </td>
+                                                    <td className='text-center py-4 text-sm'>
+                                                        <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleViewRMACashier(rmaRequest)}>
+                                                            View
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
                                 </tbody>
+
                             </table>
                         ) : (
                             <div className='flex items-center justify-center h-[78vh] text-lg text-center'>

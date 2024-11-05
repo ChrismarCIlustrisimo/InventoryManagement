@@ -180,7 +180,7 @@ useEffect(() => {
                     id='category'
                     value={selectedCategory} // Set the value of the select to the state
                     onChange={handleSelectedCategoryChange} // Use the new handler
-                    className={`border rounded p-2 
+                    className={`border rounded p-2 my-1 
                       ${selectedCategory === '' 
                         ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                         : (darkMode 

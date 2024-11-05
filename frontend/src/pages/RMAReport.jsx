@@ -21,7 +21,7 @@ const RMAReport = () => {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [rmaData, setRmaData] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState('Today'); // Set default to 'Today'
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [selectedReason, setSelectedReason] = useState(''); 
   const [includeReports, setIncludeReports] = useState(false); 
@@ -35,7 +35,7 @@ const RMAReport = () => {
 
   const [rmaStatus, setRmaStatus] = useState({
     Approved: false,
-    'In Progress': false,
+    Pending: false,
     Completed: false,
   });
 
@@ -129,7 +129,7 @@ const RMAReport = () => {
     setIncludeReports(false);
     setRmaStatus({
       Approved: false,
-      'In Progress': false,
+      Pending: false,
       Completed: false,
     });
   };

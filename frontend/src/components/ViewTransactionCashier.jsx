@@ -211,19 +211,19 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                             <div className='w-[40%] h-[120px]'>
                                 <div className='flex justify-between py-2'>
                                     <span>Subtotal</span>
-                                    <span>₱ {transaction.total_price - transaction.vat}</span>
+                                    <span>₱ {(transaction.total_price - transaction.vat).toFixed(2)}</span>
                                 </div>
                                 <div className='flex justify-between py-2'>
                                     <span>VAT (12%)</span>
-                                    <span>₱ {transaction.vat}</span>
+                                    <span>₱ {transaction.vat.toFixed(2)}</span>
                                 </div>
                                 <div className='flex justify-between py-2'>
                                     <span>Discount</span>
-                                    <span>₱ {transaction.discount}</span>
+                                    <span>₱ {transaction.discount.toFixed(2)}</span>
                                 </div>
                                 <div className='flex justify-between border-t-2 border-black text-xl py-4 font-semibold'>
                                     <span>Total</span>
-                                    <span>₱ {transaction.total_price - transaction.discount}</span>
+                                    <span>₱ {(transaction.total_price - transaction.discount).toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>

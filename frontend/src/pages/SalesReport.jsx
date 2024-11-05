@@ -20,14 +20,13 @@ import reportLogo from '../assets/reportLogo.png';
 const SalesReport = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState('This Month'); // Set default to 'Today'
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [salesData, setSalesData] = useState([]);
   const [filteredSalesData, setFilteredSalesData] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [dateFilter, setDateFilter] = useState('');
 
 
   const formatDate = (date) => {
@@ -35,37 +34,41 @@ const SalesReport = () => {
     return new Date(date).toLocaleDateString('en-US', options);
 };
 
-  const handleDateFilterChange = (filter) => {
-    setSelectedDate(filter); // Update the selected date filter
-    if (filter === 'Custom Date') {
-        setIsModalOpen(true); // Open the modal when "Custom Date" is selected
-        return; // Exit the function early
-    }
+const handleDateFilterChange = (filter) => {
+  setSelectedDate(filter); 
+  if (filter === 'Custom Date') {
+      setIsModalOpen(true);
+      return;
+  }
 
-    const today = new Date();
-    
-    // Existing cases...
-    switch (filter) {
-        case 'Today':
-            setStartDate(new Date(today.setHours(0, 0, 0, 0)));
-            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-            break;
-        case 'This Week':
-            const dayOfWeek = today.getDay();
-            const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
-            setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
-            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-            break;
-        case 'This Month':
-            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            setStartDate(startOfMonth);
-            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-            break;
-        default:
-            setStartDate(null);
-            setEndDate(null);
-    }
+  const today = new Date();
+  
+  switch (filter) {
+      case 'Today':
+          setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+      case 'This Week':
+          const dayOfWeek = today.getDay();
+          const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
+          setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+      case 'This Month':
+          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          setStartDate(startOfMonth);
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+      default:
+          setStartDate(null);
+          setEndDate(null);
+  }
 };
+
+  // Set default date filter on mount
+  useEffect(() => {
+    handleDateFilterChange("This Month");
+  }, []);
 
 
   const [reportIncluded, setReportIncluded] = useState({
@@ -255,8 +258,10 @@ const handleExportPdf = () => {
                       onChange={(e) => handleDateFilterChange(e.target.value)}
                       className={`border rounded p-2 my-1 
                         ${selectedDate === '' 
-                          ? 'bg-transparent text-black border-black' 
-                          : 'bg-transparent text-black'} 
+                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                          : (darkMode 
+                            ? 'bg-light-activeLink text-light-primary' 
+                            : 'bg-transparent text-black')} 
                         outline-none font-semibold`}
                   >
                       <option value=''>Select Date</option>

@@ -22,6 +22,7 @@ const SalesOrder = () => {
   const { user } = useAuthContext(); 
   const { darkMode } = useTheme(); 
   const [searchQuery, setSearchQuery] = useState('');
+  const [customerName, setCustomerName] = useState('');
   const isInputsEmpty = minPrice === '' && maxPrice === '' ;
   const [selectedDate, setSelectedDate] = useState('');
 
@@ -29,7 +30,7 @@ const SalesOrder = () => {
     if (user) {
       fetchSalesOrders();
     }
-  }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, user]);
+  }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, customerName, user]);
 
   const fetchSalesOrders = async () => {
     setLoading(true);
@@ -41,8 +42,9 @@ const SalesOrder = () => {
           minPrice,
           maxPrice,
           sortBy,
-          payment_status: 'unpaid',  // This is set to 'unpaid'
-          transaction_id: searchQuery  
+          payment_status: 'unpaid', 
+          transaction_id: searchQuery,
+          customer: customerName
         },
         headers: {
           'Authorization': `Bearer ${user.token}`
@@ -50,7 +52,7 @@ const SalesOrder = () => {
       });
       setSalesOrder(response.data.data); // Ensure this matches the data structure returned from API
     } catch (error) {
-      console.error('Error fetching sales orders:', error);
+      console.error('Error fetching Reservationss:', error);
     } finally {
       setLoading(false);
     }
@@ -64,6 +66,11 @@ const SalesOrder = () => {
     if (!date) return '';
     return new Intl.DateTimeFormat('en-US', { month: 'long', day: '2-digit', year: 'numeric' }).format(new Date(date));
   };
+
+  const handleCustomerNameChange = (e) => {
+    setCustomerName(e.target.value); // Update state with customer name input
+  };
+
 
   const handleDateFilter = (e) => {
     const value = e.target.value;
@@ -135,7 +142,7 @@ const SalesOrder = () => {
       <Navbar />
       <div className='h-full px-6 pt-[70px]'>
         <div className='flex items-center justify-center py-5'>
-          <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>Sales Order</h1>
+          <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>Reservations</h1>
           <div className='w-full flex justify-end'>
             <SearchBar
               query={searchQuery}
@@ -147,6 +154,19 @@ const SalesOrder = () => {
         <div className='flex gap-4'>
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container' }`}>
             <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>
+            <div className='flex flex-col'>
+                <label className='text-sm text-gray-500 mb-1 font-semibold'>Customer Name</label>
+                <input
+                  type='text'
+                  value={customerName}
+                  onChange={handleCustomerNameChange}
+                  className={`border rounded p-2 my-1 ${customerName === '' 
+                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                  outline-none font-semibold`} 
+                  placeholder='Enter Customer Name'
+                />
+              </div>
               <div className='flex flex-col'>
                 <label htmlFor='startDate font-semibold'>Date</label>
                 <select

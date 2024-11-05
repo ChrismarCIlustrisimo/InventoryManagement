@@ -102,17 +102,6 @@ const PrintableReceipt = React.forwardRef(({ transaction, customer, darkMode }, 
                       </div>
                 </div>
             </div>
-
-            <div className='w-full flex items-center justify-start'>
-                <div className='w-full h-[120px] flex flex-col'>
-                    <span className='text-xl font-semibold'>Terms:</span>
-                    <div className='flex flex-col justify-between py-2'>
-                        <div className='flex items-center justify-start gap-4'>
-                            <p>Please keep this receipt for your records. Thank you for your purchase!</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 });

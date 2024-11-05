@@ -16,9 +16,6 @@ const RMAForm = () => {
         navigate(-1); // Navigate back to the previous page
     };
 
-    
-    
-    
     return (
         <div className="w-full h-full px-6 py-2 bg-white shadow-md mt-4">
             <div className={`flex justify-between items-center mb-6 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
@@ -34,7 +31,6 @@ const RMAForm = () => {
                         )}
                         content={() => componentRef.current}
                     />
-                    {/* PDF Download Button */}
                     <PDFDownloadLink
                         document={<RMAPDF rma={rma} />} // Pass the RMA data to your PDF component
                         fileName="rma-form.pdf"
@@ -51,7 +47,6 @@ const RMAForm = () => {
                 <h1 className="text-center text-2xl font-semibold mb-4">Return Merchandise Authorization</h1>
                 <div className={`border-b-2 border-gray-300 mb-4 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}></div>
 
-                {/* Business Information */}
                 <div className="mb-6">
                     <h2 className="font-semibold text-lg">Irig Computer Trading</h2>
                     <p>23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p>
@@ -59,59 +54,52 @@ const RMAForm = () => {
                     <p>CP. No.: 0923-444-1030</p>
                     <p>Email: irigcomputers@gmail.com</p>
                 </div>
-
-                {/* RMA Details */}
+                <div className={`border-b-2 border-gray-300 mb-4 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}></div>
                 <div className="mb-4">
-    <div style={{ display: 'flex', flexDirection: 'column', width: '40%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '40%' }} className="print-container">
         <div style={{ display: 'flex', width: '100%' }}>
-            <p style={{ width: '30%' }}><strong>RMA ID:</strong></p>
-            <p style={{ width: '70%' }}>{rma?.rma_id}</p>
+            <p style={{ width: '30%' }} className="print-title"><strong>RMA ID:</strong></p>
+            <p style={{ width: '70%' }} className="print-value">{rma?.rma_id}</p>
         </div>
         <div style={{ display: 'flex', width: '100%' }}>
-            <p style={{ width: '30%' }}><strong>Customer Name:</strong></p>
-            <p style={{ width: '70%' }}>{rma?.customer_name}</p>
+            <p style={{ width: '30%' }} className="print-title"><strong>Customer Name:</strong></p>
+            <p style={{ width: '70%' }} className="print-value">{rma?.customer_name}</p>
         </div>
         <div style={{ display: 'flex', width: '100%' }}>
-            <p style={{ width: '30%' }}><strong>Date Initiated:</strong></p>
-            <p style={{ width: '70%' }}>{rma?.date_initiated}</p>
+            <p style={{ width: '30%' }} className="print-title"><strong>Date Initiated:</strong></p>
+            <p style={{ width: '70%' }} className="print-value">{rma?.date_initiated}</p>
         </div>
         <div style={{ display: 'flex', width: '100%' }}>
-            <p style={{ width: '30%' }}><strong>Product Name:</strong></p>
-            <p style={{ width: '70%' }}>{rma?.product}</p>
+            <p style={{ width: '30%' }} className="print-title"><strong>Product Name:</strong></p>
+            <p style={{ width: '70%' }} className="print-value">{rma?.product}</p>
         </div>
         <div style={{ display: 'flex', width: '100%' }}>
-            <p style={{ width: '30%' }}><strong>Serial Number:</strong></p>
-            <p style={{ width: '70%' }}>{rma?.serial_number}</p>
+            <p style={{ width: '30%' }} className="print-title"><strong>Serial Number:</strong></p>
+            <p style={{ width: '70%' }} className="print-value">{rma?.serial_number}</p>
         </div>
         <div style={{ display: 'flex', width: '100%' }}>
-            <p style={{ width: '30%' }}><strong>Reason for RMA:</strong></p>
-            <p style={{ width: '70%' }}>{rma?.reason}</p>
+            <p style={{ width: '30%' }} className="print-title"><strong>Reason for RMA:</strong></p>
+            <p style={{ width: '70%' }} className="print-value">{rma?.reason}</p>
         </div>
     </div>
 </div>
-
-
                 <div className={`border-b-2 border-gray-300 mb-4 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}></div>
 
-                {/* Shipping and Instructions */}
                 <div className="mb-4">
-                    <p><strong>Instructions:</strong></p>
-                    <p>Please return the above item for repair or replacement.</p>
+                    <p><strong>Instructions: </strong>Please return the above item for repair or replacement.</p>
                     <p><strong>Preferred Shipping Method:</strong> {rma?.shippingMethod || "Ground Shipping"}</p>
                 </div>
 
                 <div className={`border-b-2 border-gray-300 mb-4 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}></div>
 
-                {/* Warranty Status */}
                 <div className="mb-4">
                     <p><strong>Warranty Status:</strong> {rma?.warrantyStatus || "Under Warranty"}</p>
                 </div>
 
                 <div className={`border-b-2 border-gray-300 mb-4 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}></div>
 
-                {/* Authorized Person */}
                 <div className="flex items-center justify-end py-4">
-                    <div className='w-[15%] flex items-center flex-col justify-center'>
+                    <div className="w-[15%] flex items-center flex-col justify-center">
                         <p className={`border-b-2 w-full text-center font-semibold py-1 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}>Judith Villasin</p>
                         <p className="text-sm italic">Authorized Person</p>
                         <p className="text-sm italic">{new Date().toLocaleDateString()}</p>
@@ -121,24 +109,30 @@ const RMAForm = () => {
 
             {/* Print styles */}
             <style jsx>{`
-                @media print {
-                    .bg-white {
-                        background: white !important;
-                    }
-                    .text-light-textPrimary,
-                    .text-dark-textPrimary {
-                        color: black !important; /* Ensure text is black for print */
-                    }
-                    button {
-                        display: none; /* Hide buttons on print */
-                    }
-                    body{
-                      padding: 60px
-                    }
-                }
-            `}</style>
-
-            
+    @media print {
+        .bg-white {
+            background: white !important;
+        }
+        .text-light-textPrimary,
+        .text-dark-textPrimary {
+            color: black !important; /* Ensure text is black for print */
+        }
+        button {
+            display: none; /* Hide buttons on print */
+        }
+        .print-container {
+            width: 50% !important; /* Set to 50% width */
+            display: inline-block; /* Align two .print-container side by side */
+            vertical-align: top;
+        }
+        .print-conatiner {
+            width: 50%;
+        }
+        .print-value {
+            width: 70%;
+        }
+    }
+`}</style>
         </div>
     );
 };

@@ -269,11 +269,11 @@ router.post('/online-reservation', async (req, res) => {
 
     // Generate transaction ID and set due date
     const transaction_id = await generateTransactionId();
-    const dueDate = new Date(transaction_date);
-    dueDate.setMinutes(dueDate.getMinutes() + 1); // Set due date to 1 minute later
-    
     //const dueDate = new Date(transaction_date);
-    //dueDate.setHours(dueDate.getHours() + 24); // Set due date to 24 hours later
+    //dueDate.setMinutes(dueDate.getMinutes() + 1); // Set due date to 1 minute later
+    
+    const dueDate = new Date(transaction_date);
+    dueDate.setHours(dueDate.getHours() + 24); // Set due date to 24 hours later
     
     // Create and save the new transaction
     const newTransaction = new Transaction({
@@ -359,25 +359,28 @@ router.get('/', async (req, res) => {
       query.transaction_id = { $regex: req.query.transaction_id, $options: 'i' };
     }
 
-    // Filter by cashier name with partial matching
     if (req.query.cashier) {
       query.cashier = { $regex: req.query.cashier, $options: 'i' }; 
     }
 
     // Date filtering
-    if (req.query.startDate && req.query.endDate) {
-      query.transaction_date = {
-        $gte: new Date(req.query.startDate),
-        $lte: new Date(req.query.endDate),
-      };
-    } else if (req.query.startDate) {
-      query.transaction_date = { $gte: new Date(req.query.startDate) };
-    } else if (req.query.endDate) {
-      query.transaction_date = { $lte: new Date(req.query.endDate) };
+    if (req.query.startDate || req.query.endDate) {
+      query.transaction_date = {};
+      if (req.query.startDate) {
+        query.transaction_date.$gte = new Date(req.query.startDate);
+      }
+      if (req.query.endDate) {
+        query.transaction_date.$lte = new Date(req.query.endDate);
+      }
     }
 
-    // Log the incoming request query
-    console.log('Request Query:', req.query);
+    // Price filtering
+    if (req.query.minPrice) {
+      query.total_amount_paid = { ...query.total_amount_paid, $gte: Number(req.query.minPrice) };
+    }
+    if (req.query.maxPrice) {
+      query.total_amount_paid = { ...query.total_amount_paid, $lte: Number(req.query.maxPrice) };
+    }
 
     // Apply status filters
     if (req.query.statusFilters) {
@@ -385,29 +388,23 @@ router.get('/', async (req, res) => {
       const itemStatusConditions = [];
 
       // Check for each status and add it to the conditions if checked
-      if (statusFilters.Completed) {
-        itemStatusConditions.push({ status: 'Completed' });
-      }
-      if (statusFilters.Refunded) {
-        itemStatusConditions.push({ status: 'Refunded' });
-      }
-      if (statusFilters.Replaced) {
-        itemStatusConditions.push({ status: 'Replaced' });
-      }
+      if (statusFilters.Completed) itemStatusConditions.push({ status: 'Completed' });
+      if (statusFilters.Refunded) itemStatusConditions.push({ status: 'Refunded' });
+      if (statusFilters.Replaced) itemStatusConditions.push({ status: 'Replaced' });
 
-      // If any statuses were selected, add them to the query
       if (itemStatusConditions.length > 0) {
         query.$or = itemStatusConditions; // Use $or for top-level query
       }
     }
 
-
-
     // Log the constructed query before executing it
     console.log('Constructed Query:', query);
 
     // Sorting
-    let sort = {}; // Define your sorting logic if needed
+    let sort = {};
+    if (req.query.sortBy) {
+      sort[req.query.sortBy] = req.query.sortOrder === 'desc' ? -1 : 1; // Example sorting logic
+    }
 
     // Populate customer while querying
     const transactions = await Transaction.find(query)
@@ -416,15 +413,15 @@ router.get('/', async (req, res) => {
       .sort(sort);
 
     // If a customer name filter is applied, filter the results after population
+    let filteredTransactions = transactions;
     if (req.query.customer) {
       const customerRegex = new RegExp(req.query.customer, 'i'); // Case-insensitive regex
-      const filteredTransactions = transactions.filter(transaction =>
+      filteredTransactions = filteredTransactions.filter(transaction =>
         transaction.customer && customerRegex.test(transaction.customer.name)
       );
-      return res.status(200).json({ count: filteredTransactions.length, data: filteredTransactions });
     }
 
-    return res.status(200).json({ count: transactions.length, data: transactions });
+    return res.status(200).json({ count: filteredTransactions.length, data: filteredTransactions });
 
   } catch (error) {
     console.error(error);
@@ -696,13 +693,6 @@ router.put('/:transactionId/replace-units', async (req, res) => {
       return res.status(500).json({ message: 'Server error while processing replacement.', error: error.message });
   }
 });
-
-
-
-
-
-
-
 
 
 

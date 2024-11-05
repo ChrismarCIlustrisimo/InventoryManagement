@@ -178,8 +178,14 @@ const formatDate = (dateString) => {
                       placeholder='Enter Customer Name'
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className={`border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-textSecondary' : 'dark:border-dark-textSecondary'} w-full p-2`}
-                    />
+                      className={`border rounded p-2 my-1 
+                        ${customerName === '' 
+                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                          : (darkMode 
+                            ? 'bg-light-activeLink text-light-primary' 
+                            : 'bg-transparent text-black')} 
+                        outline-none font-semibold`}
+                      />
                   </div>
                   <div className='flex flex-col gap-2'>
                     <label htmlFor='cashierName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER NAME</label>
@@ -188,8 +194,14 @@ const formatDate = (dateString) => {
                       placeholder='Enter Cashier Name'
                       value={cashierName}
                       onChange={(e) => setCashierName(e.target.value)}
-                      className={`border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-textSecondary' : 'dark:border-dark-textSecondary'} w-full p-2`}
-                    />
+                      className={`border rounded p-2 my-1 
+                        ${cashierName === '' 
+                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                          : (darkMode 
+                            ? 'bg-light-activeLink text-light-primary' 
+                            : 'bg-transparent text-black')} 
+                        outline-none font-semibold`}
+                      />
                   </div>
 
                   <div className='flex flex-col gap-2 py-2'>
@@ -265,7 +277,13 @@ const formatDate = (dateString) => {
 
                     <div className='flex justify-center items-center'>
                       <div className='flex flex-col'>
-                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
+                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 
+                        ${startDate === '' 
+                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                          : (darkMode 
+                            ? 'bg-light-activeLink text-light-primary' 
+                            : 'bg-transparent text-black')} `}
+                            >
                           <DatePicker
                             selected={startDate}
                             onChange={handleStartDateChange}
@@ -279,7 +297,12 @@ const formatDate = (dateString) => {
                       <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                       <div className='flex flex-col'>
-                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
+                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1
+                            ${endDate === '' 
+                          ? (darkMode ? 'bg-transparent text-black border-black' : '') 
+                          : (darkMode 
+                            ? 'bg-light-activeLink text-light-primary' 
+                            : 'bg-transparent text-black')} `}>
                           <DatePicker
                             selected={endDate}
                             onChange={handleEndDateChange}

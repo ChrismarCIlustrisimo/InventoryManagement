@@ -81,6 +81,7 @@ const ProcessReplacement = ({ onClose, rma }) => {
                 setShowReceipt(true); // Show the receipt
                 console.log('Receipt should now be shown.'); // Add this line
                 toast.success("Units replaced successfully!");
+                navigate(-1)
             }
              else {
                 toast.error(response.data.message || 'Failed to replace units');

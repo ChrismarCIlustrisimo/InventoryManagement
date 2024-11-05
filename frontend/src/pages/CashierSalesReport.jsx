@@ -20,7 +20,7 @@ import html2canvas from 'html2canvas'; // Import html2canvas
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
   const { darkMode } = useTheme();
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState('Today'); // Set default to 'Today'
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [salesData, setSalesData] = useState([]);
@@ -35,37 +35,41 @@ const CashierSalesReport = () => {
     return new Date(date).toLocaleDateString('en-US', options);
 };
 
-  const handleDateFilterChange = (filter) => {
-    setSelectedDate(filter); // Update the selected date filter
-    if (filter === 'Custom Date') {
-        setIsModalOpen(true); // Open the modal when "Custom Date" is selected
-        return; // Exit the function early
-    }
+const handleDateFilterChange = (filter) => {
+  setSelectedDate(filter); 
+  if (filter === 'Custom Date') {
+      setIsModalOpen(true);
+      return;
+  }
 
-    const today = new Date();
-    
-    // Existing cases...
-    switch (filter) {
-        case 'Today':
-            setStartDate(new Date(today.setHours(0, 0, 0, 0)));
-            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-            break;
-        case 'This Week':
-            const dayOfWeek = today.getDay();
-            const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
-            setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
-            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-            break;
-        case 'This Month':
-            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            setStartDate(startOfMonth);
-            setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-            break;
-        default:
-            setStartDate(null);
-            setEndDate(null);
-    }
+  const today = new Date();
+  
+  switch (filter) {
+      case 'Today':
+          setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+      case 'This Week':
+          const dayOfWeek = today.getDay();
+          const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
+          setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+      case 'This Month':
+          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          setStartDate(startOfMonth);
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+      default:
+          setStartDate(null);
+          setEndDate(null);
+  }
 };
+
+  // Set default date filter on mount
+  useEffect(() => {
+    handleDateFilterChange("Today");
+  }, []);
 
 
   const [reportIncluded, setReportIncluded] = useState({
@@ -253,11 +257,10 @@ const handleExportPdf = () => {
                       id='date'
                       value={selectedDate}
                       onChange={(e) => handleDateFilterChange(e.target.value)}
-                      className={`border rounded p-2 my-1 
-                        ${selectedDate === '' 
-                          ? 'bg-transparent text-black border-black' 
-                          : 'bg-transparent text-black'} 
-                        outline-none font-semibold`}
+                      className={`border rounded p-2 my-1 ${selectedDate === '' 
+                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                        : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                      outline-none font-semibold`}
                   >
                       <option value=''>Select Date</option>
                       <option value='Today'>Today</option>
@@ -277,13 +280,10 @@ const handleExportPdf = () => {
                     id='category'
                     value={selectedCategory} // Set the value of the select to the state
                     onChange={handleSelectedCategoryChange} // Use the new handler
-                    className={`border rounded p-2 my-1 
-                      ${selectedCategory === '' 
-                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                        : (darkMode 
-                          ? 'bg-light-activeLink text-light-primary' 
-                          : 'bg-transparent text-black')} 
-                      outline-none font-semibold`}
+                    className={`border rounded p-2 my-1 ${selectedCategory === '' 
+                      ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                      : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                    outline-none font-semibold`}
                   >
                     <option value=''>Select Category</option>
                     <option value='Components'>Components</option>

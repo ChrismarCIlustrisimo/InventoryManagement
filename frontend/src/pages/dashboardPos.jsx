@@ -52,8 +52,8 @@ const DashboardPos = () => {
         params: {
           startDate: startDate ? startDate.toISOString() : undefined,
           endDate: endDate ? endDate.toISOString() : undefined,
-          minPrice,
-          maxPrice,
+          minPrice: minPrice !== '' ? minPrice : undefined, // Check if not empty
+          maxPrice: maxPrice !== '' ? maxPrice : undefined, // Check if not empty
           sortBy,
           payment_status: 'paid',
           transaction_id: searchQuery,
@@ -64,7 +64,7 @@ const DashboardPos = () => {
         },
       });
   
-        const sortedOrders = response.data.data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+      const sortedOrders = response.data.data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
       setSalesOrder(sortedOrders);
     } catch (error) {
       console.error('Error fetching sales orders:', error.message);
@@ -73,10 +73,11 @@ const DashboardPos = () => {
     }
   };
   
+  
+  
   const handleDateFilter = (event) => {
     const value = event.target.value;
-    setDate(value); // This should set the date state
-    setDateFilter(value); // Assuming this is another state or function
+    setDate(value);
 
     const now = new Date();
     switch (value) {
@@ -98,12 +99,18 @@ const DashboardPos = () => {
             setStartDate(startOfMonth);
             setEndDate(endOfMonth);
             break;
+        case '':
+            // Reset the date filter
+            setStartDate(null);
+            setEndDate(null);
+            break;
         default:
             setStartDate(null);
             setEndDate(null);
             break;
     }
 };
+
 
 
   
@@ -120,7 +127,9 @@ const DashboardPos = () => {
     setSortBy('');
     setSearchQuery(''); 
     setCashierName('');
+    setDate(''); // Resetting to an empty string instead of null
 };
+
 
   const handleCashierNameChange = (event) => setCashierName(event.target.value);
 
@@ -153,6 +162,12 @@ const DashboardPos = () => {
           bgClass: 'bg-[#FEE9E7]',      // Red background for Refunded
         };
         break;
+      case 'RMA':
+          statusStyles = {
+            textClass: 'text-[#BF6A02]',  
+            bgClass: 'bg-[#FFF1C2]',      // Red background for Refunded
+          };
+          break;
     }
   
     return statusStyles;
@@ -191,7 +206,7 @@ const DashboardPos = () => {
             <select
                 id='date'
                 onChange={handleDateFilter}
-                value={date}
+                value={date || ''} // Ensure value is always a string
                 className={`border rounded p-2 my-1 ${date === '' 
                   ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                   : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
@@ -202,6 +217,7 @@ const DashboardPos = () => {
                 <option value='this_week'>This Week</option>
                 <option value='this_month'>This Month</option>
             </select>
+
 
           </div>
 
@@ -223,7 +239,7 @@ const DashboardPos = () => {
             <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
             <div className='flex flex-col'>
-            <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+            <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
             <DatePicker
                   selected={endDate}
                   onChange={handleEndDateChange}
@@ -240,7 +256,7 @@ const DashboardPos = () => {
 
           <div className='flex justify-center items-center'>
             <div className='flex flex-col'>
-            <div className={`w-[130px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'dark:border-dark-primary text-dark-primary')}`}>
+            <div className={`w-[130px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary bg-light-activeLink' : 'dark:border-dark-primary text-dark-primary bg-dark-activeLink')}`}>
             <input
                   type='number'
                   id='minPrice'
@@ -386,7 +402,7 @@ const DashboardPos = () => {
 
                           <td className='text-center py-4 text-sm'>
                           <button
-                                className={`px-4 py-2 rounded-md font-semibold text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
+                                className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
                                 onClick={() => handleViewTransaction(transaction)} // Updated this line
                               >
                                 View

@@ -14,7 +14,7 @@ const Ecommerce = () => {
     const [currentIndexTopSellers, setCurrentIndexTopSellers] = useState(0);
     const [latestProducts, setLatestProducts] = useState([]);
     const [topSellers, setTopSellers] = useState([]);
-    const productsPerPage = 5;
+    const [productsPerPage, setProductsPerPage] = useState(5); // Default value for larger screens
 
     const baseURL = "http://localhost:5555";
 
@@ -34,7 +34,17 @@ const Ecommerce = () => {
         updateCurrentIndex(setter, (currentIndex - 1 + Math.ceil(total / productsPerPage)) % Math.ceil(total / productsPerPage));
     };
 
+    // Function to update productsPerPage based on window size
+    const updateProductsPerPage = () => {
+        if (window.innerWidth <= 768) { // Mobile view threshold
+            setProductsPerPage(4); // 4 products per page on mobile
+        } else {
+            setProductsPerPage(5); // 5 products per page on larger screens
+        }
+    };
+
     useEffect(() => {
+        // Fetch products
         const fetchProducts = async () => {
             try {
                 const response = await axios.get(`${baseURL}/product`);
@@ -49,6 +59,17 @@ const Ecommerce = () => {
         };
 
         fetchProducts();
+
+        // Initial check for productsPerPage
+        updateProductsPerPage();
+
+        // Add event listener for window resize
+        window.addEventListener('resize', updateProductsPerPage);
+
+        // Cleanup event listener on component unmount
+        return () => {
+            window.removeEventListener('resize', updateProductsPerPage);
+        };
     }, []);
 
     const startIndexLatest = currentIndexLatest * productsPerPage;

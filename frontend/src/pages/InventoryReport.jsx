@@ -66,6 +66,8 @@ useEffect(() => {
     setIncludeLowStockAlert((prevState) => !prevState); // Toggle low stock alert checkbox
   };
 
+  
+
 
   const handleExportPdf = () => {
     const input = componentRef.current;

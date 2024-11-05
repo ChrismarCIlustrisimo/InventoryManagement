@@ -1,53 +1,71 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAdminTheme } from '../../context/AdminThemeContext';
 
 const InventorySummary = ({ inventoryData }) => {
     const { darkMode } = useAdminTheme();
 
-    // Initialize counters
-    let totalItems = 0;
-    let lowStockItems = 0;
-    let outOfStockItems = 0;
-    let totalReturned = 0;
-    let unitsUnderReview = 0;
-    let replacedUnits = 0;
+    // Calculate the summary based on inventoryData using useMemo
+    const {
+        totalItems,
+        lowStockItems,
+        outOfStockItems,
+        totalReturned,
+        unitsUnderReview,
+        replacedUnits,
+    } = useMemo(() => {
+        let totalItems = 0;
+        let lowStockItems = 0;
+        let outOfStockItems = 0;
+        let totalReturned = 0;
+        let unitsUnderReview = 0;
+        let replacedUnits = 0;
 
-    // Ensure you're using the correct array
-    const products = inventoryData; // Default to an empty array if undefined
+        // Ensure you're using the correct array
+        const products = inventoryData || []; // Default to an empty array if undefined
 
-    // Calculate the summary based on inventoryData
-    products.forEach(product => {
-        const { units } = product;
+        // Calculate the summary based on inventoryData
+        products.forEach(product => {
+            const { units } = product;
 
-        // Increment total items
-        totalItems += units.length;
+            // Increment total items
+            totalItems += units.length;
 
-        // Count low stock items and update other statuses
-        let inStockCount = 0; // To track in stock units
-        units.forEach(unit => {
-            if (unit.status === 'in_stock') {
-                inStockCount++;
-            }
-            if (unit.status === 'refund') {
-                totalReturned++;
-            }
-            if (unit.status === 'rma') {
-                unitsUnderReview++;
-            }
-            if (unit.status === 'replace') {
-                replacedUnits++;
+            // Count low stock items and update other statuses
+            let inStockCount = 0; // To track in stock units
+            units.forEach(unit => {
+                if (unit.status === 'in_stock') {
+                    inStockCount++;
+                }
+                if (unit.status === 'refunded') {
+                    totalReturned++;
+                }
+                if (unit.status === 'rma') {
+                    unitsUnderReview++;
+                }
+                if (unit.status === 'replaced') {
+                    replacedUnits++;
+                }
+            });
+
+            // Assign status based on inStockCount and low stock threshold
+            const lowStockThreshold = product.low_stock_threshold || 0; // Assuming this is part of the product data
+
+            if (inStockCount === 0) {
+                outOfStockItems++;
+            } else if (inStockCount <= lowStockThreshold) {
+                lowStockItems++;
             }
         });
 
-        // Assign status based on inStockCount and low stock threshold
-        const lowStockThreshold = product.low_stock_threshold; // Assuming this is part of the product data
-
-        if (inStockCount === 0) {
-            outOfStockItems++;
-        } else if (inStockCount <= lowStockThreshold) {
-            lowStockItems++;
-        }
-    });
+        return {
+            totalItems,
+            lowStockItems,
+            outOfStockItems,
+            totalReturned,
+            unitsUnderReview,
+            replacedUnits,
+        };
+    }, [inventoryData]);
 
     return (
         <div className={`flex flex-col w-full border-b-2 py-2 pb-6 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}>

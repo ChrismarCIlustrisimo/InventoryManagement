@@ -183,7 +183,7 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
       </div>
       <div className={`w-full h-full flex items-start justify-center border-12   ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
       <div className={`rounded-lg z-10 px-6 w-[70%] h-[92%] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-      <div className='w-full flex items-center justify-between gap-2 py-2 px-6 '>
+      <div className='w-full flex items-center justify-between gap-2 py-2 px-6'>
       <p className='text-2xl text-center font-semibold'>Add New Product</p>
                     <div className='flex items-center justify-center gap-2'>
                         <p htmlFor="quantity">Units:</p>
@@ -208,7 +208,7 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
                         <p className='text-4xl'>Please Input Units Quantity</p>
                     </div>
                 ) : (
-                    <div className='max-h-[520px] overflow-y-auto py-6 px-8 w-[80%]'>
+                    <div className='max-h-[520px] overflow-y-auto py-6 px-8 w-full'>
                         <div className='grid grid-cols-2 gap-4 w-full'>
                             {serialNumbers.map((serial, index) => (
                                 <div key={serial.serialNumber || index} className="flex flex-col mb-4 items-center justify-center bg-white p-4 border rounded-md">

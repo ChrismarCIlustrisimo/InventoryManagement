@@ -10,16 +10,51 @@ import { HiOutlineRefresh } from "react-icons/hi";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 
+const ConfirmationModal = ({ message, onConfirm, onCancel, darkMode }) => (
+  <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+    <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'text-dark-textPrimary bg-dark-container'}`}>
+      <p className="text-xl mb-4 py-6 font-semibold ">{message}</p>
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={onConfirm}
+          className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
+        >
+          Confirm
+        </button>
+        <button
+          onClick={onCancel}
+          className={`w-[46%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
 const RefundedOrReplaced = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
   const [searchQuery, setSearchQuery] = useState('');
-  const [customerName, setCustomerName] = useState('');
+  const [ProductName, setProductName] = useState('');
   const [cashierName, setCashierName] = useState('');
-  const [refundDate, setRefundDate] = useState(null);
   const [rmas, setRmas] = useState([]);
   const [filteredRmas, setFilteredRmas] = useState([]);
   const baseURL = "http://localhost:5555";
+  const [reason, setReason] = useState('');
+  const [status, setStatus] = useState('');
+  const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [onConfirmAction, setOnConfirmAction] = useState(() => () => {});
+
+  const handleReasonChange = (event) => {
+    setReason(event.target.value); // Update state with selected value
+  };
+
+  const handleStatusChange = (event) => {
+    setStatus(event.target.value); // Update state with selected value
+  };
+
 
   // Fetch all RMAs and product units
   const fetchRmas = async () => {
@@ -56,23 +91,38 @@ const RefundedOrReplaced = () => {
 
   const applyFilters = () => {
     const filtered = rmas.filter((rma) => {
-      if (searchQuery && !rma.rma_id?.toLowerCase().includes(searchQuery.toLowerCase())) {
+      // Check if product name matches (assuming rma.product holds the product name)
+      if (ProductName && !rma.product?.toLowerCase().includes(ProductName.toLowerCase())) {
         return false;
       }
-      if (customerName && !rma.customer_name?.toLowerCase().includes(customerName.toLowerCase())) {
+  
+      // Check if RMA contains at least one unit with "replaced" or "refunded" status
+      const hasValidUnit = rma.units.some(unit => 
+        unit.status === 'refunded' || unit.status === 'replaced'
+      );
+
+      // Filter by reason
+      if (reason && rma.reason !== reason) {
         return false;
       }
-      if (cashierName && !rma.cashier?.toLowerCase().includes(cashierName.toLowerCase())) {
+      
+      // Filter by status
+      if (status && !rma.units.some(unit => unit.status === status)) {
         return false;
       }
-      if (refundDate && new Date(rma.refund_date) > refundDate) {
+      
+      if (!hasValidUnit) {
         return false;
       }
+  
+      
       return true;
     });
-
+  
     setFilteredRmas(filtered);
   };
+  
+  
 
   useEffect(() => {
     fetchRmas();
@@ -80,41 +130,48 @@ const RefundedOrReplaced = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [customerName, cashierName, refundDate, searchQuery]);
+  }, [ProductName, reason, status]);
 
   const handleResetFilters = () => {
-    setCustomerName('');
-    setCashierName('');
-    setRefundDate(null);
+    setProductName('');
+    setReason('');
+    setStatus('');
     setFilteredRmas(rmas);
   };
-
-  const handleRefundDateChange = (date) => setRefundDate(date);
-
-  const handleUpdateUnit = async (productId, unitId, newStatus) => {
-    try {
-      await axios.put(`${baseURL}/product/${productId}/unit/${unitId}`, { status: newStatus }, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
-      fetchRmas(); // Re-fetch RMAs to update the display
-    } catch (error) {
-      console.error("Error updating unit:", error);
-    }
+  const openConfirmDialog = (message, onConfirm) => {
+    setConfirmMessage(message);
+    setOnConfirmAction(() => onConfirm);
+    setIsOpenConfirmDialog(true);
   };
 
+
+  const handleUpdateUnit = async (productId, unitId) => {
+    openConfirmDialog("Put Product Back into Inventory?", async () => {
+      try {
+        await axios.put(`${baseURL}/product/${productId}/unit/${unitId}`, { status: 'in_inventory' }, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        fetchRmas(); // Re-fetch RMAs to update the display
+      } catch (error) {
+        console.error("Error updating unit:", error);
+      }
+      setIsOpenConfirmDialog(false);
+    });
+  };
+
+
   const handleDeleteUnit = async (productId, unitId) => {
-    try {
-      await axios.delete(`${baseURL}/product/${productId}/unit/${unitId}`, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
-      fetchRmas(); // Re-fetch RMAs to update the display
-    } catch (error) {
-      console.error("Error deleting unit:", error);
-    }
+    openConfirmDialog("Discard/Do Not Return to Inventory?", async () => {
+      try {
+        await axios.delete(`${baseURL}/product/${productId}/unit/${unitId}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        fetchRmas(); // Re-fetch RMAs to update the display
+      } catch (error) {
+        console.error("Error deleting unit:", error);
+      }
+      setIsOpenConfirmDialog(false);
+    });
   };
 
 
@@ -142,6 +199,10 @@ const RefundedOrReplaced = () => {
     return statusStyles; // Return the status styles directly
   };
 
+  const handleCancel = () => {
+    setIsOpenConfirmDialog(false);
+  };
+
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
       <DashboardNavbar />
@@ -161,14 +222,14 @@ const RefundedOrReplaced = () => {
             <div className='flex flex-col gap-6 h-full'>
               <div className='flex flex-col gap-2 flex-grow'>
                 <div className='flex flex-col'>
-                  <label htmlFor='customerName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CUSTOMER NAME</label>
+                  <label htmlFor='ProductName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRODUCT NAME</label>
                   <input
                     type='text'
                     placeholder='Enter Product Name'
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
+                    value={ProductName}
+                    onChange={(e) => setProductName(e.target.value)}
                     className={`border rounded p-2 my-1 
-                      ${customerName === '' 
+                      ${ProductName === '' 
                         ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                         : (darkMode 
                           ? 'bg-light-activeLink text-light-primary' 
@@ -177,20 +238,47 @@ const RefundedOrReplaced = () => {
                   />
                 </div>
                 <div className='flex flex-col'>
-                  <label htmlFor='cashierName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER NAME</label>
-                  <input
-                    type='text'
-                    placeholder='Enter Serial Number'
-                    value={cashierName}
-                    onChange={(e) => setCashierName(e.target.value)}
+                <label htmlFor="reason" className="block text-sm font-medium text-gray-700">REASON</label>
+                  <select
+                    id="reason"
+                    name="reason"
+                    value={reason} // Controlled component with state value
+                    onChange={handleReasonChange} // Event handler for updating state
                     className={`border rounded p-2 my-1 
-                      ${cashierName === '' 
+                      ${reason === '' 
                         ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                         : (darkMode 
                           ? 'bg-light-activeLink text-light-primary' 
                           : 'bg-transparent text-black')} 
-                      outline-none font-semibold`}
-                  />
+                      outline-none font-semibold`}                  >
+                    <option value="">Select a reason</option>
+                    <option value="Defective Product">Defective Product</option>
+                    <option value="Product Malfunction">Product Malfunction</option>
+                    <option value="Missing Parts">Missing Parts</option>
+                    <option value="Warranty Repair">Warranty Repair</option>
+                    <option value="Request for Replacement">Request for Replacement</option>
+                    <option value="Product Not Compatible">Product Not Compatible</option>
+                  </select>
+                </div>
+                <div className='flex flex-col'>
+                <label htmlFor="status" className="block text-sm font-medium text-gray-700">STATUS</label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={status} // Controlled component with state value
+                    onChange={handleStatusChange} // Event handler for updating state
+                    className={`border rounded p-2 my-1 
+                      ${status === '' 
+                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                        : (darkMode 
+                          ? 'bg-light-activeLink text-light-primary' 
+                          : 'bg-transparent text-black')}   
+                      outline-none font-semibold`}                  >
+                    <option value="">Select a reason</option>
+                    <option value="refunded">Returned</option>
+                    <option value="repalced">Replaced</option>
+
+                  </select>
                 </div>
 
 
@@ -232,9 +320,9 @@ const RefundedOrReplaced = () => {
                         ))}
                       </ul>
                     </td>
-                    <td className={`p-2 text-center ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
+                    <td className={`p-2 text-center`}>
                 
-                        <div className='rounded-md'>
+                        <div className={`rounded-md py-2 px-4 font-semibold ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
                         {rma.units.length > 0 
                           ? rma.units[0].status === 'replaced' 
                             ? 'Replaced' 
@@ -248,12 +336,12 @@ const RefundedOrReplaced = () => {
 
                     <td className='p-2'>
                       {rma.units.map((unit) => (
-                        <div key={unit.serial_number} className="flex gap-2">
-                          <button onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} className='bg-blue-500 text-white rounded px-2 py-1'>
-                            <AiOutlineCheckCircle />
+                        <div key={unit.serial_number} className="flex">
+                          <button onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} className={`rounded px-2 py-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
+                            <AiOutlineCheckCircle size={30} />
                           </button>
-                          <button onClick={() => handleDeleteUnit(rma.product_id, unit._id)} className='bg-red-500 text-white rounded px-2 py-1'>
-                            <AiOutlineCloseCircle />
+                          <button onClick={() => handleDeleteUnit(rma.product_id, unit._id)} className='rounded px-2 py-1'>
+                            <AiOutlineCloseCircle size={30} />
                           </button>
                         </div>
                       ))}
@@ -265,6 +353,15 @@ const RefundedOrReplaced = () => {
           </div>
         </div>
       </div>
+      {isOpenConfirmDialog && (
+          <ConfirmationModal
+            message={confirmMessage}
+            onConfirm={onConfirmAction}
+            onCancel={handleCancel}
+            darkMode={darkMode}
+          />
+        )}
+
     </div>
   );
 };

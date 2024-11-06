@@ -7,11 +7,6 @@ import { FaTrash } from "react-icons/fa";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import AddUnitModal  from '../components/AddUnitModal';
 
-const stockColors = {
-  "HIGH": "#1e7e34", // Darker Green
-  "LOW": "#d39e00", // Darker Yellow
-  "OUT OF STOCK": "#c82333", // Darker Red
-};
 
 const ViewProduct = () => {
   const [product, setProduct] = useState(null);
@@ -52,24 +47,38 @@ const ViewProduct = () => {
     navigate(`/update-product/${productId}`);
   };
 
-  const getStockStatus = () => {
-    if (!product || !product.units) return { status: 'N/A', color: '#000000' }; // Default color for N/A
-
-    const availableUnits = product.units.filter(unit => unit.status === 'in_stock').length;
-
-    let status;
-    if (availableUnits === 0) {
-      status = 'OUT OF STOCK';
-    } else if (availableUnits <= product.low_stock_threshold) {
-      status = 'LOW';
-    }else {
-      status = 'HIGH';
-    }
-
-    return { status, color: stockColors[status] };
+// Function to get the status styles based on the status
+const getStatusStyles = (status) => {
+  let statusStyles = {
+    textClass: 'text-[#8E8E93]', // Default text color
+    bgClass: 'bg-[#E5E5EA]', // Default background color
   };
 
-  const stockStatus = getStockStatus();
+  switch (status) {
+    case 'HIGH':
+      statusStyles = {
+        textClass: 'text-[#14AE5C]',
+        bgClass: 'bg-[#CFF7D3]',
+      };
+      break;
+    case 'LOW':
+      statusStyles = {
+        textClass: 'text-[#EC221F]', // Red for Low Stock
+        bgClass: 'bg-[#FEE9E7]',
+      };
+      break;
+    case 'OUT OF STOCK':
+      statusStyles = {
+        textClass: 'text-[#8E8E93]', // Gray for Out of Stock
+        bgClass: 'bg-[#E5E5EA]',
+      };
+      break;
+  }
+
+  return statusStyles; // Return the status styles directly
+};
+
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -160,7 +169,7 @@ const ViewProduct = () => {
           <div className={`col-span-1 rounded-lg shadow-md p-6 w-full h-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
             <h2 className="text-xl font-bold mb-4">Basic information</h2>
             <div className='mt-4 text-md p-4 font-medium flex py-4'>
-              <div className={`w-[50%] flex flex-col justify-between h-full gap-8 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+              <div className={`w-[50%] flex flex-col justify-between h-full gap-10 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                 <p>Category</p>
                 <p>Sub-Category</p>
                 <p>Model</p>
@@ -168,13 +177,14 @@ const ViewProduct = () => {
                 <p>Status</p>
               </div>
               
-              <div className='w-[50%] flex flex-col justify-between h-full gap-8'>
+              <div className='w-[50%] flex flex-col justify-between h-full gap-10'>
                 <p>{product.category}</p>
                 <p>{product.sub_category || 'N/A'}</p>
                 <p>{product.model || 'N/A'}</p>
                 <p>{product.warranty || 'N/A'}</p>
-                <p style={{ color: stockStatus.color }}>{stockStatus.status}</p> {/* Apply color dynamically */}
-
+                <div className={`w-full`}>
+                  <p className={`w-auto p-2 rounded  text-center ${getStatusStyles(product.current_stock_status).bgClass} ${getStatusStyles(product.current_stock_status).textClass}`}>{product.current_stock_status}</p>
+                </div>
               </div>
             </div>
           </div>

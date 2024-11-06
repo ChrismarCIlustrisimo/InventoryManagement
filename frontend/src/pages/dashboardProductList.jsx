@@ -17,11 +17,6 @@ import { BiEdit } from "react-icons/bi";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { useStockAlerts } from '../context/StockAlertsContext';
 
-const stockColors = {
-  "HIGH": "#1e7e34", // Darker Green
-  "LOW": "#d39e00", // Darker Yellow
-  "OUT OF STOCK": "#c82333", // Darker Red
-};
 
 const getStatusStyles = (status) => {
   let statusStyles = {

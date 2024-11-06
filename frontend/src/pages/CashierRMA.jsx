@@ -150,8 +150,9 @@ const filteredRMA = (rmaData || []).filter(rma => {
                 break;
             case 'Completed':
                 statusStyles = {
-                    textClass: 'text-[#14AE5C]',
-                    bgClass: 'bg-[#CFF7D3]',
+                    textClass: 'text-[#8E8E93]',
+                    bgClass: 'bg-[#E5E5EA]',
+                        
                 };
                 break;
             case 'Expired':

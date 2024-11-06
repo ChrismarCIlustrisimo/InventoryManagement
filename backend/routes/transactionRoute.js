@@ -269,11 +269,11 @@ router.post('/online-reservation', async (req, res) => {
 
     // Generate transaction ID and set due date
     const transaction_id = await generateTransactionId();
-    //const dueDate = new Date(transaction_date);
-    //dueDate.setMinutes(dueDate.getMinutes() + 1); // Set due date to 1 minute later
-    
     const dueDate = new Date(transaction_date);
-    dueDate.setHours(dueDate.getHours() + 24); // Set due date to 24 hours later
+    dueDate.setMinutes(dueDate.getMinutes() + 1); // Set due date to 1 minute later
+    
+    //const dueDate = new Date(transaction_date);
+    //dueDate.setHours(dueDate.getHours() + 24); // Set due date to 24 hours later
     
     // Create and save the new transaction
     const newTransaction = new Transaction({

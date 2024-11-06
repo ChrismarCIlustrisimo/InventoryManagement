@@ -7,6 +7,8 @@ import { useAdminTheme } from '../context/AdminThemeContext';
 import SearchBar from '../components/SearchBar';
 import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
+import { AiOutlineCloseCircle } from "react-icons/ai";
+import { AiOutlineCheckCircle } from "react-icons/ai";
 
 const RefundedOrReplaced = () => {
   const { user } = useAuthContext();
@@ -137,7 +139,7 @@ const RefundedOrReplaced = () => {
                   <label htmlFor='customerName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CUSTOMER NAME</label>
                   <input
                     type='text'
-                    placeholder='Enter Customer Name'
+                    placeholder='Enter Product Name'
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     className={`border rounded p-2 my-1 
@@ -153,7 +155,7 @@ const RefundedOrReplaced = () => {
                   <label htmlFor='cashierName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER NAME</label>
                   <input
                     type='text'
-                    placeholder='Enter Cashier Name'
+                    placeholder='Enter Serial Number'
                     value={cashierName}
                     onChange={(e) => setCashierName(e.target.value)}
                     className={`border rounded p-2 my-1 
@@ -166,26 +168,19 @@ const RefundedOrReplaced = () => {
                   />
                 </div>
 
-                <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REFUND DATE</label>
-                <div className='flex justify-center items-center'>
-                  <div className={`w-[130px] border rounded bg-transparent border-3 
-                      ${refundDate === null 
-                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                        : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')}`} >
-                    <DatePicker
-                      selected={refundDate}
-                      onChange={handleRefundDateChange}
-                      dateFormat='MM-dd-yyyy'
-                      className='p-1 bg-transparent w-[100%] outline-none'
-                      placeholderText='MM-DD-YYYY'
-                    />
-                  </div>
-                </div>
+
               </div>
             </div>
-            <button onClick={handleResetFilters} className={`mt-4 p-2 text-sm rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>
-              <HiOutlineRefresh className="inline" /> Reset Filters
-            </button>
+            <div className='flex flex-col'>
+                  <button
+                    className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
+                      ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
+                    onClick={handleResetFilters}
+                  >
+                    <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`} />
+                    <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`}>Reset Filters</p>
+                  </button>
+                </div>
           </div>
           <div className='flex-grow'>
             <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
@@ -201,8 +196,8 @@ const RefundedOrReplaced = () => {
               </thead>
               <tbody>
                 {filteredRmas.map((rma) => (
-                  <tr key={rma.rma_id} className={`${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
-                    <td className='p-2'>{rma.product_name}</td>
+                  <tr key={rma.rma_id} className={`${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
+                    <td className='p-2'>{rma.product}</td>
                     <td className='p-2'>{rma.reason}</td>
                     <td className='p-2'>{rma.condition}</td>
                     <td className='p-2'>
@@ -216,8 +211,12 @@ const RefundedOrReplaced = () => {
                     <td className='p-2'>
                       {rma.units.map((unit) => (
                         <div key={unit.serial_number} className="flex gap-2">
-                          <button onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} className='bg-blue-500 text-white rounded px-2 py-1'>Replace</button>
-                          <button onClick={() => handleDeleteUnit(rma.product_id, unit._id)} className='bg-red-500 text-white rounded px-2 py-1'>Delete</button>
+                          <button onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} className='bg-blue-500 text-white rounded px-2 py-1'>
+                            <AiOutlineCheckCircle />
+                          </button>
+                          <button onClick={() => handleDeleteUnit(rma.product_id, unit._id)} className='bg-red-500 text-white rounded px-2 py-1'>
+                            <AiOutlineCloseCircle />
+                          </button>
                         </div>
                       ))}
                     </td>

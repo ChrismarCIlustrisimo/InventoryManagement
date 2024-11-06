@@ -57,7 +57,7 @@ import PCFurniture from './onlineListing/pages/productPage/PCFurniture';
 import Peripherals from './onlineListing/pages/productPage/Peripherals';
 import ProductProvider from './onlineListing/page.jsx';
 import { StockAlertsProvider } from './context/StockAlertsContext.jsx';
-
+import RefundedOrReplaced from './pages/RefundedOrReplaced.jsx';
 
 const App = () => {
       const { user } = useAuthContext();
@@ -103,6 +103,7 @@ const App = () => {
                                                 <Route path="/RMAReport" element={<PrivateRoute requiredRole="admin"><RMAReport /></PrivateRoute>} />
                                                 <Route path="/InventoryReport" element={<PrivateRoute requiredRole="admin"><InventoryReport /></PrivateRoute>} />
                                                 <Route path="/RMAForm" element={<PrivateRoute requiredRole="admin"><RMAForm /></PrivateRoute>} />
+                                                <Route path="/refund-replace-units" element={<PrivateRoute requiredRole="admin"><RefundedOrReplaced /></PrivateRoute>} />
                                                 <Route path="/iRIG/" element={<Ecommerce />} />
                                                 <Route path="*" element={<Navigate to="/iRIG/" />} />
                                                 <Route path="/unauthorized" element={<Unauthorized />} />

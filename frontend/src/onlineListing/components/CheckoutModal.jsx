@@ -144,8 +144,20 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
 
             localStorage.removeItem('cart');
             setCart([]);
-            navigate('/Ereceipt', { state: { transaction: transactionData, transactionId, transaction_Id, total, totalVat } });
-            onRequestClose();
+            navigate('/Ereceipt', {
+                state: {
+                    transaction: transactionData,
+                    transactionId,
+                    transaction_Id,
+                    total,
+                    totalVat,
+                    customer: fullName,
+                    email,
+                    phone,
+                    fullAddress,
+                }
+            });
+        onRequestClose();
         } catch (error) {
             console.error('Payment error:', error.response ? error.response.data : error.message);
         }

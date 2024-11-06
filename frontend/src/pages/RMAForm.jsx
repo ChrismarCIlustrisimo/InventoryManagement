@@ -100,7 +100,7 @@ const RMAForm = () => {
 
                 <div className={`border-b-2 border-gray-300 mb-4 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}></div>
 
-                <div className="flex items-center justify-end py-4">
+                <div className="flex items-center justify-end pt-4">
                     <div className="w-[15%] flex items-center flex-col justify-center">
                         <p className={`border-b-2 w-full text-center font-semibold py-1 ${darkMode ? 'border-light-textPrimary' : 'border-dark-textPrimary'}`}>Judith Villasin</p>
                         <p className="text-sm italic">Authorized Person</p>

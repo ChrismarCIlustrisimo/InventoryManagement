@@ -10,7 +10,16 @@ const Erceipt = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const receiptRef = useRef(); // Reference to the receipt container
-  const { transaction, total, transaction_Id } = location.state || {};
+  const {
+    transaction,
+    transaction_Id,
+    total,
+    totalVat,
+    customer,
+    email,
+    phone,
+    fullAddress,
+  } = location.state || {};
   const baseURL = "http://localhost:5555";
 
   const formatDate = (dateString) => {
@@ -112,14 +121,39 @@ const Erceipt = () => {
                 <span className={`font-semibold text-sm text-right w-[60%] ${item.product_name.length > 15 ? 'h-15' : 'h-10'}`}>{item.product_name || 'N/A'}</span>
               </div>
               <div className="flex flex-row justify-between mt-2 pt-2">
+                <span className="text-sm">SERIAL NUMBERS</span>
+                <span className="font-semibold text-sm text-right w-[60%]">
+                  {item.serial_number?.join(', ') || 'N/A'}
+                </span>
+              </div>
+              <div className="flex flex-row justify-between mt-2 pt-2">
                 <span className="text-sm">QUANTITY</span>
                 <span className="font-semibold text-base">{item.quantity}</span> {/* Increased size */}
               </div>
             </div>
           ))}
-          <div className="flex flex-row justify-between mt-2 pt-2">
+          <div className="flex flex-row justify-between mt-2 pt-2"> 
             <span className="text-sm">TOTAL PRICE</span>
-            <span className="font-bold text-xl">₱{total.toLocaleString()}</span> {/* Increased size */}
+            <span className="font-bold text-xl">₱ {(total + totalVat).toFixed(2)}</span> {/* Increased size */}
+          </div>
+        </section>
+
+        <section className="mb-6">
+          <div className="flex flex-row justify-between mt-2 pt-2">
+            <span className="text-sm">NAME:</span>
+            <span className="text-sm">{customer || 'N/A'}</span> {/* Increased size */}
+          </div>
+          <div className="flex flex-row justify-between mt-2 pt-2">
+            <span className="text-sm">EMAIL:</span>
+            <span className=" text-sm">{email || 'N/A'}</span> {/* Increased size */}
+          </div>
+          <div className="flex flex-row justify-between mt-2 pt-2">
+            <span className="text-sm">CONTACT NO.:</span>
+            <span className="text-sm">{phone || 'N/A'}</span> {/* Increased size */}
+          </div>
+          <div className="flex flex-row justify-between mt-2 pt-2">
+            <span className="text-sm">ADDRESS:</span>
+            <span className="text-sm">{fullAddress || 'N/A'}</span> {/* Increased size */}
           </div>
         </section>
 

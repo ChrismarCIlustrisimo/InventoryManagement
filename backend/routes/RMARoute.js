@@ -296,5 +296,43 @@ router.post('/send-email', (req, res) => {
   });
 });
 
+router.get('/rma-refunded-replaced', async (req, res) => {
+  try {
+    // Fetch all RMAs
+    const rmas = await RMA.find();
+
+    // Fetch all products and their units
+    const products = await Product.find();
+
+    const rmaDetails = await Promise.all(rmas.map(async (rma) => {
+      const product = products.find(p => p.product_id === rma.product_id);
+      
+      if (!product) {
+        return null;
+      }
+
+      // Filter units with 'refunded' or 'replaced' status
+      const relevantUnits = product.units.filter(unit => 
+        unit.status === 'refunded' || unit.status === 'replaced'
+      );
+
+      // Return the RMA along with the relevant units
+      return {
+        ...rma.toObject(),
+        units: relevantUnits
+      };
+    }));
+
+    // Filter out any null values (if product not found)
+    const filteredRmaDetails = rmaDetails.filter(rma => rma !== null);
+
+    return res.status(200).json(filteredRmaDetails);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+
 
 export default router;

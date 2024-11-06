@@ -182,7 +182,7 @@ const DashboardNavbar = () => {
               </Link>
               <Link to="/refund-replace-units">
                 <div className={`text-sm p-2 z-100 ${selected === 'Refunded/Replaced' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
-                 Return Units
+                 Returned
                 </div>
               </Link>
             </div>

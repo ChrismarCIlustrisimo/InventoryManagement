@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Add useEffect and useRef
 import { AiOutlineUpload } from 'react-icons/ai';
 import { BiImages } from 'react-icons/bi';
 import axios from 'axios';  // Assuming you are using axios for making HTTP requests
@@ -7,6 +7,7 @@ import { IoCaretBackOutline } from "react-icons/io5";
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify'; // Import Toastify components
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
+import { IoCameraOutline } from "react-icons/io5";
 
 const AddUnitModal = ({ isOpen, onClose, productId }) => {
   const [quantity, setQuantity] = useState('');  // Changed to an empty string
@@ -18,6 +19,7 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false); // Track if saving
+  const [savedCount, setSavedCount] = useState(0);
 
   const handleQuantityChange = (value) => {
     if (value >= 0) {
@@ -31,6 +33,7 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
       setSerialNumberImages(Array.from({ length: value }, () => null));
       setSavedCount(0) 
     }
+    setSavedCount(0);
   };
 
   const handleInputChange = (index, value) => {
@@ -70,47 +73,101 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
 
 
   const upload = async () => {
-    // Make sure quantity is greater than 0
+    // Check if quantity is greater than 0
     if (quantity <= 0) {
-      toast.warning("Please enter a valid number of units."); // Use toast to display warning
+      toast.warning("Please enter a valid number of units.");
       return;
-  }
-
-  // Check for empty serial numbers or images
-  for (let i = 0; i < localInputs.length; i++) {
+    }
+  
+    // Check for empty serial numbers or images
+    for (let i = 0; i < localInputs.length; i++) {
       if (!localInputs[i] || !serialNumberImages[i]) {
-          toast.warning(`Please fill in Serial Number ${i + 1} and upload its image.`); // Toast notification for empty fields
-          return;
+        toast.warning(`Please fill in Serial Number ${i + 1} and upload its image.`);
+        return;
       }
-  }
-
+    }
+  
     // Create FormData object to handle file uploads
     const formData = new FormData();
     localInputs.forEach((serialNumber, index) => {
-      formData.append('serial_number[]', serialNumber);  // Append serial numbers
-      formData.append('serial_number_image', serialNumberImages[index]);  // Append images
+      formData.append('serial_number[]', serialNumber); // Append serial numbers
+      formData.append('serial_number_image', serialNumberImages[index]); // Append images
     });
-
+  
     try {
       // Send POST request to the server
       const response = await axios.post(`${baseURL}/product/${productId}/unit`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',  // Important for file uploads
+          'Content-Type': 'multipart/form-data', // Important for file uploads
         },
       });
-
+  
       if (response.status === 201) {
-        alert('Units added successfully!');
-        onClose();  // Close the modal after successful upload
+        toast.success("Units added successfully!");
+        onClose(); // Close the modal after successful upload
       }
     } catch (error) {
       console.error('Error adding units:', error);
-      alert('Error adding units.');
+      toast.error('Error adding units.');
     }
   };
-
+  
   const handleBackClick = () => {
     navigate(-1);
+  };
+  const videoRefs = useRef([]);
+
+  useEffect(() => {
+      const streams = [];
+      const setupVideo = async () => {
+          try {
+              for (let index = 0; index < serialNumbers.length; index++) {
+                  if (videoRefs.current[index]) {
+                      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                      videoRefs.current[index].srcObject = stream;
+                      streams.push(stream);
+                  }
+              }
+          } catch (error) {
+              console.error('Error accessing the camera: ', error);
+          }
+      };
+
+      setupVideo();
+
+      return () => {
+          streams.forEach(stream => {
+              stream.getTracks().forEach(track => track.stop());
+          });
+      };
+  }, [serialNumbers]);
+
+  const captureImage = (index) => {
+      const video = videoRefs.current[index];
+
+      if (video && video.srcObject && video.srcObject.active) {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const imageData = canvas.toDataURL('image/png');
+
+          fetch(imageData)
+              .then(res => res.blob())
+              .then(blob => {
+                  const file = new File([blob], `serial_number_${index}.png`, { type: 'image/png' });
+                  handleSerialNumberImageChange(index, file);
+              });
+      } else {
+          console.error(`Video element at index ${index} is not available or not loaded.`);
+      }
+  };
+
+  const handleReuploadImage = (index) => {
+      // Clear the current image
+      handleSerialNumberImageChange(index, null); // Pass null to clear the image
   };
 
 
@@ -127,88 +184,82 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
       <div className={`w-full h-full flex items-start justify-center border-12   ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
       <div className={`rounded-lg z-10 px-6 w-[70%] h-[92%] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
       <div className='w-full flex items-center justify-between gap-2 py-2 px-6 '>
-        <p className='text-2xl text-center font-semibold'>Add New Unit</p>
-        <div className='flex items-center justify-center gap-2'>
-          <p htmlFor="quantity">Units:</p>
-          <div className={`flex items-center border rounded-md overflow-hidden px-2 ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
-            <button
-              onClick={() => handleQuantityChange(quantity - 1)}
-              className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}
-            >
-              -
-            </button>
-            <input
-              type='number'
-              placeholder='Unit number'
-              id="quantity"
-              className={`bg-transparent p-2 text-center w-16 outline-none ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
-              value={quantity}
-              onChange={(e) => handleQuantityChange(Number(e.target.value))}
-            />
-            <button
-              onClick={() => handleQuantityChange(quantity + 1)}
-              className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}
-            >
-              +
-            </button>
-          </div>
-        </div>
-      </div>
-
-
-
-      <div className='max-h-[550px] h-[500px] overflow-y-auto py-6 p-4 rounded-md'>
-        {quantity <= 0 ? (
-          <div className='w-full h-[90%] flex items-center justify-center'>
-            <p className='text-4xl'>Please Input Units Quantity</p>
-          </div>
-        ) : (
-          <div className='grid grid-cols-2 gap-4 w-full'>
-            {serialNumbers.map((serial, index) => (
-              <div key={index} className={`flex flex-col mb-4 items-center justify-center p-4 border rounded-md ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-                <label htmlFor={`serialNumber-${index}`} className="font-medium">Serial Number {index + 1}</label>
-                {serialNumberImages[index] ? (
-                  <img src={URL.createObjectURL(serialNumberImages[index])} alt={`Serial ${index + 1}`} className="w-64 h-64 object-cover my-2" />
-                ) : (
-                  <BiImages className="w-64 h-64 text-gray-500 my-2" />
-                )}
-                <div className='flex gap-4 items-center justify-center w-full'>
-                  <p className="w-[30%] flex items-center justify-center mb-2 h-full">SERIAL NUMBER</p>
-                  <input
-                      id={`serialNumber-${index}`}
-                      type="text"
-                      placeholder={`Serial Number ${index + 1}`}
-                      value={localInputs[index] !== undefined ? localInputs[index] : serial.serialNumber}
-                      onChange={(e) => handleInputChange(index, e.target.value)}
-                      className={`border-2 rounded-md p-2 mb-2 w-[70%] 
-                        ${darkMode ? 'bg-transparent placeholder-gray' : 'bg-transparent placeholder-white'}`}
-                      disabled={isInputDisabled(index)} // Use the function to determine if the input should be disabled
-                    />
+      <p className='text-2xl text-center font-semibold'>Add New Product</p>
+                    <div className='flex items-center justify-center gap-2'>
+                        <p htmlFor="quantity">Units:</p>
+                        <div className={`flex items-center border rounded-md overflow-hidden px-2 ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
+                            <button onClick={() => handleQuantityChange(quantity - 1)} className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}>-</button>
+                            <input
+                                type="number"
+                                placeholder="0"
+                                id="quantity"
+                                className={`bg-transparent p-2 text-center w-16 outline-none ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
+                                value={quantity}
+                                onChange={(e) => handleQuantityChange(Math.min(Number(e.target.value), 50))}
+                                max={50}
+                            />
+                            <button onClick={() => handleQuantityChange(quantity + 1)} className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}>+</button>
+                        </div>
+                    </div>
                 </div>
 
-                <label htmlFor={`serialNumberImage-${index}`} className="mb-2 bg-blue-500 hover:scale-95 text-white rounded-md p-2 px-6 flex items-center justify-center gap-2 cursor-pointer w-full">
-                  <AiOutlineUpload className='text-2xl' />
-                  {serialNumberImages[index] ? 'Change Image' : 'Upload Image'}
-                </label>
-                
-                {editModes[index] ? (
-                  <button onClick={() => handleEditClick(index)} className={`px-2 py-3 w-full bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Edit</button>
+                {quantity <= 0 ? (
+                    <div className='w-full h-[90%] flex items-center justify-center'>
+                        <p className='text-4xl'>Please Input Units Quantity</p>
+                    </div>
                 ) : (
-                  <button onClick={() => handleSaveClick(index)} className={`px-2 py-3 w-full rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Save</button>
+                    <div className='max-h-[520px] overflow-y-auto py-6 px-8 w-[80%]'>
+                        <div className='grid grid-cols-2 gap-4 w-full'>
+                            {serialNumbers.map((serial, index) => (
+                                <div key={serial.serialNumber || index} className="flex flex-col mb-4 items-center justify-center bg-white p-4 border rounded-md">
+                                    <label htmlFor={`serialNumber-${index}`} className="font-medium">Serial Number {index + 1}</label>
+
+                                    {serialNumberImages[index] ? (
+                                        <div>
+                                            <img src={URL.createObjectURL(serialNumberImages[index])} alt={`Captured ${index + 1}`} className="w-full h-64 object-cover my-2" />
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <video
+                                                ref={(el) => (videoRefs.current[index] = el)}
+                                                id={`video-${index}`}
+                                                className="w-full h-64 mb-2"
+                                                autoPlay
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className='flex gap-4 items-center justify-center w-full'>
+                                        <p className="w-[30%] flex items-center justify-center mb-2 h-full">SERIAL NUMBER</p>
+                                        <input
+                                            id={`serialNumber-${index}`}
+                                            type="text"
+                                            placeholder={`Serial Number ${index + 1}`}
+                                            value={localInputs[index] !== undefined ? localInputs[index] : serial.serialNumber}
+                                            onChange={(e) => handleInputChange(index, e.target.value)}
+                                            className="border rounded-md p-2 mb-2 w-[70%]"
+                                            disabled={editModes[index]}
+                                        />
+                                    </div>
+                                    {serialNumberImages[index] ? (  
+                                    <button onClick={() => handleReuploadImage(index)} className={`px-2 py-3 w-full bg-transparent border rounded-md mb-2 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Edit Image</button>
+
+                                    ) : (
+                                        <button onClick={() => captureImage(index)} className="bg-blue-500 hover:scale-95 text-white rounded-md p-2 px-6 flex items-center justify-center gap-2 cursor-pointer w-full mb-2"> <IoCameraOutline size={30} />Capture Image</button>
+
+                                    )}
+
+                                      {editModes[index] ? (
+                                          <button onClick={() => handleEditClick(index)} className={`px-2 py-3 w-full bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Edit Serial Number</button>
+                                      ) : (
+                                          <button onClick={() => handleSaveClick(index)} className={`px-2 py-3 w-full rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Save Serial Number</button>
+                                      )}
+
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
-                <input
-                  id={`serialNumberImage-${index}`}
-                  name="serial_number_image"  
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleSerialNumberImageChange(index, e.target.files[0])}
-                  className="hidden"
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
 
 

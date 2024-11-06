@@ -18,9 +18,12 @@ import Product from './models/productModel.js'; // Adjust the path as necessary
 import Customer from './models/customerModel.js';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import bcrypt from 'bcrypt';
+import User from './models/userModel.js'; // Ensure this path is correct
 
 // Load environment variables
 dotenv.config();
+
 // Create a Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -32,8 +35,6 @@ const transporter = nodemailer.createTransport({
       pass: process.env.EMAIL_PASS,  // Email password from .env
   },
 });
-
-
 
 // Example function to send an email
 const sendEmail = (to, subject, text) => {
@@ -52,7 +53,32 @@ const sendEmail = (to, subject, text) => {
   });
 };
 
+// Function to create a default admin user
+const createTestAdmin = async () => {
+  try {
+    // Hash the password
+    const hashedPassword = await bcrypt.hash('password123', 10);
 
+    // Check if an admin already exists
+    const existingAdmin = await User.findOne({ username: 'ADMIN' });
+    if (!existingAdmin) {
+      const user = new User({
+        username: 'ADMIN',
+        password: hashedPassword,
+        name: 'ADMIN',
+        contact: '1234567890',
+        role: 'admin',
+      });
+
+      await user.save();
+      console.log('Admin user created');
+    } else {
+      console.log('Admin user already exists');
+    }
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+  }
+};
 
 const app = express();
 const server = http.createServer(app);
@@ -165,7 +191,6 @@ const processOldTransactions = async () => {
   }
 };
 
-
 // Schedule the job to run daily at midnight
 cron.schedule('* * * * *', () => {
   console.log('Running scheduled job to process old transactions...');
@@ -178,6 +203,7 @@ mongoose
   .then(() => {
     console.log('Connected to MongoDB');
     initializeCounter();
+    createTestAdmin();  // Create the default admin user
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });

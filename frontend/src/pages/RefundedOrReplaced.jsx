@@ -117,6 +117,31 @@ const RefundedOrReplaced = () => {
     }
   };
 
+
+  const getStatusStyles = (status) => {
+    let statusStyles = {
+      textClass: 'text-[#8E8E93]', // Default text color
+      bgClass: 'bg-[#E5E5EA]', // Default background color
+    };
+  
+    switch (status) {
+      case 'Returned':
+        statusStyles = {
+          textClass: 'text-[#4E3F77]',
+          bgClass: 'bg-[#EADDFF]',
+        };
+        break;
+      case 'Replaced':
+        statusStyles = {
+          textClass: 'text-[#EC221F]', // Red for Low Stock
+          bgClass: 'bg-[#FEE9E7]',
+        };
+        break;
+    }
+  
+    return statusStyles; // Return the status styles directly
+  };
+
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
       <DashboardNavbar />
@@ -207,7 +232,20 @@ const RefundedOrReplaced = () => {
                         ))}
                       </ul>
                     </td>
-                    <td className='p-2'>{rma.units.length > 0 ? rma.units[0].status : 'N/A'}</td>
+                    <td className={`p-2 text-center ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
+                
+                        <div className='rounded-md'>
+                        {rma.units.length > 0 
+                          ? rma.units[0].status === 'replaced' 
+                            ? 'Replaced' 
+                            : rma.units[0].status === 'refunded' 
+                              ? 'Returned' 
+                              : rma.units[0].status 
+                          : 'N/A'}
+                        </div>
+
+                      </td>
+
                     <td className='p-2'>
                       {rma.units.map((unit) => (
                         <div key={unit.serial_number} className="flex gap-2">

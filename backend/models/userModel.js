@@ -8,9 +8,11 @@ const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     name: { type: String, required: true },
-    contact: { type: String, required: true },
+    contact: { type: String  },
     role: { type: String, required: true },
 });
+
+
 
 // Static Signup method
 userSchema.statics.signup = async function(username, password, name, contact, role) {

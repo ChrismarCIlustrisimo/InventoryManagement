@@ -58,13 +58,16 @@ import Peripherals from './onlineListing/pages/productPage/Peripherals';
 import ProductProvider from './onlineListing/page.jsx';
 import { StockAlertsProvider } from './context/StockAlertsContext.jsx';
 import RefundedOrReplaced from './pages/RefundedOrReplaced.jsx';
-
+import AdminRefund from './pages/AdminRefund.jsx';
+import { DateFilterProvider } from './context/DateFilterContext.jsx';
 const App = () => {
       const { user } = useAuthContext();
 
       return (
             <AppProvider>
                <StockAlertsProvider>
+               <DateFilterProvider>
+
                   <ProductProvider >
                         <AuthContextProvider>
                               <ThemeProvider>
@@ -88,7 +91,7 @@ const App = () => {
                                                 <Route path="/update-supplier/:supplierId" element={<PrivateRoute requiredRole="admin"><UpdateSupplier /></PrivateRoute>} />
                                                 <Route path="/Products" element={<PrivateRoute requiredRole="admin"><Product /></PrivateRoute>} />
                                                 <Route path="/inventory/product" element={<PrivateRoute requiredRole="admin"><DashboardProductList /></PrivateRoute>} /> {/* Updated usage */}
-                                                <Route path="/sales" element={<PrivateRoute requiredRole="admin"><DashboardTransaction /></PrivateRoute>} />
+                                                <Route path="/transactions" element={<PrivateRoute requiredRole="admin"><DashboardTransaction /></PrivateRoute>} />
                                                 <Route path="/customer" element={<PrivateRoute requiredRole="admin"><Customer /></PrivateRoute>} />
                                                 <Route path="/profile" element={<PrivateRoute requiredRole="admin"><AdminProfile /></PrivateRoute>} />
                                                 <Route path="/report-page" element={<PrivateRoute requiredRole="admin"><ReportPage /></PrivateRoute>} />
@@ -104,6 +107,7 @@ const App = () => {
                                                 <Route path="/InventoryReport" element={<PrivateRoute requiredRole="admin"><InventoryReport /></PrivateRoute>} />
                                                 <Route path="/RMAForm" element={<PrivateRoute requiredRole="admin"><RMAForm /></PrivateRoute>} />
                                                 <Route path="/refund-replace-units" element={<PrivateRoute requiredRole="admin"><RefundedOrReplaced /></PrivateRoute>} />
+                                                <Route path="/refund-list" element={<PrivateRoute requiredRole="admin"><AdminRefund /></PrivateRoute>} />
                                                 <Route path="/iRIG/" element={<Ecommerce />} />
                                                 <Route path="*" element={<Navigate to="/iRIG/" />} />
                                                 <Route path="/unauthorized" element={<Unauthorized />} />
@@ -130,9 +134,10 @@ const App = () => {
                                     </AdminThemeProvider>
                               </ThemeProvider>
                         </AuthContextProvider>
-                  </ProductProvider>
+                     </ProductProvider>
+                  </DateFilterProvider>
             </StockAlertsProvider>
-            </AppProvider >
+      </AppProvider >
       );
 };
 

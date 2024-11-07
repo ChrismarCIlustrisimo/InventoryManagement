@@ -333,6 +333,23 @@ router.get('/rma-refunded-replaced', async (req, res) => {
   }
 });
 
+router.get('/check/:transactionId', async (req, res) => {
+  const { transactionId } = req.params;
+
+  try {
+    const matchingRMA = await RMA.find({ transaction: transactionId });
+    const RMAData = matchingRMA.length ? matchingRMA.map(rma => ({
+      rma_id: rma.rma_id,
+      ...rma.toObject(), // Include other relevant fields if needed
+    })) : [];
+
+    res.json({ transactionId, RMAData });
+  } catch (error) {
+    console.error('Error fetching RMA data:', error);
+    res.status(500).json({ message: 'Error fetching RMA data', error });
+  }
+});
+
 
 
 export default router;

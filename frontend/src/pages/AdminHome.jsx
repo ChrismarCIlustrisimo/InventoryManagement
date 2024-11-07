@@ -13,6 +13,7 @@ import DateRangeModal from '../components/DateRangeModal';
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useStockAlerts } from '../context/StockAlertsContext';
+import { useDateFilter } from '../context/DateFilterContext';
 
 const AdminHome = () => {
   const { darkMode } = useAdminTheme();
@@ -35,6 +36,11 @@ const AdminHome = () => {
   const [currentMonthCount, setCurrentMonthCount] = useState(0); // State for current month count
   const navigate = useNavigate();
   const { stockAlerts, setStockAlerts } = useStockAlerts();
+  const { dateFilter, handleDateFilterChange } = useDateFilter(); // Access context values
+
+
+
+
 
   const fetchRMARequests = async () => {
     try {
@@ -164,7 +170,7 @@ const AdminHome = () => {
   };
   
 
-  const fetchSalesOrders = async () => { 
+  const fetchSalesOrders = async () => {
     try {
       const response = await axios.get(`${baseURL}/transaction`, {
         params: {
@@ -183,7 +189,7 @@ const AdminHome = () => {
         transaction?.payment_status === 'paid'
       );
   
-      // Calculate initial total sales from valid transactions
+      // Calculate initial total sales from valid transactions for the current month
       let totalSales = validTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
   
       // Calculate additional sales from refunded transactions with sold units
@@ -203,33 +209,36 @@ const AdminHome = () => {
         }
       });
   
-      // Update state with total sales calculated
-      setTotalPaidPrice(totalSales);
-  
-      // Proceed with current code for other calculations
+      // Get the current month and year
       const now = new Date();
       const currentMonth = now.getMonth();
-      const previousMonth = new Date(now.setMonth(now.getMonth() - 1));
+      const currentYear = now.getFullYear();
   
-      const currentMonthTransactions = transactions.filter(transaction => {
+      // Filter transactions for the current month
+      const currentMonthTransactions = validTransactions.filter(transaction => {
         const transactionDate = new Date(transaction.createdAt);
-        return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === now.getFullYear();
+        return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
       });
   
       const currentMonthTransactionCount = currentMonthTransactions.length;
-  
       setTransactionCount(currentMonthTransactionCount);
   
-      const lastMonthTransactions = transactions.filter(transaction => {
+      // Calculate total sales for the current month
+      const currentMonthSales = currentMonthTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
+      setTotalPaidPrice(currentMonthSales);
+  
+      // Get the previous month transactions
+      const previousMonth = new Date(now.setMonth(now.getMonth() - 1));
+      const previousMonthTransactions = validTransactions.filter(transaction => {
         const transactionDate = new Date(transaction.createdAt);
         return transactionDate.getMonth() === previousMonth.getMonth() && transactionDate.getFullYear() === previousMonth.getFullYear();
       });
   
-      const lastMonthSales = lastMonthTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
-      const changePercent = lastMonthSales === 0 ? 100 : ((totalSales - lastMonthSales) / lastMonthSales) * 100;
+      const lastMonthSales = previousMonthTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
+      const changePercent = lastMonthSales === 0 ? 100 : ((currentMonthSales - lastMonthSales) / lastMonthSales) * 100;
       setChangeSalesPercent(parseFloat(changePercent.toFixed(2)));
   
-      const transactionChangePercent = lastMonthTransactions.length === 0 ? 100 : ((currentMonthTransactionCount - lastMonthTransactions.length) / lastMonthTransactions.length) * 100;
+      const transactionChangePercent = previousMonthTransactions.length === 0 ? 100 : ((currentMonthTransactionCount - previousMonthTransactions.length) / previousMonthTransactions.length) * 100;
       setTransactionChangePercent(parseFloat(transactionChangePercent.toFixed(2)));
   
     } catch (error) {
@@ -279,17 +288,20 @@ const AdminHome = () => {
   };
 
   const handleGoSales = () => {
-    navigate('/sales');
-  };
+    //handleDateFilterChange('This Month'); // Change the date filter context
+    navigate('/transactions'); // Navigate to the sales page
+};
 
   const handleGoInventory = () => {
     setStockAlerts((prev) => ({ ...prev, LOW: true }));
     navigate('/inventory/product');
   };
 
-  const handleGoRMA = () => {
-    navigate('/rma');
+
+  const handleGoRefund = () => {
+    navigate('/refund-replace-units');
   };
+
 
   return (
     <div className={`${darkMode ? "bg-light-bg" : "dark:bg-dark-bg"} h-auto flex gap-1 overflow-y-hidden`}>
@@ -308,17 +320,18 @@ const AdminHome = () => {
             onClick={handleGoSalesReport}  // Pass the function here
 
         />
+            <StatsCard
+                title={'Monthly Total Transactions'}
+                value={transactionCount}
+                changeType={transactionChangePercent >= 0 ? 'increase' : 'decrease'}
+                changePercent={Math.abs(transactionChangePercent)}
+                bgColor={`bg-[#E8B931]`}
+                percenText={'from last month'}
+                width="w-[25%]"
+                onClick={handleGoSales}  // Pass the function here
+            />s
 
-          <StatsCard
-            title={'Monthly Total Transactions'}
-            value={transactionCount}
-            changeType={transactionChangePercent >= 0 ? 'increase' : 'decrease'}  // Set type based on percent change
-            changePercent={Math.abs(transactionChangePercent)} // Absolute value of the percent change
-            bgColor={`bg-[#E8B931]`} // Additional custom styles
-            percenText={'from last month'}
-            width="w-[25%]"
-            onClick={handleGoSales}  // Pass the function here
-          />
+
           <StatsCard
             title={'Low Stock Alert'}
             value={itemsLowStock}
@@ -339,6 +352,7 @@ const AdminHome = () => {
           showPercent={false}
           percent={Math.abs(percentageChange).toFixed(2)} // Display the absolute value for percent, fixed to 2 decimal places
           width="w-[22.5%]"
+          onClick={handleGoRefund}
         />
         </div>
         <div className='w-full h-[80%] '>

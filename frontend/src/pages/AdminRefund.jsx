@@ -1,18 +1,17 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
+import { useAdminTheme } from '../context/AdminThemeContext';
 import SearchBar from '../components/SearchBar';
 import { FaPlay } from "react-icons/fa";
 import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
 
-const Refund = () => {
+const AdminRefund = () => {
   const { user } = useAuthContext();
-  const { darkMode } = useTheme();
+  const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const baseURL = "http://localhost:5555"; // Adjust your actual base URL
   
@@ -155,16 +154,16 @@ const formatDate = (dateString) => {
 
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
-        <Navbar />
+        <DashboardNavbar />
         <div className='pt-[70px] px-6 py-4 w-full h-full'>
         <div className='flex items-center justify-center py-5'>
             <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refunds</h1>
               <div className='w-full flex justify-end gap-2'>
               <SearchBar
-      query={searchQuery}
-      onQueryChange={setSearchQuery}
-      placeholderMessage={'Search by RMA ID'}
-    />
+                    query={searchQuery}
+                    onQueryChange={setSearchQuery}
+                    placeholderMessage={'Search by RMA ID'}
+                    />
               </div>
         </div>
         <div className='flex gap-4'>
@@ -374,4 +373,4 @@ const formatDate = (dateString) => {
   )
 }
 
-export default Refund
+export default AdminRefund

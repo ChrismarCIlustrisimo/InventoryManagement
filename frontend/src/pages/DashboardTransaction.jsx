@@ -11,8 +11,7 @@ import DatePicker from 'react-datepicker';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import ViewTransaction from '../components/ViewTransaction';
-
-
+import { useDateFilter } from '../context/DateFilterContext';
 
 // This component is used to display all sales orders in the dashboard.
 const DashboardTransaction = () => {
@@ -31,31 +30,41 @@ const DashboardTransaction = () => {
     const [showViewPanel, setShowViewPanel] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
     const [customerName, setCustomerName] = useState(''); // Add this line
-    const [paymentMethod, setPaymentMethod] = useState(''); // State to hold selected payment method
-    const [filteredSalesOrder, setFilteredSalesOrder] = useState([]);
+    const { dateFilter, handleDateFilterChange } = useDateFilter();
 
-    const handlePaymentMethodChange = (e) => {
-      setPaymentMethod(e.target.value);
-      // Trigger fetching transactions with the selected payment method
-      fetchTransactions(e.target.value); // Ensure you implement fetchTransactions to handle the API call
-    };
 
-    const [statusFilters, setStatusFilters] = useState({
-      Completed: false,
-      Refunded: false,
-      Replaced: false,
-    });
+    const handleDateFilterChangeHandler = (filter) => {
+      handleDateFilterChange(filter); // Call context function to update global state
+      const today = new Date();
     
-    const handleCheckboxChange = (status) => {
-      setStatusFilters(prevFilters => ({
-        ...prevFilters,
-        [status]: !prevFilters[status],
-      }));
+      // Set start and end dates based on the filter
+      switch (filter) {
+        case 'Today':
+          setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+        case 'This Week':
+          const dayOfWeek = today.getDay();
+          const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
+          setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+        case 'This Month':
+          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          setStartDate(startOfMonth);
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+        default:
+          setStartDate(null);
+          setEndDate(null);
+      }
     
-      fetchSalesOrders();  
+      // Call fetchSalesOrders after setting the dates
+      fetchSalesOrders();
     };
     
     
+
     const handleViewTransaction = (transaction, item) => {
       if (showViewPanel) {
         setShowViewPanel(false); // Close if it's already open
@@ -83,7 +92,8 @@ const DashboardTransaction = () => {
       if (user) {
         fetchSalesOrders();
       }
-    }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user, statusFilters, customerName, paymentMethod]);
+    }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user, customerName]); // Ensure these are the correct dependencies
+    
     
     const fetchSalesOrders = async () => {
       setLoading(true);
@@ -98,8 +108,6 @@ const DashboardTransaction = () => {
             startDate: startDate ? startDate.toISOString() : undefined,
             endDate: endDate ? endDate.toISOString() : undefined,
             sortBy: sortBy,
-            payment_method: paymentMethod,
-            statusFilters: JSON.stringify(statusFilters), // Send the status filters
           },
           headers: {
             'Authorization': `Bearer ${user.token}`,
@@ -120,7 +128,6 @@ const DashboardTransaction = () => {
       const handleEndDateChange = (date) => setEndDate(date);
       const handleMinPriceChange = (event) => setMinPrice(event.target.value);
       const handleMaxPriceChange = (event) => setMaxPrice(event.target.value);
-      const handleCashierNameChange = (event) => setCashierName(event.target.value);
       const handleResetFilters = () => {
         setStartDate(null);
         setEndDate(null);
@@ -217,42 +224,63 @@ const DashboardTransaction = () => {
                               </div>
 
                               <div className='flex flex-col gap-2 py-2'>
-                                <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>TRANSACTION STATUS</span>
-                                {Object.keys(statusFilters).map((status) => (
-                                  <label key={status} className='custom-checkbox'>
-                                    <input
-                                      type='checkbox'
-                                      checked={statusFilters[status]}
-                                      onChange={() => handleCheckboxChange(status)}
-                                    />
-                                    {status}
-                                  </label>
-                                ))}
-                              </div>
-
-                              <div className='flex flex-col gap-2 py-2'>
-                                <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PAYMENT METHOD</label>
+                                <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>DATE FILTER</label>
                                 <select
-                                    id='paymentMethod'
-                                    value={paymentMethod}
-                                    onChange={handlePaymentMethodChange}
-                                    className={`border rounded p-2 my-1 
-                                      ${paymentMethod === '' 
-                                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                        : (darkMode 
+                                  id='dateFilter'
+                                  value={dateFilter}
+                                  onChange={(e) => handleDateFilterChangeHandler(e.target.value)} // Use the handler that updates both local state and context
+                                  className={`border rounded p-2 my-1 
+                                    ${dateFilter === '' 
+                                      ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                                      : (darkMode 
                                           ? 'bg-light-activeLink text-light-primary' 
                                           : 'bg-transparent text-black')} 
-                                      outline-none font-semibold`}
-                                  >
-                                    <option value=''>Select Option</option>
-                                    <option value='Cash'>Cash</option>
-                                    <option value='GCash'>GCash</option>
-                                    <option value='GGvices'>GGvices</option>
-                                    <option value='Bank Transfer'>Bank Transfer</option>
-                                    <option value='BDO Credit Card'>BDO Credit Card</option>
-                                    <option value='Credit Card - Online'>Credit Card - Online</option>
-                                  </select>
+                                    outline-none font-semibold`}
+                                >
+                                  <option value=''>Select Option</option>
+                                  <option value='Today'>Today</option>
+                                  <option value='This Week'>This Week</option>
+                                  <option value='This Month'>This Month</option>
+                                  <option value='Custom Date'>Custom Date</option>
+                                </select>
                               </div>
+
+                            {/* Date Picker for Custom Date */}
+                            {dateFilter === 'Custom Date' && (
+                                  <div className='flex flex-col'>
+                                  <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
+
+                                <div className='flex justify-center items-center'>
+                                  <div className='flex flex-col'>
+                                    <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
+                                      <DatePicker
+                                        selected={startDate}
+                                        onChange={handleStartDateChange}
+                                        dateFormat='MM-dd-yyyy'
+                                        className='p-1 bg-transparent w-[100%] outline-none'
+                                        placeholderText='MM-DD-YYYY'
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
+
+                                  <div className='flex flex-col'>
+                                    <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
+                                      <DatePicker
+                                        selected={endDate}
+                                        onChange={handleEndDateChange}
+                                        dateFormat='MM-dd-yyyy'
+                                        className='bg-transparent w-[100%] p-1 outline-none'
+                                        placeholderText='MM-DD-YYYY'
+                                        minDate={startDate}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                            )}
+
 
                             </div>
 
@@ -298,38 +326,7 @@ const DashboardTransaction = () => {
                       </div>
 
 
-                      <div className='flex flex-col'>
-                                  <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
 
-                                <div className='flex justify-center items-center'>
-                                  <div className='flex flex-col'>
-                                    <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                                      <DatePicker
-                                        selected={startDate}
-                                        onChange={handleStartDateChange}
-                                        dateFormat='MM-dd-yyyy'
-                                        className='p-1 bg-transparent w-[100%] outline-none'
-                                        placeholderText='MM-DD-YYYY'
-                                      />
-                                    </div>
-                                  </div>
-
-                                  <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
-
-                                  <div className='flex flex-col'>
-                                    <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                                      <DatePicker
-                                        selected={endDate}
-                                        onChange={handleEndDateChange}
-                                        dateFormat='MM-dd-yyyy'
-                                        className='bg-transparent w-[100%] p-1 outline-none'
-                                        placeholderText='MM-DD-YYYY'
-                                        minDate={startDate}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                            </div>
                     </div>
 
                     <div className='flex flex-col gap-2 pt-8'>

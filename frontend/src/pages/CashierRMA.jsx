@@ -130,7 +130,7 @@ const filteredRMA = (rmaData || []).filter(rma => {
         };
     
         switch (status) {
-            case 'Approved':
+            case 'Approved':    
                 statusStyles = {
                     textClass: 'text-[#14AE5C]',
                     bgClass: 'bg-[#CFF7D3]',

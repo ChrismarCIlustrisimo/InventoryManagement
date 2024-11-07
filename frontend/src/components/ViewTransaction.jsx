@@ -62,20 +62,26 @@ const ViewTransaction = ({ transaction, onClose }) => {
   const [rmaData, setRMAData] = useState([]);
 
   useEffect(() => {
-      const fetchRefundAndRMA = async () => {
-          try {
-              const refundResponse = await axios.get(`${baseURL}/refund/check/${transaction.transaction_id}`);
-              setRefundData(refundResponse.data.refundData);
+    if (!transaction.transaction_id) {
+        console.error('No transaction ID available');
+        return;
+    }
 
-              const rmaResponse = await axios.get(`${baseURL}/rma/check/${transaction.transaction_id}`);
-              setRMAData(rmaResponse.data.rmaData);
-          } catch (error) {
-              console.error('Error fetching refund or RMA data:', error);
-          }
-      };
+    const fetchRefundAndRMA = async () => {
+        try {
+            const refundResponse = await axios.get(`${baseURL}/refund/check/${transaction.transaction_id}`);
+            setRefundData(refundResponse.data.refundData);
 
-      fetchRefundAndRMA();
-  }, [transaction.transaction_id]);
+            const rmaResponse = await axios.get(`${baseURL}/rma/check/${transaction.transaction_id}`);
+            setRMAData(rmaResponse.data.RMAData);  // Ensure RMAData matches the backend response
+        } catch (error) {
+            console.error('Error fetching refund or RMA data:', error);
+        }
+    };
+
+    fetchRefundAndRMA();
+}, [transaction.transaction_id]);
+
 
   return (
     <>

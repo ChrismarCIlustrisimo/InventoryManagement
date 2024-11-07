@@ -39,10 +39,11 @@ const DashboardNavbar = () => {
   const { darkMode } = useAdminTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false); // State for Reports dropdown visibility
   const [rmaDropdownOpen, setRmaDropdownOpen] = useState(false); // State for RMA dropdown visibility
+  const [refundDropDownOpen, setRefundDropDownOpen] = useState(false); // State for RMA dropdown visibility
 
   useEffect(() => {
     const path = location.pathname;
-    if (path.startsWith('/sales') || path.startsWith('/customer')) {
+    if (path.startsWith('/sales') || path.startsWith('/refund-list')) {
       setSelected('Sales');
     } else if (path === '/transaction-list') {
       setSelected('Transaction');
@@ -52,7 +53,7 @@ const DashboardNavbar = () => {
       setSelected('Dashboard');
     } else if (path === '/inventory/product') {
       setSelected('Inventory');
-    } else if (path === '/rma') {
+    } else if (path === '/rma' || path === '/refund-replace-units') {
       setSelected('RMA');
     } else if (path === '/SalesReport' || path === '/InventoryReport' || path === '/RMAReport') {
       setSelected('Reports');
@@ -77,15 +78,13 @@ const DashboardNavbar = () => {
 
       const updatedProducts = productData.map(product => {
         const availableUnits = product.units.filter(unit => unit.status === 'in_stock').length;
-        const { low_stock_threshold, near_low_stock_threshold } = product;
+        const { low_stock_threshold } = product;
 
-        let stockStatus = 'IN STOCK';
+        let stockStatus = 'HIGH';
         if (availableUnits === 0) {
           stockStatus = 'OUT OF STOCK';
         } else if (availableUnits <= low_stock_threshold) {
           stockStatus = 'LOW';
-        } else if (availableUnits <= near_low_stock_threshold) {
-          stockStatus = 'NEAR LOW';
         }
 
         return {
@@ -120,6 +119,12 @@ const DashboardNavbar = () => {
     setRmaDropdownOpen(!rmaDropdownOpen); // Toggle the RMA dropdown visibility
   };
 
+  const toggleRefundDropdown = () => {
+    setRefundDropDownOpen(!refundDropDownOpen); // Toggle the RMA dropdown visibility
+  };
+
+
+
   return (
     <div className={` ${darkMode ? 'bg-light-bg' : 'dark:bg-dark-bg'} text-white flex items-center justify-between px-6 py-1 drop-shadow fixed top-0 left-0 right-0 z-10`}>
       <img src={`${darkMode ? dark : light}`} alt="Logo" className='w-[10%] my-2 ml-8' />
@@ -152,20 +157,35 @@ const DashboardNavbar = () => {
         </Link>
 
         {/* Sales Button */}
-        <Link to="/sales" className="flex-1">
+        <div className="relative flex-1">
           <button
             className={`text-sm p-2 ${selected === 'Sales' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
-            onClick={() => setSelected('Sales')}
+            onClick={toggleRefundDropdown}
           >
             <BiReceipt className='text-lg' />
-            <span>Sales</span>
+            <span>Transaction</span>
+            <GoTriangleDown className={`text-lg transition-transform duration-200 ${refundDropDownOpen ? 'rotate-180' : 'rotate-0'}`} />
           </button>
-        </Link>
+          {refundDropDownOpen && (
+            <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-full ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
+              <Link to="/transactions">
+                <div className={`text-sm p-2 z-100 ${selected === 'Transaction' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
+                  Transaction
+                </div>
+              </Link>
+              <Link to="/refund-list">
+                <div className={`text-sm p-2 z-100 ${selected === 'Refund' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
+                 Refund
+                </div>
+              </Link>
+            </div>
+          )}
+      </div>
 
         {/* RMA Button */}
         <div className="relative flex-1">
           <button
-            className={`text-sm p-2 ${selected === 'RMA' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+            className={`text-sm p-2 ${selected === 'RMA' || selected === 'Returned' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={toggleRmaDropdown}
           >
             <BsArrowRepeat className='text-lg' />
@@ -202,7 +222,7 @@ const DashboardNavbar = () => {
           </button>
           {/* Reports Dropdown menu */}
           {dropdownOpen && (
-            <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-full ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
+            <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-[120%] ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
               <Link to="/SalesReport">
                 <div className={`text-sm p-2 z-100 ${selected === 'SalesReport' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-light-textPrimary'}`}>
                   Sales Report

@@ -128,14 +128,12 @@ const handleDateFilterChange = (filter) => {
     if (!salesData.length) return;
 
     let filteredData = [...salesData];
-
-    // Filter by selected category
-    if (selectedCategory) {
-      filteredData = filteredData.filter(item => 
-        item.products.some(product => product.product.category === selectedCategory) // Assuming products have a category field
-      );
-    }
-
+  // Filter by selected category
+  if (selectedCategory) {
+    filteredData = filteredData.filter(item => 
+      item.products.some(product => product.product && product.product.category === selectedCategory) // Ensure product and category exist
+    );
+  }
 
     if (startDate && endDate) {
       filteredData = filteredData.filter(item => {

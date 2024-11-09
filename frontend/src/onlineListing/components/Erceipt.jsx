@@ -1,9 +1,10 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import React, { useRef } from 'react';
+import React, { useRef, useS } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import LOGO from '../assets/iRig2.png'
+
 
 
 const Erceipt = () => {
@@ -36,6 +37,9 @@ const Erceipt = () => {
     return date.toLocaleString('en-US', options);
   };
 
+
+
+  
   const addOneDay = (dateString) => {
     const date = new Date(dateString);
     date.setDate(date.getDate() + 1);
@@ -85,6 +89,7 @@ const Erceipt = () => {
   const handleDone = () => {
     navigate('/iRIG/'); // Navigate to /iRIG/
   };
+
 
   if (!transaction) return <p>Loading...</p>;
 
@@ -148,12 +153,12 @@ const Erceipt = () => {
             <span className=" text-sm">{email || 'N/A'}</span> {/* Increased size */}
           </div>
           <div className="flex flex-row justify-between mt-2 pt-2">
-            <span className="text-sm">CONTACT NO.:</span>
-            <span className="text-sm">{phone || 'N/A'}</span> {/* Increased size */}
-          </div>
-          <div className="flex flex-row justify-between mt-2 pt-2">
             <span className="text-sm">ADDRESS:</span>
             <span className="text-sm">{fullAddress || 'N/A'}</span> {/* Increased size */}
+          </div>
+          <div className="flex flex-row justify-between mt-2 pt-2">
+            <span className="text-sm">CONTACT NO.:</span>
+            <span className="text-sm">{phone || 'N/A'}</span> {/* Increased size */}
           </div>
         </section>
 
@@ -161,7 +166,7 @@ const Erceipt = () => {
           <h3 className="text-lg font-semibold mb-2">Instructions</h3>
           <ol className="list-decimal pl-5 text-base space-y-2"> {/* Increased size */}
             <li>Present this receipt at our store.</li>
-            <li>Bring a valid ID for verification.</li>
+            <li>Bring one valid ID for verification.</li>
             <li>Proceed to payment.</li>
             <li>Ensure you collect your items before the expiry date.</li>
           </ol>
@@ -200,6 +205,7 @@ const Erceipt = () => {
           </button>
         </div>
       </footer>
+
     </div>
   );
 };

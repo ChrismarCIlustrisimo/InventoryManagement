@@ -43,7 +43,7 @@ const DashboardNavbar = () => {
 
   useEffect(() => {
     const path = location.pathname;
-    if (path.startsWith('/sales') || path.startsWith('/refund-list')) {
+    if (path.startsWith('/transactions') || path.startsWith('/refund-list')) {
       setSelected('Sales');
     } else if (path === '/transaction-list') {
       setSelected('Transaction');

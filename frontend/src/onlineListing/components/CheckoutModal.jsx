@@ -4,11 +4,47 @@ import axios from 'axios';
 import { toast } from 'react-toastify'; // Import toast
 import { useProductContext } from '../page';
 
+const ConfirmationModal = ({ message, onConfirm, onCancel, darkMode }) => {
+    // Calculate the claim deadline (1 day from now)
+    const claimDate = new Date();
+    claimDate.setDate(claimDate.getDate() + 1); // Add 1 day
+
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+    const claimDateTime = claimDate.toLocaleString(undefined, options); // Format date based on user locale
+
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+        <div className={`p-6 rounded-md shadow-lg w-full max-w-sm text-light-textPrimary bg-light-container`}>
+          <p className="text-lg mb-4">{message}</p>
+          <p className="text-sm text-gray-500 mb-4">
+            Note: You need to claim your item before {claimDateTime}.
+          </p>
+          <div className="flex justify-end gap-4">
+            <button
+              onClick={onConfirm}
+              className="w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 bg-light-primary text-dark-textPrimary hover:bg-light-primary"
+            >
+              Confirm
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-[46%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 border-light-primary text-light-primary"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+};
+
 const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
     const navigate = useNavigate();
     const baseURL = "http://localhost:5555";
     const { cart, setCart } = useProductContext(); // Get cart and setCart from context
+    const [showConfirmation, setShowConfirmation] = useState(false);
 
+    
     if (!isOpen) return null;
 
     // State variable for customer details
@@ -163,6 +199,19 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
         }
     };
 
+    const handleProceedToConfirm = () => {
+        setShowConfirmation(true);
+    };
+
+    const handleConfirmModalConfirm = () => {
+        setShowConfirmation(false);
+        handleConfirmReservation();
+    };
+
+    const handleConfirmModalCancel = () => {
+        setShowConfirmation(false);
+    };
+
     return (
             <div className="fixed inset-0 flex items-center justify-center z-50 px-4 sm:px-0">
                 <div className="bg-black opacity-50 absolute inset-0"></div>
@@ -291,10 +340,18 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
                         <p>₱{(total + totalVat).toLocaleString()}</p>
                     </div>
 
-                    <button className="bg-blue-500 text-white w-full py-2 rounded-lg" onClick={handleConfirmReservation}>
+                    <button className="bg-blue-500 text-white w-full py-2 rounded-lg" onClick={handleProceedToConfirm}>
                         Confirm Reservation
                     </button>
                 </div>
+                            
+                {showConfirmation && (
+                <ConfirmationModal
+                    message="Are you sure you want to confirm this reservation?"
+                    onConfirm={handleConfirmModalConfirm}
+                    onCancel={handleConfirmModalCancel}
+                />
+                )}
             </div>
 
 

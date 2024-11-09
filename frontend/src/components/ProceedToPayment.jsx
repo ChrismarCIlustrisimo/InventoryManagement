@@ -368,7 +368,7 @@ const calculateTotalVAT = () => {
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>Total Amount</p>
-                  <p className='w-[50%]'>₱ {(totalVAT + totalAmount).toLocaleString()}</p>
+                  <p className='w-[50%]'>₱ {((totalVAT + totalAmount) - discountValue).toLocaleString()}</p>
                 </div>
               </div>
 
@@ -401,7 +401,7 @@ const calculateTotalVAT = () => {
                 </div>
 
                 <div className='w-full flex items-center  '>
-                  <p className='w-[50%]'>Total Amount Paid</p>
+                  <p className='w-[50%]'>Payment Received</p>
                   <input
                     type="text"
                     value={formatNumber(paymentAmount)}

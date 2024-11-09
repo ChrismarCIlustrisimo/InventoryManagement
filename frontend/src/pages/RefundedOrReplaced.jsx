@@ -56,38 +56,44 @@ const RefundedOrReplaced = () => {
   };
 
 
-  // Fetch all RMAs and product units
-  const fetchRmas = async () => {
-    try {
-      const response = await axios.get(`${baseURL}/rma`, {
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
-      setRmas(response.data);
-
-      const rmasWithUnits = await Promise.all(response.data.map(async (rma) => {
-        const productId = rma.product_id;
-        const productUnitsResponse = await axios.get(`${baseURL}/product/${productId}/units`, {
+    // Fetch all RMAs and product units
+    const fetchRmas = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/rma`, {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
         });
+        setRmas(response.data);
 
-        const filteredUnits = productUnitsResponse.data.units.filter(unit => 
-          unit.status === 'refunded' || unit.status === 'replaced'
-        );
-
-        return { ...rma, units: filteredUnits };
-      }));
-
-      setRmas(rmasWithUnits);
-      const filteredRmas = rmasWithUnits.filter(rma => rma.units.length > 0);
-      setFilteredRmas(filteredRmas);
-    } catch (error) {
-      console.error("Error fetching RMAs:", error);
-    }
-  };
+        const rmasWithUnits = await Promise.all(response.data.map(async (rma) => {
+          if (!rma.product_id) {
+            return { ...rma, units: [] }; // Skip this RMA if no valid product_id
+          }
+          const productId = rma.product_id;
+          try {
+            const productUnitsResponse = await axios.get(`${baseURL}/product/${productId}/units`, {
+              headers: {
+                Authorization: `Bearer ${user.token}`,
+              },
+            });
+            const filteredUnits = productUnitsResponse.data.units.filter(unit =>
+              unit.status === 'refunded' || unit.status === 'replaced'
+            );
+            return { ...rma, units: filteredUnits };
+          } catch (error) {
+            console.error(`Error fetching units for product ${productId}:`, error);
+            return { ...rma, units: [] }; // Handle error gracefully and return an empty units array
+          }
+        }));
+        
+        setRmas(rmasWithUnits);
+        const filteredRmas = rmasWithUnits.filter(rma => rma.units.length > 0);
+        setFilteredRmas(filteredRmas);
+      } catch (error) {
+        console.error("Error fetching RMAs:", error);
+      }
+    };
 
   const applyFilters = () => {
     const filtered = rmas.filter((rma) => {
@@ -148,7 +154,7 @@ const RefundedOrReplaced = () => {
   const handleUpdateUnit = async (productId, unitId) => {
     openConfirmDialog("Put Product Back into Inventory?", async () => {
       try {
-        await axios.put(`${baseURL}/product/${productId}/unit/${unitId}`, { status: 'in_inventory' }, {
+        await axios.put(`${baseURL}/product/${productId}/unit/${unitId}`, { status: 'in_stock' }, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         fetchRmas(); // Re-fetch RMAs to update the display

@@ -29,41 +29,35 @@ const DashboardTransaction = () => {
     const [cashierName, setCashierName] = useState('');
     const [showViewPanel, setShowViewPanel] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
-    const [customerName, setCustomerName] = useState(''); // Add this line
-    const { dateFilter, handleDateFilterChange } = useDateFilter();
+    const [customerName, setCustomerName] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
 
-
-    const handleDateFilterChangeHandler = (filter) => {
-      handleDateFilterChange(filter); // Call context function to update global state
+    const handleDateFilterChange = (filter) => {
+      setDateFilter(filter); 
       const today = new Date();
-    
-      // Set start and end dates based on the filter
+
       switch (filter) {
-        case 'Today':
-          setStartDate(new Date(today.setHours(0, 0, 0, 0)));
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-        case 'This Week':
-          const dayOfWeek = today.getDay();
-          const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
-          setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-        case 'This Month':
-          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-          setStartDate(startOfMonth);
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-        default:
-          setStartDate(null);
-          setEndDate(null);
+          case 'Today':
+              setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+              setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+              break;
+          case 'This Week':
+              const dayOfWeek = today.getDay();
+              const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
+              setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
+              setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+              break;
+          case 'This Month':
+              const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+              setStartDate(startOfMonth);
+              setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+              break;
+          default:
+              setStartDate(null);
+              setEndDate(null);
       }
-    
-      // Call fetchSalesOrders after setting the dates
-      fetchSalesOrders();
-    };
-    
-    
+  };
+
 
     const handleViewTransaction = (transaction, item) => {
       if (showViewPanel) {
@@ -92,8 +86,7 @@ const DashboardTransaction = () => {
       if (user) {
         fetchSalesOrders();
       }
-    }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user, customerName]); // Ensure these are the correct dependencies
-    
+    }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user, customerName]);
     
     const fetchSalesOrders = async () => {
       setLoading(true);
@@ -135,10 +128,7 @@ const DashboardTransaction = () => {
         setMaxPrice('');
         setCashierName('');
         setCustomerName('');
-        setStatusFilters({
-          Completed: false,
-          Refunded: false,
-        });
+        setDateFilter('');
       };
       
       
@@ -226,24 +216,24 @@ const DashboardTransaction = () => {
                               <div className='flex flex-col gap-2 py-2'>
                                 <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>DATE FILTER</label>
                                 <select
-                                  id='dateFilter'
-                                  value={dateFilter}
-                                  onChange={(e) => handleDateFilterChangeHandler(e.target.value)} // Use the handler that updates both local state and context
-                                  className={`border rounded p-2 my-1 
-                                    ${dateFilter === '' 
-                                      ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                      : (darkMode 
-                                          ? 'bg-light-activeLink text-light-primary' 
-                                          : 'bg-transparent text-black')} 
-                                    outline-none font-semibold`}
+                                    id='dateFilter'
+                                    value={dateFilter}
+                                    onChange={(e) => handleDateFilterChange(e.target.value)} // Call the date filter handler
+                                    className={`border rounded p-2 my-1 
+                                        ${dateFilter === '' 
+                                            ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                                            : (darkMode 
+                                                ? 'bg-light-activeLink text-light-primary' 
+                                                : 'bg-transparent text-black')} 
+                                        outline-none font-semibold`}
                                 >
-                                  <option value=''>Select Option</option>
-                                  <option value='Today'>Today</option>
-                                  <option value='This Week'>This Week</option>
-                                  <option value='This Month'>This Month</option>
-                                  <option value='Custom Date'>Custom Date</option>
+                                    <option value=''>Select Option</option>
+                                    <option value='Today'>Today</option>
+                                    <option value='This Week'>This Week</option>
+                                    <option value='This Month'>This Month</option>
+                                    <option value='Custom Date'>Custom Date</option>
                                 </select>
-                              </div>
+                            </div>
 
                             {/* Date Picker for Custom Date */}
                             {dateFilter === 'Custom Date' && (

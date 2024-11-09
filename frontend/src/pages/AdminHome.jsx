@@ -288,8 +288,8 @@ const AdminHome = () => {
   };
 
   const handleGoSales = () => {
-    //handleDateFilterChange('This Month'); // Change the date filter context
-    navigate('/transactions'); // Navigate to the sales page
+    //handleDateFilterChange('This Month');
+    navigate('/transactions');
 };
 
   const handleGoInventory = () => {

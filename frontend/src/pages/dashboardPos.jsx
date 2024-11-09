@@ -336,59 +336,57 @@ const DashboardPos = () => {
                   <th className="p-2 text-center">Product Name</th>
                   <th className="p-2 text-center">Model</th>
                   <th className="p-2 text-center">Serial Number</th>
-                  <th className="p-2 text-center">Qty. Sold</th>
+                  <th className="p-2 text-center">Qty. Sold</th>  
                   <th className="p-2 text-center">Total Amount</th>
                   <th className="p-2 text-center">Status</th>
                   <th className="p-2 text-center">Actions</th>
                 </tr>
               </thead>
-            <tbody>
-              {salesOrder.map((transaction) => (
-                <tr key={transaction._id} className={`${darkMode ? 'text-light-textPrimary bg-light-container ' : 'dark:text-dark-textPrimary bg-dark-container'} text-sm`}>
-                  <td className="p-2 text-center">{transaction.transaction_id || 'N/A'}</td>
-                  <td className="p-2 text-center">{formatDate(transaction.transaction_date)}</td>
-                  <td className="p-2 text-center">{shortenString(transaction.customer?.name) || 'None'}</td>
-                  <td className="p-2 text-center">
-                    {transaction.products.length > 0
-                      ? transaction.products.map((item, idx) => (
-                          <div key={idx}>
-                            <p>{shortenString(item.product.name)}</p>
-                          </div>
-                        ))
-                      : 'N/A'}
-                  </td>
-                  <td className="p-2 text-center">
-                    {transaction.products.length > 0
-                      ? transaction.products.map((item, idx) => (
-                          <div key={idx}>
-                            <p>{shortenString(item.product.model)}</p>
-                          </div>
-                        ))
-                      : 'N/A'}
-                  </td>
-                  <td className="p-2 text-center">
-                      {transaction.products.length > 0 ? (
-                        transaction.products.map((item, idx) => (
-                          <div key={idx}>
-                            <p>{item.serial_number.length > 0 ? shortenString(item.serial_number.join(', '), 20) : 'N/A'}</p>
-                          </div>
-                        ))
-                      ) : (
-                        'N/A'
-                      )}
-                    </td>
-
-                  <td className="p-2 text-center">
-                    {transaction.products.length > 0
-                      ? transaction.products.reduce((acc, item) => acc + item.quantity, 0)
-                      : '0'}
-                  </td>
-                  <td className="p-2 text-center">₱ {transaction.total_price || '0.00'}</td>
-                  <td className="p-2 text-center">
+              <tbody>
+                  {salesOrder.map((transaction) => (
+                    <tr key={transaction._id} className={`${darkMode ? 'text-light-textPrimary bg-light-container ' : 'dark:text-dark-textPrimary bg-dark-container'} text-sm`}>
+                      <td className="p-2 text-center">{transaction.transaction_id || 'N/A'}</td>
+                      <td className="p-2 text-center">{formatDate(transaction.transaction_date)}</td>
+                      <td className="p-2 text-center">{transaction.customer ? shortenString(transaction.customer.name) : 'None'}</td>
+                      <td className="p-2 text-center">
+                        {transaction.products.length > 0
+                          ? transaction.products.map((item, idx) => (
+                              <div key={idx}>
+                                <p>{shortenString(item.product?.name || 'Unknown')}</p>
+                              </div>
+                            ))
+                          : 'N/A'}
+                      </td>
+                      <td className="p-2 text-center">
+                        {transaction.products.length > 0
+                          ? transaction.products.map((item, idx) => (
+                              <div key={idx}>
+                                <p>{shortenString(item.product?.model || 'Unknown')}</p>
+                              </div>
+                            ))
+                          : 'N/A'}
+                      </td>
+                      <td className="p-2 text-center">
+                        {transaction.products.length > 0 ? (
+                          transaction.products.map((item, idx) => (
+                            <div key={idx}>
+                              <p>{item.serial_number.length > 0 ? shortenString(item.serial_number.join(', '), 20) : 'N/A'}</p>
+                            </div>
+                          ))
+                        ) : (
+                          'N/A'
+                        )}
+                      </td>
+                      <td className="p-2 text-center">
+                        {transaction.products.length > 0
+                          ? transaction.products.reduce((acc, item) => acc + item.quantity, 0)
+                          : '0'}
+                      </td>
+                      <td className="p-2 text-center">₱ {transaction.total_price || '0.00'}</td>
+                      <td className="p-2 text-center">
                         {transaction.status ? (
-                          // Get styles based on transaction status
                           (() => {
-                            const { textClass, bgClass } = getStatusStyles(transaction.status);  // Get styles based on the overall transaction status
+                            const { textClass, bgClass } = getStatusStyles(transaction.status);
                             return (
                               <div className={`inline-block p-2 w-[90%] rounded ${textClass} ${bgClass}`}>
                                 {transaction.status}
@@ -399,18 +397,18 @@ const DashboardPos = () => {
                           'Pending'
                         )}
                       </td>
+                      <td className='text-center py-4 text-sm'>
+                        <button
+                          className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
+                          onClick={() => handleViewTransaction(transaction)}
+                        >
+                          View
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
 
-                          <td className='text-center py-4 text-sm'>
-                          <button
-                                className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
-                                onClick={() => handleViewTransaction(transaction)} // Updated this line
-                              >
-                                View
-                              </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
           </table>
         </div>
       )}

@@ -162,21 +162,35 @@ const priceRanges = {
 
 const filteredProducts = products
   .filter(product => {
-    const isInPriceRange = priceRange
-      ? product.selling_price >= priceRanges[priceRange][0] && 
-        product.selling_price <= priceRanges[priceRange][1]
+    // Price range filter
+    const isInPriceRange = (minPrice || maxPrice)
+      ? product.selling_price >= minPrice && product.selling_price <= maxPrice
       : true; // If no price range is selected, include all products
     
+    // Category filter
+    const isInCategory = categoryFilter === '' || product.category === categoryFilter;
+    
+    // Supplier filter
+    const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier;
+
+    // Stock alerts filter with fixed logical conditions
+    const isInStockStatus =
+      (stockAlerts['LOW'] && product.current_stock_status === 'LOW') ||
+      (stockAlerts['HIGH'] && product.current_stock_status === 'HIGH') ||
+      (stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK') ||
+      (!stockAlerts['LOW'] && !stockAlerts['HIGH'] && !stockAlerts['OUT OF STOCK']);
+    
+    // Search query filter
+    const matchesSearchQuery =
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.model.toLowerCase().includes(searchQuery.toLowerCase());
+
     return (
-      (product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.product_id.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      (categoryFilter === '' || product.category === categoryFilter) &&
-      (selectedSupplier === '' || product.supplier === selectedSupplier) && // Include supplier filter
-      (stockAlerts['LOW'] && product.current_stock_status === 'LOW' ||
-      stockAlerts['HIGH'] && product.current_stock_status === 'HIGH' ||
-      stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK' ||
-      (!stockAlerts['LOW'] && !stockAlerts['HIGH'] && !stockAlerts['OUT OF STOCK'])) &&
-      isInPriceRange // Add the price range filter
+      matchesSearchQuery &&
+      isInCategory &&
+      isInSupplier &&
+      isInStockStatus &&
+      isInPriceRange
     );
   })
   .sort((a, b) => {
@@ -186,6 +200,7 @@ const filteredProducts = products
     if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
     return 0;
   });
+
 
 
 
@@ -208,19 +223,15 @@ const filteredProducts = products
     setPriceRange(event.target.value); // Update the state based on selected value
   };
 
-  const handlePriceRangeFilter = () => {
-    setProducts(prevProducts => prevProducts.filter(product =>
-      (minPrice === '' || product.selling_price >= parseFloat(minPrice)) &&
-      (maxPrice === '' || product.selling_price <= parseFloat(maxPrice))
-    ));
-  };
 
   const handleResetFilters = () => {
+    setSelectedCategory('');
     setMinPrice('');
     setMaxPrice('');
     setSortBy('');
     setSearchQuery('');
     setCategoryFilter(''); // Reset category filter
+    setPriceRange(''); // Reset price range
     setStockAlerts({
       "LOW": false,
       "HIGH": false,
@@ -277,8 +288,8 @@ const filteredProducts = products
             </div>
           </div>
           <div className='w-full flex justify-end gap-2'>
-            <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search products by name and product id'}/>
-              <button 
+           <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search product by name or model'}/>
+          <button 
                 className={`px-4 py-2 rounded-md font-semibold transform transition-transform duration-200 
                             ${darkMode ? 'bg-light-primary' : 'dark:bg-dark-primary'} 
                             hover:scale-105`} 
@@ -303,24 +314,27 @@ const filteredProducts = products
               <div className='flex flex-col'>
                 <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                 <select
-                    id='category'
-                    value={selectedCategory} // Set the value of the select to the state
-                    onChange={handleCategoryChange}
-                    className={`border rounded p-2 my-1 
-                      ${selectedCategory === '' 
-                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                        : (darkMode 
-                          ? 'bg-light-activeLink text-light-primary' 
-                          : 'bg-transparent text-black')} 
-                      outline-none font-semibold`}
-                >
-                    <option value=''>Select Category</option>
-                    <option value='Components'>Components</option>
-                    <option value='Peripherals'>Peripherals</option>
-                    <option value='Accessories'>Accessories</option>
-                    <option value='PC Furniture'>PC Furniture</option>
-                    <option value='OS & Software'>OS & Software</option>
-                </select>
+                      id="category"
+                      value={selectedCategory}
+                      onChange={handleCategoryChange}
+                      className={`border rounded p-2 my-1 outline-none font-semibold ${
+                          selectedCategory === ''
+                              ? (darkMode 
+                                  ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                                  : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                              : (darkMode 
+                                  ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                                  : 'bg-light-activeLink text-dark-primary border-dark-primary')
+                      }`}
+                  >
+                      <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Category</option>
+                      <option value="Components" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Components</option>
+                      <option value="Peripherals" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Peripherals</option>
+                      <option value="Accessories" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Accessories</option>
+                      <option value="PC Furniture" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>PC Furniture</option>
+                      <option value="OS & Software" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>OS & Software</option>
+                  </select>
+
 
 
               </div>
@@ -329,23 +343,26 @@ const filteredProducts = products
               <div className='flex flex-col'>
                 <label htmlFor='sortBy' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SORT BY</label>
                 <select
-                    id='sortBy'
-                    value={sortBy} // Set the value of the select to the state
+                    id="sortBy"
+                    value={sortBy}
                     onChange={handleSortByChange}
-                    className={`border rounded p-2 my-1 
-                      ${sortBy === '' 
-                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                        : (darkMode 
-                          ? 'bg-light-activeLink text-light-primary' 
-                          : 'bg-transparent text-black')} 
-                      outline-none font-semibold`}S
-                  >
-                    <option value=''>Select Option</option>
-                    <option value='price_asc'>Price Lowest to Highest</option>
-                    <option value='price_desc'>Price Highest to Lowest</option>
-                    <option value='product_name_asc'>Product Name A-Z</option>
-                    <option value='product_name_desc'>Product Name Z-A</option>
-                  </select>
+                    className={`border rounded p-2 my-1 outline-none font-semibold ${
+                        sortBy === ''
+                            ? (darkMode 
+                                ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                                : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                            : (darkMode 
+                                ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                                : 'bg-light-activeLink text-dark-primary border-dark-primary')
+                    }`}
+                >
+                    <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                    <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
+                    <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Highest to Lowest</option>
+                    <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name A-Z</option>
+                    <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name Z-A</option>
+                </select>
+
               </div>
 
 
@@ -379,72 +396,79 @@ const filteredProducts = products
                   onChange={handlePriceRange}
                   className={`border rounded p-2 my-1 
                     ${priceRange === '' 
-                      ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                      : (darkMode 
-                        ? 'bg-light-activeLink text-light-primary' 
-                        : 'bg-transparent text-black')} 
+                      ? (darkMode 
+                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                    : (darkMode 
+                        ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                        : 'bg-light-activeLink text-dark-primary border-dark-primary')
+                      } 
                     outline-none font-semibold`}
                 >
-                  <option value=''>Select Option</option>
-                  <option value='1K-5K'>₱1K - 5K</option>
-                  <option value='6K-10K'>₱6K - 10K</option>
-                  <option value='11K-20K'>₱11K - 20K</option>
-                  <option value='21K-30K'>₱21K - 30K</option>
+                  <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                  <option value='1K-5K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱1K - 5K</option>
+                  <option value='6K-10K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱6K - 10K</option>
+                  <option value='11K-20K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱11K - 20K</option>
+                  <option value='21K-30K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱21K - 30K</option>
                 </select>
 
 
-                <div className={`flex justify-between items-center gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                <div className='flex justify-center items-center'>
+                    <div className='flex flex-col'>
+                      <div 
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
+                      >
+                        <input
+                          type='number'
+                          id='minPrice'
+                          value={minPrice}
+                          onChange={(e) => {
+                            setMinPrice(e.target.value);
+                            handleMinPriceChange(e);
+                          }}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                          min='0'
+                          placeholder='Min'
+                        />
+                      </div>
+                    </div>
 
-                  <div className={`flex flex-col`}>
-                    <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? `border-black` : `border-white`}` : (darkMode ? 'border-light-primary' : 'dark:border-dark-primary')}`}>
-                      <input
-                        type='number'
-                        id='minPrice'
-                        value={minPrice}
-                        onChange={(e) => {
-                          setMinPrice(e.target.value);
-                          handleMinPriceChange(e);
-                        }}
-                        className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${isInputsEmpty ? 'text-black' : ''}`}
-                        min='0'
-                        placeholder='Min'
-                      />
+                    <span className='text-2xl text-center h-full text-[#a8adb0] mx-2'>-</span>
+
+                    <div className='flex flex-col'>
+                      <div 
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
+                      >
+                        <input
+                          type='number'
+                          id='maxPrice'
+                          value={maxPrice}s
+                          onChange={(e) => {
+                            setMaxPrice(e.target.value);
+                            handleMaxPriceChange(e);
+                          }}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                          min='0'
+                          placeholder='Max'
+                        />
+                      </div>
                     </div>
                   </div>
-                  <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
-                  <div className={`flex flex-col`}>
-                  <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? `border-black` : `border-white`}` : (darkMode ? 'border-light-primary' : 'dark:border-dark-primary')}`}>
-                  <input
-                        type='number'
-                        id='maxPrice'
-                        value={maxPrice}
-                        onChange={(e) => {
-                          setMaxPrice(e.target.value);
-                          handleMaxPriceChange(e);
-                        }}
-                        className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${isInputsEmpty ? 'text-black' : ''}`}
-                        min='0'
-                        placeholder='Max'
-                      />
-                    </div>
-                  </div>
-                  <button
-                    className={`p-2 text-xs rounded-md text-white ${isInputsEmpty ? (darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary') : (darkMode ? 'bg-light-primary' : 'bg-dark-primary')} hover:bg-opacity-60 active:bg-opacity-30`}
-                    onClick={handlePriceRangeFilter}
-                  >
-                    <FaPlay />
-                  </button>
-                </div>
+
+
             </div>
 
+
+
+
             <div className='flex flex-col gap-2'>
-            <button
-              className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-                    onClick={handleResetFilters}
+              <button
+                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                  ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                onClick={handleResetFilters}
               >
-                <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`} />
-                <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`}>Reset Filters</p>
+                <HiOutlineRefresh className={`mr-2 text-2xl text-white`} />
+                <p className={`text-lg text-white`}>Reset Filters</p>
               </button>
             </div>
           </div>

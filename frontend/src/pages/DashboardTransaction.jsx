@@ -100,6 +100,8 @@ const DashboardTransaction = () => {
             customer: customerName,
             startDate: startDate ? startDate.toISOString() : undefined,
             endDate: endDate ? endDate.toISOString() : undefined,
+            minPrice: minPrice || undefined, // Add minPrice filter
+            maxPrice: maxPrice || undefined, // Add maxPrice filte
             sortBy: sortBy,
           },
           headers: {
@@ -181,7 +183,7 @@ const DashboardTransaction = () => {
             <DashboardNavbar />
             <div className='pt-[70px] px-6 py-4 w-full h-full'>
                 <div className='flex items-center justify-center py-5'>
-                    <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Sales Transaction</h1>
+                    <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Transaction</h1>
                     <div className='w-full flex justify-end gap-2'>
                         <AdminSearchBar query={searchQuery} onQueryChange={setSearchQuery}  placeholderMessage={'Search Transaction by transaction id'} />
                     </div>
@@ -198,8 +200,10 @@ const DashboardTransaction = () => {
                                   placeholder='Enter Customer Name'
                                   value={customerName}
                                   onChange={(e) => setCustomerName(e.target.value)}
-                                  className={`border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-textSecondary' : 'dark:border-dark-textSecondary'} w-full p-2`}
-                                  />
+                                  className={`border rounded p-2 my-1 ${customerName === '' 
+                                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                                  outline-none font-semibold`}/>
                               </div>
 
                               <div className='flex flex-col gap-2'>
@@ -209,8 +213,10 @@ const DashboardTransaction = () => {
                                     placeholder='Enter Cashier Name'
                                     value={cashierName}
                                     onChange={(e) => setCashierName(e.target.value)}
-                                    className={`border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-textSecondary' : 'dark:border-dark-textSecondary'} w-full p-2`}
-                                    />
+                                    className={`border rounded p-2 my-1 ${cashierName === '' 
+                                      ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                                      : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                                    outline-none font-semibold`}/>                                    
                               </div>
 
                               <div className='flex flex-col gap-2 py-2'>
@@ -221,17 +227,19 @@ const DashboardTransaction = () => {
                                     onChange={(e) => handleDateFilterChange(e.target.value)} // Call the date filter handler
                                     className={`border rounded p-2 my-1 
                                         ${dateFilter === '' 
-                                            ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                            : (darkMode 
-                                                ? 'bg-light-activeLink text-light-primary' 
-                                                : 'bg-transparent text-black')} 
+                                          ? (darkMode 
+                                            ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                                            : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                                        : (darkMode 
+                                            ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                                            : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                                         outline-none font-semibold`}
                                 >
-                                    <option value=''>Select Option</option>
-                                    <option value='Today'>Today</option>
-                                    <option value='This Week'>This Week</option>
-                                    <option value='This Month'>This Month</option>
-                                    <option value='Custom Date'>Custom Date</option>
+                                    <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                                    <option value='Today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
+                                    <option value='This Week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
+                                    <option value='This Month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>
+                                    <option value='Custom Date' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Custom Date</option>
                                 </select>
                             </div>
 
@@ -270,27 +278,20 @@ const DashboardTransaction = () => {
                                 </div>
                             </div>
                             )}
-
-
-                            </div>
-
-
-
-
-
+                      </div>
 
                       <div className='flex flex-col'>
                         <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>AMOUNT RANGE</label>
 
                         <div className='flex justify-center items-center'>
                           <div className='flex flex-col'>
-                            <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
+                          <div className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>                              
                               <input
                                 type='number'
                                 id='minPrice'
                                 value={minPrice}
                                 onChange={handleMinPriceChange}
-                                className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none'
+                                className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
                                 min='0'
                                 placeholder='Min'
                               />
@@ -300,13 +301,13 @@ const DashboardTransaction = () => {
                           <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                           <div className='flex flex-col'>
-                            <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 ${darkMode ? 'border-light-container1' : 'dark:border-dark-container1'}`}>
-                              <input
+                          <div className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>                              
+                                <input
                                 type='number'
                                 id='maxPrice'
                                 value={maxPrice}
                                 onChange={handleMaxPriceChange}
-                                className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none'
+                                className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
                                 min='0'
                                 placeholder='Max'
                               />
@@ -319,14 +320,14 @@ const DashboardTransaction = () => {
 
                     </div>
 
-                    <div className='flex flex-col gap-2 pt-8'>
-                    <button
-                      className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                        ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-                            onClick={handleResetFilters}
+                    <div className='flex flex-col gap-2'>
+                      <button
+                        className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                          ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                        onClick={handleResetFilters}
                       >
-                        <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`} />
-                        <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`}>Reset Filters</p>
+                        <HiOutlineRefresh className={`mr-2 text-2xl text-white`} />
+                        <p className={`text-lg text-white`}>Reset Filters</p>
                       </button>
                     </div>
                </div>
@@ -335,22 +336,22 @@ const DashboardTransaction = () => {
                 <Spinner />
               ) : salesOrder.length === 0 ? (
                 <div className='w-[80%] h-[77vh] flex items-center justify-center'>
-                  <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No Successful Transactions</p>
+                  <p className={`${darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>No Transactions Available</p>
                 </div>
               ) : (
                 <div className='w-[80%] h-[77vh]'>
                   <div className="overflow-x-auto max-h-screen h-[78vh] rounded-2xl">
-                    <table className={`w-full table-auto ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                    <table className={`w-full table-auto ${darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>
                       <thead className="sticky top-0 z-5">
                         <tr className={`border-b-2 ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Transaction ID</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Sales Date</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Customer Name</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Product Name</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Qty. Sold</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}> Total Amount</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}> Status</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center bg-light-container`}>Action</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Transaction ID</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Sales Date</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Customer Name</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Qty. Sold</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}> Total Amount</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}> Status</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Action</th>
                         </tr>
                       </thead>
                       <tbody>

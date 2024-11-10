@@ -50,8 +50,8 @@ const AddUser = () => {
     };
 
     return (
-        <div className={`w-full h-full ${darkMode ? 'bg-light-BG text-light-textPrimary' : 'bg-dark-BG text-dark-textPrimary'}`}>
-            <div className={`pt-[70px] pt-4 h-full w-full flex flex-col items-center justify-between`}>
+        <div className={`w-full h-full ${darkMode ? 'bg-light-bg text-light-textPrimary' : 'bg-dark-bg text-dark-textPrimary'}`}>
+            <div className={`pt-[70px] h-full w-full flex flex-col items-center justify-between`}>
                 <div className='w-full h-[88%] flex flex-col items-center justify-center gap-4'>
                     <h3 className='text-2xl font-semibold'>ADD USER</h3>
                     <div className={`px-4 py-8 rounded-lg shadow-lg w-[30%] flex flex-col gap-4 items-center justify-center ${darkMode ? 'bg-light-CARD text-light-textPrimary' : 'bg-dark-CARD text-dark-textPrimary'}`}>
@@ -93,13 +93,16 @@ const AddUser = () => {
                             className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                         />
                         <select
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                        value={role}
+                        onChange={(e) => setRole(e.target.value)}
+                        className={`w-full border rounded-md p-2 bg-transparent 
+                            ${darkMode ? 'bg-light-bg text-light-textPrimary border-light-primary' : 'dark:bg-dark-bg dark:text-dark-textPrimary dark:border-dark-primary'}`}
                         >
-                            <option value="cashier">Cashier</option>
-                            <option value="admin">Admin</option>
+                        <option value="cashier">Cashier</option>
+                        <option value="admin">Admin</option>
                         </select>
+
+
                         {error && <p className='mt-2 text-red-500'>{error}</p>}
                     </div>
                 </div>

@@ -41,7 +41,9 @@ const Navbar = ({ query, onQueryChange }) => {
             <div className="md:w-[60%] w-full flex items-center justify-around py-2 md:py-4 md:gap-2 gap-12">
                 <div className='flex gap-2 h-full items-center justify-center'>
                     <GiHamburgerMenu className="text-5xl cursor-pointer md:hidden text-white" onClick={toggleMenu} />
-                    <img src={iRig1} alt="Website Logo" className="h-8 w-auto max-w-[150px] sm:max-w-[100px] md:max-w-full md:h-12" />
+                    <Link to="/iRIG/">
+                        <img src={iRig1} alt="Website Logo" className="h-8 w-auto max-w-[150px] sm:max-w-[100px] md:max-w-full md:h-12" />
+                    </Link>
                 </div>
                 <Searchbar
                     query={query}

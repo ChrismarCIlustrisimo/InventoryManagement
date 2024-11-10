@@ -83,7 +83,7 @@ const AdminProfile = () => {
     
     const toggleEdit = async () => {
         if (isEditable) {
-            await saveChanges(`/user/${user._id}`, { name, username, contact }, 'Profile updated successfully.', 'Error updating profile:');
+            await saveChanges(`/user/${user._id}`, { name, username, contact }, '', 'Error updating profile:');
             toast.success('Information updated successfully!');
         } else {
             resetToUserData();
@@ -97,11 +97,9 @@ const AdminProfile = () => {
             const response = await axios.patch(`${baseURL}${endpoint}`, data);
             setMessage(successMessage); // Set success message
             setErrorMessage(''); // Clear error message
-            console.log(successMessage, response.data);
         } catch (error) {
             setErrorMessage(errorMessage + (error.response ? error.response.data : error.message)); // Set error message
             setMessage(''); // Clear success message
-            console.error(errorMessage, error.response ? error.response.data : error.message);
         }
     };
     
@@ -161,7 +159,6 @@ const AdminProfile = () => {
                 }
 
                 const responseData = await response.json();
-                console.log(responseData.message);
 
                 // Update the user list after deletion
                 setUsers((prevUsers) => prevUsers.filter(user => user._id !== userToDelete));
@@ -191,7 +188,6 @@ const AdminProfile = () => {
     };
 
     const onLogout = () => {
-        console.log('Logging out...');
         logout();
     };
 

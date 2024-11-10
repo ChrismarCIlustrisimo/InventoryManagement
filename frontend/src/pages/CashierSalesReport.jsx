@@ -130,13 +130,12 @@ const handleDateFilterChange = (filter) => {
 
     let filteredData = [...salesData];
 
-    // Filter by selected category
     if (selectedCategory) {
       filteredData = filteredData.filter(item => 
-        item.products.some(product => product.product.category === selectedCategory) // Assuming products have a category field
+        item.products.some(product => product.product && product.product.category === selectedCategory) // Add null check
       );
     }
-
+    
 
     if (startDate && endDate) {
       filteredData = filteredData.filter(item => {
@@ -244,7 +243,7 @@ const handleExportPdf = () => {
                 
               /> 
             
-            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-button'}`} onClick={handleExportPdf}>Export as PDF</button>
+            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-primary'}`} onClick={handleExportPdf}>Export as PDF</button>
             </div>
         </div>
         <div className='flex gap-4 items-center justify-center'>
@@ -257,16 +256,21 @@ const handleExportPdf = () => {
                       id='date'
                       value={selectedDate}
                       onChange={(e) => handleDateFilterChange(e.target.value)}
-                      className={`border rounded p-2 my-1 ${selectedDate === '' 
-                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                        : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                      outline-none font-semibold`}
+                      className={`border rounded p-2 my-1 
+                        ${selectedDate === '' 
+                          ? (darkMode 
+                            ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                            : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                        : (darkMode 
+                            ? 'bg-dark-activeLink text-light-primary ' 
+                            : 'bg-light-activeLink text-dark-primary ')} 
+                        outline-none font-semibold`}
                   >
-                      <option value=''>Select Date</option>
-                      <option value='Today'>Today</option>
-                      <option value='This Week'>This Week</option>
-                      <option value='This Month'>This Month</option>
-                      <option value='Custom Date'>Custom Date</option>
+                      <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Date</option>
+                      <option value='Today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
+                      <option value='This Week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
+                      <option value='This Month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>
+                      <option value='Custom Date' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Custom Date</option>
                   </select>      
                 </div>
 
@@ -280,10 +284,15 @@ const handleExportPdf = () => {
                     id='category'
                     value={selectedCategory} // Set the value of the select to the state
                     onChange={handleSelectedCategoryChange} // Use the new handler
-                    className={`border rounded p-2 my-1 ${selectedCategory === '' 
-                      ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                      : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                    outline-none font-semibold`}
+                    className={`border rounded p-2 my-1 
+                      ${selectedCategory === '' 
+                        ? (darkMode 
+                          ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                          : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                      : (darkMode 
+                          ? 'bg-dark-activeLink text-light-primary ' 
+                          : 'bg-light-activeLink text-dark-primary ')} 
+                      outline-none font-semibold`}
                   >
                     <option value=''>Select Category</option>
                     <option value='Components'>Components</option>
@@ -313,14 +322,16 @@ const handleExportPdf = () => {
               </div>
             </div>
 
-            <button
-              className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-                    onClick={handleResetFilters}
+            <div className='flex flex-col gap-2'>
+              <button
+                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                  ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                onClick={handleResetFilters}
               >
-                <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`} />
-                <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`}>Reset Filters</p>
+                <HiOutlineRefresh className={`mr-2 text-2xl text-white`} />
+                <p className={`text-lg text-white`}>Reset Filters</p>
               </button>
+            </div>
           </div>
 
           

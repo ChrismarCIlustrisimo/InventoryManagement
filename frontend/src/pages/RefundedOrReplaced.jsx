@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useAdminTheme } from '../context/AdminThemeContext';
-import SearchBar from '../components/SearchBar';
+import AdminSearchBar from '../components/adminSearchBar';
 import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
 import { AiOutlineCloseCircle } from "react-icons/ai";
@@ -214,9 +214,9 @@ const RefundedOrReplaced = () => {
       <DashboardNavbar />
       <div className='pt-[70px] px-6 py-4 w-full h-full'>
         <div className='flex items-center justify-center py-5'>
-          <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refunded or Replaced Units</h1>
+          <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refunded and Replaced Units</h1>
           <div className='w-full flex justify-end gap-2'>
-            <SearchBar
+            <AdminSearchBar
               query={searchQuery}
               onQueryChange={setSearchQuery}
               placeholderMessage={'Search by RMA ID'}
@@ -244,7 +244,7 @@ const RefundedOrReplaced = () => {
                   />
                 </div>
                 <div className='flex flex-col'>
-                <label htmlFor="reason" className="block text-sm font-medium text-gray-700">REASON</label>
+                <label htmlFor="reason" className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REASON</label>
                   <select
                     id="reason"
                     name="reason"
@@ -267,7 +267,7 @@ const RefundedOrReplaced = () => {
                   </select>
                 </div>
                 <div className='flex flex-col'>
-                <label htmlFor="status" className="block text-sm font-medium text-gray-700">STATUS</label>
+                <label htmlFor="status" className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STATUS</label>
                   <select
                     id="status"
                     name="status"
@@ -290,27 +290,27 @@ const RefundedOrReplaced = () => {
 
               </div>
             </div>
-            <div className='flex flex-col'>
+
+            <div className='flex flex-col gap-2'>
                   <button
-                    className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                      ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-                    onClick={handleResetFilters}
-                  >
-                    <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`} />
-                    <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`}>Reset Filters</p>
+                      className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                      ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                      onClick={handleResetFilters}>
+                      <HiOutlineRefresh className='mr-2 text-2xl text-white' />
+                      <p className='text-lg text-white'>Reset Filters</p>
                   </button>
-                </div>
+              </div>
           </div>
           <div className='flex-grow'>
             <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
               <thead>
                 <tr>
-                  <th className={`text-left p-2 text-sm ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Product Name</th>
-                  <th className={`text-left p-2 text-sm ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Reason</th>
-                  <th className={`text-left p-2 text-sm ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Condition</th>
-                  <th className={`text-left p-2 text-sm ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Serial Numbers</th>
-                  <th className={`text-left p-2 text-sm ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Status</th>
-                  <th className={`text-left p-2 text-sm ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Actions</th>
+                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
+                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Reason</th>
+                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Condition</th>
+                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Serial Numbers</th>
+                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Status</th>
+                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Actions</th>
                 </tr>
               </thead>
               <tbody>

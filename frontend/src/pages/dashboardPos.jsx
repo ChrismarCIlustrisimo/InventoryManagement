@@ -207,15 +207,20 @@ const DashboardPos = () => {
                 id='date'
                 onChange={handleDateFilter}
                 value={date || ''} // Ensure value is always a string
-                className={`border rounded p-2 my-1 ${date === '' 
-                  ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                  : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                outline-none font-semibold`} 
+                className={`border rounded p-2 my-1 
+                  ${date === '' 
+                    ? (darkMode 
+                      ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                      : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                  : (darkMode 
+                      ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                      : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
+                  outline-none font-semibold`}
             >
-                <option value=''>Select Option</option>
-                <option value='today'>Today</option>
-                <option value='this_week'>This Week</option>
-                <option value='this_month'>This Month</option>
+                <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                <option value='today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
+                <option value='this_week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
+                <option value='this_month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>
             </select>
 
 
@@ -225,7 +230,7 @@ const DashboardPos = () => {
 
           <div className='flex justify-center items-center'>
             <div className='flex flex-col'>
-            <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+            <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
             <DatePicker
                   selected={startDate}
                   onChange={handleStartDateChange}
@@ -239,7 +244,7 @@ const DashboardPos = () => {
             <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
             <div className='flex flex-col'>
-            <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
+            <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
             <DatePicker
                   selected={endDate}
                   onChange={handleEndDateChange}
@@ -292,30 +297,34 @@ const DashboardPos = () => {
               id='sortBy'
               value={sortBy}
               onChange={handleSortByChange}
-              className={`border rounded p-2 my-1 ${sortBy === '' 
-                ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-              outline-none font-semibold`}            >
-              <option value=''>Select Option</option>
-              <option value='price_asc'>Price Lowest to Highest</option>
-              <option value='price_desc'>Price Highest to Lowest</option>
-              <option value='customer_name_asc'>Customer Name A-Z</option>
-              <option value='customer_name_desc'>Customer Name Z-A</option>
-              <option value='transaction_id_asc'>ID Lowest to Highest</option>
-              <option value='transaction_id_desc'>ID Highest to Lowest</option>
+              className={`border rounded p-2 my-1 
+                ${sortBy === '' 
+                  ? (darkMode 
+                    ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                    : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                : (darkMode 
+                    ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                    : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
+                outline-none font-semibold`}
+                >
+              <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+              <option value='price_asc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
+              <option value='price_desc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Highest to Lowest</option>
+              <option value='customer_name_asc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Customer Name A-Z</option>
+              <option value='customer_name_desc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Customer Name Z-A</option>
+              <option value='transaction_id_asc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>ID Lowest to Highest</option>
+              <option value='transaction_id_desc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>ID Highest to Lowest</option>
             </select>
-          </div>
+          </div>  
         </div>
 
         <div className='flex flex-col gap-2'>
-          <button
-              className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-              ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-              onClick={handleResetFilters}
-          >
-              <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`} />
-              <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`}>Reset Filters</p>
-          </button>
+                <button
+                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2                   ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                onClick={handleResetFilters}>
+                <HiOutlineRefresh className='mr-2 text-2xl text-white' />
+                <p className='text-lg text-white'>Reset Filters</p>
+            </button>
         </div>
       </div>
 

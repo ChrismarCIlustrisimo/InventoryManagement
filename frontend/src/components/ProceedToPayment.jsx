@@ -266,7 +266,7 @@ const calculateTotalVAT = () => {
 
           <div className='w-[40%] h-full'>
             <p className='mb-2 text-center text-2xl font-semibold py-6'>Billing Information</p>
-            <div className='flex flex-col gap-4'>
+            <div className={`flex flex-col gap-4 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
             <div>
               <label htmlFor="customerName" className="block text-sm font-medium mb-1">
                 Customer Name
@@ -321,7 +321,7 @@ const calculateTotalVAT = () => {
             </div>
             <div className='w-full py-6 flex flex-col gap-4'>
               <button
-                className={`w-full py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
+                className={`w-full py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-dark-textPrimary hover:bg-dark-primary'}`}
                 onClick={handleContinueClick}
                 >
                 Continue

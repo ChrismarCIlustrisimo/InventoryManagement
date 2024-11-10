@@ -79,7 +79,7 @@ const ProductModal = ({
         <Modal open={openModal} onClose={handleCloseModal} className={`flex items-center justify-center ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
             <div className={`w-full h-full flex flex-col items-center justify-start gap-4 bg-container rounded-md p-4 relative ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
                 <div className='w-full flex items-center justify-between gap-2 py-6 px-12'>
-                    <p className='text-2xl text-center font-semibold'>Add New Product</p>
+                    <p className='text-2xl text-center font-semibold'>Add New Product Units</p>
                     <div className='flex items-center justify-center gap-2'>
                         <p htmlFor="quantity">Units:</p>
                         <div className={`flex items-center border rounded-md overflow-hidden px-2 ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>

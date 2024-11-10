@@ -100,16 +100,16 @@ const Erceipt = () => {
           <img src={LOGO} className="max-w-[120px] w-full h-auto" alt="Logo" />
         </div>
         <header className="text-center mb-6">
-          <h2 className="text-xl font-semibold">Order Number</h2> {/* Increased size */}
-          <p className="text-6xl font-bold">{transaction_Id || 'N/A'}</p> {/* Increased size */}
+          <h2 className="text-xl font-semibold">Order Number</h2> 
+          <p className="text-6xl font-bold">{transaction_Id || 'N/A'}</p> 
         </header>
 
         <section className="mb-6">
           <h3 className="text-lg font-semibold text-center">Claim Your Reserved Items!</h3>
-          <p className="text-base text-center py-6">Please present this receipt at our store to claim your reserved tech products.</p> {/* Increased size */}
+          <p className="text-base text-center py-6">Please present this receipt at our store to claim your reserved tech products.</p> 
           <div className="flex flex-row justify-between mt-2">
             <span className="text-sm">RESERVATION DATE</span>
-            <span className="font-semibold text-base">{formatDate(transaction.transaction_date)}</span> {/* Increased size */}
+            <span className="font-semibold text-base">{formatDate(transaction.transaction_date)}</span> 
           </div>
           <div className="flex flex-row justify-between mt-2">
             <span className="text-sm">EXPIRY DATE</span>
@@ -133,38 +133,38 @@ const Erceipt = () => {
               </div>
               <div className="flex flex-row justify-between mt-2 pt-2">
                 <span className="text-sm">QUANTITY</span>
-                <span className="font-semibold text-base">{item.quantity}</span> {/* Increased size */}
+                <span className="font-semibold text-base">{item.quantity}</span> 
               </div>
             </div>
           ))}
           <div className="flex flex-row justify-between mt-2 pt-2"> 
             <span className="text-sm">TOTAL PRICE</span>
-            <span className="font-bold text-xl">₱ {(total + totalVat).toFixed(2)}</span> {/* Increased size */}
+            <span className="font-bold text-xl">₱ {(total + totalVat).toFixed(2)}</span> 
           </div>
         </section>
 
         <section className="mb-6">
           <div className="flex flex-row justify-between mt-2 pt-2">
             <span className="text-sm">NAME:</span>
-            <span className="text-sm">{customer || 'N/A'}</span> {/* Increased size */}
+            <span className="text-sm">{customer || 'N/A'}</span> 
           </div>
           <div className="flex flex-row justify-between mt-2 pt-2">
             <span className="text-sm">EMAIL:</span>
-            <span className=" text-sm">{email || 'N/A'}</span> {/* Increased size */}
+            <span className=" text-sm">{email || 'N/A'}</span> 
           </div>
           <div className="flex flex-row justify-between mt-2 pt-2">
             <span className="text-sm">ADDRESS:</span>
-            <span className="text-sm">{fullAddress || 'N/A'}</span> {/* Increased size */}
+            <span className="text-sm">{fullAddress || 'N/A'}</span> 
           </div>
           <div className="flex flex-row justify-between mt-2 pt-2">
             <span className="text-sm">CONTACT NO.:</span>
-            <span className="text-sm">{phone || 'N/A'}</span> {/* Increased size */}
+            <span className="text-sm">{phone || 'N/A'}</span> 
           </div>
         </section>
 
         <section className="mb-6 border-b py-4">
           <h3 className="text-lg font-semibold mb-2">Instructions</h3>
-          <ol className="list-decimal pl-5 text-base space-y-2"> {/* Increased size */}
+          <ol className="list-decimal pl-5 text-base space-y-2"> 
             <li>Present this receipt at our store.</li>
             <li>Bring one valid ID for verification.</li>
             <li>Proceed to payment.</li>
@@ -174,15 +174,15 @@ const Erceipt = () => {
 
         <section className="mb-6 border-b py-2">
           <h3 className="text-lg font-semibold mb-2">Store Location</h3>
-          <p className="text-base">23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p> {/* Increased size */}
+          <p className="text-base">23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p> 
         </section>
 
         <section className="mb-6">
           <h3 className="text-lg font-semibold mb-2">Need Assistance?</h3>
-          <p className="text-base">Call us at: 8-364-6039 / 0923-444-1030</p> {/* Increased size */}
-          <p className="text-base">Email: irigcomputers@gmail.com</p> {/* Increased size */}
+          <p className="text-base">Call us at: 8-364-6039 / 0923-444-1030</p> 
+          <p className="text-base">Email: irigcomputers@gmail.com</p> 
         </section>
-        <p className="text-base mb-4 flex flex-col w-full border-t pt-4 text-center"> {/* Increased size */}
+        <p className="text-base mb-4 flex flex-col w-full border-t pt-4 text-center"> 
           <span className="font-semibold text-lg">Thank you for your reservation!</span>
           <span>We look forward to serving your tech needs.</span>
         </p>

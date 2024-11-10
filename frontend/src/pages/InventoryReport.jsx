@@ -168,8 +168,8 @@ useEffect(() => {
                 pageStyle="print"
                 
               /> 
-           <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-button'}`} onClick={handleExportPdf}>Export as PDF</button>
-          </div>
+            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-primary'}`} onClick={handleExportPdf}>Export as PDF</button>
+            </div>
         </div>
         <div className='flex gap-4 items-center justify-center'>
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary'}`}>
@@ -184,18 +184,20 @@ useEffect(() => {
                     onChange={handleSelectedCategoryChange} // Use the new handler
                     className={`border rounded p-2 my-1 
                       ${selectedCategory === '' 
-                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                        : (darkMode 
-                          ? 'bg-light-activeLink text-light-primary' 
-                          : 'bg-transparent text-black')} 
+                        ? (darkMode 
+                          ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                          : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                      : (darkMode 
+                          ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                          : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                       outline-none font-semibold`}
                   >
-                    <option value=''>Select Category</option>
-                    <option value='Components'>Components</option>
-                    <option value='Peripherals'>Peripherals</option>
-                    <option value='Accessories'>Accessories</option>
-                    <option value='PC Furniture'>PC Furniture</option>
-                    <option value='OS & Software'>OS & Software</option>
+                    <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Category</option>
+                    <option value='Components' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Components</option>
+                    <option value='Peripherals' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Peripherals</option>
+                    <option value='Accessories' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Accessories</option>
+                    <option value='PC Furniture' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>PC Furniture</option>
+                    <option value='OS & Software' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>OS & Software</option>
                   </select>
                 </div>
 
@@ -208,7 +210,7 @@ useEffect(() => {
                     onChange={(e) => setSupplierName(e.target.value)}
                     className={`border rounded p-2 my-1 ${SupplierName === '' 
                       ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                      : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                      : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
                     outline-none font-semibold`}
                     placeholder='Search Supplier Name'
                   />
@@ -223,7 +225,7 @@ useEffect(() => {
                     onChange={(e) => setProducName(e.target.value)}
                     className={`border rounded p-2 my-1 ${ProducName === '' 
                       ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                      : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                      : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
                     outline-none font-semibold`}
                     placeholder='Search Product Name'
                   />
@@ -245,14 +247,15 @@ useEffect(() => {
               </div>
             </div>
 
-            <button
-              className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-                    onClick={handleResetFilters}
-              >
-                <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`} />
-                <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`}>Reset Filters</p>
-              </button>
+            <div className='flex flex-col gap-2'>
+                  <button
+                      className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                      ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                      onClick={handleResetFilters}>
+                      <HiOutlineRefresh className='mr-2 text-2xl text-white' />
+                      <p className='text-lg text-white'>Reset Filters</p>
+                  </button>
+              </div>
           </div>
           <div className={`h-[78vh] w-[77%] rounded-2xl overflow-auto p-4 ${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
             <div ref={componentRef} className="sales-report-content">

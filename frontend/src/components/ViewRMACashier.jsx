@@ -155,6 +155,33 @@ const ViewRMACashier = ({ onClose, rma }) => {
         return processStyles;
     };
 
+    const checkWarrantyStatus = (warranty, transactionDate) => {
+        const warrantyParts = warranty.split(' '); // Split the warranty string into its value and unit (e.g., "5 Months" becomes ["5", "Months"])
+        const warrantyValue = parseInt(warrantyParts[0]); // Extract the number of months or years
+        const warrantyUnit = warrantyParts[1].toLowerCase(); // Extract the unit (Months or Years)
+    
+        const transactionDateObj = new Date(transactionDate);
+        let expiryDate;
+    
+        if (warrantyUnit === 'Month' || warrantyUnit === 'Months') {
+            // Add months to the transaction date
+            expiryDate = new Date(transactionDateObj.setMonth(transactionDateObj.getMonth() + warrantyValue));
+        } else if (warrantyUnit === 'Year' || warrantyUnit === 'Years') {
+            // Add years to the transaction date
+            expiryDate = new Date(transactionDateObj.setFullYear(transactionDateObj.getFullYear() + warrantyValue));
+        } else if (warrantyUnit === 'Day' || warrantyUnit === 'Days') {
+            // Add days to the transaction date
+            expiryDate = new Date(transactionDateObj.setDate(transactionDateObj.getDate() + warrantyValue));
+        } else {
+
+        }
+    
+        const currentDate = new Date();
+        return currentDate <= expiryDate ? 'Valid' : 'Expired';
+    };
+    
+    const warrantyStatus = checkWarrantyStatus(rma.product_warranty, rma.transaction_date);
+    
 
     return (
         <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`} onClick={onClose}>
@@ -163,12 +190,13 @@ const ViewRMACashier = ({ onClose, rma }) => {
                     <div className={`w-full flex items-center justify-between border-b py-2 px-4 ${darkMode ? 'border-light-textSecondary' : 'border-dark-textSecondary'}`}>
                         <p className='font-semibold text-4xl'>RMA Details</p>
                         <button 
-                            className={`px-4 py-2 text-white rounded-lg ${darkMode ? 'bg-light-button' : 'bg-blue-700'} ${rma.process === 'None' ||  rma.status === 'Completed' ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                            className={`px-4 py-2 text-white rounded-lg ${darkMode ? 'bg-light-button' : 'bg-blue-700'} ${rma.process === 'None' || rma.status === 'Completed' || warrantyStatus === 'Expired' ? 'opacity-50 cursor-not-allowed' : ''}`} 
                             onClick={() => handleProcessOpen(rma.process)} 
-                            disabled={rma.process === 'None' || rma.status === 'Completed'}
+                            disabled={rma.process === 'None' || rma.status === 'Completed' || warrantyStatus === 'Expired'}
                         >
                             Process RMA
                         </button>
+
                     </div>
                     <div className='flex flex-col w-full h-full justify-start px-6 py-4 gap-4'>
                         <div className={`text-sm flex items-center justify-between`}>

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import ViewRMA from '../components/ViewRMA';
 import { HiOutlineRefresh } from "react-icons/hi";
 import axios from 'axios';
+import DatePicker from 'react-datepicker';
 
 const Rma = () => {
     const { user } = useAuthContext();
@@ -146,18 +147,14 @@ const Rma = () => {
       };
       
       const shortenString = (str) => {
-        // Log the input for debugging
-        console.log('Input string:', str);
-    
-        // Check if the input is a valid string and trim it
-        if (typeof str === 'string') {
-            const trimmedStr = str.trim(); // Remove leading and trailing spaces
+            if (typeof str === 'string') {
+            const trimmedStr = str.trim(); 
             if (trimmedStr.length > 20) {
-                return trimmedStr.slice(0, 20) + '...'; // Shorten and add ellipsis
+                return trimmedStr.slice(0, 20) + '...'; 
             }
-            return trimmedStr; // Return the original trimmed string if it's 10 characters or less
+            return trimmedStr; 
         }
-        return 'N/A'; // Return 'N/A' if input is not a string
+        return 'N/A'; 
     };
       
 
@@ -175,8 +172,8 @@ const Rma = () => {
                     </div>
                 </div>
                 <div className='flex gap-4'>
-                 <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary'}`}>
-                  <div className='flex flex-col gap-2 flex-grow'>
+                <div className={`h-[78vh] w-[22%] rounded-2xl p-4 justify-between flex flex-col ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary'}`}>
+                <div className='flex flex-col gap-2 '>
 
 
                     <div className='flex flex-col gap-2'>
@@ -188,7 +185,7 @@ const Rma = () => {
                             onChange={(e) => setCustomerNameFilter(e.target.value)}
                             className={`border rounded p-2 my-1 ${customerNameFilter === '' 
                                 ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                                : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
                               outline-none font-semibold`}
                           />
                     </div>
@@ -202,7 +199,7 @@ const Rma = () => {
                             onChange={(e) => setProductNameFilter(e.target.value)}
                             className={`border rounded p-2 my-1 ${productNameFilter === '' 
                                 ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
+                                : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
                               outline-none font-semibold`}
                         />
                     </div>
@@ -212,75 +209,85 @@ const Rma = () => {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className={`border rounded p-2 my-1 ${statusFilter === '' 
-                                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                                  outline-none font-semibold`}
+                                className={`border rounded p-2 my-1 
+                                    ${statusFilter === '' 
+                                      ? (darkMode 
+                                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                                    : (darkMode 
+                                        ? 'bg-light-activeLink text-light-primary' 
+                                        : 'bg-dark-activeLink text-dark-primary')} 
+                                    outline-none font-semibold`}
                                 >
-                            <option value=''>All</option>
-                            <option value='Pending'>Pending</option>
-                            <option value='Approved'>Approved</option>
-                            <option value='Rejected'>Rejected</option>
-                            <option value='Completed'>Completed</option>
+                            <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>All</option>
+                            <option value='Pending' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Pending</option>
+                            <option value='Approved' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Approved</option>
+                            <option value='Rejected' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Rejected</option>
+                            <option value='Completed' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Completed</option>
                         </select>
                     </div>
 
-                    <div className='flex flex-col gap-2'>
-                        <label className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Warranty Status</label>
-                        <select
-                        value={warranty_status}
-                        onChange={(e) => setWarrantyStatus(e.target.value)}
-                        className={`border rounded p-2 my-1 ${warranty_status === '' 
-                            ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                            : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                          outline-none font-semibold`}
-                        >
-                        <option value=''>All</option>
-                        <option value='Valid'>Valid</option>
-                        <option value='Expired'>Expired</option>
-                        </select>
-                    </div>
                     
                     
-                    <div className='flex flex-col gap-2'>
-                        <label className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>RMA REQUEST DATE</label>
-                        <div className='w-full flex items-center justify-between'>
-                            <p className='w-[50%] text-xs'>From</p>
-                            <p className='w-[50%] text-xs pl-4'>To</p>
 
+                    <div className='flex flex-col'>
+                        <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'text-light-border'}`}>
+                            SALES DATE
+                        </label>
+
+                        <div className='flex justify-center items-center'>
+                            <div className='flex flex-col'>
+                            <div className={`w-[130px] border rounded bg-transparent pl-1
+                              ${startDate === '' 
+                                ? (darkMode ? 'bg-transparent text-black border-light-textPrimary' : 'bg-transparent text-white border-dark-textPrimary') 
+                                : (darkMode 
+                                  ? ' text-light-primary border-light-textPrimary' 
+                                  : ' text-dark-primary border-dark-textPrimary')} `}>
+                              <DatePicker
+                                selected={startDate}
+                                onChange={(date) => setStartDate(date)}  // Set date directly
+                                dateFormat='MM-dd-yyyy'
+                                className='bg-transparent w-[100%] p-1 outline-none'
+                                placeholderText='MM-DD-YYYY'
+                              />
+                            </div>
+                          </div>
+
+                            <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
+
+                        <div className='flex flex-col'>
+                            <div className={`w-[130px] border rounded bg-transparent pl-1
+                              ${endDate === '' 
+                                ? (darkMode ? 'bg-transparent text-black border-light-textPrimary' : 'bg-transparent text-white border-dark-textPrimary') 
+                                : (darkMode 
+                                  ? ' text-light-primary border-light-textPrimary' 
+                                  : ' text-dark-primary border-dark-textPrimary')} `}>
+                              <DatePicker
+                                selected={endDate}
+                                onChange={(date) => setEndDate(date)}  // Set date directly
+                                dateFormat='MM-dd-yyyy'
+                                className='bg-transparent w-[100%] p-1 outline-none'
+                                placeholderText='MM-DD-YYYY'
+                                minDate={startDate}
+                              />
+                            </div>
+                          </div>
                         </div>
-                        <div className='flex gap-2 w-[46%]'>
-                            <input type='date' value={startDate} onChange={(e) => setStartDate(e.target.value)}
-                             className={`border rounded border-3 pl-1
-                                ${startDate === '' 
-                                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')}
-                                      w-full p-2`}
-                            />
-                            <span className='text-2xl text-center h-full flex items-center text-[#a8adb0]'>-</span>
-                            <input type='date' value={endDate} onChange={(e) => setEndDate(e.target.value)}
-                             className={`border rounded border-3 pl-1
-                                ${endDate === '' 
-                                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')}
-                                      w-full p-2`}                            
-                            />
                         </div>
+
+
+
                     </div>
-
-
-
-
-                    <div className='mt-auto'> {/* Align reset button to bottom */}
+            
+                    <div className='flex flex-col gap-2'>
                         <button
-                            className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                                ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
+                            className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                            ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
                             onClick={handleResetFilters}
-                        >
-                            <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`} />
-                            <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`}>Reset Filters</p>
+                            >
+                            <HiOutlineRefresh className='mr-2 text-2xl text-white' />
+                            <p className='text-lg text-white'>Reset Filters</p>
                         </button>
-                    </div>
                     </div>
                 </div>
                     <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>

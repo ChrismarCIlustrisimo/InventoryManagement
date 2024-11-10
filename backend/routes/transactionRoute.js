@@ -33,162 +33,166 @@ const generateTransactionId = async () => {
   }
 };
 
-// Create Transaction
-router.post('/', async (req, res) => {
-  try {
-    const {
-      products,
-      customer,
-      total_price,
-      transaction_date,
-      total_amount_paid_paid,
-      payment_status,
-      cashier,
-      discount,
-      vat,
-      payment_method,
-      status,
-    } = req.body;
-
-    // Validate required fields
-    if (!products || !customer || !total_price || !transaction_date || payment_status === undefined) {
-      return res.status(400).json({
-        message: 'Products, customer, total_price, transaction_date, and payment_status are required',
-      });
-    }
-
-    console.log('Received transaction data:', req.body);
-
-    const productItems = await Promise.all(
-      products.map(async (item) => {
-        const { product: productId, serial_number: unitIds, item_status, reason_for_refund } = item;
-
-        // Check for valid serial numbers
-        if (!Array.isArray(unitIds) || unitIds.length === 0) {
-          throw new Error(`Serial numbers (unit IDs) are missing or not in the correct format for product ID ${productId}`);
-        }
-
-        const productDoc = await Product.findById(productId);
-        if (!productDoc) {
-          throw new Error(`Product with ID ${productId} not found`);
-        }
-
-        console.log(`Units for product ${productId}:`, productDoc.units);
-
-        const processedUnits = [];
-
-        for (let unitId of unitIds) {
-          console.log(`Processing product ${productId} with unit ID ${unitId}`);
-
-          const productUnit = productDoc.units.find(
-            (unit) => unit._id.toString() === unitId && unit.status === 'in_stock'
-          );
-
-          console.log(`Units for produc ${productUnit}`)
-
-          if (!productUnit) {
-            console.warn(`Skipping unit ID ${unitId} - already sold or unavailable`);
-            continue;
-          }
-
-          // Mark the unit as 'sold'
-          productUnit.status = 'sold';
-
-          processedUnits.push({
-            product: productId,
-            serial_number: productUnit.serial_number,
-            price: productDoc.selling_price,
-          });
-        }
-
-        if (processedUnits.length === 0) {
-          throw new Error(`No available units for product ID ${productId}`);
-        }
-
-        await productDoc.save(); // Save the product document to update the status of units
-
-        return {
-          product: productId,
-          serial_number: processedUnits.map((unit) => unit.serial_number),
-          price: productDoc.selling_price,
-          quantity: processedUnits.length, // Track sold units
-        };
-      })
-    );
-
-    // Calculate total price with VAT and discount
-    const totalPriceWithoutVat = productItems.reduce(
-      (acc, curr) => acc + curr.quantity * curr.price,
-      0
-    );
-
-    const transaction_id = await generateTransactionId();
-    const dueDate = new Date(transaction_date);
-    dueDate.setDate(dueDate.getDate() + 1);
-
-    const newTransaction = new Transaction({
-      transaction_id,
-      products: productItems.map((item) => ({
-        product: item.product,
-        serial_number: item.serial_number,
-        quantity: item.quantity,
-        price: item.price,
-        item_status: item.item_status,
-        reason_for_refund: item.reason_for_refund,
-      })),
-      customer,
-      total_price,
-      total_amount_paid_paid,
-      transaction_date,
-      due_date: dueDate,
-      payment_status,
-      cashier,
-      discount,
-      vat,
-      payment_method,
-      status
-    });
-
-    const transaction = await newTransaction.save();
-    return res.status(201).send(transaction);
-  } catch (error) {
-    console.error(error);
-    return res.status(500).send({ message: error.message });
-  }
-});
-
 
 
 
 
 // Create a Nodemailer transporter
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL_USER, // Email address from .env
-        pass: process.env.EMAIL_PASS,  // Email password from .env
-    },
+  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+      user: process.env.EMAIL_USER, // Email address from .env
+      pass: process.env.EMAIL_PASS,  // Email password from .env
+  },
 });
 
 // Example function to send an email
 const sendEmail = (to, subject, text) => {
-    const mailOptions = {
-        from: process.env.EMAIL_USER, // Sender address
-        to: to,                        // Recipient address
-        subject: subject,              // Subject line
-        text: text,                    // Plain text body
-    };
+  const mailOptions = {
+      from: process.env.EMAIL_USER, // Sender address
+      to: to,                        // Recipient address
+      subject: subject,              // Subject line
+      text: text,                    // Plain text body
+  };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return console.log('Error occurred: ' + error.message);
-        }
-        console.log('Email sent: ' + info.response);
-    });
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          return console.log('Error occurred: ' + error.message);
+      }
+      console.log('Email sent: ' + info.response);
+  });
 };
+
+
+
+// Create Transaction
+router.post('/', async (req, res) => {
+  try {
+      const {
+          products,
+          customer: customerId,
+          total_price,
+          transaction_date,
+          total_amount_paid_paid,
+          payment_status,
+          cashier,
+          discount,
+          vat,
+          payment_method,
+          status,
+      } = req.body;
+
+      // Validate required fields
+      if (!products || !customerId || !total_price || !transaction_date || payment_status === undefined) {
+          return res.status(400).json({
+              message: 'Products, customer, total_price, transaction_date, and payment_status are required',
+          });
+      }
+
+      // Retrieve the customer details
+      const customer = await Customer.findById(customerId);
+      if (!customer || !customer.email) {
+          console.error("Customer not found or email is missing.");
+          return res.status(404).json({ message: "Customer not found or email is missing." });
+      }
+
+      const productItems = await Promise.all(
+          products.map(async (item) => {
+              const { product: productId, serial_number: unitIds, item_status, reason_for_refund } = item;
+
+              if (!Array.isArray(unitIds) || unitIds.length === 0) {
+                  throw new Error(`Serial numbers (unit IDs) are missing or not in the correct format for product ID ${productId}`);
+              }
+
+              const productDoc = await Product.findById(productId);
+              if (!productDoc) {
+                  throw new Error(`Product with ID ${productId} not found`);
+              }
+
+              const processedUnits = [];
+
+              for (let unitId of unitIds) {
+                  const productUnit = productDoc.units.find(
+                      (unit) => unit._id.toString() === unitId && unit.status === 'in_stock'
+                  );
+
+                  if (!productUnit) {
+                      console.warn(`Skipping unit ID ${unitId} - already sold or unavailable`);
+                      continue;
+                  }
+
+                  // Mark the unit as 'sold'
+                  productUnit.status = 'sold';
+
+                  processedUnits.push({
+                      product: productId,
+                      serial_number: productUnit.serial_number,
+                      price: productDoc.selling_price,
+                  });
+              }
+
+              if (processedUnits.length === 0) {
+                  throw new Error(`No available units for product ID ${productId}`);
+              }
+
+              await productDoc.save();
+
+              return {
+                  product: productId,
+                  serial_number: processedUnits.map((unit) => unit.serial_number),
+                  price: productDoc.selling_price,
+                  quantity: processedUnits.length,
+              };
+          })
+      );
+
+      const transaction_id = await generateTransactionId();
+      const dueDate = new Date(transaction_date);
+      dueDate.setDate(dueDate.getDate() + 1);
+
+      const newTransaction = new Transaction({
+          transaction_id,
+          products: productItems.map((item) => ({
+              product: item.product,
+              serial_number: item.serial_number,
+              quantity: item.quantity,
+              price: item.price,
+              item_status: item.item_status,
+              reason_for_refund: item.reason_for_refund,
+          })),
+          customer: customerId,
+          total_price,
+          total_amount_paid_paid,
+          transaction_date,
+          due_date: dueDate,
+          payment_status,
+          cashier,
+          discount,
+          vat,
+          payment_method,
+          status
+      });
+
+      const transaction = await newTransaction.save();
+
+      // Send a confirmation email after the transaction is successfully saved
+      const emailSubject = `Transaction Confirmation - ID: ${transaction_id}`;
+      const emailText = `Hello ${customer.name},\n\nThank you for your purchase. Here are your transaction details:\n\nTransaction ID: ${transaction_id}\nTotal Price: ₱${total_price.toFixed(2)}\nDate: ${transaction_date}\nPayment Status: ${payment_status}\n\nThank you for shopping with us!`;
+
+      sendEmail(customer.email, emailSubject, emailText);
+
+      return res.status(201).send(transaction);
+  } catch (error) {
+      console.error(error);
+      return res.status(500).send({ message: error.message });
+  }
+});
+
+
+
 
 
 router.post('/online-reservation', async (req, res) => {
@@ -346,7 +350,7 @@ router.post('/online-reservation', async (req, res) => {
 
 
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res) => { 
   try {
     let query = {};
 
@@ -374,12 +378,15 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // Price filtering
-    if (req.query.minPrice) {
-      query.total_amount_paid = { ...query.total_amount_paid, $gte: Number(req.query.minPrice) };
-    }
-    if (req.query.maxPrice) {
-      query.total_amount_paid = { ...query.total_amount_paid, $lte: Number(req.query.maxPrice) };
+    // Price filtering (consolidated)
+    if (req.query.minPrice || req.query.maxPrice) {
+      query.total_price = {};
+      if (req.query.minPrice) {
+        query.total_price.$gte = Number(req.query.minPrice);
+      }
+      if (req.query.maxPrice) {
+        query.total_price.$lte = Number(req.query.maxPrice);
+      }
     }
 
     // Apply status filters

@@ -256,22 +256,27 @@ const PosHome = () => {
         <div className='w-[14vw] h-[90vh] flex items-center flex-col justify-center gap-2'>
           <p className={`font-bold text-3xl pt-6 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Cashier</p>
           {buttons.map((button, index) => (
-            <button
-              key={index}
-              onClick={() => handleCategoryChange(button.label)}
-              className={`flex items-center justify-center w-[100%] h-[40%] rounded-xl ${selectedCategory === button.label ? `bg-dark-activeLink ${darkMode ? 'text-light-primary' : 'text-dark-primary bg-'}` : `bg-transparent border-2 ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} transition-all duration-200`}
-            >
-              <div className="flex w-full pl-6">
-                <div className='w-[30%] text-start'>
-                  {button.icon}
+              <button
+                key={index}
+                onClick={() => handleCategoryChange(button.label)}
+                className={`flex items-center justify-center w-[100%] h-[40%] rounded-xl 
+                  ${selectedCategory === button.label 
+                    ? `bg-dark-activeLink ${darkMode ? 'text-light-primary' : 'text-dark-primary bg-'}` 
+                    : `bg-transparent border-2 ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`}
+                  hover:scale-110 transition-all duration-200`} // Added hover scale effect here
+              >
+                <div className="flex w-full pl-6">
+                  <div className='w-[30%] text-start'>
+                    {button.icon}
+                  </div>
+                  <div className={`w-70% flex flex-col font-semibold`}>
+                    <p className={`w-full text-sm ${darkMode ? 'text-light-primary' : 'dark:text-dark-primary'}`}>{button.label}</p>
+                    <p className={`w-full text-xs text-start ${darkMode ? 'text-light-textSecondary' : 'dark:text-dark-textSecondary'}`}>{button.count}</p>
+                  </div>
                 </div>
-                <div className={`w-70% flex flex-col font-semibold`}>
-                  <p className={`w-full text-sm ${darkMode ? 'text-light-primary' : 'dark:text-dark-primary'}`}>{button.label}</p>
-                  <p className={`w-full text-xs text-start ${darkMode ? 'text-light-textSecondary' : 'dark:text-dark-textSecondary'}`} >{button.count}</p>
-                </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))}
+
         </div>
       </div>  
 
@@ -295,20 +300,21 @@ const PosHome = () => {
               const nameFontSize = product.name.length > 30 ? '12px' : '16px';
 
               return (
-                <ProductCard
-                  key={product._id}
-                  product={{
-                    image: `${baseURL}/${product.image}`,
-                    name: (
-                      <span style={{ fontSize: nameFontSize }}>
-                        {product.name}
-                      </span>
-                    ),
-                    price: parseFloat(product.selling_price) || 0,
-                    stock: inStockUnits, // Number of units in stock
-                  }}
-                  onClick={() => handleAddToCart(product)}
-                />
+                  <div 
+                    key={product._id} 
+                    className="hover:scale-90 transition-all duration-200" // Added hover scale effect
+                  >
+                    <ProductCard
+                      product={{
+                        image: `${baseURL}/${product.image}`,
+                        name: <span style={{ fontSize: nameFontSize }}>{product.name}</span>,
+                        price: parseFloat(product.selling_price) || 0,
+                        stock: inStockUnits, // Number of units in stock
+                      }}
+                      onClick={() => handleAddToCart(product)}
+                    />
+                  </div>
+
               );
             })
           )}
@@ -318,16 +324,16 @@ const PosHome = () => {
 
 
       <div className={`flex items-center justify-between flex-col w-[50%] gap-1 pt-[100px] pb-4 px-4 ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container dark:text-dark-textPrimary'} rounded-xl`}>
-        <div className={`overflow-y-auto h-[480px] w-full rounded-lg border className="border" ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>
+        <div className={`overflow-y-auto h-[480px] w-full rounded-lg border className="border" ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
           <div style={{ width: '100%' }} > {/* Adjust this container width if needed */}
             <table className='border-collapse table-fixed h-auto w-full'>
               <thead>
               <tr className="border-b-2 border-textPrimary relative">
-                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Product</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Unit Price</th>
-                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Qty</th>
-                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-conatiner'}`}>Total</th>
-                  <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-conatiner' : 'dark:bg-dark-border'}`}></th>
+                  <th style={{ width: '45%' }} className={`sticky top-0 px-4 py-2 text-left ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>Product</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-1 py-2 text-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>Unit Price</th>
+                  <th style={{ width: '15%' }} className={`sticky top-0 px-4 pr-2 text-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>Qty</th>
+                  <th style={{ width: '20%' }} className={`sticky top-0 px-4 py-2 text-center ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>Total</th>
+                  <th style={{ width: '8%' }} className={`sticky top-0 px-4 py-2 text-center bg-transparent`}></th>
                 </tr>
               </thead>
               <tbody>
@@ -363,11 +369,12 @@ const PosHome = () => {
           </div>
 
           <button
-            className={`w-[80%] py-3 rounded text-black font-semibold ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'dark:bg-dark-primary text-dark-textPrimary'}`}
+            className={`w-[80%] py-3 rounded text-black font-semibold hover:scale-110 transition-transform duration-300 ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'dark:bg-dark-primary text-dark-textPrimary'}`}
             onClick={handlePayButton}
           >
             Proceed to Payment
           </button>
+
 
           <ProceedToPayment
             isOpen={isModalOpen}

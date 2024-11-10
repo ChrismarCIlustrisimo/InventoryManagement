@@ -26,36 +26,28 @@ const CashierRMA = () => {
     const isInputsEmpty = minPrice === '' && maxPrice === '' ;
     const [paymentMethod, setPaymentMethod] = useState('');
     const [isViewRMAOpen, setIsViewRMAOpen] = useState(false); // For modal open/close
-
-
-
-    const [customerNameFilter, setCustomerNameFilter] = useState('');
-    const [warranty_status, setWarrantyStatus] = useState('');
     const [selectedRma, setSelectedRma] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [rmaData, setRmaData] = useState([]);
-
     const handleStartDateChange = (date) => setStartDate(date);
     const handleEndDateChange = (date) => setEndDate(date);
+    const [statusFilter, setStatusFilter] = useState(''); // New dropdown for status
 
-    const handleCheckboxChange = (status) => {
-        setTransactionStatus(prev => ({
+    const [rmaStatus, setRmaStatus] = useState({
+        Approved: false,
+        Pending: false,
+        Completed: false,
+        Rejected: false,
+      });
+    
+      const handleCheckboxChange = (status) => {
+        setStatusFilters(prev => ({
             ...prev,
             [status]: !prev[status]
         }));
     };
-
-    const handlePaymentMethodChange = (e) => {
-        setPaymentMethod(e.target.value);
-      };
-
-      const handlePriceRangeFilter = () => {
-        setProducts(prevProducts => prevProducts.filter(product =>
-          (minPrice === '' || product.selling_price >= parseFloat(minPrice)) &&
-          (maxPrice === '' || product.selling_price <= parseFloat(maxPrice))
-        ));
-      };
     
+
 
       const handleResetFilters = () => {
         setSearchQuery('');
@@ -65,6 +57,7 @@ const CashierRMA = () => {
         setEndDate(null);
         setMinPrice('')
         setMaxPrice('')
+        setStatusFilter('');
         setPaymentMethod('')
         setTransactionStatus({
             Completed: false,
@@ -87,8 +80,8 @@ const CashierRMA = () => {
     const [statusFilters, setStatusFilters] = useState({
         Approved: false,
         Pending: false,
-        'In Progress': false,
         Completed: false,
+        Rejected: false,
     });
 
 
@@ -103,23 +96,20 @@ const CashierRMA = () => {
 
 
 
-// Filter logic
-const filteredRMA = (rmaData || []).filter(rma => {
-    const matchesSearchQuery = searchQuery ? rma?.rma_id?.includes(searchQuery) : true;
-    const matchesCustomerName = customerName ? rma?.customer_name?.includes(customerName) : true;
-    const matchesCashierName = cashierName ? rma?.cashier?.includes(cashierName) : true;
-    const matchesWarrantyStatus = warranty_status ? rma?.warranty_status === warranty_status : true;
-    const matchesDateRange = (startDate ? new Date(rma?.date_initiated) >= new Date(startDate) : true) &&
-                             (endDate ? new Date(rma?.date_initiated) <= new Date(endDate) : true);
-    const matchesPriceRange = (!minPrice || rma?.selling_price >= parseFloat(minPrice)) &&
-                              (!maxPrice || rma?.selling_price <= parseFloat(maxPrice));
-    const matchesStatus = Object.keys(statusFilters).some(status => statusFilters[status] && rma?.status === status) ||
-                          Object.values(statusFilters).every(value => !value);
+    const filteredRMA = (rmaData || []).filter(rma => {
+        const matchesSearchQuery = searchQuery ? rma?.rma_id?.includes(searchQuery) : true;
+        const matchesCustomerName = customerName ? rma?.customer_name?.includes(customerName) : true;
+        const matchesCashierName = cashierName ? rma?.cashier?.includes(cashierName) : true;
+        const matchesDateRange = (startDate ? new Date(rma?.date_initiated) >= new Date(startDate) : true) &&
+                                 (endDate ? new Date(rma?.date_initiated) <= new Date(endDate) : true);
+        const matchesPriceRange = (!minPrice || rma?.selling_price >= parseFloat(minPrice)) &&
+                                  (!maxPrice || rma?.selling_price <= parseFloat(maxPrice));
+        const matchesStatus = statusFilter ? rma?.status === statusFilter : true;
 
-    return matchesSearchQuery && matchesCustomerName && matchesCashierName && matchesWarrantyStatus &&
-           matchesDateRange && matchesPriceRange && matchesStatus;
-});
-
+        return matchesSearchQuery && matchesCustomerName && matchesCashierName && matchesDateRange &&
+               matchesPriceRange && matchesStatus;
+    });
+    
 
     
 
@@ -270,9 +260,8 @@ const filteredRMA = (rmaData || []).filter(rma => {
                         onChange={(e) => setCustomerName(e.target.value)}
                         className={`border rounded p-2 my-1 ${customerName === '' 
                             ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                            : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                          outline-none font-semibold`}
-                    />
+                            : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                          outline-none font-semibold`}/>
                     </div>
 
                     {/* CASHIER NAME FIELD */}
@@ -285,117 +274,79 @@ const filteredRMA = (rmaData || []).filter(rma => {
                         onChange={(e) => setCashierName(e.target.value)}
                         className={`border rounded p-2 my-1 ${cashierName === '' 
                             ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                            : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                          outline-none font-semibold`}
-                    />
+                            : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                          outline-none font-semibold`}/>
                     </div>
 
-                    {/* PAYMENT METHOD */}
-                    <div className='flex flex-col gap-2 py-2'>
-                    <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PAYMENT METHOD</label>
-                    <select
-                        id='paymentMethod'
-                        value={paymentMethod}
-                        onChange={handlePaymentMethodChange}
-                        className={`border rounded p-2 my-1 ${paymentMethod === '' ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} outline-none font-semibold`}
-                    >
-                        <option value=''>Select Option</option>
-                        <option value='Cash'>Cash</option>
-                        <option value='GCash'>GCash</option>
-                        <option value='GGvices'>GGvices</option>
-                        <option value='Bank Transfer'>Bank Transfer</option>
-                        <option value='BDO Credit Card'>BDO Credit Card</option>
-                        <option value='Credit Card - Online'>Credit Card - Online</option>
-                    </select>
+                    <div className='flex flex-col gap-2'>
+                            <label className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>RMA Status</label>
+                            <select
+                                value={statusFilter}
+                                onChange={(e) => setStatusFilter(e.target.value)}
+                                className={`border rounded p-2 my-1 
+                                    ${statusFilter === '' 
+                                      ? (darkMode 
+                                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                                    : (darkMode 
+                                        ? 'bg-dark-activeLink text-light-primary ' 
+                                        : 'bg-light-activeLink text-dark-primary ')} 
+                                    outline-none font-semibold`}
+                                >
+                            <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>All</option>
+                            <option value='Pending' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Pending</option>
+                            <option value='Approved' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Approved</option>
+                            <option value='Rejected' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Rejected</option>
+                            <option value='Completed' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Completed</option>
+                        </select>
                     </div>
 
-                    {/* AMOUNT RANGE */}
-                    <div className={`flex justify-between items-center gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                    <div className='flex flex-col'>
-                        <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'dark:border-dark-primary text-dark-primary')}`}>
-                        <input
-                            type='number'
-                            id='minPrice'
-                            value={minPrice}
-                            onChange={(e) => {
-                            setMinPrice(e.target.value);
-                            handleMinPriceChange(e);
-                            }}
-                            className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none`}
-                            min='0'
-                            placeholder='Min'
-                        />
-                        </div>
-                    </div>
-                    <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
-                    <div className='flex flex-col'>
-                        <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'dark:border-dark-primary text-dark-primary')}`}>
-                        <input
-                            type='number'
-                            id='maxPrice'
-                            value={maxPrice}
-                            onChange={(e) => {
-                            setMaxPrice(e.target.value);
-                            handleMaxPriceChange(e);
-                            }}
-                            className='border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none'
-                            min='0'
-                            placeholder='Max'
-                        />
-                        </div>
-                    </div>
-                    <button
-                        className={`p-2 text-xs rounded-md text-white ${isInputsEmpty ? (darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary') : (darkMode ? 'bg-light-primary' : 'bg-dark-primary')} hover:bg-opacity-60 active:bg-opacity-30`}
-                        onClick={handlePriceRangeFilter}
-                    >
-                        <FaPlay />
-                    </button>
-                    </div>
+
 
                     <div className='flex flex-col'>
-                        <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
-                            SALES DATE
-                        </label>
-                        <div className='flex justify-center items-center'>
-                            <div className='flex flex-col'>
-                                <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
-                                    <DatePicker
-                                        selected={startDate}
-                                        onChange={handleStartDateChange}
-                                        dateFormat='MM-dd-yyyy'
-                                        className='p-1 bg-transparent w-[100%] outline-none'
-                                        placeholderText='MM-DD-YYYY'
-                                    />
-                                </div>
-                            </div>
-                            <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
-                            <div className='flex flex-col'>
-                                <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
-                                    <DatePicker
-                                        selected={endDate}
-                                        onChange={handleEndDateChange}
-                                        dateFormat='MM-dd-yyyy'
-                                        className='bg-transparent w-[100%] p-1 outline-none'
-                                        placeholderText='MM-DD-YYYY'
-                                        minDate={startDate}
-                                    />
-                                </div>
-                            </div>
+                    <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
+                    <div className='flex justify-center items-center'>
+                      <div className='flex flex-col'>
+                      <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+                      <DatePicker
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                            dateFormat='MM-dd-yyyy'
+                            className='p-1 bg-transparent w-[100%] outline-none'
+                            placeholderText='MM-DD-YYYY'
+                          />    
                         </div>
+                      </div>
+
+                      <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
+
+                      <div className='flex flex-col'>
+                      <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
+                      <DatePicker
+                            selected={endDate}
+                            onChange={handleEndDateChange}
+                            dateFormat='MM-dd-yyyy'
+                            className='bg-transparent w-[100%] p-1 outline-none'
+                            placeholderText='MM-DD-YYYY'
+                            minDate={startDate}
+                          />
+                        </div>
+                      </div>
                     </div>
+                  </div>
                 </div>
 
                 {/* RESET FILTERS BUTTON */}
-                <div className='mt-auto'>
+                <div className='flex flex-col gap-2'>
                     <button
-                    className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                        ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-                    onClick={handleResetFilters}
+                        className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                        ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                        onClick={handleResetFilters}
                     >
-                    <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`} />
-                    <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`}>Reset Filters</p>
+                        <HiOutlineRefresh className={`mr-2 text-2xl text-white`} />
+                        <p className={`text-lg text-white`}>Reset Filters</p>
                     </button>
-                </div>
+                    </div>
                 </div>
 
 
@@ -413,7 +364,7 @@ const filteredRMA = (rmaData || []).filter(rma => {
                                         <th className='p-2 text-center text-xs'>Serial Number</th>
                                         <th className='p-2 text-center text-xs'>Status</th>
                                         <th className='p-2 text-center text-xs'>Process</th>
-                                        {/*<th className='p-2 text-center text-xs'>Warranty Status</th>*/}
+                                        <th className='p-2 text-center text-xs'>Warranty Status</th>
                                         <th className='p-2 text-center text-xs'>Action</th>
                                     </tr>
                                 </thead>

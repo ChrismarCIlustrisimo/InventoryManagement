@@ -39,8 +39,8 @@ const SalesOrder = () => {
         params: {
           startDate: startDate ? startDate.toISOString() : undefined,
           endDate: endDate ? endDate.toISOString() : undefined,
-          minPrice,
-          maxPrice,
+          minPrice, // Ensure this is correctly passed
+          maxPrice, // Ensure this is correctly passed
           sortBy,
           payment_status: 'unpaid', 
           transaction_id: searchQuery,
@@ -50,6 +50,7 @@ const SalesOrder = () => {
           'Authorization': `Bearer ${user.token}`
         }
       });
+      
       setSalesOrder(response.data.data); // Ensure this matches the data structure returned from API
     } catch (error) {
       console.error('Error fetching Reservationss:', error);
@@ -57,6 +58,7 @@ const SalesOrder = () => {
       setLoading(false);
     }
   };
+  
   
   const handleTransactionClick = (transactionId) => {
     navigate(`/transaction/${transactionId}`);
@@ -118,11 +120,12 @@ const SalesOrder = () => {
     const value = Math.max(0, parseInt(e.target.value) || 0);
     setMinPrice(value.toString());
   };
-
+  
   const handleMaxPriceChange = (e) => {
     const value = Math.max(0, parseInt(e.target.value) || 0);
     setMaxPrice(value.toString());
   };
+  
 
   const handleSortByChange = (e) => {
     setSortBy(e.target.value);
@@ -134,7 +137,9 @@ const SalesOrder = () => {
     setMinPrice('');
     setMaxPrice('');
     setSortBy('');
+    setSelectedDate('');
     fetchSalesOrders();
+    setCustomerName('');
   };
 
   return (
@@ -155,105 +160,117 @@ const SalesOrder = () => {
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container' }`}>
             <div className={`flex flex-col space-y-4 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>
             <div className='flex flex-col'>
-                <label className='text-sm text-gray-500 mb-1 font-semibold'>Customer Name</label>
+                <label className='text-sm text-gray-500 mb-1 font-semibold'>CUSTOMER NAME</label>
                 <input
                   type='text'
                   value={customerName}
                   onChange={handleCustomerNameChange}
                   className={`border rounded p-2 my-1 ${customerName === '' 
                     ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-transparent text-black')} 
-                  outline-none font-semibold`} 
+                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                  outline-none font-semibold`}
                   placeholder='Enter Customer Name'
                 />
               </div>
               <div className='flex flex-col'>
-                <label htmlFor='startDate font-semibold'>Date</label>
-                <select
+              <label className='text-sm text-gray-500 mb-1 font-semibold'>DATE</label>
+              <select
                   id='startDate'
                   onChange={handleDateFilter}
                   value={selectedDate}
-                  className={`border rounded p-2 my-1 outline-none font-semibold ${
-                    selectedDate === ''
-                      ? darkMode
-                        ? 'bg-transparent text-black border-black'
-                        : 'bg-transparent'
-                      : darkMode
-                      ? 'bg-light-activeLink text-light-primary'
-                      : 'bg-transparent text-black'
-                  }`}
+                  className={`border rounded p-2 my-1 
+                    ${selectedDate === '' 
+                      ? (darkMode 
+                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                    : (darkMode 
+                        ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                        : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
+                    outline-none font-semibold`}
                 >
-                  <option value=''>Select Option</option>
-                  <option value='today'>Today</option>
-                  <option value='this_week'>This Week</option>
-                  <option value='this_month'>This Month</option>
-                </select>
+                  <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                  <option value='today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
+                  <option value='this_week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
+                  <option value='this_month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>
+                </select> 
               </div>
 
-              <label className='text-sm text-gray-500 mb-1 font-semibold'>DATE RANGE</label>
+              <div className='flex flex-col'>
+                    <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
+                    <div className='flex justify-center items-center'>
+                      <div className='flex flex-col'>
+                      <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+                      <DatePicker
+                            selected={startDate}
+                            onChange={handleStartDateChange}
+                            dateFormat='MM-dd-yyyy'
+                            className='p-1 bg-transparent w-[100%] outline-none'
+                            placeholderText='MM-DD-YYYY'
+                          />    
+                        </div>
+                      </div>
 
-              <div className='flex justify-center items-center'>
-                <div className='flex flex-col'>
-                <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
-                <DatePicker
-                      selected={startDate}
-                      onChange={handleStartDateChange}
-                      dateFormat='MM-dd-yyyy'
-                      className='p-1 bg-transparent w-[100%] outline-none'
-                      placeholderText='MM-DD-YYYY'
-                    />
+                      <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
+
+                      <div className='flex flex-col'>
+                      <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
+                      <DatePicker
+                            selected={endDate}
+                            onChange={handleEndDateChange}
+                            dateFormat='MM-dd-yyyy'
+                            className='bg-transparent w-[100%] p-1 outline-none'
+                            placeholderText='MM-DD-YYYY'
+                            minDate={startDate}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
+                  <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>AMOUNT RANGE</label>
 
-                <div className='flex flex-col'>
-                <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? 'bg-light-activeLink text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
-                <DatePicker
-                      selected={endDate}
-                      onChange={handleEndDateChange}
-                      dateFormat='MM-dd-yyyy'
-                      className='bg-transparent w-[100%] p-1 outline-none'
-                      placeholderText='MM-DD-YYYY'
-                      minDate={startDate}
-                    />
+                  <div className='flex justify-center items-center'>
+                    <div className='flex flex-col'>
+                      <div 
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary')}`}
+                      >
+                        <input
+                          type='number'
+                          id='minPrice'
+                          value={minPrice}
+                          onChange={(e) => {
+                            setMinPrice(e.target.value);
+                            handleMinPriceChange(e);
+                          }}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
+                          min='0'
+                          placeholder='Min'
+                        />
+                      </div>
+                    </div>
+
+                    <span className='text-2xl text-center h-full text-[#a8adb0] mx-2'>-</span>
+
+                    <div className='flex flex-col'>
+                      <div 
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
+                      >
+                        <input
+                          type='number'
+                          id='maxPrice'
+                          value={maxPrice}
+                          onChange={(e) => {
+                            setMaxPrice(e.target.value);
+                            handleMaxPriceChange(e);
+                          }}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${maxPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
+                          min='0'
+                          placeholder='Max'
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <label className='text-sm text-gray-500 mb-1 font-semibold'>PRICE RANGE</label>
-
-              <div className='flex justify-center items-center'>
-                <div className='flex flex-col'>
-                <div className={`w-[130px] rounded pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary bg-light-activeLink' : 'dark:border-dark-primary text-dark-primary bg-dark-activeLink')}`}>
-                <input
-                      type='number'
-                      id='minPrice'
-                      value={minPrice}
-                      onChange={handleMinPriceChange}
-                      className='border-none px-2 py-1 text-sm  w-[100%] outline-none'
-                      min='0'
-                      placeholder='Min'
-                    />
-                  </div>
-                </div>
-
-                <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
-
-                <div className='flex flex-col'>
-                <div className={`w-[130px] rounded pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary bg-light-activeLink' : 'dark:border-dark-primary text-dark-primary bg-dark-activeLink')}`}>
-                <input
-                      type='number'
-                      id='maxPrice'
-                      value={maxPrice}
-                      onChange={handleMaxPriceChange}
-                      className='border-none px-2 py-1 text-sm w-[100%] outline-none'
-                      min='0'
-                      placeholder='Max'
-                    />
-                  </div>
-                </div>
-              </div>
 
               <div className='flex flex-col'>
               <label className='text-sm text-gray-500 mb-1 font-semibold'>SORT BY</label>
@@ -261,36 +278,36 @@ const SalesOrder = () => {
                   id='sortBy'
                   value={sortBy}
                   onChange={handleSortByChange}
-                  className={`border rounded p-2 my-1 outline-none font-semibold ${
-                    sortBy === ''
-                      ? darkMode
-                        ? 'bg-transparent text-black border-black'
-                        : 'bg-transparent'
-                      : darkMode
-                      ? 'bg-light-activeLink text-dark-primary'
-                      : 'bg-transparent text-black'
-                  }`}
+                  className={`border rounded p-2 my-1 
+                    ${sortBy === '' 
+                      ? (darkMode 
+                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                    : (darkMode 
+                        ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                        : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
+                    outline-none font-semibold`}
                 >
-                  <option value=''>Select Option</option>
-                  <option value='price_asc'>Price Lowest to Highest</option>
-                  <option value='price_desc'>Price Highest to Lowest</option>
-                  <option value='customer_name_asc'>Customer Name A-Z</option>
-                  <option value='customer_name_desc'>Customer Name Z-A</option>
-                  <option value='transaction_id_asc'>ID Lowest to Highest</option>
-                  <option value='transaction_id_desc'>ID Highest to Lowest</option>
+                  <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                  <option value='price_asc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
+                  <option value='price_desc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Highest to Lowest</option>
+                  <option value='customer_name_asc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Customer Name A-Z</option>
+                  <option value='customer_name_desc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Customer Name Z-A</option>
+                  <option value='transaction_id_asc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>ID Lowest to Highest</option>
+                  <option value='transaction_id_desc' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>ID Highest to Lowest</option>
                 </select>
               </div>
             </div>
             <div className='flex flex-col gap-2'>
-          <button
-              className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-              ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
-              onClick={handleResetFilters}
-          >
-                <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`} />
-                <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary'}`}>Reset Filters</p>
-            </button>
-          </div>
+              <button
+                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                  ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                onClick={handleResetFilters}
+              >
+                <HiOutlineRefresh className={`mr-2 text-2xl text-white`} />
+                <p className={`text-lg text-white`}>Reset Filters</p>
+              </button>
+            </div>
           </div>
 
           {/* Main Content */}

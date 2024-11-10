@@ -4,7 +4,7 @@ import DashboardNavbar from '../components/DashboardNavbar';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useAdminTheme } from '../context/AdminThemeContext';
-import SearchBar from '../components/SearchBar';
+import AdminSearchBar from '../components/adminSearchBar';
 import { FaPlay } from "react-icons/fa";
 import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
@@ -167,10 +167,10 @@ const formatDate = (dateString) => {
         <div className='flex items-center justify-center py-5'>
             <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refunds</h1>
               <div className='w-full flex justify-end gap-2'>
-              <SearchBar
+              <AdminSearchBar
                     query={searchQuery}
                     onQueryChange={setSearchQuery}
-                    placeholderMessage={'Search by RMA ID'}
+                    placeholderMessage={'Search by Refund ID'}
                     />
               </div>
         </div>
@@ -185,14 +185,10 @@ const formatDate = (dateString) => {
                       placeholder='Enter Customer Name'
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className={`border rounded p-2 my-1 
-                        ${customerName === '' 
-                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                          : (darkMode 
-                            ? 'bg-light-activeLink text-light-primary' 
-                            : 'bg-transparent text-black')} 
-                        outline-none font-semibold`}
-                      />
+                      className={`border rounded p-2 my-1 ${customerName === '' 
+                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                        : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                      outline-none font-semibold`}/>
                   </div>
                   <div className='flex flex-col gap-2'>
                     <label htmlFor='cashierName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER NAME</label>
@@ -201,14 +197,10 @@ const formatDate = (dateString) => {
                       placeholder='Enter Cashier Name'
                       value={cashierName}
                       onChange={(e) => setCashierName(e.target.value)}
-                      className={`border rounded p-2 my-1 
-                        ${cashierName === '' 
-                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                          : (darkMode 
-                            ? 'bg-light-activeLink text-light-primary' 
-                            : 'bg-transparent text-black')} 
-                        outline-none font-semibold`}
-                      />
+                      className={`border rounded p-2 my-1 ${cashierName === '' 
+                        ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                        : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                      outline-none font-semibold`}/>
                   </div>
 
                   <div className='flex flex-col gap-2 py-2'>
@@ -219,119 +211,119 @@ const formatDate = (dateString) => {
                       onChange={handlePaymentMethodChange}
                       className={`border rounded p-2 my-1 
                         ${paymentMethod === '' 
-                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                          : (darkMode 
-                            ? 'bg-light-activeLink text-light-primary' 
-                            : 'bg-transparent text-black')} 
+                          ? (darkMode 
+                            ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                            : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                        : (darkMode 
+                            ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                            : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                         outline-none font-semibold`}
                     >
-                      <option value=''>Select Option</option>
-                      <option value='Cash'>Cash</option>
-                      <option value='GCash'>GCash</option>
-                      <option value='GGvices'>GGvices</option>
-                      <option value='Bank Transfer'>Bank Transfer</option>
-                      <option value='BDO Credit Card'>BDO Credit Card</option>
-                      <option value='Credit Card - Online'>Credit Card - Online</option>
+                      <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                      <option value='Cash' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Cash</option>
+                      <option value='GCash' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>GCash</option>
+                      <option value='GGvices' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>GGvices</option>
+                      <option value='Bank Transfer' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Bank Transfer</option>
+                      <option value='BDO Credit Card' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>BDO Credit Card</option>
+                      <option value='Credit Card - Online' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Credit Card - Online</option>
                     </select>
                   </div>
 
                   <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>AMOUNT RANGE</label>
 
                   <div className={`flex justify-between items-center gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}> 
-                    <div className={`flex flex-col`}>
-                      <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>
-                        <input
-                          type='number'
-                          id='minPrice'
-                          value={minPrice}
-                          onChange={(e) => {
-                            setMinPrice(e.target.value);
-                            handleMinPriceChange(e);
-                          }}
-                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${isInputsEmpty ? (darkMode ? 'text-black' : 'text-white') : ''}`}
-                          min='0'
-                          placeholder='Min'
-                        />
-                      </div>
-                    </div>
-                    <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
-                    <div className={`flex flex-col`}>
-                      <div className={`w-[100px] rounded bg-transparent pl-1 border ${isInputsEmpty ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>
-                        <input
-                          type='number'
-                          id='maxPrice'
-                          value={maxPrice}
-                          onChange={(e) => {
-                            setMaxPrice(e.target.value);
-                            handleMaxPriceChange(e);
-                          }}
-                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${isInputsEmpty ? (darkMode ? 'text-black' : 'text-white') : ''}`}
-                          min='0'
-                          placeholder='Max'
-                        />
-                      </div>
-                    </div>
-                    <button
-                      className={`p-2 text-xs rounded-md text-white ${isInputsEmpty ? (darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary') : (darkMode ? 'bg-light-primary' : 'bg-dark-primary')} hover:bg-opacity-60 active:bg-opacity-30`}
-                      onClick={handlePriceRangeFilter}
-                    >
-                      <FaPlay />
-                    </button>
-                  </div>
+                        <div className={`flex flex-col`}>
+                          <div className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>
+                            <input
+                              type='number'
+                              id='minPrice'
+                              value={minPrice}
+                              onChange={(e) => {
+                                setMinPrice(e.target.value);
+                                handleMinPriceChange(e);
+                              }}
+                              className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                              min='0'
+                              placeholder='Min'
+                            />
+                          </div>
+                        </div>
 
-                  <div className='flex flex-col'>
-                    <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
+                        <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
 
-                    <div className='flex justify-center items-center'>
-                      <div className='flex flex-col'>
-                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1 
-                        ${startDate === '' 
-                          ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                          : (darkMode 
-                            ? 'bg-light-activeLink text-light-primary' 
-                            : 'bg-transparent text-black')} `}
-                            >
-                          <DatePicker
-                            selected={startDate}
-                            onChange={handleStartDateChange}
-                            dateFormat='MM-dd-yyyy'
-                            className='p-1 bg-transparent w-[100%] outline-none'
-                            placeholderText='MM-DD-YYYY'
-                          />
+                        <div className={`flex flex-col`}>
+                          <div className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>
+                            <input
+                              type='number'
+                              id='maxPrice'
+                              value={maxPrice}
+                              onChange={(e) => {
+                                setMaxPrice(e.target.value);
+                                handleMaxPriceChange(e);
+                              }}
+                              className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${maxPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                              min='0'
+                              placeholder='Max'
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                       <div className='flex flex-col'>
-                        <div className={`w-[130px] border rounded bg-transparent border-3 pl-1
-                            ${endDate === '' 
-                          ? (darkMode ? 'bg-transparent text-black border-black' : '') 
-                          : (darkMode 
-                            ? 'bg-light-activeLink text-light-primary' 
-                            : 'bg-transparent text-black')} `}>
-                          <DatePicker
-                            selected={endDate}
-                            onChange={handleEndDateChange}
-                            dateFormat='MM-dd-yyyy'
-                            className='bg-transparent w-[100%] p-1 outline-none'
-                            placeholderText='MM-DD-YYYY'
-                            minDate={startDate}
-                          />
+                        <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
+
+                        <div className='flex justify-center items-center'>
+                          <div className='flex flex-col'>
+                            <div className={`w-[130px] border rounded bg-transparent pl-1 
+                              ${startDate === ''  
+                                ? (darkMode ? 'bg-transparent text-black border-light-textPrimary' : 'bg-transparent text-white border-dark-textPrimary') 
+                                : (darkMode 
+                                  ? ' text-light-primary ' 
+                                  : ' text-dark-primary ')} `}>
+                              <DatePicker
+                                selected={startDate}
+                                onChange={handleStartDateChange}
+                                dateFormat='MM-dd-yyyy'
+                                className='p-1 bg-transparent w-[100%] outline-none'
+                                placeholderText='MM-DD-YYYY'
+                              />
+                            </div>
+                          </div>
+
+                          <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
+
+                          <div className='flex flex-col'>
+                            <div className={`w-[130px] border rounded bg-transparent pl-1
+                              ${endDate === '' 
+                                ? (darkMode ? 'bg-transparent text-black border-light-textPrimary' : 'bg-transparent text-white border-dark-textPrimary') 
+                                : (darkMode 
+                                  ? ' text-light-primary border-light-textPrimary' 
+                                  : ' text-dark-primary border-dark-textPrimary')} `}>
+                              <DatePicker
+                                selected={endDate}
+                                onChange={handleEndDateChange}
+                                dateFormat='MM-dd-yyyy'
+                                className='bg-transparent w-[100%] p-1 outline-none'
+                                placeholderText='MM-DD-YYYY'
+                                minDate={startDate}
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
+
+
                 </div>
 
-                <div className='flex flex-col'>
+                <div className='flex flex-col gap-2'>
                   <button
-                    className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-transparent border-2 
-                      ${darkMode ? 'hover:bg-opacity-30 hover:bg-dark-textSecondary' : 'hover:bg-opacity-30 hover:bg-light-textSecondary'}`}
+                    className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                      ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
                     onClick={handleResetFilters}
                   >
-                    <HiOutlineRefresh className={`mr-2 text-2xl ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`} />
-                    <p className={`text-lg ${darkMode ? 'text-dark-textSecondary' : 'text-dark-textSecondary' }`}>Reset Filters</p>
+                    <HiOutlineRefresh className={`mr-2 text-2xl text-white`} />
+                    <p className={`text-lg text-white`}>Reset Filters</p>
                   </button>
                 </div>
               </div>
@@ -380,221 +372,109 @@ const formatDate = (dateString) => {
                       </div>
                    </div>
                </div>
-{/* Popup Section */}
-{isPopupOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end items-center z-50">
-    <div
-      className={`py-6 max-w-xl w-full h-full p-4 border border-blue-400 rounded-md shadow-md relative overflow-y-auto ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-light-bg'}`}
-    >
-      <button
-        className={`flex gap-2 items-center outline-none pb-6 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:underline`}
-        onClick={closePopup}
-      >
-        <IoCaretBackOutline /> Back to Refund
-      </button>
 
-      {selectedRefund && (
-        <div className="w-full flex flex-col gap-3 px-10">
-          <h2 className="text-3xl font-bold pb-4">Refund Details</h2>
+              {isPopupOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end items-center z-50">
+                  <div
+                    className={`py-6 max-w-xl w-full h-full p-4 border border-blue-400 rounded-md shadow-md relative overflow-y-auto ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-light-bg'}`}
+                  >
+                    <button
+                      className={`flex gap-2 items-center outline-none pb-6 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:underline`}
+                      onClick={closePopup}
+                    >
+                      <IoCaretBackOutline /> Back to Refund
+                    </button>
 
-          {/* Customer Info Section */}
-          <div className="border-b pb-4">
-            <h3 className="font-semibold text-xl pb-2">Customer Info</h3>
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                CUSTOMER NAME
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.customer_name}</div>
-            </div>
+                    {selectedRefund && (
+                      <div className="w-full flex flex-col gap-3 px-10">
+                          <div className="text-md w-full flex items-center justify-between py-4">
+                              <div className={`w-[100%] text-4xl font-semibold ${darkMode ? 'text-light-textPrimay' : 'text-dark-textPrimay'}`}>
+                                REFUND ID: {selectedRefund.refund_id}
+                              </div>
+                          </div>
+                        <div className="border-b pb-4 flex flex-col gap-4">
+                          <h3 className="font-semibold text-xl pb-2">Refund Info</h3>
 
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                TRANSACTION ID
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.transaction_id}</div>
-            </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              REFUND AMOUNT
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.refund_amount}</div>
+                          </div>
 
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                SALES DATE
-              </div>
-              <div className="font-semibold w-[50%]">
-                {new Date(selectedRefund.sales_date).toLocaleDateString()}
-              </div>
-            </div>
-          </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              REFUND METHOD
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.refund_method}</div>
+                          </div>
 
-          {/* Refund Info Section */}
-          <div className="border-b pb-4">
-            <h3 className="font-semibold text-xl pb-2">Refund Info</h3>
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                REFUND ID
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.refund_id}</div>
-            </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              CASHIER
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.cashier}</div>
+                          </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              CUSTOMER NAME
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.customer_name}</div>
+                          </div>
 
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                REFUND AMOUNT
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.refund_amount}</div>
-            </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              TRANSACTION ID
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.transaction_id}</div>
+                          </div>
 
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                REFUND METHOD
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.refund_method}</div>
-            </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              SALES DATE
+                            </div>
+                            <div className="font-semibold w-[50%]">
+                              {formatDate(new Date(selectedRefund.sales_date).toLocaleDateString())}
+                            </div>
+                          </div>
+                        </div>
 
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                CASHIER
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.cashier}</div>
-            </div>
-          </div>
+                        {/* Product Info Section */}
+                        <div className="border-b pb-4 flex flex-col gap-4">
+                          <h3 className="font-semibold text-xl pb-2">Product Info</h3>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              PRODUCT NAME
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.product_name}</div>
+                          </div>
 
-          {/* Product Info Section */}
-          <div className="border-b pb-4">
-            <h3 className="font-semibold text-xl pb-2">Product Info</h3>
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                PRODUCT NAME
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.product_name}</div>
-            </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              SERIAL NUMBER
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.serial_number}</div>
+                          </div>
 
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                SERIAL NUMBER
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.serial_number}</div>
-            </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              UNIT PRICE
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.unit_price}</div>
+                          </div>
 
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                UNIT PRICE
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.unit_price}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                REASON
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.reason}</div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-)}
-{/* Popup Section */}
-{isPopupOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-end items-center z-50">
-    <div
-      className={`py-6 max-w-xl w-full h-full p-4 border border-blue-400 rounded-md shadow-md relative overflow-y-auto ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-light-bg'}`}
-    >
-      <button
-        className={`flex gap-2 items-center outline-none pb-6 ${darkMode ? 'text-light-TEXT' : 'dark:text-dark-TEXT'} hover:underline`}
-        onClick={closePopup}
-      >
-        <IoCaretBackOutline /> Back to Refund
-      </button>
-
-      {selectedRefund && (
-        <div className="w-full flex flex-col gap-3 px-10">
-            <div className="text-md w-full flex items-center justify-between py-4">
-                <div className={`w-[100%] text-4xl font-semibold ${darkMode ? 'text-light-textPrimay' : 'text-dark-textPrimay'}`}>
-                  REFUND ID: {selectedRefund.refund_id}
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              REASON
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.reason}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-            </div>
-          <div className="border-b pb-4 flex flex-col gap-4">
-            <h3 className="font-semibold text-xl pb-2">Refund Info</h3>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                REFUND AMOUNT
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.refund_amount}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                REFUND METHOD
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.refund_method}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                CASHIER
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.cashier}</div>
-            </div>
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                CUSTOMER NAME
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.customer_name}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                TRANSACTION ID
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.transaction_id}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                SALES DATE
-              </div>
-              <div className="font-semibold w-[50%]">
-                {new Date(selectedRefund.sales_date).toLocaleDateString()}
-              </div>
-            </div>
-          </div>
-
-          {/* Product Info Section */}
-          <div className="border-b pb-4 flex flex-col gap-4">
-            <h3 className="font-semibold text-xl pb-2">Product Info</h3>
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                PRODUCT NAME
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.product_name}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                SERIAL NUMBER
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.serial_number}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                UNIT PRICE
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.unit_price}</div>
-            </div>
-
-            <div className="text-md w-full flex items-center justify-between">
-              <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                REASON
-              </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.reason}</div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-)}
+              )}
 
 
   </div>

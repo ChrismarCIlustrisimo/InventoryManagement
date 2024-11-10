@@ -55,11 +55,17 @@ const Footer = () => {
 
 
                         <div className="flex flex-col items-center md:items-end md:order-3 md:flex-1">
-                              <h2 className="font-bold text-lg">Follow Us</h2>
-                              <a href="https://www.facebook.com" className="text-blue-500 hover:underline mt-2">
+                                <h2 className="font-bold text-lg">Follow Us</h2>
+                              <a
+                                    href="https://www.facebook.com/@irigcomputers"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-500 hover:underline mt-2"
+                              >
                                     <FaFacebook className="text-5xl text-blue-500" />
                               </a>
                         </div>
+
                   </div>
 
 

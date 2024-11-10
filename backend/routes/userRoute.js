@@ -74,8 +74,8 @@ router.get('/:id', async (req, res) => {
 });
 
 
-// Update user
-router.put('/:id', async (req, res) => {
+// Update user (PATCH route)
+router.patch('/:id', async (req, res) => {
     const { id } = req.params;
     const { username, password, name, contact, role } = req.body;
 
@@ -97,6 +97,7 @@ router.put('/:id', async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
 
 // Delete user
 router.delete('/:id', async (req, res) => {

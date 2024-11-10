@@ -169,10 +169,19 @@ const handleSerialNumberImageChange = (index, file) => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'];
+
+    if (selectedFile && allowedTypes.includes(selectedFile.type)) {
       setFile(selectedFile);
+      toast.success('File uploaded successfully!'); // Show success toast
+    } else {
+      setFile(null);
+      toast.error('Invalid file type. Please upload a PNG, JPEG, or GIF image.'); // Show error toast
     }
   };
+
+
+
 
   const handleInputChange = (index, value) => {
     const newLocalInputs = [...localInputs];
@@ -265,20 +274,21 @@ const handleDescriptionChange = (e) => {
       </div>
       <p className='text-3xl text-center mb-12 font-semibold'>Add New Product</p>
           <div className='w-full h-[82%] flex items-start justify-center gap-8'>
-            <div className='flex flex-col w-[25%] gap-8'>
-              <div className='flex flex-col items-center justify-center border-2 rounded-md p-4 border-dashed bg-transparent'>
-                {file ? (
-                  <img src={URL.createObjectURL(file)} alt="Product" className="w-64 h-64 object-cover" />
-                ) : (
-                  <BiImages className="w-64 h-64 text-gray-500" />
-                )}
+          <div className='flex flex-col w-[25%] gap-8'>
+                <div className='flex flex-col items-center justify-center border-2 rounded-md p-4 border-dashed bg-transparent'>
+                  {file ? (
+                    <img src={URL.createObjectURL(file)} alt="Product" className="w-64 h-64 object-cover" />
+                  ) : (
+                    <BiImages className="w-64 h-64 text-gray-500" />
+                  )}
+                </div>
+                {error && <div className="text-red-500 text-sm">{error}</div>}
+                <input type='file' id="file" ref={fileInputRef} className={`hidden`} onChange={handleFileChange}/>
+                <button className="bg-blue-500 text-white rounded-md p-2 px-6 flex items-center justify-start gap-2" onClick={handleButtonClick}>
+                  <AiOutlineUpload className='text-2xl'/>
+                  {file ? 'Upload Product Photo' : 'Upload Product Photo'}
+                </button>
               </div>
-              <input type='file' id="file" ref={fileInputRef} className={`hidden`} onChange={handleFileChange}/>
-              <button className="bg-blue-500 text-white rounded-md p-2 px-6 flex items-center justify-start gap-2" onClick={handleButtonClick} >
-                <AiOutlineUpload className='text-2xl'/>
-                {file ? 'Upload Product Photo' : 'Upload Product Photo'}
-              </button>
-            </div>
 
             <div className="flex flex-col w-[25%] gap-4 p-4 rounded-[10px] bg-white">
                 <p className="text-2xl font-semibold">Basic information</p>
@@ -293,34 +303,41 @@ const handleDescriptionChange = (e) => {
 
 
                 <div className="flex w-full gap-2 justify-between">
-                  <label htmlFor="category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CATEGORY</label>
-                  <select id="category" className={`border rounded p-2 my-1 font-semibold w-[58%] ${ darkMode ? 'text-dark-textSecondary' : 'light:text-light-textSecondary'}`}  value={category} onChange={handleCategoryChange} >
-                    <option value="">Select Category</option>
-                    {categories.map((cat) => (
-                      <option key={cat.name} value={cat.name}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-
-                <div className="flex w-full gap-2 justify-between">
-                  <label htmlFor="sub-category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUB-CATEGORY</label>
-                  <select id="sub-category" 
-                    className={`border rounded p-2 my-1 font-semibold w-[58%] ${darkMode ? 'text-dark-textSecondary' : 'light:text-light-textSecondary'}`} 
-                    value={subCategory}
-                    onChange={(e) => setSubCategory(e.target.value)}
-                    disabled={!category}
-                >
-                    <option value="">Select Sub-Category</option>
-                    {subCategories.map((subCat) => (
-                        <option key={subCat} value={subCat}>
-                            {subCat}
+                    <label htmlFor="category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CATEGORY</label>
+                    <select 
+                      id="category" 
+                      className={`border rounded p-2 my-1 font-semibold w-[58%] ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} ${category ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : (darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary')}`} 
+                      value={category} 
+                      onChange={handleCategoryChange}
+                    >
+                      <option value="" disabled selected={!category}>Select Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.name} value={cat.name}>
+                          {cat.name}
                         </option>
-                    ))}
-                </select>
-                </div>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="flex w-full gap-2 justify-between">
+                    <label htmlFor="sub-category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUB-CATEGORY</label>
+                    <select 
+                      id="sub-category" 
+                      className={`border rounded p-2 my-1 font-semibold w-[58%] ${darkMode ? 'text-light-textPrimary' : 'text-light-textPrimary'} ${subCategory ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : (darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary')}`} 
+                      value={subCategory}
+                      onChange={(e) => setSubCategory(e.target.value)}
+                      disabled={!category}
+                    >
+                      <option value="" disabled selected={!subCategory}>Select Sub-Category</option>
+                      {subCategories.map((subCat) => (
+                        <option key={subCat} value={subCat}>
+                          {subCat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+
 
                 <div className="flex w-full gap-2 justify-between">
                   <label htmlFor="model" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>MODEL</label>
@@ -440,14 +457,14 @@ const handleDescriptionChange = (e) => {
           {openDescriptionModal && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                 <div className={`p-4 rounded-lg w-1/2 h-[50%] flex flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
-                  <h2 className="text-xl mb-4">Add Product Description</h2>
+                  <h2 className="text-2xl font-semibold mb-4">Add Product Specification</h2>
                   
                   {/* Scrollable Textarea */}
                   <textarea
                     value={description}
                     onChange={handleDescriptionChange}
-                    placeholder="Enter product description and use this format
-TITLE: Description"
+                    placeholder="Enter product Specification and use this format
+Label: Value"
                     className={`w-full flex-grow p-2 border rounded-md resize-none overflow-y-auto ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}
                     style={{ maxHeight: '60%' }}
                   />

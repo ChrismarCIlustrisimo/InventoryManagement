@@ -68,6 +68,7 @@ const createTestAdmin = async () => {
         name: 'ADMIN',
         contact: '1234567890',
         role: 'admin',
+        archived: false,
       });
 
       await user.save();

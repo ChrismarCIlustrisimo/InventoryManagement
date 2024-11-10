@@ -12,7 +12,8 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import ConfirmationDialog from '../components/ConfirmationDialog';
-// Inside your App component or main component render method
+import ArchivedUsers from '../components/ArchivedUsers';
+
 <ToastContainer />
 
 const AdminProfile = () => {
@@ -40,6 +41,8 @@ const AdminProfile = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [userId, setuserId] = useState(user._id);
+    const [userToArchive, setUserToArchive] = useState(null);
+    const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
 
     const resetToUserData = () => {
         setName(user.name);
@@ -106,18 +109,19 @@ const AdminProfile = () => {
     
     
 
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await axios.get(`${baseURL}/user`);
-                setUsers(response.data);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-        };
+useEffect(() => {
+    const fetchUsers = async () => {
+        try {
+            const response = await axios.get(`${baseURL}/user?archived=false`); // Fetch only non-archived users
+            setUsers(response.data);
+        } catch (error) {
+            console.error("Error fetching users:", error);
+        }
+    };
 
-        fetchUsers();
-    }, [baseURL]);
+    fetchUsers();
+}, [baseURL, activeButton]);
+
 
 
     useEffect(() => {
@@ -141,51 +145,59 @@ const AdminProfile = () => {
     const handleViewUserClick = (userId) => {
         navigate(`/update-user/${userId}`);
     };
-    const handleDeleteUserClick = (userId) => {
-        setUserToDelete(userId);
-        setIsDialogOpen(true);
-    };
 
-    const handleConfirmDelete = async () => {
-        if (userToDelete) {
+    const handleConfirmArchive = async () => { 
+        if (userToArchive) {
             try {
-                const response = await fetch(`http://localhost:5555/user/${userToDelete}`, {
-                    method: 'DELETE',
+                const response = await fetch(`http://localhost:5555/user/${userToArchive}/archive`, {
+                    method: 'PATCH',
                 });
-
+    
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to delete user');
+                    throw new Error(errorData.error || 'Failed to archive user');
                 }
-
-                const responseData = await response.json();
-
-                // Update the user list after deletion
-                setUsers((prevUsers) => prevUsers.filter(user => user._id !== userToDelete));
-                setUserToDelete(null);
-                toast.success('User Deleted successfully!');
+    
+                // Update user list to reflect archive status
+                setUsers((prevUsers) =>
+                    prevUsers.map((user) =>
+                        user._id === userToArchive ? { ...user, archived: true } : user
+                    )
+                );
+                setUserToArchive(null);
+                toast.success('User archived successfully!');
             } catch (error) {
                 console.error('Error:', error.message);
-                // Handle error state here (e.g., show an error message to the user)
             }
         }
-
-        setIsDialogOpen(false);
+    
+        setIsArchiveDialogOpen(false); // Close the dialog after confirming
     };
+    
+    const handleArchiveUserClick = (userId) => {
+        setUserToArchive(userId); // Set the user ID to archive
+        setIsArchiveDialogOpen(true); // Open the confirmation dialog
+    };
+    
 
-    const handleCancelDelete = () => {
-        setUserToDelete(null);
-        setIsDialogOpen(false);
+    const handleCancelArchiveUser = () => {
+        setUserToArchive(null); // Reset the userToArchive state
+        setIsArchiveDialogOpen(false); // Close the dialog
     };
 
     const getIconColor = (role) => {
         switch (role) {
+            case 'super admin':
+                return darkMode ? 'text-blue-600' : 'text-blue-400';  // Color for super admin
             case 'admin':
-                return darkMode ? 'text-red-600' : 'text-red-400';
+                return darkMode ? 'text-red-600' : 'text-red-400';  // Color for admin
+            case 'cashier':
+                return darkMode ? 'text-green-600' : 'text-green-400';  // Color for cashier
             default:
-                return darkMode ? 'text-gray-600' : 'text-gray-400';
+                return darkMode ? 'text-gray-600' : 'text-gray-400';  // Default color for other roles
         }
     };
+    
 
     const onLogout = () => {
         logout();
@@ -204,6 +216,7 @@ const AdminProfile = () => {
                         <div className="flex flex-col text-xl h-full w-[20%] items-start justify-start p-4">
                             <button onClick={() => handleClick('profile')} className={`p-2 bg-transparent ${activeButton === 'profile' ? 'text-light-primary' : `${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}`} >Profile</button>
                             <button onClick={() => handleClick('users')} className={`p-2 bg-transparent ${activeButton === 'users' ? 'text-light-primary' : `${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}`} >Users</button>
+                            <button onClick={() => handleClick('archived')} className={`p-2 bg-transparent ${activeButton === 'archived' ? 'text-light-primary' : `${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}`} >Archived Users</button>
                         </div>
                         <div className={`flex-grow border-l h-full ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>
 
@@ -357,47 +370,55 @@ const AdminProfile = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className='h-full'>
-                                                {users
-                                                    .filter(user => user._id !== userId)  // Exclude the current user
-                                                    .filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase()))  // Apply search filter
-                                                    .map(user => (
-                                                        <tr key={user._id} className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}>
-                                                            <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center text-left ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                                                                <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
-                                                                <p>{user.name}</p>
-                                                            </td>
-                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.role}</td>
-                                                            <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.contact}</td>
-                                                            <td style={{ width: '20%' }} className='text-center gap-4'>
-                                                                <button
-                                                                    className={`px-4 py-2 rounded-md font-semibold mr-4 ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
-                                                                    onClick={() => handleViewUserClick(user._id)}
-                                                                >
-                                                                    Edit
-                                                                </button>
-                                                                <button
-                                                                    className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-red-500' : 'bg-red-600'}`}
-                                                                    onClick={() => handleDeleteUserClick(user._id)}
-                                                                >
-                                                                    Delete
-                                                                </button>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                            </tbody>
+                                                    {users
+                                                        .filter(user => !user.archived) // Exclude archived users
+                                                        .filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
+                                                        .map(user => (
+                                                            <tr key={user._id} className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}>
+                                                                <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center text-left ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                                                                    <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
+                                                                    <p>{user.name}</p>
+                                                                </td>
+                                                                <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.role}</td>
+                                                                <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.contact}</td>
+                                                                <td style={{ width: '20%' }} className='text-center gap-4'>
+                                                                    <button
+                                                                        className={`px-4 py-2 rounded-md font-semibold mr-4 transform transition-transform duration-150 ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'} hover:scale-105`}
+                                                                        onClick={() => handleViewUserClick(user._id)}
+                                                                        disabled={user.archived} // Disable edit for archived users
+                                                                    >
+                                                                        Edit
+                                                                    </button>
+                                                                    <button
+                                                                        className={`px-4 py-2 rounded-md font-semibold transform transition-transform duration-150 ${darkMode ? 'bg-red-500' : 'bg-red-600'}`}
+                                                                        onClick={() => handleArchiveUserClick(user._id)}
+                                                                        disabled={user.archived} // Disable archive button if already archived
+                                                                    >
+                                                                        Archive
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                </tbody>
+
+
                                         </table>
                                     </div>
                                 </div>
+                            </div>
+                            )}
 
-                                </div>
+                            {activeButton === 'archived' &&(
+                                <ArchivedUsers />
                             )}
                         </div>
                         <ConfirmationDialog
-                                isOpen={isDialogOpen}
-                                onConfirm={handleConfirmDelete}
-                                onCancel={handleCancelDelete}
-                                message="Are you sure you want to delete this user?"
-                            />
+                            isOpen={isArchiveDialogOpen}  // This will control whether the dialog is visible
+                            onConfirm={handleConfirmArchive}  // This is the function that will run when the user confirms the archive action
+                            onCancel={handleCancelArchiveUser}  // This is the function that will run when the user cancels the archive action
+                            message="Are you sure you want to archive this user?"  // Custom message to display in the dialog
+                        />
+
                     </div>
                 </div>
             </div>

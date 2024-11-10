@@ -25,7 +25,14 @@ const InventoryReport = () => {
 
   const [showMetrics, setShowMetrics] = useState(false); // State for showing total stock metrics
   const formatDate = (date) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true // This will format the time in 12-hour format with AM/PM
+    };
     return new Date(date).toLocaleDateString('en-US', options);
 };
 

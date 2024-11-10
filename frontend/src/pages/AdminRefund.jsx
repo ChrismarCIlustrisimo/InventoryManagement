@@ -276,11 +276,11 @@ const formatDate = (dateString) => {
                         <div className='flex justify-center items-center'>
                           <div className='flex flex-col'>
                             <div className={`w-[130px] border rounded bg-transparent pl-1 
-                              ${startDate === ''  
+                               ${startDate === '' 
                                 ? (darkMode ? 'bg-transparent text-black border-light-textPrimary' : 'bg-transparent text-white border-dark-textPrimary') 
                                 : (darkMode 
-                                  ? ' text-light-primary ' 
-                                  : ' text-dark-primary ')} `}>
+                                  ? ' text-light-primary border-light-textPrimary' 
+                                  : ' text-dark-primary border-dark-textPrimary')} `}>
                               <DatePicker
                                 selected={startDate}
                                 onChange={handleStartDateChange}

@@ -10,6 +10,7 @@ const userSchema = new Schema({
     name: { type: String, required: true },
     contact: { type: String  },
     role: { type: String, required: true },
+    archived: { type: Boolean, default: false }
 });
 
 

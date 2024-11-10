@@ -48,15 +48,23 @@ router.post('/login', async (req, res) => {
 
 
 
-// Get all users
+// Get all users, with an optional filter for archived users
 router.get('/', async (req, res) => {
     try {
-        const users = await User.find();
+        const { archived } = req.query;
+
+        // If 'archived' is true, fetch archived users, otherwise fetch non-archived users or all users
+        const filter = archived === 'true' ? { archived: true } : (archived === 'false' ? { archived: false } : {});
+
+        const users = await User.find(filter);
         res.status(200).json(users);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
+
+
 
 // Get a single user by ID
 router.get('/:id', async (req, res) => {
@@ -138,6 +146,48 @@ router.patch('/:id/change-password', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+router.patch('/:id/archive', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Make sure to use the correct field name `archived` here
+        user.archived = true;
+        await user.save();
+
+        res.status(200).json({ message: 'User archived successfully' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+// Route to restore a user (set archived to false)
+router.patch('/:id/restore', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Restore the user by setting archived to false
+        user.archived = false;
+        await user.save();
+
+        res.status(200).json({ message: 'User restored successfully' });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+
+
 
 
 // Route to validate current password

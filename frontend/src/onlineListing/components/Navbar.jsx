@@ -87,7 +87,7 @@ const Navbar = ({ query, onQueryChange }) => {
                             </div>
                         )}
                     </div>
-                    <Link to={"/iRIG/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Our Store</Link>
+                    <Link to={"/iRIG/our-store"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Location</Link>
                     <Link to={"/iRIG/contact-us"} className="text-dark-TEXT hover:text-gray-400 transition py-2">Contact Us</Link>
                 </div>
             </nav>

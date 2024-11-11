@@ -100,12 +100,14 @@ const Ecommerce = () => {
 
                 <main className='w-full max-w-[1200px] flex flex-col items-center md:p-4 h-auto'>
                     <ProductSection
+                        className="animate-fadeInUp"
                         title="Latest Products"
                         products={displayedLatestProducts}
                         onPrev={() => handlePrev(setCurrentIndexLatest, currentIndexLatest, latestProducts.length)}
                         onNext={() => handleNext(setCurrentIndexLatest, currentIndexLatest, latestProducts.length)}
                     />
                     <ProductSection
+                        className="animate-fadeInUp"
                         title="Top Sellers"
                         products={displayedTopSellers}
                         onPrev={() => handlePrev(setCurrentIndexTopSellers, currentIndexTopSellers, topSellers.length)}

@@ -1,35 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import axios from 'axios'; // Make sure axios is installed
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
     const [products, setProducts] = useState([]);
-    const navigate = useNavigate(); // Initialize useNavigate
+    const navigate = useNavigate();
     const baseURL = "http://localhost:5555";
 
     const handleChange = (event) => {
         const value = event.target.value;
         onQueryChange(value);
-        fetchProducts(value); // Fetch products whenever the query changes
+        fetchProducts(value);
     };
 
     const handleClear = () => {
         onQueryChange('');
-        setProducts([]); // Clear products when the search is cleared
+        setProducts([]);
     };
 
     const fetchProducts = async (searchQuery) => {
         if (searchQuery) {
             try {
                 const response = await axios.get(`http://localhost:5555/product/search?name=${searchQuery}`);
-                setProducts(response.data); // Update the product list with search results
+                const availableProducts = response.data.filter(product =>
+                    product.units && product.units.some(unit => unit.status === 'in_stock')
+                );
+                setProducts(availableProducts);
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
         } else {
-            setProducts([]); // Clear products if searchQuery is empty
+            setProducts([]);
         }
     };
 
@@ -53,22 +56,27 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
                     <FaSearch className="text-light-primary cursor-pointer" />
                 )}
             </div>
+            {query && products.length === 0 && (
+                <div className="absolute z-10 top-10 mt-2 w-full bg-white border border-gray-300 rounded-xl shadow-lg p-4 text-center text-gray-500">
+                    No products found
+                </div>
+            )}
             {products.length > 0 && (
                 <ul className="absolute z-10 top-10 mt-2 w-full bg-white border border-gray-300 rounded-xl shadow-lg">
-                    {products.slice(0, 7).map((product) => ( // Limit the display to 7 products
+                    {products.slice(0, 7).map((product) => (
                         <li
                             key={product._id}
                             className="flex items-center px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={() => handleViewProduct(product)} // Navigate on click
+                            onClick={() => handleViewProduct(product)}
                         >
-                            {product.image && ( // Check if the image exists
+                            {product.image && (
                                 <img
-                                    src={`${baseURL}/${product.image}`} // Adjust this property based on your product schema
+                                    src={`${baseURL}/${product.image}`}
                                     alt={product.name}
-                                    className="w-10 h-10 mr-2 object-cover" // Add classes for sizing and spacing
+                                    className="w-10 h-10 mr-2 object-cover"
                                 />
                             )}
-                            <span className='text-light-TEXT'>{product.name}</span> {/* Display product name */}
+                            <span className='text-light-TEXT'>{product.name}</span>
                         </li>
                     ))}
                 </ul>

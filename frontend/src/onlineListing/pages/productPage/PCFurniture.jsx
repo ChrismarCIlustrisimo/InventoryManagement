@@ -18,7 +18,8 @@ const PCFurniture = () => {
         const fetchProducts = async () => {
             try {
                 const response = await axios.get(`${baseURL}/product`);
-                const filteredData = response.data.data.filter(r => r.category === "PC Furniture");
+                const filteredData = response.data.data.filter(r => r.category === "PC Furniture")
+                .filter(product => product.units.some(unit => unit.status === 'in_stock'));
                 setProducts(filteredData);
             } catch (error) {
                 console.error('Error fetching products:', error.message);

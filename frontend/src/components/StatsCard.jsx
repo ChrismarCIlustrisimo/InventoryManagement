@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; 
 import { AiOutlineArrowUp, AiOutlineArrowDown } from "react-icons/ai"; // Import both arrow icons
 import { AiOutlineAlert } from "react-icons/ai";
 
@@ -23,8 +23,15 @@ const StatsCard = ({
   // Map background colors to text colors
   const textColor = bgColor === 'bg-white' ? 'text-black' : 'text-white';
 
+  // Conditionally apply the cursor-pointer class if onClick is provided
+  const cursorStyle = onClick ? 'cursor-pointer' : '';
+
   return (
-    <div className={`flex flex-col items-start justify-between gap-4 p-4 rounded-lg shadow-lg h-full cursor-pointer ${width} ${bgColor} ${className}`} onClick={onClick} >
+    <div 
+      className={`flex flex-col items-start justify-between gap-4 p-4 rounded-lg shadow-lg h-full ${cursorStyle} ${width} ${bgColor} ${className} 
+        ${onClick ? 'transition-transform transform hover:scale-105' : ''}`} 
+      onClick={onClick} 
+    >
       <h3 className={`text-lg font-normal ${textColor}`}>{title}</h3>
       <div className={`mt-2 ${textColor}`}>
         <span className={`text-6xl font-medium ${warning ? `flex gap-2 items-center justify-center`: ``} ${percent ? `flex gap-2 items-center justify-center`: ``}`}>

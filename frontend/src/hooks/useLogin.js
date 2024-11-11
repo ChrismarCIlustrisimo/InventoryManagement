@@ -36,9 +36,11 @@ export const useLogin = () => {
             dispatch({ type: 'LOGIN', payload: { username, name, token, role, contact, _id } });
 
             // Redirect based on the role
-            if (role === 'admin') {
-                navigate('/dashboard');
-            } else if (role === 'cashier' || role === 'admin') {
+            if (role === 'super-admin') {
+                navigate('/super-admin-dashboard');
+            } else if (role === 'admin') {
+                navigate('/admin-dashboard');
+            } else if (role === 'cashier') {
                 navigate('/cashier');
             } else {
                 navigate('/');

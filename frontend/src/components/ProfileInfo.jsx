@@ -64,7 +64,7 @@ const ProfileInfo = () => {
           <GoTriangleDown />
         </button>
         {showButtons && (
-          <div className={`absolute right-0 mt-2 w-36 rounded-md shadow-lg mt-[100px] mr-[42px] ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container dark:text-dark-textPrimary'}`}>
+          <div className={`absolute right-0 w-36 rounded-md shadow-lg mt-[100px] mr-[42px] ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container dark:text-dark-textPrimary'}`}>
             <button className={`flex items-center justify-start gap-2 px-4 py-2 text-sm ${darkMode ? 'hover:bg-light-border' : 'hover:bg-dark-border'} w-full text-left`}
               onClick={handleThemeChange}
             >

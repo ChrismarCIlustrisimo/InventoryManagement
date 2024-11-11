@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import light from '../assets/iControlLoginLogo.png';
-import dark from '../assets/iControlLight.png';
+import light from '../assets/iControlLoginLogo.png';  // Make sure the path is correct
+import dark from '../assets/iControlLight.png';      // Make sure the path is correct
 import { useAdminTheme } from '../context/AdminThemeContext';
-import { PiCubeBold } from "react-icons/pi";
-import { RiDashboard2Line } from "react-icons/ri";
-import { BiSolidReport } from "react-icons/bi";
-import { BsArrowRepeat } from "react-icons/bs";
-import DashboardProfile from './DashboardProfile';
+import { PiCubeBold } from 'react-icons/pi';
+import { RiDashboard2Line } from 'react-icons/ri';
+import { BiSolidReport } from 'react-icons/bi';
 import { useAuthContext } from '../hooks/useAuthContext';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
-import { BiReceipt } from "react-icons/bi";
-import { GoTriangleDown } from "react-icons/go";
+import { BiReceipt } from 'react-icons/bi';
+import { GoTriangleDown } from 'react-icons/go';
+import ProfileInfo from './ProfileInfo';
 
 // Styled Badge components with custom colors
 const LowStockBadge = styled(Badge)(({ theme }) => ({
@@ -28,7 +27,7 @@ const OutOfStockBadge = styled(Badge)(({ theme }) => ({
   },
 }));
 
-const DashboardNavbar = () => {
+const AdminNavbar = () => {
   const { user } = useAuthContext();
   const [lowStockCount, setLowStockCount] = useState(0);
   const [outOfStockCount, setOutOfStockCount] = useState(0);
@@ -39,23 +38,21 @@ const DashboardNavbar = () => {
   const { darkMode } = useAdminTheme();
   const [dropdownOpen, setDropdownOpen] = useState(false); // State for Reports dropdown visibility
   const [rmaDropdownOpen, setRmaDropdownOpen] = useState(false); // State for RMA dropdown visibility
-  const [refundDropDownOpen, setRefundDropDownOpen] = useState(false); // State for RMA dropdown visibility
+  const [refundDropDownOpen, setRefundDropDownOpen] = useState(false); // State for Refund dropdown visibility
 
   useEffect(() => {
     const path = location.pathname;
-    if (path.startsWith('/transactions') || path.startsWith('/refund-list')) {
+    if (path.startsWith('/admin-transaction') || path.startsWith('/admin-refund')) {
       setSelected('Sales');
     } else if (path === '/transaction-list') {
       setSelected('Transaction');
     } else if (path === '/orders') {
       setSelected('Orders');
-    } else if (path === '/dashboard') {
+    } else if (path === '/admin-dashboard') {
       setSelected('Dashboard');
-    } else if (path === '/inventory/product') {
+    } else if (path === '/admin-inventory') {
       setSelected('Inventory');
-    } else if (path === '/rma' || path === '/refund-replace-units') {
-      setSelected('RMA');
-    } else if (path === '/sales-report' || path === '/inventory-report' || path === '/rma-report') {
+    } else if (path === '/admin-sales-report' || path === '/admin-inventory-report') {
       setSelected('Reports');
     } else {
       setSelected('');
@@ -120,17 +117,15 @@ const DashboardNavbar = () => {
   };
 
   const toggleRefundDropdown = () => {
-    setRefundDropDownOpen(!refundDropDownOpen); // Toggle the RMA dropdown visibility
+    setRefundDropDownOpen(!refundDropDownOpen); // Toggle the Refund dropdown visibility
   };
-
-
 
   return (
     <div className={` ${darkMode ? 'bg-light-bg' : 'dark:bg-dark-bg'} text-white flex items-center justify-between px-6 py-1 drop-shadow fixed top-0 left-0 right-0 z-10`}>
       <img src={`${darkMode ? dark : light}`} alt="Logo" className='w-[10%] my-2 ml-8' />
       <div className="flex rounded w-[50%] gap-4 items-center">
         {/* Dashboard Button */}
-        <Link to="/super-admin-dashboard" className="flex-1">
+        <Link to="/admin-dashboard" className="flex-1">
           <button
             className={`text-sm p-2 ${selected === 'Dashboard' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Dashboard')}
@@ -141,7 +136,7 @@ const DashboardNavbar = () => {
         </Link>
 
         {/* Inventory Link */}
-        <Link to="/inventory/product" className="flex-1 relative">
+        <Link to="/admin-inventory" className="flex-1 relative">
           <button
             className={`text-sm p-2 ${selected === 'Inventory' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Inventory')}
@@ -156,7 +151,7 @@ const DashboardNavbar = () => {
           </button>
         </Link>
 
-        {/* Sales Button */}
+        {/* Transaction Dropdown */}
         <div className="relative flex-1">
           <button
             className={`text-sm p-2 ${selected === 'Sales' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
@@ -168,50 +163,22 @@ const DashboardNavbar = () => {
           </button>
           {refundDropDownOpen && (
             <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-full ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
-              <Link to="/transactions">
+              <Link to="/admin-transaction">
                 <div className={`text-sm p-2 z-100  ${selected === 'Transaction' ? `border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary ' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
                   Transaction
                 </div>
               </Link>
-              <Link to="/refund-list">
+              <Link to="/admin-refund">
                 <div className={`text-sm p-2 z-100 ${selected === 'Refund' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
                  Refund
                 </div>
               </Link>
             </div>
           )}
-      </div>
-
-        {/* RMA Button */}
-        <div className="relative flex-1">
-          <button
-            className={`text-sm p-2 ${selected === 'RMA' || selected === 'Returned' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
-            onClick={toggleRmaDropdown}
-          >
-            <BsArrowRepeat className='text-lg' />
-            <span>RMA</span>
-            <GoTriangleDown className={`text-lg transition-transform duration-200 ${rmaDropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
-          </button>
-          {/* RMA Dropdown menu */}
-          {rmaDropdownOpen && (
-            <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-full ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
-              <Link to="/rma">
-                <div className={`text-sm p-2 z-100 ${selected === 'Refunded/Replaced' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary '}`}>
-                  RMA
-                </div>
-              </Link>
-              <Link to="/refund-replace-units">
-                <div className={`text-sm p-2 z-100 ${selected === 'Refunded/Replaced' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
-                 Returned
-                </div>
-              </Link>
-            </div>
-            
-          )}
         </div>
 
         {/* Reports Dropdown */}
-        <div className="relative flex-1">
+        <div className="relative">
           <button
             className={`text-sm p-2 ${selected === 'Reports' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={toggleDropdown}
@@ -220,31 +187,25 @@ const DashboardNavbar = () => {
             <span>Reports</span>
             <GoTriangleDown className={`text-lg transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
           </button>
-          {/* Reports Dropdown menu */}
           {dropdownOpen && (
             <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-[120%] ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
-              <Link to="/sales-report">
-                <div className={`text-sm p-2 z-100 ${selected === 'sales-report' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
+              <Link to="/admin-sales-report">
+                <div className={`text-sm p-2 z-100  ${selected === 'SalesReport' ? `border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary ' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
                   Sales Report
                 </div>
               </Link>
-              <Link to="/inventory-report">
-                <div className={`text-sm p-2 z-100 ${selected === 'inventory-report' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
+              <Link to="/admin-inventory-report">
+                <div className={`text-sm p-2 z-100  ${selected === 'InventoryReport' ? `border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary ' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
                   Inventory Report
-                </div>
-              </Link>
-              <Link to="/rma-report">
-                <div className={`text-sm p-2 z-100 ${selected === 'rma-report' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
-                  RMA Report
                 </div>
               </Link>
             </div>
           )}
         </div>
       </div>
-      <DashboardProfile />
+      <ProfileInfo />
     </div>
   );
 };
 
-export default DashboardNavbar;
+export default AdminNavbar;

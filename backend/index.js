@@ -57,15 +57,15 @@ const sendEmail = (to, subject, text) => {
 const createTestAdmin = async () => {
   try {
     // Hash the password
-    const hashedPassword = await bcrypt.hash('password123', 10);
+    const hashedPassword = await bcrypt.hash('Admin123!', 10);
 
     // Check if an admin already exists
-    const existingAdmin = await User.findOne({ username: 'ADMIN' });
+    const existingAdmin = await User.findOne({ username: 'admin' });
     if (!existingAdmin) {
       const user = new User({
-        username: 'ADMIN',
+        username: 'admin',
         password: hashedPassword,
-        name: 'ADMIN',
+        name: 'admin',
         contact: '1234567890',
         role: 'admin',
         archived: false,

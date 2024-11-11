@@ -49,8 +49,6 @@ userSchema.statics.signup = async function(username, password, name, contact, ro
 }
 
 
-// Static Login method
-// Static Login method
 userSchema.statics.login = async function(username, password, role) {
     if (!username || !password || !role) {  
         throw new Error('Please provide username, password, and role');
@@ -61,6 +59,10 @@ userSchema.statics.login = async function(username, password, role) {
     if (!user) {
         throw new Error('Incorrect username');
     }
+    if (user.archived) {
+        throw new Error('This account is archived and cannot be accessed.');
+    }
+    
 
     const isMatch = await bcrypt.compare(password, user.password);
 

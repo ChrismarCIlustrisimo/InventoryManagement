@@ -133,8 +133,7 @@ const ArchivedUsers = () => {
                 message="Are you sure you want to restore this user?"
             />
 
-            {/* Toast Container */}
-            <ToastContainer />
+
         </div>
     );
 };

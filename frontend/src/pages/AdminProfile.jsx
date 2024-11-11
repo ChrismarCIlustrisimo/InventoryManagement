@@ -8,13 +8,11 @@ import { BsPersonCircle } from "react-icons/bs";
 import SearchBar from '../components/adminSearchBar';
 import { useLogout } from '../hooks/useLogout';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import ArchivedUsers from '../components/ArchivedUsers';
 
-<ToastContainer />
 
 const AdminProfile = () => {
     const { user } = useAuthContext();

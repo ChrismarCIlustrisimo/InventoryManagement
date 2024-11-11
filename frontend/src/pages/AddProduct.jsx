@@ -216,33 +216,30 @@ const handleDescriptionChange = (e) => {
     }
 
     const formData = new FormData();
-    formData.append('file', file); // Main product image
+    formData.append('file', file); 
     formData.append('name', name);
     formData.append('category', category);
     formData.append('sub_category', subCategory);
     formData.append('supplier', supplier);
-    formData.append('description', JSON.stringify(descriptionArray)); // Add descriptionArray to form data
+    formData.append('description', JSON.stringify(descriptionArray)); 
     formData.append('model', model);
     formData.append('low_stock_threshold', lowStockThreshold);
     formData.append('buying_price', buyingPrice);
     formData.append('selling_price', sellingPrice);
     formData.append('warranty', selectedValue);
 
-    // Create an array of units with serial numbers and their respective images
     const units = serialNumbers.map((sn, index) => {
         const imageFile = serialNumberImages[index];
-        formData.append('serialImages', imageFile); // Append the image file directly to FormData
+        formData.append('serialImages', imageFile);
         return {
-            serial_number: sn.serialNumber, // Correctly extract the serial number string
+            serial_number: sn.serialNumber, 
             status: 'in_stock',
             purchase_date: new Date().toISOString(),
         };
     });
 
-    // Append the units as a JSON string
     formData.append('units', JSON.stringify(units));
 
-    // Send the request to the server
     axios.post('http://localhost:5555/product', formData)
         .then(res => {
             console.log('Product added:', res.data);

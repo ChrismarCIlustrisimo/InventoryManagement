@@ -150,7 +150,8 @@ const getStatusStyles = (status) => {
           {/* Left Section: Image */}
           <div className="col-span-1">
             <div className={`rounded-lg shadow-md p-4 flex items-center justify-center ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-               <img src={`${baseURL}/${product.image}`} alt={product.name} className='w-[300px] h-[300px] object-cover rounded-md' />
+               {/*<img src={`${baseURL}/${product.image}`} alt={product.name} className='w-[300px] h-[300px] object-cover rounded-md' />*/}
+               <img src={product.image} alt={product.name} className='w-[300px] h-[300px] object-cover rounded-md' />
             </div>
 
             <div className={`mt-4 text-md rounded-lg shadow-md p-4 font-medium flex py-4 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
@@ -232,7 +233,7 @@ const getStatusStyles = (status) => {
                     ? descriptionArray.map((item, index) => {
                         const parts = item.split(':');
                         return (
-                          <div key={index}>
+                          <div key={index} className='py-1'>
                             {parts.length > 1 ? (
                               <>
                                 <span className='font-semibold text-lg'>{parts[0]}:</span>{' '}

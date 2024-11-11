@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { IoCaretBackOutline } from "react-icons/io5";
 import axios from "axios";
@@ -26,6 +26,9 @@ const UnitsTable = () => {
   const [editStatus, setEditStatus] = useState("");
 
 
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
   useEffect(() => {
     const fetchUnits = async () => {
       try {
@@ -40,20 +43,16 @@ const UnitsTable = () => {
     fetchUnits();
   }, [productId]);
 
-  console.log("Fetching product units", units)
-
   const handleBackClick = (num) => {
     navigate(num);
   };
 
-const handleEditClick = (index) => { 
-  setEditUnitIndex(index);
-  setEditSerialNumber(units[index].serial_number);
-  setEditStatus(units[index].status); // Set initial status value
-  setIsEditing(true);
-};
-
-
+  const handleEditClick = (index) => { 
+    setEditUnitIndex(index);
+    setEditSerialNumber(units[index].serial_number);
+    setEditStatus(units[index].status);
+    setIsEditing(true);
+  };
 
   const handleCancelClick = () => {
     setIsEditing(false);
@@ -92,10 +91,10 @@ const handleEditClick = (index) => {
   };
 
   const handleUpdateUnit = async (unitId) => { 
-    setLoading(true);
+    setLoading(true);  // Start loading when the update begins
     const formData = new FormData();
     formData.append("serial_number", editSerialNumber);
-    formData.append("status", editStatus); // Append status to form data
+    formData.append("status", editStatus);
   
     if (editImageFile) {
       formData.append("serial_number_image", editImageFile);
@@ -116,7 +115,7 @@ const handleEditClick = (index) => {
               ...unit, 
               serial_number: updatedUnit.serial_number, 
               serial_number_image: updatedUnit.serial_number_image,
-              status: updatedUnit.status // Update status in the state
+              status: updatedUnit.status
             };
           }
           return unit;
@@ -127,8 +126,7 @@ const handleEditClick = (index) => {
         setEditUnitIndex(null);
         setEditSerialNumber("");
         setEditImageFile(null);
-        setEditStatus(""); // Reset status
-  
+        setEditStatus("");
         toast.success("Unit updated successfully!");
       } else {
         console.error('Error updating unit: Unexpected response code', response.status);
@@ -138,7 +136,7 @@ const handleEditClick = (index) => {
       console.error("Error updating unit:", error.response ? error.response.data : error.message);
       toast.error("Error updating unit.");
     } finally {
-      setLoading(false);
+      setLoading(false);  // Stop loading when the process ends
     }
   };
   
@@ -155,28 +153,75 @@ const handleEditClick = (index) => {
     setEditImageFile(e.target.files[0]);
   };
 
+  const startCamera = () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then((stream) => {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        })
+        .catch((error) => {
+          console.error("Error accessing camera: ", error);
+        });
+    }
+  };
+
+  const captureImage = () => {
+    if (videoRef.current && videoRef.current.readyState >= 3) {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        const file = new File([blob], "captured_image.jpg", { type: "image/jpeg" });
+        setEditImageFile(file);
+      });
+    } else {
+      console.error("Video not ready for capturing");
+    }
+  };
+  
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/product/${productId}`);
+        const inStockUnits = response.data.units.filter(unit => unit.status === 'in_stock');
+        setUnits(response.data.units);
+        setProductName(response.data.name);
+      } catch (error) {
+        console.error("Error fetching product units:", error.message);
+      }
+    };
+    fetchUnits();
+  }, [productId]);
+
+
+
+
+
+  
   // ConfirmationDialog component
-  const ConfirmationDialog = ({ title, message, onConfirm, onCancel }) => (
-    <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
-      <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'text-dark-textPrimary bg-dark-container'}`}>
-        <p className="text-lg mb-4">{message}</p>
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={onCancel}
-            className={`px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400`}
-          >
-            Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className={`px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600`}
-          >
-            Confirm
-          </button>
-        </div>
+const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) => (
+  <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
+    <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-dark-textPrimary bg-dark-container' : 'text-light-textPrimary bg-light-container'}`}>
+      <p className="text-lg mb-4">{message}</p>
+      <div className="flex justify-end gap-4">
+        <button
+          onClick={onConfirm}
+          className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-dark-textPrimary hover:bg-dark-primary'}`}
+        >
+          Confirm
+        </button>
+        <button
+          onClick={onCancel}
+          className={`w-[46%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
+        >
+          Cancel
+        </button>
       </div>
     </div>
-  );
+  </div>
+);
 
   return (
     <div className={`h-full w-full flex flex-col ${darkMode ? 'text-light-textPrimary  bg-light-container' : 'text-dark-textPrimary  bg-dark-container'}`}>
@@ -216,26 +261,27 @@ const handleEditClick = (index) => {
                   <td className="px-4 py-2 text-center">{unit.unit_id}</td>
                   <td className="px-4 py-2 flex items-center justify-center">
                     {editUnitIndex === index ? (
-                      <label
-                        className="bg-blue-500 hover:scale-95 text-white rounded-md p-2 px-6 flex items-center justify-center gap-2 cursor-pointer w-full"
-                      >
-                        <AiOutlineUpload className='text-2xl' />
-                        {editImageFile ? 'Change Image' : 'Upload Image'}
-                        <input
-                          name="serial_number_image"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageChange}
-                          className="hidden"
-                        />
-                      </label>
+                      <div>
+                          <canvas ref={canvasRef} width="320" height="240" className="hidden" />
+                          
+                          {editImageFile ? (
+                            <img src={URL.createObjectURL(editImageFile)} alt="Captured" className="mt-4" width="320" height="240" />
+                          ) : (
+                            <video ref={videoRef} width="320" height="240" className="mt-4" />
+                          )}
+                          <div className="w-auto flex gap-4 items-center justify-center mt-2">
+                            <button onClick={captureImage} className="bg-green-500 text-white p-2 rounded-md">Capture Image</button>
+                            <button onClick={startCamera} className="bg-blue-500 text-white p-2 rounded-md">Open Camera</button>
+                          </div>
+                        </div>
+
                     ) : (
-                      <img
-                        src={`${baseURL}/${unit.serial_number_image}`}
-                        alt={`Unit ${index + 1}`}
-                        className="h-14 w-14 transition-transform duration-200 hover:scale-150 cursor-pointer"
-                        onClick={() => handleImageClick(`${baseURL}/${unit.serial_number_image}`)}
-                      />
+                        <img
+                          src={unit.serial_number_image}
+                          alt={`Unit ${index + 1}`}
+                          className="h-16 w-16 transform transition-transform duration-300 hover:scale-110 rounded-md"
+                          onClick={() => handleImageClick(unit.serial_number_image)}
+                        />
                     )}
                   </td>
 
@@ -312,7 +358,7 @@ const handleEditClick = (index) => {
         {modalImage && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
             <div className="relative">
-              <img src={modalImage} alt="Modal" className="max-w-full max-h-screen" />
+              <img src={modalImage} alt="Modal" className="max-w-full max-h-screen rounded-md" />
               <button
                 onClick={closeModal}
                 className="absolute top-2 right-2 text-white text-2xl bg-red-500 rounded-full p-2"
@@ -332,6 +378,20 @@ const handleEditClick = (index) => {
           onCancel={cancelDeleteUnit}
         />
       )}
+
+  {loading && ( 
+      <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
+        <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'text-dark-textPrimary bg-dark-container'}`}>
+          <div className="flex justify-center items-center gap-2">
+            {/* Moving Loading Animation */}
+            <div className="relative w-8 h-8">
+              <div className="absolute w-full h-full rounded-full border-4 border-t-4 border-white border-t-light-primary animate-spin"></div>
+            </div>
+            <span className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Please wait while the unit are being updated...</span>
+          </div>
+        </div>
+      </div>
+    )}
 
       <ToastContainer />
     </div>

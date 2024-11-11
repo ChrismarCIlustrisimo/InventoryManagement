@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react'; // Add useEffect and useRef
-import { AiOutlineUpload } from 'react-icons/ai';
-import { BiImages } from 'react-icons/bi';
 import axios from 'axios';  // Assuming you are using axios for making HTTP requests
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { IoCaretBackOutline } from "react-icons/io5";
@@ -20,6 +18,7 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false); // Track if saving
   const [savedCount, setSavedCount] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const handleQuantityChange = (value) => {
     if (value >= 0) {
@@ -65,21 +64,12 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
   };
   
 
-
-
-
-
-  const isInputDisabled = (index) => editModes[index] || isSaving;
-
-
   const upload = async () => {
-    // Check if quantity is greater than 0
     if (quantity <= 0) {
       toast.warning("Please enter a valid number of units.");
       return;
     }
   
-    // Check for empty serial numbers or images
     for (let i = 0; i < localInputs.length; i++) {
       if (!localInputs[i] || !serialNumberImages[i]) {
         toast.warning(`Please fill in Serial Number ${i + 1} and upload its image.`);
@@ -87,30 +77,31 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
       }
     }
   
-    // Create FormData object to handle file uploads
     const formData = new FormData();
     localInputs.forEach((serialNumber, index) => {
-      formData.append('serial_number[]', serialNumber); // Append serial numbers
-      formData.append('serial_number_image', serialNumberImages[index]); // Append images
+      formData.append('serial_number[]', serialNumber);
+      formData.append('serial_number_image', serialNumberImages[index]);
     });
   
+    setLoading(true); // Set loading state to true when uploading starts
+  
     try {
-      // Send POST request to the server
       const response = await axios.post(`${baseURL}/product/${productId}/unit`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data', // Important for file uploads
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
   
       if (response.status === 201) {
         toast.success("Units added successfully!");
-        onClose(); // Close the modal after successful upload
+        onClose();
       }
     } catch (error) {
       console.error('Error adding units:', error);
       toast.error('Error adding units.');
+    } finally {
+      setLoading(false); // Set loading state to false after the request completes
     }
   };
+  
   
   const handleBackClick = () => {
     navigate(-1);
@@ -184,7 +175,7 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
       <div className={`w-full h-full flex items-start justify-center border-12   ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
       <div className={`rounded-lg z-10 px-6 w-[70%] h-[92%] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
       <div className='w-full flex items-center justify-between gap-2 py-2 px-6'>
-      <p className='text-2xl text-center font-semibold'>Add New Product</p>
+      <p className='text-2xl text-center font-semibold'>Add New Unit</p>
                     <div className='flex items-center justify-center gap-2'>
                         <p htmlFor="quantity">Units:</p>
                         <div className={`flex items-center border rounded-md overflow-hidden px-2 ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
@@ -261,6 +252,20 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
                     </div>
                 )}
 
+
+            {loading && (
+                    <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
+                        <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'text-dark-textPrimary bg-dark-container'}`}>
+                            <div className="flex justify-center items-center gap-2">
+                                {/* Moving Loading Animation */}
+                                <div className="relative w-8 h-8">
+                                    <div className="absolute w-full h-full rounded-full border-4 border-t-4 border-white border-t-light-primary animate-spin"></div>
+                                </div>
+                                <span className="text-black">Please wait while the unit are being added...</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
 
         <div className={`w-full absolute bottom-0 left-0 right-0 flex items-center justify-end gap-4 px-8 py-2 border ${darkMode ? 'bg-light-container border-light-border' : 'bg-dark-container border-dark-border'}`}>

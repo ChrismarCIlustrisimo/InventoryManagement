@@ -38,6 +38,7 @@ const AddProduct = () => {
   const [selectedUnit, setSelectedUnit] = useState('');
   const [descriptionArray, setDescriptionArray] = useState([]);
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
+  const [loading, setLoading] = useState(false); // Add loading state to control spinner visibility
 
   
 
@@ -196,60 +197,67 @@ const handleDescriptionChange = (e) => {
 };
 
 
-  const upload = () => {
-    const validationError = validate();
-    if (validationError) {
-        setError(validationError);
-        return;
-    }
+const upload = () => {
+  setLoading(true); // Set loading to true when the upload starts
 
-    // Check for empty serial numbers or missing images
-    for (let i = 0; i < serialNumbers.length; i++) {
-        if (!serialNumbers[i].serialNumber) {
-            setError(`Serial number ${i + 1} is required.`);
-            return;
-        }
-        if (!serialNumberImages[i]) {
-            setError(`Image for serial number ${i + 1} is required.`);
-            return;
-        }
-    }
+  const validationError = validate();
+  if (validationError) {
+      setLoading(false); // Set loading to false if validation fails
+      setError(validationError);
+      return;
+  }
 
-    const formData = new FormData();
-    formData.append('file', file); 
-    formData.append('name', name);
-    formData.append('category', category);
-    formData.append('sub_category', subCategory);
-    formData.append('supplier', supplier);
-    formData.append('description', JSON.stringify(descriptionArray)); 
-    formData.append('model', model);
-    formData.append('low_stock_threshold', lowStockThreshold);
-    formData.append('buying_price', buyingPrice);
-    formData.append('selling_price', sellingPrice);
-    formData.append('warranty', selectedValue);
+  // Check for empty serial numbers or missing images
+  for (let i = 0; i < serialNumbers.length; i++) {
+      if (!serialNumbers[i].serialNumber) {
+          setLoading(false); // Set loading to false if there's a validation error
+          setError(`Serial number ${i + 1} is required.`);
+          return;
+      }
+      if (!serialNumberImages[i]) {
+          setLoading(false); // Set loading to false if there's a missing image
+          setError(`Image for serial number ${i + 1} is required.`);
+          return;
+      }
+  }
 
-    const units = serialNumbers.map((sn, index) => {
-        const imageFile = serialNumberImages[index];
-        formData.append('serialImages', imageFile);
-        return {
-            serial_number: sn.serialNumber, 
-            status: 'in_stock',
-            purchase_date: new Date().toISOString(),
-        };
-    });
+  const formData = new FormData();
+  formData.append('file', file); 
+  formData.append('name', name);
+  formData.append('category', category);
+  formData.append('sub_category', subCategory);
+  formData.append('supplier', supplier);
+  formData.append('description', JSON.stringify(descriptionArray)); 
+  formData.append('model', model);
+  formData.append('low_stock_threshold', lowStockThreshold);
+  formData.append('buying_price', buyingPrice);
+  formData.append('selling_price', sellingPrice);
+  formData.append('warranty', selectedValue);
 
-    formData.append('units', JSON.stringify(units));
+  const units = serialNumbers.map((sn, index) => {
+      const imageFile = serialNumberImages[index];
+      formData.append('serialImages', imageFile);
+      return {
+          serial_number: sn.serialNumber, 
+          status: 'in_stock',
+          purchase_date: new Date().toISOString(),
+      };
+  });
 
-    axios.post('http://localhost:5555/product', formData)
-        .then(res => {
-            console.log('Product added:', res.data);
-            handleBackClick();
-        })
-        .catch(err => {
-            const errorMessage = err.response?.data.message || 'An unknown error occurred';
-            console.error('Error:', errorMessage);
-            setError(errorMessage);
-        });
+  formData.append('units', JSON.stringify(units));
+
+  axios.post('http://localhost:5555/product', formData)
+      .then(res => {
+          setLoading(false); // Set loading to false after successful upload
+          toast.success('Product added successfully!');
+          handleBackClick();
+      })
+      .catch(err => {
+          setLoading(false); // Set loading to false if there's an error
+          const errorMessage = err.response?.data.message || 'An unknown error occurred';
+          console.error('Error:', errorMessage);
+          setError(errorMessage);
+      });
 };
 
   const handleBackClick = () => {
@@ -445,6 +453,7 @@ const handleDescriptionChange = (e) => {
                 handleCheckClick={handleCheckClick}
                 handleSerialNumberImageChange={handleSerialNumberImageChange}
                 upload={upload}
+                loading={loading}
             />
       
 

@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Modal from '@mui/material/Modal';
-import { AiOutlineCamera } from 'react-icons/ai';
-import { useAdminTheme } from '../context/AdminThemeContext';
 import { IoCameraOutline } from "react-icons/io5";
+import { useAdminTheme } from '../context/AdminThemeContext';
 
 const ProductModal = ({
     openModal,
@@ -18,9 +17,11 @@ const ProductModal = ({
     handleSerialNumberImageChange,
     serialNumberImages,
     upload,
+    loading,
 }) => {
     const { darkMode } = useAdminTheme();
     const videoRefs = useRef([]);
+    const [showSaveMessage, setShowSaveMessage] = useState(false); // State for showing floating save message
 
     useEffect(() => {
         const streams = [];
@@ -71,10 +72,15 @@ const ProductModal = ({
     };
 
     const handleReuploadImage = (index) => {
-        // Clear the current image
-        handleSerialNumberImageChange(index, null); // Pass null to clear the image
+        handleSerialNumberImageChange(index, null); // Clear the image
     };
 
+    const handleSave = async () => {
+        setShowSaveMessage(true);
+        const result = await upload();
+    };
+    
+    
     return (
         <Modal open={openModal} onClose={handleCloseModal} className={`flex items-center justify-center ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
             <div className={`w-full h-full flex flex-col items-center justify-start gap-4 bg-container rounded-md p-4 relative ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
@@ -137,11 +143,9 @@ const ProductModal = ({
                                         />
                                     </div>
                                     {serialNumberImages[index] ? (  
-                                    <button onClick={() => handleReuploadImage(index)} className={`px-2 py-3 w-full bg-transparent border rounded-md mb-2 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Edit Image</button>
-
+                                        <button onClick={() => handleReuploadImage(index)} className={`px-2 py-3 w-full bg-transparent border rounded-md mb-2 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Edit Image</button>
                                     ) : (
                                         <button onClick={() => captureImage(index)} className="bg-blue-500 hover:scale-95 text-white rounded-md p-2 px-6 flex items-center justify-center gap-2 cursor-pointer w-full mb-2"> <IoCameraOutline size={30} />Capture Image</button>
-
                                     )}
 
                                     {editModes[index] ? (
@@ -155,9 +159,25 @@ const ProductModal = ({
                     </div>
                 )}
 
-                <div className={`w-full absolute bottom-0 left-0 right-0 flex items-center justify-end gap-4 px-8 py-2 border ${darkMode ? 'bg-light-container border-light-border' : 'bg-dark-container border-dark-border'}`}>
-                <button onClick={handleCloseModal} className={`px-2 py-3 w-[100px] bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>Cancel</button>
-                <button onClick={upload} className={`px-2 py-3 w-[100px] rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Save</button>
+            {loading && (
+                    <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
+                        <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'text-dark-textPrimary bg-dark-container'}`}>
+                            <div className="flex justify-center items-center gap-2">
+                                {/* Moving Loading Animation */}
+                                <div className="relative w-8 h-8">
+                                    <div className="absolute w-full h-full rounded-full border-4 border-t-4 border-white border-t-light-primary animate-spin"></div>
+                                </div>
+                                <span className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Please wait while the products are being added...</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
+                {/* Save Button */}
+                <div className={`w-full flex justify-end gap-4 py-4 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                    <button className={`px-2 py-3 w-[100px] bg-transparent border rounded-md ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`} onClick={handleCloseModal}>Cancel</button>
+                    <button onClick={handleSave} className={`px-2 py-3 w-[100px] rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} disabled={loading}>Save</button>
                 </div>
             </div>
         </Modal>

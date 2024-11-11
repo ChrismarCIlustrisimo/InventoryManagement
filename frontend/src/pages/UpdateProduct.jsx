@@ -214,7 +214,7 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
         <div className="flex justify-center gap-6 items-stretch">
           <div className="w-[30%] h-full flex flex-col">
             <div className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center justify-center">
-              <img src={file ? URL.createObjectURL(file) : `${baseURL}/${image}`} alt={name} className="w-[336px] h-[336px] object-cover mr-[10px] rounded-md" />
+              <img   src={file ? URL.createObjectURL(file) : image} alt={name} className="w-[336px] h-[336px] object-cover mr-[10px] rounded-md" />
             </div>
             <div className="py-4 w-full">
               <input type="file" id="file" className="hidden" onChange={handleFileChange} />

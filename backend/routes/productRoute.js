@@ -5,6 +5,7 @@ import Counter from '../models/counterModel.js';
 import requireAuth from '../middleware/requireAuth.js';
 import Supplier from '../models/supplierModel.js';
 import mongoose from 'mongoose';
+import { uploadImageToCloudinary } from '../cloudinary.js';
 
 const router = express.Router();
 
@@ -22,21 +23,13 @@ const categoryThresholds = {
   // Add more categories as needed
 };
 
-// Multer configuration for multiple file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/images'); // Ensure this folder exists or create it
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
+// Multer configuration to handle file uploads in memory
+const storages = multer.memoryStorage();
+const upload = multer({ storages });
 
 // Add a new product with units
 router.post('/', upload.fields([
-  { name: 'file', maxCount: 1 }, // For product image
+  { name: 'file', maxCount: 1 },        // For the main product image
   { name: 'serialImages', maxCount: 200 } // For serial images
 ]), async (req, res) => {
   try {
@@ -50,21 +43,36 @@ router.post('/', upload.fields([
       model,
       low_stock_threshold,
       sub_category, 
-      warranty,  // Add warranty here
+      warranty,
       units 
     } = req.body;
 
     // Check for required fields
-    if (!name || !category || buying_price === undefined || selling_price === undefined || !units || units.length === 0) {
+    if (!name || !category || buying_price === undefined || selling_price === undefined || !units) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
     // Parse the units from the incoming JSON string
-    const parsedUnits = JSON.parse(units);
+    let parsedUnits;
+    try {
+      parsedUnits = JSON.parse(units);
+      if (!Array.isArray(parsedUnits) || parsedUnits.length === 0) {
+        return res.status(400).json({ message: 'Units must be a non-empty array' });
+      }
+    } catch (error) {
+      return res.status(400).json({ message: 'Invalid units format' });
+    }
 
     const processedUnits = [];
-    const mainImage = req.files['file'] ? req.files['file'][0] : null; // Get the main product image
-    const serialImages = req.files['serialImages'] || []; // Get the serial images
+    const mainImage = req.files['file'] ? req.files['file'][0] : null;
+    const serialImages = req.files['serialImages'] || [];
+
+    // Upload main product image to Cloudinary if provided
+    let mainImageUrl = '';
+    if (mainImage) {
+      const mainImageUploadResult = await uploadImageToCloudinary(mainImage.buffer, `products/${Date.now()}-${mainImage.originalname}`);
+      mainImageUrl = mainImageUploadResult.secure_url;
+    }
 
     for (let i = 0; i < parsedUnits.length; i++) {
       const unit = parsedUnits[i];
@@ -77,10 +85,17 @@ router.post('/', upload.fields([
       // Generate a unique unit_id for each unit
       const unit_id = await Product.generateUnitID();
 
+      // Upload serial image to Cloudinary if provided
+      let serialImageUrl = '';
+      if (serialImages[i]) {
+        const serialImageUploadResult = await uploadImageToCloudinary(serialImages[i].buffer, `serials/${Date.now()}-${serialImages[i].originalname}`);
+        serialImageUrl = serialImageUploadResult.secure_url;
+      }
+
       processedUnits.push({
         serial_number: unit.serial_number,
-        serial_number_image: serialImages[i] ? `images/${serialImages[i].filename}` : '',
-        unit_id, // Add generated unit_id
+        serial_number_image: serialImageUrl,
+        unit_id,
         status: unit.status || 'in_stock',
         purchase_date: new Date(unit.purchase_date || Date.now()),
       });
@@ -98,7 +113,7 @@ router.post('/', upload.fields([
       low_stock_threshold: low_stock_threshold ? Number(low_stock_threshold) : undefined,
       sub_category,
       warranty,
-      image: mainImage ? `images/${mainImage.filename}` : '',
+      image: mainImageUrl,
       product_id: await Product.generateProductId(),
       units: processedUnits,
     });
@@ -111,6 +126,11 @@ router.post('/', upload.fields([
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
+
+
+
+
 
 router.get('/search', async (req, res) => {
   const { name } = req.query; // Get the search query from the request
@@ -237,12 +257,13 @@ router.put('/:id', upload.single('file'), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, category, supplier, buying_price, selling_price, sub_category, warranty } = req.body;
-    const file = req.file; // This will contain your uploaded file
+    const file = req.file;
 
     const updates = { name, category, supplier, buying_price, selling_price, sub_category, warranty };
 
     if (file) {
-      updates.image = `images/${file.filename}`; // Save the image path to your database
+      const uploadResult = await uploadImageToCloudinary(file.buffer);
+      updates.image = uploadResult.secure_url;
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
@@ -426,11 +447,10 @@ router.put('/details/:id', async (req, res) => {
 });
 
 
-// Route to update a unit by its unit ID
 router.put('/:productId/unit/:unitId', upload.single('serial_number_image'), async (req, res) => {
   try {
     const { productId, unitId } = req.params;
-    const { serial_number, status, purchase_date } = req.body; // Include other fields as needed
+    const { serial_number, status, purchase_date } = req.body;
 
     const product = await Product.findById(productId);
     if (!product) return res.status(404).json({ message: 'Product not found' });
@@ -438,19 +458,17 @@ router.put('/:productId/unit/:unitId', upload.single('serial_number_image'), asy
     const unit = product.units.id(unitId);
     if (!unit) return res.status(404).json({ message: 'Unit not found' });
 
-    // Update the unit fields
     if (serial_number !== undefined) unit.serial_number = serial_number;
     if (status !== undefined) unit.status = status;
     if (purchase_date !== undefined) unit.purchase_date = purchase_date;
 
-    // Check if a new image was uploaded and update the serial_number_image field
     if (req.file) {
-      unit.serial_number_image = `images/${req.file.filename}`;
+      const uploadResult = await uploadImageToCloudinary(req.file.buffer);
+      unit.serial_number_image = uploadResult.secure_url;
     }
 
-    await product.save(); // Save the updated product
-
-    res.status(200).json({ message: 'Unit updated successfully', unit }); // Return the updated unit
+    await product.save();
+    res.status(200).json({ message: 'Unit updated successfully', unit });
   } catch (error) {
     console.error('Error updating unit:', error);
     res.status(500).json({ message: 'Server Error', error: error.message });
@@ -485,7 +503,6 @@ router.delete('/:productId/unit/:unitId', async (req, res) => {
 
 
 
-// Add units for a specific product
 router.post('/:productId/unit', upload.fields([{ name: 'serial_number_image', maxCount: 100 }]), async (req, res) => {
   const { productId } = req.params;
 
@@ -494,18 +511,25 @@ router.post('/:productId/unit', upload.fields([{ name: 'serial_number_image', ma
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    
-    const unitID = await Product.generateUnitID(); // Generate a unique unit ID
 
-    // Map the serial numbers and the corresponding images from the request
-    const units = req.body.serial_number.map((serial_number, index) => ({
-      serial_number,
-      serial_number_image: req.files['serial_number_image'] ? `images/${req.files['serial_number_image'][index].filename}` : null, // Handle file upload properly
-      status: 'in_stock',
-      unit_id: unitID, 
+    const units = await Promise.all(req.body.serial_number.map(async (serial_number, index) => {
+      const unitID = await Product.generateUnitID();
+      let serialImageUrl = '';
+
+      if (req.files['serial_number_image'] && req.files['serial_number_image'][index]) {
+        const serialImageUploadResult = await uploadImageToCloudinary(req.files['serial_number_image'][index].buffer);
+        serialImageUrl = serialImageUploadResult.secure_url;
+      }
+
+      return {
+        serial_number,
+        serial_number_image: serialImageUrl,
+        status: 'in_stock',
+        unit_id: unitID,
+      };
     }));
 
-    product.units.push(...units); // Add the new units to the product's units array
+    product.units.push(...units);
     await product.save();
 
     res.status(201).json({ message: 'Units added successfully', units });

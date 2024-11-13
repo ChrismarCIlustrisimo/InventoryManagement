@@ -9,7 +9,7 @@ const RefundSummary = ({ salesData }) => {
 
   return (
   <div className='border-b-2 border-black w-full pb-12'>
-    <div className='flex flex-col w-full'>
+    <div className='flex flex-col w-[50%]'>
       <p className='text-2xl font-bold py-2'>Refund Summary</p>
       <div className=' text-xs'>
         {refundedSalesData.length > 0 ? (
@@ -21,7 +21,7 @@ const RefundSummary = ({ salesData }) => {
               </div>
               <div className='flex justify-between'>
                 <span className='font-bold'>Refund Amount:</span>
-                <span>₱{refund.total_amount_paid || 0}</span>
+                <span>₱ {refund.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</span>
               </div>
               <div className='flex justify-between'>
                 <span className='font-bold'>Reason:</span>

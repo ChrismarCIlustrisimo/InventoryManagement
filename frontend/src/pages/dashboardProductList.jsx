@@ -311,7 +311,8 @@ const filteredProducts = products
   };
 
  
-  
+  const sortedProducts = [...filteredProducts].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
   
 
   return (
@@ -513,7 +514,7 @@ const filteredProducts = products
           </div>
 
           <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-              {filteredProducts.length > 0 ? (
+              {sortedProducts.length > 0 ? (
                 <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                   <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                     <tr>
@@ -524,12 +525,12 @@ const filteredProducts = products
                       <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
                       <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
                       <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Status</th>
+                      <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Stock Status</th>
                       <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredProducts.map((product, index) => {
+                    {sortedProducts.map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
                       const statusStyles = getStatusStyles(product.current_stock_status);
 
@@ -547,8 +548,8 @@ const filteredProducts = products
                             {inStockUnits}
                           </td>
                           <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price}</td>
-                          <td className='text-center text-xs'>{product.selling_price}</td>
+                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className={`text-sm text-center font-semibold`}>
                             <span className={`${statusStyles.textClass} ${statusStyles.bgClass} py-2 w-[80%] inline-block rounded-md`}>
                               {product.current_stock_status}

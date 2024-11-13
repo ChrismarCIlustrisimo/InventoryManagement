@@ -307,7 +307,7 @@ const Rma = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredRMA.map((rmaRequest, index) => {
+                                    {filteredRMA.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rmaRequest, index) => {
                                         const { statusStyles, warrantyStyles } = getStatusStyles(rmaRequest.status, rmaRequest.warranty_status);
 
                                         return (

@@ -49,11 +49,11 @@
                                         <td className={`p-2 text-center`}>{transaction.customer?.name || 'None'}</td>
                                         <td className={`p-2 text-center`}>{item.product?.name || 'Unknown Product'}</td>
                                         <td className={`p-2 text-center`}>{itemQuantity}</td>
-                                        <td className={`p-2 text-center`}>₱ {originalAmountInclVAT.toFixed(2)}</td>
-                                        <td className={`p-2 text-center`}>₱ {transactionDiscount.toFixed(2)}</td>
-                                        <td className={`p-2 text-center`}>₱ {totalAfterDiscount.toFixed(2)}</td>
-                                        <td className={`p-2 text-center`}>₱ {vat.toFixed(2)}</td>
-                                        <td className={`p-2 text-center`}>₱ {(totalAmountExclVAT + vat).toFixed(2)}</td>
+                                        <td className={`p-2 text-center`}>₱ {originalAmountInclVAT.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <td className={`p-2 text-center`}>₱ {transactionDiscount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <td className={`p-2 text-center`}>₱ {totalAfterDiscount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <td className={`p-2 text-center`}>₱ {vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                        <td className={`p-2 text-center`}>₱ {(totalAmountExclVAT + vat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                     </tr>
                                 );
                             })

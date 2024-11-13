@@ -195,7 +195,7 @@ const Erceipt = () => {
             onClick={downloadPDF}
             className="border border-b  border-blue-500 text-blue-500 bg-transparent w-full py-2 rounded-lg transform transition-transform duration-200 hover:scale-105"
           >
-            Download PDF Erceipt
+            Download Erceipt
           </button>
           <button
             onClick={handleDone}

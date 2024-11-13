@@ -58,10 +58,10 @@ const SalesByCategory = ({ salesData }) => {
                             <tr key={idx} className='border-b'>
                                 <td className='p-2 text-center'>{item.category}</td>
                                 <td className='p-2 text-center'>{item.unitsSold}</td>
-                                <td className='p-2 text-center'>₱{item.grossSales.toFixed(2)}</td>
-                                <td className='p-2 text-center'>₱{item.discount.toFixed(2)}</td>
-                                <td className='p-2 text-center'>₱{item.vat.toFixed(2)}</td>
-                                <td className='p-2 text-center'>₱{item.netSales.toFixed(2)}</td>
+                                <td className='p-2 text-center'>₱{item.grossSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className='p-2 text-center'>₱{item.discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className='p-2 text-center'>₱{item.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                <td className='p-2 text-center'>₱{item.netSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>
                         ))}
                     </tbody>

@@ -355,7 +355,7 @@ const AdminTransaction = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {salesOrder.flatMap((transaction) =>
+                        {salesOrder.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date)).flatMap((transaction) =>
                           transaction.products.map((item, idx) => (
                             <tr key={`${transaction._id}-${idx}`} className={`border-b ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
                               <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
@@ -374,7 +374,7 @@ const AdminTransaction = () => {
                                 {item.quantity || 'N/A'}
                               </td>
                               <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                {transaction.total_price || 'N/A'}
+                                {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 'N/A'}
                               </td>
                               <td className={`p-4 text-sm font-semibold ${getStatusStyles(transaction.status).textClass} text-center`}>
                                 <span className={`px-4 py-2 rounded ${getStatusStyles(transaction.status).bgClass}`}>

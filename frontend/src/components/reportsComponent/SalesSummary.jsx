@@ -53,7 +53,7 @@ const SalesSummary = ({ salesData }) => {
       <div className='flex flex-col w-[50%] gap-2'>
         <div className='flex justify-between font-semibold py-2'>
           <p className='border-b w-[60%]'>Total Sales (Gross)</p>
-          <p className='w-[40%] text-start border-b'>₱ {totalSalesGross.toFixed(2)}</p>
+          <p className='w-[40%] text-start border-b'>₱ {totalSalesGross.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div className='flex justify-between font-semibold py-2'>
           <p className='border-b w-[60%]'>Total Transactions</p>
@@ -65,15 +65,15 @@ const SalesSummary = ({ salesData }) => {
         </div>
         <div className='flex justify-between font-semibold py-2'>
           <p className='border-b w-[60%]'>Total Discount Applied</p>
-          <p className='w-[40%] text-start border-b'>₱ {totalDiscountApplied.toFixed(2)}</p>
+          <p className='w-[40%] text-start border-b'>₱ {totalDiscountApplied.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div className='flex justify-between font-semibold py-2'>
           <p className='border-b w-[60%]'>Total VAT (12%)</p>
-          <p className='w-[40%] text-start border-b'>₱ {totalVAT.toFixed(2)}</p>
+          <p className='w-[40%] text-start border-b'>₱ {totalVAT.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
         <div className='flex justify-between font-semibold py-2'>
           <p className='border-b w-[60%]'>Net Sales (After Discount & VAT)</p>
-          <p className='w-[40%] text-start border-b'>₱ {totalNetSales.toFixed(2)}</p>
+          <p className='w-[40%] text-start border-b'>₱ {totalNetSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
       </div>
     </div>

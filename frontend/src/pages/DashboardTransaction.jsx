@@ -332,7 +332,7 @@ const DashboardTransaction = () => {
                     </div>
                </div>
       
-          {loading ? (
+               {loading ? (
                 <Spinner />
               ) : salesOrder.length === 0 ? (
                 <div className='w-[80%] h-[77vh] flex items-center justify-center'>
@@ -349,54 +349,55 @@ const DashboardTransaction = () => {
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Customer Name</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Qty. Sold</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}> Total Amount</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}> Status</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Total Amount</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Status</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {salesOrder.flatMap((transaction) =>
-                          transaction.products.map((item, idx) => (
-                            <tr key={`${transaction._id}-${idx}`} className={`border-b ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                {transaction.transaction_id || 'N/A'}
-                              </td>
-                              <td className={`py-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                {formatDate(transaction.transaction_date)}
-                              </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                {transaction.customer?.name || 'None'}
-                              </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                {item.product?.name || 'Unknown Product'}
-                              </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                {item.quantity || 'N/A'}
-                              </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                {transaction.total_price || 'N/A'}
-                              </td>
-                              <td className={`p-4 text-sm font-semibold ${getStatusStyles(transaction.status).textClass} text-center`}>
-                                <span className={`px-4 py-2 rounded ${getStatusStyles(transaction.status).bgClass}`}>
-                                  {transaction.status || 'N/A'}
-                                </span>
-                              </td>
-                              <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
-                                  onClick={() => handleViewTransaction(transaction, item)}>
-                                  View
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
+                        {salesOrder
+                          .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
+                          .flatMap((transaction) =>
+                            transaction.products.map((item, idx) => (
+                              <tr key={`${transaction._id}-${idx}`} className={`border-b ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
+                                <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                  {transaction.transaction_id || 'N/A'}
+                                </td>
+                                <td className={`py-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                  {formatDate(transaction.transaction_date)}
+                                </td>
+                                <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                  {transaction.customer?.name || 'None'}
+                                </td>
+                                <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                  {item.product?.name || 'Unknown Product'}
+                                </td>
+                                <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                  {item.quantity || 'N/A'}
+                                </td>
+                                <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {transaction.total_price ? transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 'N/A'}
+                                </td>
+                                <td className={`p-4 text-sm font-semibold ${getStatusStyles(transaction.status).textClass} text-center`}>
+                                  <span className={`px-4 py-2 rounded ${getStatusStyles(transaction.status).bgClass}`}>
+                                    {transaction.status || 'N/A'}
+                                  </span>
+                                </td>
+                                <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                  <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
+                                    onClick={() => handleViewTransaction(transaction, item)}>
+                                    View
+                                  </button>
+                                </td>
+                              </tr>
+                            ))
+                          )}
                       </tbody>
                     </table>
                   </div>
-
                 </div>
-
               )}
+
           </div>
         </div>
         {/* Transaction Detail Modal */}

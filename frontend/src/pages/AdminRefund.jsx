@@ -345,12 +345,12 @@ const formatDate = (dateString) => {
                     </thead>
                     <tbody>
                       {filteredRefunds.length > 0 ? (
-                        filteredRefunds.map(refund => (
+                        filteredRefunds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(refund => (
                             <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container border-light-primary' : 'bg-dark-container border-dark-primary'}`}>
                               <td className='p-4 text-center'>{refund.refund_id}</td>
                               <td className='p-4 text-center'>{formatDate(refund.sales_date)}</td>
                               <td className='p-4 text-center'>{refund.refund_amount}</td>
-                              <td className='p-4 text-center'>{refund.refund_method}</td>
+                              <td className='p-4 text-center'>{refund.refund_method.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                               <td className='p-4 text-center'>{shortenString(refund.product_name)}</td>
                               <td className='p-4 text-center'>{refund.serial_number}</td>
                               <td className='p-4 text-center'>{refund.reason}</td>

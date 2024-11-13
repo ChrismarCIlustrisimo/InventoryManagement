@@ -468,7 +468,7 @@ const filteredProducts = products
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredProducts.map((product, index) => {
+                    {filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
                       const statusStyles = getStatusStyles(product.current_stock_status);
 

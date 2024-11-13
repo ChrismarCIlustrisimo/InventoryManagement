@@ -43,7 +43,7 @@ const PaymentMethods = ({ salesData }) => {
             <tr key={index} className='border-b'>
               <td className='p-2 text-center'>{method.method}</td>
               <td className='p-2 text-center'>{method.transactionCount}</td>
-              <td className='p-2 text-center'>₱{method.totalAmount.toFixed(2)}</td>
+              <td className='p-2 text-center'>₱{method.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           ))}
         </tbody>

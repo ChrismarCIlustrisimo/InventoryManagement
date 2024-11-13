@@ -16,37 +16,6 @@ import { MdApproval } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
 
 
-const getStatusStyles = (status) => {
-  let statusStyles = {
-    textClass: 'text-[#8E8E93]', // Default text color
-    bgClass: 'bg-[#E5E5EA]', // Default background color
-  };
-
-  switch (status) {
-    case 'HIGH':
-      statusStyles = {
-        textClass: 'text-[#14AE5C]',
-        bgClass: 'bg-[#CFF7D3]',
-      };
-      break;
-    case 'LOW':
-      statusStyles = {
-        textClass: 'text-[#EC221F]', // Red for Low Stock
-        bgClass: 'bg-[#FEE9E7]',
-      };
-      break;
-    case 'OUT OF STOCK':
-      statusStyles = {
-        textClass: 'text-[#8E8E93]', // Gray for Out of Stock
-        bgClass: 'bg-[#E5E5EA]',
-      };
-      break;
-  }
-
-  return statusStyles; // Return the status styles directly
-};
-
-
 const PendingProducts = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
@@ -448,7 +417,6 @@ const handlePriceRange = (e) => {
                     <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
                     <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
                     <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Status</th>
                     <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Actions</th>
                   </tr>
                 </thead>
@@ -457,7 +425,6 @@ const handlePriceRange = (e) => {
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
                     .map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
-                      const statusStyles = getStatusStyles(product.current_stock_status);
 
                       return (
                         <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
@@ -471,13 +438,8 @@ const handlePriceRange = (e) => {
                             {inStockUnits}
                           </td>
                           <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price}</td>
-                          <td className='text-center text-xs'>{product.selling_price}</td>
-                          <td className={`text-sm text-center font-semibold`}>
-                            <span className={`${statusStyles.textClass} ${statusStyles.bgClass} py-2 w-[80%] inline-block rounded-md`}>
-                              {product.current_stock_status}
-                            </span>
-                          </td>
+                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className='text-center'>
                             <button onClick={() => handleViewProduct(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
                               <GrView size={20} />

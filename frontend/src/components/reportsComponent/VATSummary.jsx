@@ -26,15 +26,15 @@ const VATSummary = ({ salesData }) => {
         <div className=' text-xs'>
           <div className='flex justify-between border-b p-2'>
             <span className='font-bold'>Total Vatable Sales (12% VAT):</span>
-            <span>₱ {vatSummary.totalVatableSales.toFixed(2)}</span>
+            <span>₱ {vatSummary.totalVatableSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <div className='flex justify-between border-b p-2'>
             <span className='font-bold'>VAT (12%):</span>
-            <span>₱ {vatSummary.totalVat.toFixed(2)}</span>
+            <span>₱ {vatSummary.totalVat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
           <div className='flex justify-between border-b p-2'>
             <span className='font-bold'>Net Sales:</span>
-            <span>₱ {vatSummary.netSales.toFixed(2)}</span>
+            <span>₱ {vatSummary.netSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         </div>
       </div>

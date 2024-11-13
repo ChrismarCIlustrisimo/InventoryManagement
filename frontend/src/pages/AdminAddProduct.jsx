@@ -299,7 +299,7 @@ const upload = () => {
             <div className="flex flex-col w-[25%] gap-4 p-4 rounded-[10px] bg-white">
                 <p className="text-2xl font-semibold">Basic information</p>
                 <div className="flex w-full gap-2 justify-between">
-                  <label htmlFor="name" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PRODUCT NAME</label>
+                  <label htmlFor="name" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PRODUCT NAME<span className="text-red-500">*</span></label>
                   <input type="text"  id="name" placeholder="Name"
                     className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
                     value={name}
@@ -309,7 +309,7 @@ const upload = () => {
 
 
                 <div className="flex w-full gap-2 justify-between">
-                    <label htmlFor="category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CATEGORY</label>
+                    <label htmlFor="category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CATEGORY<span className="text-red-500">*</span></label>
                     <select 
                       id="category" 
                       className={`border rounded p-2 my-1 font-semibold w-[58%] ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} ${category ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : (darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary')}`} 
@@ -326,7 +326,7 @@ const upload = () => {
                   </div>
 
                   <div className="flex w-full gap-2 justify-between">
-                    <label htmlFor="sub-category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUB-CATEGORY</label>
+                    <label htmlFor="sub-category" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUB-CATEGORY<span className="text-red-500">*</span></label>
                     <select 
                       id="sub-category" 
                       className={`border rounded p-2 my-1 font-semibold w-[58%] ${darkMode ? 'text-light-textPrimary' : 'text-light-textPrimary'} ${subCategory ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : (darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary')}`} 
@@ -346,7 +346,7 @@ const upload = () => {
 
 
                 <div className="flex w-full gap-2 justify-between">
-                  <label htmlFor="model" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>MODEL</label>
+                  <label htmlFor="model" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>MODEL<span className="text-red-500">*</span></label>
                   <input type="text"  id="model" placeholder="Model"
                     className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
                     value={model}
@@ -356,7 +356,7 @@ const upload = () => {
 
                 <div className="flex w-full gap-2 justify-between">
                     <label htmlFor="warranty" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                      WARRANTY
+                      WARRANTY<span className="text-red-500">*</span>
                     </label>
                     <div className='flex gap-2 w-[58%]'>
                       <select
@@ -398,7 +398,7 @@ const upload = () => {
                 <div className='flex flex-col p-4 gap-4 bg-white rounded-[10px]'>
                    <p className="text-2xl font-semibold">Purchase information</p>
                   <div className='flex w-full gap-2 items-center justify-between'>
-                    <label htmlFor="buying_price" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>BUYING PRICE</label>
+                    <label htmlFor="buying_price" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>BUYING PRICE<span className="text-red-500">*</span></label>
                     <input type='number' placeholder='Buying Price' id="buying_price"
                       className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
                       value={buyingPrice}
@@ -407,7 +407,7 @@ const upload = () => {
                   </div>
 
                   <div className='flex w-full gap-2 items-center justify-between'>
-                    <label htmlFor="selling_price" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SELLING PRICE</label>
+                    <label htmlFor="selling_price" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SELLING PRICE<span className="text-red-500">*</span></label>
                     <input type='number'  placeholder='Selling Price' id="selling_price"
                       className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
                       value={sellingPrice}
@@ -416,7 +416,7 @@ const upload = () => {
                   </div>
 
                   <div className='flex w-full gap-2 items-center justify-between'>
-                    <label htmlFor="supplier" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER</label>
+                    <label htmlFor="supplier" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER<span className="text-red-500">*</span></label>
                     <input type='text' placeholder='Supplier Name' id="supplier"
                       className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
                       value={supplier}
@@ -430,7 +430,7 @@ const upload = () => {
                     <p className="text-2xl font-semibold">Stock Level</p>
                   </div>
                   <div className='flex w-full gap-2 items-center justify-between'>
-                    <label htmlFor="low_stock_threshold" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>LOW STOCK</label>
+                    <label htmlFor="low_stock_threshold" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>LOW STOCK<span className="text-red-500">*</span></label>
                     <input type='number' placeholder='Low Stock' id="low_stock_threshold"
                       className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
                       value={lowStockThreshold}
@@ -464,7 +464,7 @@ const upload = () => {
           {openDescriptionModal && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                 <div className={`p-4 rounded-lg w-1/2 h-[50%] flex flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
-                  <h2 className="text-2xl font-semibold mb-4">Add Product Specification</h2>
+                  <h2 className="text-2xl font-semibold mb-4">Add Product Specification<span className="text-red-500">*</span></h2>
                   
                   {/* Scrollable Textarea */}
                   <textarea

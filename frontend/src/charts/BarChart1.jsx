@@ -16,7 +16,6 @@ import {
 // Register the required components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-// Predefined categories and colors
 const categories = [
   { name: "Components" },
   { name: "Peripherals" },
@@ -40,39 +39,47 @@ const categoryColors = {
 const BarChart1 = () => {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const { user } = useAuthContext();
-  const { darkMode } = useAdminTheme(); // Access darkMode from AdminThemeContext
+  const { darkMode } = useAdminTheme(); 
   const baseURL = "http://localhost:5555";
 
   const fetchProducts = async () => {
     try {
+      const currentDate = new Date();
+      const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).toISOString();
+      const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).toISOString();
+
       const response = await axios.get(`${baseURL}/product`, {
         headers: {
           'Authorization': `Bearer ${user.token}`,
         },
+        params: {
+          startDate: startOfMonth,
+          endDate: endOfMonth
+        }
       });
 
       const products = response.data.data;
 
       const salesByCategory = categories.reduce((acc, category) => {
-        acc[category.name] = 0; // Initialize sales for each category
+        acc[category.name] = 0;
         return acc;
       }, {});
 
       products.forEach(product => {
-        salesByCategory[product.category] += product.sales; // Directly access the category
+        salesByCategory[product.category] += product.sales;
       });
 
       const labels = categories.map(category => category.name);
-      const data = labels.map(label => salesByCategory[label] || 0); // Ensure all categories have a value
+      const data = labels.map(label => salesByCategory[label] || 0);
 
       setChartData({
-        labels, // Categories on Y-axis
+        labels,
         datasets: [
           {
             label: 'Sales',
-            data, // Sales count on X-axis
-            backgroundColor: labels.map(label => categoryColors[label] || '#E84C19'), // Use the defined colors
-            borderColor: labels.map(label => categoryColors[label] || '#E84C19'), // Use the defined border colors
+            data,
+            backgroundColor: labels.map(label => categoryColors[label] || '#E84C19'),
+            borderColor: labels.map(label => categoryColors[label] || '#E84C19'),
             borderWidth: 1,
           },
         ],
@@ -84,53 +91,52 @@ const BarChart1 = () => {
   };
 
   useEffect(() => {
-    fetchProducts(); // Fetch products on component mount
+    fetchProducts();
   }, []);
 
-// Update the x-axis scale by removing min
-const options = {
-  indexAxis: 'y', 
-  responsive: true,
-  maintainAspectRatio: false,
-  plugins: {
-    legend: {
-      display: false,
+  const options = {
+    indexAxis: 'y', 
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: darkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)',
+        titleColor: darkMode ? '#000' : '#fff',
+        bodyColor: darkMode ? '#000' : '#fff',
+      },
     },
-    tooltip: {
-      enabled: true,
-      backgroundColor: darkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)',
-      titleColor: darkMode ? '#000' : '#fff',
-      bodyColor: darkMode ? '#000' : '#fff',
-    },
-  },
-  scales: {
-    x: {
-      beginAtZero: true, // Start at zero to include all categories
-      ticks: {
-        color: darkMode ? '#000' : '#fff',
-        stepSize: 20,
-        font: {
-          size: 14,
+    scales: {
+      x: {
+        beginAtZero: true,
+        max: 80, // Set the maximum value to 80
+        ticks: {
+          color: darkMode ? '#000' : '#fff',
+          stepSize: 10, // Display ticks at every 10 units
+          font: {
+            size: 14,
+          },
+        },
+        grid: {
+          color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
         },
       },
-      grid: {
-        color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
-      },
-    },
-    y: {
-      type: 'category',
-      labels: chartData.labels,
-      ticks: {
-        color: darkMode ? '#000' : '#fff',
-        font: {
-          size: 14,
+      y: {
+        type: 'category',
+        labels: chartData.labels,
+        ticks: {
+          color: darkMode ? '#000' : '#fff',
+          font: {
+            size: 14,
+          },
         },
       },
     },
-  },
-};
-
-
+  };
+  
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
       <div style={{ flexGrow: 1 }}>

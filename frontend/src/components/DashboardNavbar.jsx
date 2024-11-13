@@ -141,7 +141,7 @@ const DashboardNavbar = () => {
   return (
     <div className={` ${darkMode ? 'bg-light-bg' : 'dark:bg-dark-bg'} text-white flex items-center justify-between px-6 py-1 drop-shadow fixed top-0 left-0 right-0 z-10`}>
       <img src={`${darkMode ? dark : light}`} alt="Logo" className='w-[10%] my-2 ml-8' />
-      <div className="flex rounded w-[50%] gap-4 items-center">
+      <div className="flex rounded w-[50%] gap-4 items-center pl-12">
         {/* Dashboard Button */}
         <Link to="/super-admin-dashboard" className="flex-1">
           <button

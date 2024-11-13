@@ -407,12 +407,7 @@ const handlePriceRange = (e) => {
                       </div>
                     </div>
                   </div>
-
-
             </div>
-
-
-
 
             <div className='flex flex-col gap-2'>
               <button
@@ -459,8 +454,8 @@ const handlePriceRange = (e) => {
                             {inStockUnits}
                           </td>
                           <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price}</td>
-                          <td className='text-center text-xs'>{product.selling_price}</td>
+                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className='text-center'>
                                 <button onClick={() => handleViewProduct(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
                                     <GrView size={25} />

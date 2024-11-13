@@ -314,7 +314,7 @@ const RefundedOrReplaced = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredRmas.map((rma) => (
+                {filteredRmas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rma) => (
                   <tr key={rma.rma_id} className={`${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
                     <td className='p-2'>{rma.product}</td>
                     <td className='p-2'>{rma.reason}</td>

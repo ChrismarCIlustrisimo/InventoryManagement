@@ -16,6 +16,7 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { BiEdit } from "react-icons/bi";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { useStockAlerts } from '../context/StockAlertsContext';
+import { IoArchiveOutline } from "react-icons/io5";
 
 
 const getStatusStyles = (status) => {
@@ -60,7 +61,6 @@ const DashboardProductList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState([]);
   const [productCount, setProductCount] = useState();
-  const [suppliers, setSuppliers] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const location = useLocation();
@@ -70,6 +70,7 @@ const DashboardProductList = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isInputsEmpty = minPrice === '' && maxPrice === '';
   const { stockAlerts, setStockAlerts } = useStockAlerts();
+  const [actionType, setActionType] = useState(null); // State to track the action type
 
 
   const handleStockAlertChange = (e) => {
@@ -95,12 +96,11 @@ const DashboardProductList = () => {
         }
       });
   
-      // Get unique suppliers
-      const uniqueSuppliers = [...new Set(response.data.data.map(product => product.supplier))];
-      setSuppliers(uniqueSuppliers);
+
   
-      const products = response.data.data;
-  
+      const products = response.data.data.filter(
+        product => product.isApproved && !product.isArchived
+      );  
       // Update current_stock_status based on available units and product-specific thresholds
       const updatedProducts = products.map(product => {
         const availableUnits = product.units.filter(unit => unit.status === 'in_stock').length;
@@ -113,10 +113,17 @@ const DashboardProductList = () => {
         } else if (availableUnits <= lowStockThreshold) {
           stockStatus = 'LOW';
         }
+        // Calculate if product can be deleted (created within the last hour)
+        const productCreatedTime = new Date(product.createdAt);
+        const currentTime = new Date();
+        const timeDifference = currentTime - productCreatedTime;
+        const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
+        const canDelete = timeDifference <= oneHourInMs; // true if created within the last hour
   
         return {
           ...product,
           current_stock_status: stockStatus,
+          canDelete, // Add canDelete property to each product
         };
       });
   
@@ -152,12 +159,27 @@ useEffect(() => {
     socket.disconnect();
   };
 }, []);
-
 const priceRanges = {
   '1K-5K': [1000, 5000],
   '6K-10K': [6000, 10000],
   '11K-20K': [11000, 20000],
   '21K-30K': [21000, 30000],
+};
+
+// Handle price range selection
+const handlePriceRange = (e) => {
+  const selectedRange = e.target.value;
+  setPriceRange(selectedRange);
+  
+  // Set min and max prices based on the selected range
+  if (selectedRange === '') {
+    setMinPrice(null);
+    setMaxPrice(null);
+  } else {
+    const [min, max] = priceRanges[selectedRange];
+    setMinPrice(min);
+    setMaxPrice(max);
+  }
 };
 
 const filteredProducts = products
@@ -219,9 +241,7 @@ const filteredProducts = products
 
   const handleSortByChange = e => setSortBy(e.target.value);
 
-  const handlePriceRange = (event) => {
-    setPriceRange(event.target.value); // Update the state based on selected value
-  };
+
 
 
   const handleResetFilters = () => {
@@ -261,6 +281,21 @@ const filteredProducts = products
     }
   };
   
+  const archiveProduct = async () => {
+    if (!productId) return;
+  
+    try {
+      await axios.patch(`${baseURL}/product/archive/${productId}`);
+      console.log('Product archived:', productId);
+      fetchProducts(); // Refetch products after archiving
+    } catch (error) {
+      console.error('Error archiving product:', error.response ? error.response.data : error.message);
+    } finally {
+      setIsDialogOpen(false); // Close the dialog
+      setProductId(null); // Reset the productId
+    }
+  };
+  
 
   const handleEditProduct = (productId) => {
     navigate(`/update-product/${productId}`);
@@ -272,8 +307,12 @@ const filteredProducts = products
 
   
   const handleLowReports = () => {
-    navigate(`/InventoryReport`);
+    navigate(`/sales-report`);
   };
+
+ 
+  
+  
 
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
@@ -523,9 +562,29 @@ const filteredProducts = products
                             <button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} onClick={() => handleEditProduct(product._id)}>
                               <BiEdit size={20} />
                             </button>
-                            <button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} onClick={() => { setProductId(product._id); setIsDialogOpen(true); }}>
-                              <AiOutlineDelete size={20} />
-                            </button>
+                            {product.canDelete && product.sales === 0 && (
+                                <button 
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} 
+                                  onClick={() => { 
+                                    setProductId(product._id); 
+                                    setActionType('delete'); // Set the action type to delete
+                                    setIsDialogOpen(true); 
+                                  }}
+                                >
+                                  <AiOutlineDelete size={20} />
+                                </button>
+                              )}
+
+                              <button 
+                                className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} 
+                                onClick={() => { 
+                                  setProductId(product._id); 
+                                  setActionType('archive'); // Set the action type to archive
+                                  setIsDialogOpen(true); 
+                                }}
+                              >
+                                <IoArchiveOutline size={20} />
+                              </button>                             
                           </td>
                         </tr>
                       );
@@ -541,15 +600,19 @@ const filteredProducts = products
 
         </div>
       </div>
-      <ConfirmationDialog
-        isOpen={isDialogOpen}
-        onConfirm={deleteProduct}
-        onCancel={() => {
-          setIsDialogOpen(false);
-          setProductId(null); // Reset productId on cancel
-        }}
-        message="Are you sure you want to delete this product?"
-      />
+      <ConfirmationDialog 
+          isOpen={isDialogOpen}
+          onConfirm={actionType === 'delete' ? deleteProduct : archiveProduct} // Conditional action based on the actionType
+          onCancel={() => {
+            setIsDialogOpen(false);
+            setProductId(null); // Reset productId on cancel
+          }}
+          message={
+            actionType === 'delete' 
+              ? "Are you sure you want to delete this product?"
+              : "Are you sure you want to archive this product?"
+          }
+        />
     </div>
   );
 };

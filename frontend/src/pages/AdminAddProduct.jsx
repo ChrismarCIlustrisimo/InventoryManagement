@@ -9,7 +9,7 @@ import ProductModal from '../components/ProductModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const AddProduct = () => {
+const AdminAddProduct = () => {
   const handleCloseModal = () => setOpenModal(false);
   const [file, setFile] = useState(null);
   const [name, setName] = useState('');
@@ -233,7 +233,7 @@ const upload = () => {
   formData.append('buying_price', buyingPrice);
   formData.append('selling_price', sellingPrice);
   formData.append('warranty', selectedValue);
-  formData.append('isApproved', true);
+  formData.append('isApproved', false);
 
   const units = serialNumbers.map((sn, index) => {
       const imageFile = serialNumberImages[index];
@@ -493,7 +493,6 @@ Label: Value"
                   </div>
                 </div>
               </div>
-
           )}
           <ToastContainer />
           <div className={`w-full h-[10%] px-4 py-6 border-t-2 flex items-center justify-end ${darkMode ? 'bg-light-container border-light-border' : 'bg-dark-container border-dark-border'}`}>
@@ -507,4 +506,4 @@ Label: Value"
   );
 };
 
-export default AddProduct;
+export default AdminAddProduct;

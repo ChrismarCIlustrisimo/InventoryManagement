@@ -69,6 +69,10 @@ import AdminTransaction from './pages/AdminTransaction.jsx';
 import RefundAdmin from './pages/AdminRefundPage.jsx';
 import AdminSalesReport from './pages/AdminSalesReport.jsx';
 import AdminInventoryReport from './pages/AdminInventoryReport.jsx';
+import AdminAddProduct from './pages/AdminAddProduct.jsx';
+import PendingProducts from './pages/PendingProducts.jsx';
+import ArchivedProducts from './pages/ArchivedProducts.jsx';
+import AdminViewProduct from './pages/AdminViewProduct.jsx';
 
 const App = () => {
     const { user } = useAuthContext();
@@ -109,7 +113,8 @@ const App = () => {
                                         <Route path="/admin-refund" element={<PrivateRoute allowedRoles={['admin']}><RefundAdmin /></PrivateRoute>} />
                                         <Route path="/admin-sales-report" element={<PrivateRoute allowedRoles={['admin']}><AdminSalesReport /></PrivateRoute>} />
                                         <Route path="/admin-inventory-report" element={<PrivateRoute allowedRoles={['admin']}><AdminInventoryReport /></PrivateRoute>} />
-
+                                        <Route path="/admin-add-product" element={<PrivateRoute allowedRoles={['admin']}><AdminAddProduct /></PrivateRoute>} />
+                                        <Route path="/admin-view-product/:productId" element={<PrivateRoute allowedRoles={['admin']}><AdminViewProduct /></PrivateRoute>} />
 
                                         
                                         {/* Additional routes */}
@@ -145,6 +150,10 @@ const App = () => {
                                         <Route path="/rma-form" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><RMAForm /></PrivateRoute>} />
                                         <Route path="/refund-replace-units" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><RefundedOrReplaced /></PrivateRoute>} />
                                         <Route path="/refund-list" element={<PrivateRoute allowedRoles={['super-admin']}><AdminRefund /></PrivateRoute>} />
+                                        <Route path="/inventory/not-approved" element={<PrivateRoute allowedRoles={['super-admin']}><PendingProducts /></PrivateRoute>} />
+                                        <Route path="/inventory/archive" element={<PrivateRoute allowedRoles={['super-admin']}><ArchivedProducts /></PrivateRoute>} />
+
+                                        
 
                                         {/* Ecommerce routes */}
                                         <Route path="/iRIG" element={<Ecommerce />} />
@@ -166,7 +175,8 @@ const App = () => {
                                         <Route path="/iRIG/pcfurniture" element={<PCFurniture />} />
                                         <Route path="/iRIG/osandsoftware" element={<OSAndSoftware />} />
                                         <Route path="/iRIG/components" element={<Components />} />
-                                        
+
+                                        z
                                     </Routes>
                                 </AdminThemeProvider>
                             </ThemeProvider>

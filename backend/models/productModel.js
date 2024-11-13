@@ -19,6 +19,8 @@ const ProductSchema = new mongoose.Schema(
     model: { type: String },
     low_stock_threshold: { type: Number, default: 0 },
     sales: { type: Number, default: 0 },
+    isArchived: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: false },
     current_stock_status: {
       type: String,
       enum: Object.values(StockStatusEnum),
@@ -27,7 +29,7 @@ const ProductSchema = new mongoose.Schema(
     units: [{
       serial_number: { type: String, required: true },
       serial_number_image: { type: String },
-      unit_id: { type: String, unique: true }, // Add unit_id field
+      unit_id: { type: String, unique: true },
       status: { type: String, enum: ['in_stock', 'rma', 'sold', 'refunded', 'replaced','reserved'], default: 'in_stock' },
       purchase_date: { type: Date, default: Date.now },
     }],

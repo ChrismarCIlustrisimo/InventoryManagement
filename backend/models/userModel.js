@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'; 
 import bcrypt from 'bcrypt';
 import validator from 'validator';
 
@@ -8,12 +8,10 @@ const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     name: { type: String, required: true },
-    contact: { type: String  },
+    contact: { type: String },
     role: { type: String, required: true },
     archived: { type: Boolean, default: false }
 });
-
-
 
 // Static Signup method
 userSchema.statics.signup = async function(username, password, name, contact, role) {
@@ -42,12 +40,11 @@ userSchema.statics.signup = async function(username, password, name, contact, ro
 
     const user = new this({ username, password: hash, name, contact, role });
     try {
-        return await user.save();  // Save the user to the database
+        return await user.save();
     } catch (error) {
         throw new Error('Failed to create user');
     }
 }
-
 
 userSchema.statics.login = async function(username, password, role) {
     if (!username || !password || !role) {  
@@ -62,7 +59,6 @@ userSchema.statics.login = async function(username, password, role) {
     if (user.archived) {
         throw new Error('This account is archived and cannot be accessed.');
     }
-    
 
     const isMatch = await bcrypt.compare(password, user.password);
 
@@ -70,20 +66,28 @@ userSchema.statics.login = async function(username, password, role) {
         throw new Error('Incorrect password');
     }
 
-    // Allow admin to access cashier functionality
-    if (role === 'cashier' && user.role !== 'cashier' && user.role !== 'admin') {
-        throw new Error('User is not a cashier');
-    }
-
-    // If the user is an admin, allow them to log in regardless of the specified role
-    if (role === 'admin' && user.role !== 'admin') {
-        throw new Error('User is not an admin');
+    // Role-based login permissions
+    if (user.role === 'super-admin') {
+        // Super admin can log in as admin or cashier
+        if (role !== 'super-admin' && role !== 'admin' && role !== 'cashier') {
+            throw new Error('Super Admin is not authorized for this role');
+        }
+    } else if (user.role === 'admin') {
+        // Admin can log in as cashier or admin only
+        if (role !== 'admin' && role !== 'cashier') {
+            throw new Error('Admin is not authorized for this role');
+        }
+    } else if (user.role === 'cashier') {
+        // Cashier can only log in as cashier
+        if (role !== 'cashier') {
+            throw new Error('Cashier is not authorized for this role');
+        }
+    } else {
+        throw new Error('Invalid user role');
     }
 
     return user;  // Return the user if everything is okay
 };
-
-
 
 const User = mongoose.model('User', userSchema);
 

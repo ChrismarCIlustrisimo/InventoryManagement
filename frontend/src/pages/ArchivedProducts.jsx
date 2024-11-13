@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminNavbar from '../components/AdminNavbar';
+import DashboardNavbar from '../components/DashboardNavbar';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import SearchBar from '../components/adminSearchBar';
@@ -8,48 +8,16 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { HiOutlineRefresh } from "react-icons/hi";
 import '../App.css';
 import axios from 'axios';
-import { FaPlay } from "react-icons/fa";
-import io from 'socket.io-client'; // Import socket.io-client
+import io from 'socket.io-client'; 
 import { useLocation } from 'react-router-dom';
 import { GrView } from "react-icons/gr";
-import { AiOutlineDelete } from "react-icons/ai";
-import { BiEdit } from "react-icons/bi";
 import ConfirmationDialog from '../components/ConfirmationDialog';
-import { useStockAlerts } from '../context/StockAlertsContext';
+import { MdDelete } from "react-icons/md";
+import { LuArchiveRestore } from "react-icons/lu";
 
 
-const getStatusStyles = (status) => {
-  let statusStyles = {
-    textClass: 'text-[#8E8E93]', // Default text color
-    bgClass: 'bg-[#E5E5EA]', // Default background color
-  };
 
-  switch (status) {
-    case 'HIGH':
-      statusStyles = {
-        textClass: 'text-[#14AE5C]',
-        bgClass: 'bg-[#CFF7D3]',
-      };
-      break;
-    case 'LOW':
-      statusStyles = {
-        textClass: 'text-[#EC221F]', // Red for Low Stock
-        bgClass: 'bg-[#FEE9E7]',
-      };
-      break;
-    case 'OUT OF STOCK':
-      statusStyles = {
-        textClass: 'text-[#8E8E93]', // Gray for Out of Stock
-        bgClass: 'bg-[#E5E5EA]',
-      };
-      break;
-  }
-
-  return statusStyles; // Return the status styles directly
-};
-
-
-const AdminInventory = () => {
+const ArchivedProducts = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
@@ -60,24 +28,31 @@ const AdminInventory = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState([]);
   const [productCount, setProductCount] = useState();
-  const [suppliers, setSuppliers] = useState([]);
   const [categoryFilter, setCategoryFilter] = useState('');
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const location = useLocation();
+  const [productId, setProductId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [priceRange, setPriceRange] = useState(''); // State to hold selected price range
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isInputsEmpty = minPrice === '' && maxPrice === '';
-  const { stockAlerts, setStockAlerts } = useStockAlerts();
+  const [actionType, setActionType] = useState(null);
 
-
-  const handleStockAlertChange = (e) => {
-    setStockAlerts(prev => ({
-      ...prev,
-      [e.target.value]: e.target.checked
-    }));
+  const restoreProduct = async () => {
+    if (!productId) return;
+  
+    try {
+      await axios.patch(`${baseURL}/product/archive/${productId}`);
+      console.log('Product restored:', productId);
+      fetchProducts(); // Refetch products after restoration
+    } catch (error) {
+      console.error('Error restoring product:', error.response ? error.response.data : error.message);
+    } finally {
+      setIsDialogOpen(false); // Close the dialog
+      setProductId(null); // Reset the productId
+    }
   };
-
-
+  
 
   useEffect(() => {
     if (user && user.token) {
@@ -93,38 +68,41 @@ const AdminInventory = () => {
         }
       });
   
-      // Get unique suppliers
-      const uniqueSuppliers = [...new Set(response.data.data.map(product => product.supplier))];
-      setSuppliers(uniqueSuppliers);
+      // Filter products to include only those that are not approved
+      const products = response.data.data.filter(product => product.isArchived);
   
-      const products = response.data.data;
-  
-      // Update current_stock_status based on available units and product-specific thresholds
       const updatedProducts = products.map(product => {
         const availableUnits = product.units.filter(unit => unit.status === 'in_stock').length;
-        const lowStockThreshold = product.low_stock_threshold || 0;  // Use product-specific thresholds
+        const lowStockThreshold = product.low_stock_threshold || 0; // Use product-specific thresholds
   
+        // Determine stock status based on available units
         let stockStatus = 'HIGH';
-  
         if (availableUnits === 0) {
           stockStatus = 'OUT OF STOCK';
         } else if (availableUnits <= lowStockThreshold) {
           stockStatus = 'LOW';
         }
   
+        // Calculate if product can be deleted (created within the last hour)
+        const productCreatedTime = new Date(product.createdAt);
+        const currentTime = new Date();
+        const timeDifference = currentTime - productCreatedTime;
+        const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
+        const canDelete = timeDifference <= oneHourInMs; // true if created within the last hour
+  
         return {
           ...product,
           current_stock_status: stockStatus,
+          canDelete, // Add canDelete property to each product
         };
       });
   
       setProducts(updatedProducts);
-      setProductCount(response.data.count);
+      setProductCount(updatedProducts.length); // Update count based on filtered products
     } catch (error) {
       console.error('Error fetching products:', error.message);
     }
   };
-  
   
   
 
@@ -160,25 +138,14 @@ const priceRanges = {
 
 const filteredProducts = products
   .filter(product => {
-    // Price range filter
     const isInPriceRange = (minPrice || maxPrice)
       ? product.selling_price >= minPrice && product.selling_price <= maxPrice
-      : true; // If no price range is selected, include all products
+      : true; 
     
-    // Category filter
     const isInCategory = categoryFilter === '' || product.category === categoryFilter;
     
-    // Supplier filter
     const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier;
 
-    // Stock alerts filter with fixed logical conditions
-    const isInStockStatus =
-      (stockAlerts['LOW'] && product.current_stock_status === 'LOW') ||
-      (stockAlerts['HIGH'] && product.current_stock_status === 'HIGH') ||
-      (stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK') ||
-      (!stockAlerts['LOW'] && !stockAlerts['HIGH'] && !stockAlerts['OUT OF STOCK']);
-    
-    // Search query filter
     const matchesSearchQuery =
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.model.toLowerCase().includes(searchQuery.toLowerCase());
@@ -187,7 +154,6 @@ const filteredProducts = products
       matchesSearchQuery &&
       isInCategory &&
       isInSupplier &&
-      isInStockStatus &&
       isInPriceRange
     );
   })
@@ -217,10 +183,21 @@ const filteredProducts = products
 
   const handleSortByChange = e => setSortBy(e.target.value);
 
-  const handlePriceRange = (event) => {
-    setPriceRange(event.target.value); // Update the state based on selected value
+// Handle price range selection
+const handlePriceRange = (e) => {
+    const selectedRange = e.target.value;
+    setPriceRange(selectedRange);
+    
+    // Set min and max prices based on the selected range
+    if (selectedRange === '') {
+      setMinPrice(null);
+      setMaxPrice(null);
+    } else {
+      const [min, max] = priceRanges[selectedRange];
+      setMinPrice(min);
+      setMaxPrice(max);
+    }
   };
-
 
   const handleResetFilters = () => {
     setSelectedCategory('');
@@ -230,60 +207,82 @@ const filteredProducts = products
     setSearchQuery('');
     setCategoryFilter(''); // Reset category filter
     setPriceRange(''); // Reset price range
-    setStockAlerts({
-      "LOW": false,
-      "HIGH": false,
-      "OUT OF STOCK": false,
-    }); // Reset stock alerts
 
-    // Refetch products to ensure the display reflects the unfiltered state
     fetchProducts();
   };
 
-  const handleAddProductClick = () => {
-    navigate('/admin-add-product');
+    // Function to open the dialog for delete
+    const handleDeleteClick = (id) => {
+      setProductId(id);
+      setActionType('delete');
+      setIsDialogOpen(true);
+    };
+  
+    // Function to open the dialog for approve
+    const handleApproveClick = (id) => {
+      setProductId(id);
+      setActionType('approve');
+      setIsDialogOpen(true);
+    };
+
+    const handleRestoreClick = (id) => {
+        setProductId(id);
+        setActionType('restore');
+        setIsDialogOpen(true);
+      };
+
+
+  const deleteProduct = async () => {
+    if (!productId) return;
+
+    try {
+      await axios.delete(`${baseURL}/product/${productId}`);
+      console.log('Delete successful');
+      fetchProducts(); // Assuming this function reloads the products
+    } catch (error) {
+      console.error('Error deleting product:', error.response ? error.response.data : error.message);
+    } finally {
+      setIsDialogOpen(false);
+      setProductId(null);
+    }
   };
 
+  const approveProduct = async () => {
+    if (!productId) return;
+
+    try {
+      await axios.patch(`${baseURL}/product/approve/${productId}`);
+      console.log('Product approved:', productId);
+      fetchProducts(); // Assuming this function reloads the products
+    } catch (error) {
+      console.error('Error approving product:', error.message);
+    } finally {
+      setIsDialogOpen(false);
+      setProductId(null);
+    }
+  };
+
+
   const handleViewProduct = (productId) => {
-    navigate(`/admin-view-product/${productId}`);
+    navigate(`/view-product/${productId}`);
   };
 
   
-  const handleLowReports = () => {
-    navigate(`/admin-inventory-report`);
-  };
 
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
-      <AdminNavbar />
+      <DashboardNavbar />
       <div className='pt-[70px] px-6 py-4'>
         <div className='flex items-center justify-center py-5'>
-          <div className='flex w-[30%]'>
-            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Product</h1>
-            <div className={`flex w-[100%] gap-2 items-center justify-center border rounded-xl ${darkMode ? 'border-black' : 'border-white'}`}>
+          <div className='flex w-[60%]'>
+            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Archived Products</h1>
+            <div className={`flex w-[40%] gap-2 items-center justify-center border rounded-xl ${darkMode ? 'border-black' : 'border-white'}`}>
               <p className={`font-semibold text-lg ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{productCount}</p>
               <p className={`text-xs ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>total products</p>
             </div>
           </div>
           <div className='w-full flex justify-end gap-2'>
            <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search product by name or model'}/>
-          <button 
-                className={`px-4 py-2 rounded-md font-semibold transform transition-transform duration-200 
-                            ${darkMode ? 'bg-light-primary' : 'dark:bg-dark-primary'} 
-                            hover:scale-105`} 
-                             onClick={handleAddProductClick}>
-                               Add Product
-              </button>
-              {stockAlerts.LOW && (
-                  <button
-                    className={`px-4 py-2 rounded-md flex items-center justify-center gap-2 border transform transition-transform duration-200 
-                                ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary'} 
-                                hover:bg-opacity-10 active:bg-opacity-20 hover:scale-105`}
-                    onClick={handleLowReports}
-                  >
-                    Print Low Stock Reports
-                  </button>
-                )}
           </div>
         </div>
         <div className='flex gap-4'>
@@ -340,32 +339,8 @@ const filteredProducts = products
                     <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name A-Z</option>
                     <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name Z-A</option>
                 </select>
-
-              </div>
-
-
-              <div className='flex flex-col mb-2'>
-                <label htmlFor='stockAlert' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STOCK ALERT</label>
-                <div id='stockAlert' className='flex flex-col'>
-                  <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='HIGH' id='highStock' checked={stockAlerts['HIGH']} onChange={handleStockAlertChange}/>
-                    <span className='checkmark'></span>
-                    <span className={`label-text ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>HIGH</span>
-                  </label>
-                  <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='LOW' id='lowStock' checked={stockAlerts['LOW']} onChange={handleStockAlertChange}/>
-                    <span className='checkmark'></span>
-                    <span className={`label-text ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>LOW</span>
-                  </label>
-                  <label className='custom-checkbox flex items-center'>
-                    <input type='checkbox' name='stockAlert' value='OUT OF STOCK' id='outOfStock' checked={stockAlerts['OUT OF STOCK']} onChange={handleStockAlertChange}/>
-                    <span className='checkmark'></span>
-                    <span className={`label-text ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>OUT OF STOCK</span>
-                  </label>
-                </div>
               </div>
               
-
                 <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
 
                 <select
@@ -452,31 +427,29 @@ const filteredProducts = products
           </div>
 
           <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-              {filteredProducts.length > 0 ? (
-                <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                  <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
-                    <tr>
-                      <th className='p-2 text-center' style={{ width: '450px' }}>Product Name</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '120px' }}>Category</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Qty.</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Status</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredProducts.map((product, index) => {
+          {filteredProducts.length > 0 ? (
+              <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
+                  <tr>
+                    <th className='p-2 text-center' style={{ width: '400px' }}>Product Name</th>
+                    <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>
+                    <th className='p-2 text-center text-xs' style={{ width: '120px' }}>Category</th>
+                    <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Qty.</th>
+                    <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
+                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
+                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
+                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredProducts
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
+                    .map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
-                      const statusStyles = getStatusStyles(product.current_stock_status);
 
                       return (
                         <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
                           <td className='flex items-center justify-left p-2'>
-                          {/*<img src={`${baseURL}/${product.image}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />*/}
-
                             <img src={product.image} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
                             <p className='text-xs'>{product.name}</p>
                           </td>
@@ -488,37 +461,58 @@ const filteredProducts = products
                           <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
                           <td className='text-center text-xs'>{product.buying_price}</td>
                           <td className='text-center text-xs'>{product.selling_price}</td>
-                          <td className={`text-sm text-center font-semibold`}>
-                            <span className={`${statusStyles.textClass} ${statusStyles.bgClass} py-2 w-[80%] inline-block rounded-md`}>
-                              {product.current_stock_status}
-                            </span>
+                          <td className='text-center'>
+                                <button onClick={() => handleViewProduct(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
+                                    <GrView size={25} />
+                                </button>
+                                
+                                {/* Restore Button */}
+                                <button onClick={() => handleRestoreClick(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
+                                    <LuArchiveRestore size={25} />
+                                </button>
+                                
+                                {/* Delete Button */}
+                                {product.canDelete && product.sales === 0 && (
+                                    <button onClick={() => handleDeleteClick(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
+                                    <MdDelete size={30} />
+                                    </button>
+                                )}
                           </td>
 
-                          <td className='text-center'>
-                            <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
-                                  onClick={() => handleViewProduct(product._id)}>
-                                  View
-                                </button>
-                            {/*<button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} onClick={() => handleEditProduct(product._id)}>
-                              <BiEdit size={20} />
-                            </button>*/}
-                          </td>
                         </tr>
                       );
                     })}
-                  </tbody>
-                </table>
-              ) : (
-                <div className='flex items-center justify-center h-[78vh] text-lg text-center'>
-                  <p className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>No products found matching the filter criteria.</p>
-                </div>
-              )}
+                </tbody>
+              </table>
+            ) : (
+              <div className='flex items-center justify-center h-[78vh] text-lg text-center'>
+                <p className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>No Archived products found matching the filter criteria.</p>
+              </div>
+            )}
+
             </div>
 
         </div>
       </div>
+      <ConfirmationDialog
+        isOpen={isDialogOpen}
+        onConfirm={actionType === 'delete' ? deleteProduct : (actionType === 'approve' ? approveProduct : restoreProduct)}
+        onCancel={() => {
+            setIsDialogOpen(false);
+            setProductId(null);
+        }}
+        message={
+            actionType === 'delete'
+            ? "Are you sure you want to delete this product?"
+            : actionType === 'approve'
+            ? "Are you sure you want to approve this product?"
+            : "Are you sure you want to restore this product?"
+        }
+        />
+
+
     </div>
   );
 };
 
-export default AdminInventory;
+export default ArchivedProducts;

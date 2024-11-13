@@ -22,7 +22,7 @@ const CartPopup = ({
     const totalPrice = cartItems.reduce((acc, item) => acc + (item.selling_price * (item.quantity || 1)), 0);
 
     const handleViewCart = () => {
-        navigate('/iRIG/view-cart');
+        navigate('/iRIG/cart');
         onClose();
     };
 

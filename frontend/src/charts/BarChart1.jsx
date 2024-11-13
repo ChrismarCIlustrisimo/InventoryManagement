@@ -87,49 +87,49 @@ const BarChart1 = () => {
     fetchProducts(); // Fetch products on component mount
   }, []);
 
-  const options = {
-    indexAxis: 'y', // Categories on Y-axis
-    responsive: true,
-    maintainAspectRatio: false, // Allow the chart to maintain its aspect ratio
-    plugins: {
-      legend: {
-        display: false,
+// Update the x-axis scale by removing min
+const options = {
+  indexAxis: 'y', 
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      enabled: true,
+      backgroundColor: darkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)',
+      titleColor: darkMode ? '#000' : '#fff',
+      bodyColor: darkMode ? '#000' : '#fff',
+    },
+  },
+  scales: {
+    x: {
+      beginAtZero: true, // Start at zero to include all categories
+      ticks: {
+        color: darkMode ? '#000' : '#fff',
+        stepSize: 20,
+        font: {
+          size: 14,
+        },
       },
-      tooltip: {
-        enabled: true,
-        backgroundColor: darkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)', // Adjust tooltip background
-        titleColor: darkMode ? '#000' : '#fff',
-        bodyColor: darkMode ? '#000' : '#fff',
+      grid: {
+        color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
       },
     },
-    scales: {
-      x: {
-        beginAtZero: true,
-        min: 1, // Set minimum value for x-axis
-        max: 100, // Set maximum value for x-axis
-        ticks: {
-          color: darkMode ? '#000' : '#fff', // Adjust tick color for dark mode
-          stepSize: 20, // Set step size for ticks
-          font: {
-            size: 14, // Increase font size for x-axis ticks
-          },
-        },
-        grid: {
-          color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)', // Adjust grid line color
-        },
-      },
-      y: {
-        type: 'category',
-        labels: chartData.labels, // Use dynamic labels from state (categories)
-        ticks: {
-          color: darkMode ? '#000' : '#fff', // Adjust tick color for dark mode
-          font: {
-            size: 14, // Increase font size for y-axis ticks
-          },
+    y: {
+      type: 'category',
+      labels: chartData.labels,
+      ticks: {
+        color: darkMode ? '#000' : '#fff',
+        font: {
+          size: 14,
         },
       },
     },
-  };
+  },
+};
+
 
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>

@@ -44,7 +44,8 @@ router.post('/', upload.fields([
       low_stock_threshold,
       sub_category, 
       warranty,
-      units 
+      units,
+      isApproved
     } = req.body;
 
     // Check for required fields
@@ -116,6 +117,7 @@ router.post('/', upload.fields([
       image: mainImageUrl,
       product_id: await Product.generateProductId(),
       units: processedUnits,
+      isApproved: isApproved || false,
     });
 
     await product.save();
@@ -539,6 +541,75 @@ router.post('/:productId/unit', upload.fields([{ name: 'serial_number_image', ma
   }
 });
 
+
+// Route to approve a product
+router.patch('/approve/:id', async (req, res) => {
+  const { id } = req.params; // Get the product ID from the URL parameter
+
+  try {
+    // Find the product by the default MongoDB _id
+    const product = await Product.findById(id);  // Corrected to find by _id
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Update the 'isApproved' field to true
+    product.isApproved = true;
+    await product.save();
+
+    res.status(200).json({ message: 'Product approved successfully', product });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+
+// Route to unarchive a product (optional)
+router.patch('/unarchive/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Set 'isArchived' to false to unarchive the product
+    product.isArchived = false;
+    await product.save();
+
+    res.status(200).json({ message: 'Product unarchived successfully', product });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Route to toggle archive status of a product
+router.patch('/archive/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await Product.findById(id);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Toggle the 'isArchived' field to true or false
+    product.isArchived = !product.isArchived;
+    await product.save();
+
+    res.status(200).json({
+      message: product.isArchived ? 'Product archived successfully' : 'Product unarchived successfully',
+      product
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 
 

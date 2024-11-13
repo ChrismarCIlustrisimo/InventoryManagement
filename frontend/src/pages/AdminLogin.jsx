@@ -19,10 +19,13 @@ const AdminLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         const response = await login(email, password, 'admin');
-        if (response && response.role === 'admin') {
-            navigate('/admin-dashboard');
+        if (response) {
+            if (response.role === 'admin' || response.role === 'super-admin') {
+                navigate('/admin-dashboard');
+            }
         }
     };
+    
 
     return (
         <div className="flex items-center justify-center w-full h-screen bg-gray-100">

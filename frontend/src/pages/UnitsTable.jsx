@@ -5,7 +5,8 @@ import axios from "axios";
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { AiOutlineUpload } from 'react-icons/ai';
+import { useAuthContext } from '../hooks/useAuthContext';
+
 
 const UnitsTable = () => {
   const { productId } = useParams();
@@ -24,6 +25,7 @@ const UnitsTable = () => {
   const baseURL = "http://localhost:5555";
   const { darkMode } = useAdminTheme();
   const [editStatus, setEditStatus] = useState("");
+  const { user } = useAuthContext();
 
 
   const videoRef = useRef(null);
@@ -247,7 +249,7 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                 <th className="px-4 py-2 text-center">Image</th>
                 <th className="px-4 py-2 text-center">Serial Number</th>
                 <th className="px-4 py-2 text-center">Status</th>
-                <th className="px-4 py-2 text-center">Actions</th>
+                {user.role === 'admin' ? '' : <th className="px-4 py-2 text-center">Actions</th>}
               </tr>
             </thead>
             <tbody>
@@ -316,7 +318,7 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                    )}
                   </td>
 
-                  <td className="px-4 py-2  gap-4">
+                  {user.role === 'admin' ? '' : <td className="px-4 py-2  gap-4">
                     {isEditing && editUnitIndex === index ? (
                       <div className="items-center flex justify-center gap-4">
                         <button
@@ -348,7 +350,7 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                         </button>
                       </div>
                     )}
-                  </td>
+                  </td>}
                 </tr>
               ))}
             </tbody>

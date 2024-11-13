@@ -190,7 +190,7 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                                             <td className="p-2 flex flex-col gap-2 text-left">
                                                      <p>{shortenString(item.product?.name)}</p>
                                             </td>
-                                            <td className="p-2 text-center">₱ {item.product?.selling_price || 0}</td>
+                                            <td className="p-2 text-center">₱ {item.product?.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</td>
                                             <td className="p-2 text-center">{item.quantity}</td>
                                             <td className="p-2 text-center">{item.serial_number.length > 0 ? item.serial_number.join(', ') : 'N/A'}</td>
                                             <td className="p-2 text-center">₱ {item.quantity * item.product?.selling_price}</td>
@@ -211,19 +211,19 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                             <div className='w-[40%] h-[120px]'>
                                 <div className='flex justify-between py-2'>
                                     <span>Subtotal</span>
-                                    <span>₱ {(transaction.total_price - transaction.vat).toFixed(2)}</span>
+                                    <span>₱ {(transaction.total_price - transaction.vat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className='flex justify-between py-2'>
                                     <span>VAT (12%)</span>
-                                    <span>₱ {transaction.vat.toFixed(2)}</span>
+                                    <span>₱ {transaction.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className='flex justify-between py-2'>
                                     <span>Discount</span>
-                                    <span>₱ {transaction.discount.toFixed(2)}</span>
+                                    <span>₱ {transaction.discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                                 <div className='flex justify-between border-t-2 border-black text-xl py-4 font-semibold'>
                                     <span>Total</span>
-                                    <span>₱ {(transaction.total_price - transaction.discount).toFixed(2)}</span>
+                                    <span>₱ {(transaction.total_price - transaction.discount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                                 </div>
                             </div>
                         </div>
@@ -237,10 +237,15 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                                         <p className='uppercase font-semibold'>{transaction.payment_method}</p>
                                         <p className='bg-[#EBFFEE] p-1 rounded-md text-[#14AE5C] italic px-4 font-semibold'>Paid</p>
                                     </div>
+                                    {transaction.payment_method !== 'Cash' ? (
+                                        <div className='flex items-center justify-start gap-4'>
+                                            <p className='text-light-textSecondary mr-4'>REFERENCE NUMBER</p>
+                                            <p className='uppercase font-semibold'>{transaction.reference_number}</p>
+                                        </div>
+                                    ) : ''}
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 

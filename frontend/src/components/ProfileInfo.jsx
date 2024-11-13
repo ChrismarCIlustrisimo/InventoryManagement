@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLogout } from '../hooks/useLogout';
-import { useTheme } from '../context/ThemeContext';
+import { useAdminTheme } from '../context/AdminThemeContext';
 import { GoTriangleDown } from "react-icons/go";
 import { IoSunnyOutline } from "react-icons/io5";
 import { MdLogout } from "react-icons/md";
@@ -8,10 +8,9 @@ import { useAuthContext } from '../hooks/useAuthContext';
 
 const ProfileInfo = () => {
   const [currentDate, setCurrentDate] = useState('');
-  const [selected, setSelected] = useState('');
-  const { toggleTheme } = useTheme();
+  const { toggleTheme } = useAdminTheme();
   const [showButtons, setShowButtons] = useState(false);
-  const { darkMode } = useTheme();
+  const { darkMode } = useAdminTheme();
   const { user } = useAuthContext();
   const { logout } = useLogout();
 

@@ -21,6 +21,7 @@ const TransactionSchema = new mongoose.Schema(
     status: { type: String, enum: ['Completed', 'Replaced', 'Refunded','RMA', 'Reserved'], default: 'Reserved'},
     payment_status: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
     cashier: { type: String },
+    reference_number: { type: String, default: ''},
     payment_method: {
       type: String,
       enum: [

@@ -137,11 +137,11 @@ const ViewTransaction = ({ transaction, onClose }) => {
               </div>
               <div className="text-md w-full flex items-center justify-between">
                 <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>PRICE PER UNIT</div>
-                <div className='font-semibold w-[50%]'>₱ {product.product?.selling_price || 0}</div>
+                <div className='font-semibold w-[50%]'>₱ {product.product?.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</div>
               </div>
               <div className="text-md w-full flex items-center justify-between">
                 <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>TOTAL PRICE</div>
-                <div className='font-semibold w-[50%]'>₱{transaction.total_price.toFixed(2)}</div>
+                <div className='font-semibold w-[50%]'>₱{transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
               </div>
 
               <h3 className="text-xl font-bold py-4">Payment Information</h3>
@@ -149,6 +149,18 @@ const ViewTransaction = ({ transaction, onClose }) => {
                 <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>PAYMENT METHOD</div>
                 <div className='font-semibold w-[50%]'>{transaction.payment_method}</div>
               </div>
+
+              {transaction.payment_method !== 'Cash' ? (
+                  <div className="text-md w-full flex items-center justify-between">
+                    <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>
+                      PAYMENT METHOD
+                    </div>
+                    <div className='font-semibold w-[50%]'>
+                      {transaction.reference_number}
+                    </div>
+                  </div>
+                ) : null}
+
 
               <h3 className="text-xl font-bold py-4">Refund/RMA Information</h3>
               <div className="text-md w-full flex items-center justify-between">

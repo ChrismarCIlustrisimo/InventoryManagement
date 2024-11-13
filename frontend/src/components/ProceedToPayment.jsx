@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { IoIosClose } from "react-icons/io";
 import axios from 'axios';
@@ -7,15 +7,6 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'; // Ensure you import useNavigate
 import { BiArrowBack } from "react-icons/bi";
 
-const formatNumber = (value) => {
-  if (value === '' || isNaN(value)) return '';
-  const number = Number(value.replace(/,/g, ''));
-  return number.toLocaleString();
-};
-
-const parseNumber = (value) => {
-  return value.replace(/,/g, '');
-};
 
 const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess, onPaymentError }) => {
   if (!isOpen) return null;
@@ -31,10 +22,24 @@ const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess
   const { user } = useContext(AuthContext);
   const [isCustomerInput, setIsCustomerInput] = useState(true);
   const [paymentMethod, setPaymentMethod] = useState(''); // Add this line
+  const [referenceNumber, setReferenceNumber] = useState('');
+
+
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value);
 };
-  
+
+// Ensure the value is a string before calling replace
+const parseNumber = (value) => {
+  // Convert the value to a string, then apply replace
+  if (value && typeof value === 'string') {
+    return value.replace(/[^\d.-]/g, ''); // Example to remove non-numeric characters
+  } else if (typeof value === 'number') {
+    return value.toString(); // If it's a number, convert to string
+  }
+  return ''; // Return empty string if value is not valid
+};
+
   const validatePhoneNumber = (number) => {
     const phoneRegex = /^09\d{9}$/; 
     return phoneRegex.test(number);
@@ -58,20 +63,9 @@ const calculateTotalVAT = () => {
   return cart.reduce((acc, item) => {
     const productPrice = item.product.selling_price; // Ensure this is the selling price
     const productVAT = productPrice * 0.12; // 12% VAT
-
-    // Log the details for debugging
-    console.log(`Product Price: ${productPrice}`);
-    console.log(`Product VAT (12%): ${productVAT}`);
-    console.log(`Quantity: ${item.quantity}`);
-    console.log(`Accumulated VAT Before Adding: ${acc}`);
-
     const totalVATForItem = productVAT * item.quantity;
     const newAcc = acc + totalVATForItem;
 
-    // Log the new accumulated VAT
-    console.log(`Total VAT for this item: ${totalVATForItem}`);
-    console.log(`New Accumulated VAT: ${newAcc}`);
-    
     return newAcc; // Return the updated accumulator
     
   }, 0);
@@ -82,45 +76,54 @@ const calculateTotalVAT = () => {
 
   const totalVAT = calculateTotalVAT();
   const finalAmount = (totalAmount + totalVAT) - calculateDiscount();
-  {console.log('dasdasdas',finalAmount)}
 
   const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
   const handlePayButton = async () => {
+    // Ensure paymentAmount is a string before using trim
+    const paymentAmountStr = String(paymentAmount).trim(); // Convert to string and trim
+  
     if (!validatePhoneNumber(phoneNumber)) {
       toast.warning('Please enter a valid phone number (e.g., 09854875843).');
       return;
     }
-
+  
     // Validate email
     if (!validateEmail(email)) {
       toast.warning('Please enter a valid email address (e.g., chris@gmail.com).');
       return;
     }
-
+  
     // Validate paymentAmount
-    if (paymentAmount.trim() === '') {
+    if (paymentAmountStr === '') {
       toast.warning('Please enter a payment amount.');
       return;
     }
-
-    if (parseNumber(paymentAmount) < finalAmount) {
+  
+    if (parseNumber(paymentAmountStr) < finalAmount) {
       toast.warning('Payment amount is less than the total amount.');
       return;
     }
-
+  
     // Validate customer information
     if (!customerName.trim() || !address.trim() || !phoneNumber.trim() || !email.trim()) {
       toast.warning('Please fill in all customer information fields.');
       return;
     }
-
-    // Validate customer information
+  
+    // Validate payment method
     if (paymentMethod === '') {
       toast.warning('Please select a payment method');
       return;
     }
+    if(paymentMethod !== 'Cash'){
+      if (referenceNumber === '') {
+        toast.warning('Please input reference number');
+        return;
+      }
+    }
 
+  
     try {
       // Step 1: Create or Find the Customer
       const customerResponse = await axios.post(`${baseURL}/customer`, {
@@ -134,20 +137,16 @@ const calculateTotalVAT = () => {
           'Content-Type': 'application/json'
         }
       });
-
+  
       const customerId = customerResponse.data._id;
-
-
+  
       // Check for serial numbers in the cart
       cart.forEach(item => {
         if (!item.unitIds || item.unitIds.length === 0) {
           throw new Error(`Serial numbers (unit IDs) are missing for product ID ${item.product._id}`);
         }
       });
-
-
-    
-      
+  
       const transactionData = {
         products: cart.map(item => ({
           product: item.product._id,
@@ -156,18 +155,17 @@ const calculateTotalVAT = () => {
         })),
         customer: customerId,
         total_price: finalAmount,
-        total_amount_paid: parseNumber(paymentAmount) || 0,
+        total_amount_paid: parseNumber(paymentAmountStr) || 0,
         transaction_date: new Date().toISOString(),
         cashier: user.name,
         payment_status: 'paid',
         status: 'Completed',
-        vat: totalVAT, 
+        vat: totalVAT,
         discount: discountValue,
         payment_method: paymentMethod,
+        reference_number: referenceNumber,
       };
-      
-
-
+  
       // Validate and flatten serial numbers
       const serialNumbersToUpdate = transactionData.products.flatMap(product => {
         if (!Array.isArray(product.serial_number)) {
@@ -176,12 +174,12 @@ const calculateTotalVAT = () => {
         }
         return product.serial_number;
       });
-
+  
       // Check for serial numbers to update
       if (!Array.isArray(serialNumbersToUpdate) || serialNumbersToUpdate.length === 0) {
         throw new Error('No serial numbers available for update.');
       }
-
+  
       // Step 3: Create the Transaction
       const transactionResponse = await axios.post(`${baseURL}/transaction`, transactionData, {
         headers: {
@@ -190,9 +188,8 @@ const calculateTotalVAT = () => {
         }
       });
   
-
-      const transactionId = transactionResponse.data.transaction_id; 
-
+      const transactionId = transactionResponse.data.transaction_id;
+  
       // Step 4: Update Sales Only
       const updates = cart.map(item => ({
         updateOne: {
@@ -204,7 +201,7 @@ const calculateTotalVAT = () => {
           },
         },
       }));
-
+  
       // Send the updates to the bulk-update endpoint (if needed, modify accordingly)
       await axios.put(`${baseURL}/product/bulk-update`, updates, {
         headers: {
@@ -212,8 +209,8 @@ const calculateTotalVAT = () => {
           'Content-Type': 'application/json',
         },
       });
-
-      navigate('/receipt', { state: { transaction: transactionData,  transactionId: transactionId, totalVAT: totalVAT, discount: discountValue } });
+  
+      navigate('/receipt', { state: { transaction: transactionData, transactionId: transactionId, totalVAT: totalVAT, discount: discountValue } });
       onClose(); // Close the modal
       onPaymentSuccess(transactionData);
     } catch (error) {
@@ -221,6 +218,7 @@ const calculateTotalVAT = () => {
       onPaymentError(); // Call the onPaymentError prop
     }
   };
+  
   
   const handleBackButtonClick = () => {
     setIsCustomerInput(true); // Reset to customer input
@@ -244,6 +242,22 @@ const calculateTotalVAT = () => {
 
       setIsCustomerInput(false);
   };
+
+
+  // Function to format numbers as currency
+const formatNumber = (num) => {
+  return num.toLocaleString();
+};
+
+
+
+useEffect(() => {
+  // Automatically set paymentAmount when payment method changes
+  if (paymentMethod !== 'Cash' && paymentMethod !== '') {
+    setPaymentAmount(totalVAT + totalAmount - discountValue); // Set total price
+  }
+}, [paymentMethod, totalVAT, totalAmount, discountValue]);
+
 
   return (
     <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md"
@@ -366,41 +380,55 @@ const calculateTotalVAT = () => {
                   <p className='w-[50%]'>₱ {totalVAT.toLocaleString()}</p>
                 </div>
 
-                <div className='w-full flex items-center  '>
+                <div className='w-full flex items-center'>
                   <p className='w-[50%]'>Total Amount</p>
-                  <p className='w-[50%]'>₱ {((totalVAT + totalAmount) - discountValue).toLocaleString()}</p>
+                  <p className='w-[50%]'>₱ {formatNumber(totalVAT + totalAmount - discountValue)}</p>
                 </div>
+
               </div>
 
 
 
-              <div className='flex flex-col w-full justify-between items-center gap-4'>
-              <div className='w-full flex items-center   py-2'>
+              <div className='flex flex-col w-full justify-between items-center gap-2'>
+              <div className='w-full flex items-center py-2'>
                   <p className='w-[50%]'>Payment Method</p>
                   <div className='w-[50%]'>
                     <select
                       id='paymentMethod'
                       value={paymentMethod}
                       onChange={handlePaymentMethodChange}
-                      className={`border rounded p-2 w-[240px]  ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}
-                        ${paymentMethod === '' 
-                            ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                            : (darkMode 
-                            ? 'bg-light-activeLink text-light-primary' 
-                            : 'bg-transparent text-black')} 
-                              outline-none font-semibold`}>
-                                <option value=''>Select Option</option>
-                                <option value='Cash'>Cash</option>
-                                <option value='GCash'>GCash</option>
-                                <option value='GGvices'>GGvices</option>
-                                <option value='Bank Transfer'>Bank Transfer</option>
-                                <option value='BDO Credit Card'>BDO Credit Card</option>
-                                <option value='Credit Card - Online'>Credit Card - Online</option>
-                  </select>
+                      className={`border rounded p-2 w-[240px]  ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                    >
+                      <option value=''>Select Option</option>
+                      <option value='Cash'>Cash</option>
+                      <option value='GCash'>GCash</option>
+                      <option value='GGvices'>GGvices</option>
+                      <option value='Bank Transfer'>Bank Transfer</option>
+                      <option value='BDO Credit Card'>BDO Credit Card</option>
+                      <option value='Credit Card - Online'>Credit Card - Online</option>
+                    </select>
                   </div>
                 </div>
 
-                <div className='w-full flex items-center  '>
+                {/* Conditionally render reference number field based on payment method */}
+                {paymentMethod !== 'Cash' && paymentMethod !== '' && (
+                  <div className='w-full flex items-center py-2'>
+                    <p className='w-[50%]'>Reference Number</p>
+                    <div className='w-[50%]'>
+                      <input
+                        type='text'
+                        id='referenceNumber'
+                        value={referenceNumber}
+                        onChange={(e) => setReferenceNumber(e.target.value)}
+                        className={`border rounded p-2 w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'} outline-none font-semibold`}
+                        placeholder='Enter Reference Number'
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Payment Received field */}
+                <div className='w-full flex items-center'>
                   <p className='w-[50%]'>Payment Received</p>
                   <input
                     type="text"

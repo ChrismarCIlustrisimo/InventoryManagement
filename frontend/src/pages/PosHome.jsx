@@ -306,9 +306,9 @@ const PosHome = () => {
                   >
                     <ProductCard
                       product={{
-                        image: `${baseURL}/${product.image}`,
+                        image: product.image,
                         name: <span style={{ fontSize: nameFontSize }}>{product.name}</span>,
-                        price: parseFloat(product.selling_price) || 0,
+                        price: product.selling_price || 0,
                         stock: inStockUnits, // Number of units in stock
                       }}
                       onClick={() => handleAddToCart(product)}

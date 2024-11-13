@@ -197,8 +197,8 @@ const getStatusStyles = (status) => {
                   <div className="text-gray-500">SUPPLIER</div>
                 </div>
                 <div className='w-[60%] flex flex-col justify-between h-full gap-4'>
-                  <div className="font-bold">₱ {product.selling_price}</div>
-                  <div className="font-bold">₱ {product.buying_price}</div>
+                  <div className="font-bold">₱ {product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                  <div className="font-bold">₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <div className="font-bold">{product.supplier || 'N/A'}</div>
                 </div>
               </div>

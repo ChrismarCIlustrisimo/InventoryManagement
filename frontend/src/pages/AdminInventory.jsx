@@ -8,13 +8,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { HiOutlineRefresh } from "react-icons/hi";
 import '../App.css';
 import axios from 'axios';
-import { FaPlay } from "react-icons/fa";
 import io from 'socket.io-client'; // Import socket.io-client
 import { useLocation } from 'react-router-dom';
-import { GrView } from "react-icons/gr";
-import { AiOutlineDelete } from "react-icons/ai";
-import { BiEdit } from "react-icons/bi";
-import ConfirmationDialog from '../components/ConfirmationDialog';
 import { useStockAlerts } from '../context/StockAlertsContext';
 
 
@@ -486,8 +481,8 @@ const filteredProducts = products
                             {inStockUnits}
                           </td>
                           <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price}</td>
-                          <td className='text-center text-xs'>{product.selling_price}</td>
+                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className={`text-sm text-center font-semibold`}>
                             <span className={`${statusStyles.textClass} ${statusStyles.bgClass} py-2 w-[80%] inline-block rounded-md`}>
                               {product.current_stock_status}

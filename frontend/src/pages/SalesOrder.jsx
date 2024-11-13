@@ -320,7 +320,7 @@ const SalesOrder = () => {
           ) : (
             <div className='w-[80%] h-[78vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
               {salesOrder
-                .sort((a, b) => b.transaction_id.localeCompare(a.transaction_id)) // Sort transactions by transaction_id in descending order
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((transaction) => (
                   <div
                     key={transaction._id}
@@ -351,7 +351,7 @@ const SalesOrder = () => {
                         <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                           <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
                           <p className='tracking-wider ml-auto'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
-                          <p className='ml-auto'>₱ {transaction.total_price.toFixed(2)}</p>
+                          <p className='ml-auto'>₱ {(transaction.total_price + transaction.vat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
                       </div>
                     </div>

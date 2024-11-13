@@ -114,7 +114,7 @@ const Navbar = () => {
 
 
         {/* RMA Button */}
-        <Link to="/cashier-SalesReport" className="flex-1">
+        <Link to="/cashier-sales-report" className="flex-1">
           <button
             className={`text-sm p-2 px-3 ${selected === 'Reporting' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} rounded-[24px] w-full flex items-center justify-center gap-2 border`}
             onClick={() => setSelected('Reporting')}

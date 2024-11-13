@@ -340,8 +340,8 @@ const formatDate = (dateString) => {
                             <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container border-light-primary' : 'bg-dark-container border-dark-primary'}`}>
                               <td className='p-4 text-center'>{refund.refund_id}</td>
                               <td className='p-4 text-center'>{formatDate(refund.sales_date)}</td>
-                              <td className='p-4 text-center'>{refund.refund_amount}</td>
-                              <td className='p-4 text-center'>{refund.refund_method.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className='p-4 text-center'>{refund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className='p-4 text-center'>{refund.refund_method}</td>
                               <td className='p-4 text-center'>{shortenString(refund.product_name)}</td>
                               <td className='p-4 text-center'>{refund.serial_number}</td>
                               <td className='p-4 text-center'>{refund.reason}</td>
@@ -452,7 +452,7 @@ const formatDate = (dateString) => {
               <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
                 UNIT PRICE
               </div>
-              <div className="font-semibold w-[50%]">{selectedRefund.unit_price}</div>
+              <div className="font-semibold w-[50%]">{selectedRefund.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             </div>
 
             <div className="text-md w-full flex items-center justify-between">

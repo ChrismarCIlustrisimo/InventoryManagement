@@ -188,34 +188,42 @@ const Receipt = () => {
             <div className='w-[40%] h-[120px]'>
               <div className='flex justify-between py-2'>
                 <span>Subtotal</span>
-                <span>₱ {((transaction.total_price + discount) - totalVAT).toFixed(2)}</span>
+                <span>₱ {((transaction.total_price + discount) - totalVAT).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <div className='flex justify-between py-2'>
-                <span>VAT (12%)</span>s
-                <span>₱ {totalVAT.toLocaleString()}</span>
+                <span>VAT (12%)</span>
+                <span>₱ {totalVAT.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
               <div className='flex justify-between py-2'>
                 <span>Discount</span>
-                <span>₱ {discount.toLocaleString()}</span>
+                <span>₱ {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                 </div>
               <div className='flex justify-between border-t-2 border-black py-4 font-semibold'>
                 <span>Total Amount</span>
-                <span>₱ {transaction.total_price.toLocaleString()}</span>
+                <span>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
 
-          <div className='w-full flex items-center justify-start py-12'>
+          <div className='w-full flex items-center justify-start pt-12'>
             <div className='w-[40%] h-[120px] flex flex-col'>
-              <span className='text-xl font-semibold'>Payment method:</span>
-              <div className='flex flex-col justify-between py-2'>
-                <div className='flex items-center justify-start gap-4'>
-                  <p>{transaction.payment_method}</p>
-                  <p className='bg-[#EBFFEE] text-[#14AE5C] py-2 px-4 rounded-md italic'>Paid</p>
+                <span className='text-xl font-semibold'>Payment method:</span>
+                <div className='flex flex-col justify-between py-2'>
+                    <div className='flex items-center justify-start gap-4'>
+                        <p className='text-light-textSecondary mr-4'>PAYMENT METHOD</p>
+                        <p className='uppercase font-semibold'>{transaction.payment_method}</p>
+                        <p className='bg-[#EBFFEE] p-1 rounded-md text-[#14AE5C] italic px-4 font-semibold'>Paid</p>
+                    </div>
+                    {transaction.payment_method !== 'Cash' ? (
+                        <div className='flex items-center justify-start gap-4'>
+                            <p className='text-light-textSecondary mr-4'>REFERENCE NUMBER</p>
+                            <p className='uppercase font-semibold'>{transaction.reference_number}</p>
+                        </div>
+                    ) : ''}
                 </div>
-              </div>
             </div>
-          </div>
+        </div>
+
 
           <div className='flex items-center justify-start py-6 text-sm'>
             <p>Thank you for your purchase!</p>

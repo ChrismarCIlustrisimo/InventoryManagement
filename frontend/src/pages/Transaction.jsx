@@ -22,11 +22,27 @@ const Transaction = () => {
   const [paymentMethod, setPaymentMethod] = useState('');
   const [total_price, setTotal_price] = useState(0);
   const [units, setUnits] = useState([]);
+  const [referenceNumber, setReferenceNumber] = useState('');
 
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value);
 };
 
+
+  // Function to format numbers as currency
+const formatNumber = (num) => {
+  return num.toLocaleString();
+};
+
+const parseNumber = (value) => {
+  // Convert the value to a string, then apply replace
+  if (value && typeof value === 'string') {
+    return value.replace(/[^\d.-]/g, ''); // Example to remove non-numeric characters
+  } else if (typeof value === 'number') {
+    return value.toString(); // If it's a number, convert to string
+  }
+  return ''; // Return empty string if value is not valid
+};
 
   const fetchTransaction = async () => {
     try {
@@ -37,7 +53,6 @@ const Transaction = () => {
       });
       setTransaction(response.data);
       setLoading(false);
-      console.log(units)
     } catch (error) {
       console.error('Error fetching transaction:', error);
       toast.error('Failed to fetch transaction. Please try again.');
@@ -63,9 +78,16 @@ const Transaction = () => {
 
 
 const handlePayButton = () => {
-  if (paymentAmount <= 0) {
+  if (paymentAmount < 0) {
     toast.error('Please enter a valid payment amount.');
     return;
+  }
+
+  if(paymentMethod !== 'Cash'){
+    if (referenceNumber === '') {
+      toast.warning('Please input reference number');
+      return;
+    }
   }
 
   setTotal_price(transaction.vat + transaction.total_price);
@@ -77,18 +99,14 @@ const handlePayment = () => {
   setShowPaymentSummary(true); //
 };
 
+
+
 const processPayment = async () => { 
   if (!paymentMethod) {
     toast.error('Please select a payment method.'); // Show error message
     return; // Exit the function early
   }
 
-  // Check if payment amount is less than total price + VAT
-  const totalAmountDue = transaction.total_price + transaction.vat;
-  if (paymentAmount < totalAmountDue) {
-    toast.error('Invalid payment amount. Please enter a valid amount.'); // Show error message
-    return; // Exit the function early
-  }
 
   try {
     await axios.put(`${baseURL}/transaction/${id}`, {
@@ -99,7 +117,8 @@ const processPayment = async () => {
       payment_method: paymentMethod, // Include payment method
       total_amount_paid: paymentAmount, // Include the amount paid
       products: transaction.products, // Include the products array for updating units
-      transaction_date: new Date().toISOString()
+      transaction_date: new Date().toISOString(),
+      reference_number: referenceNumber,
     }, {
       headers: {
         Authorization: `Bearer ${user.token}`, // Include authorization token
@@ -136,7 +155,7 @@ const processPayment = async () => {
     navigate(-1);
   };
 
-
+   const totalAmountAuto = (transaction.vat + transaction.total_price);
 
   return (
     <div className={`w-full items-start justify-center flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
@@ -252,11 +271,11 @@ const processPayment = async () => {
 
         {showPaymentSummary && (
             <div className="z-20 fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center backdrop-blur-md">
-              <div className={`rounded-2xl shadow-md w-[70%] h-[90%] p-6 relative ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary' } flex flex-col`}>
+              <div className={`rounded-2xl shadow-md w-[70%] h-[96%] p-6 relative ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary' } flex flex-col`}>
                 <div className='flex gap-2 items-center justify-center w-full h-full'>
                   <div className='w-[60%]'>
                     <div className={`flex flex-col w-full h-full px-4 py-4 rounded-2xl gap-12 font-semibold`}>
-                      <div className='flex flex-col w-full justify-between items-center gap-4'>
+                      <div className='flex flex-col w-full justify-between items-center gap-2'>
                         <div className='w-full flex items-center py-2'>
                           <p className='w-[50%]'>Discount</p>
                           <div className='w-[50%]'>
@@ -272,66 +291,86 @@ const processPayment = async () => {
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Subtotal</p>
-                          <p className='w-[50%]'>₱ {transaction.total_price}</p>
+                          <p className='w-[50%]'>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>VAT</p>
-                          <p className='w-[50%]'>₱ {transaction.vat}</p>
+                          <p className='w-[50%]'>₱ {transaction.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Total Amount</p>
-                          <p className='w-[50%]'>₱ {((transaction.vat + transaction.total_price))}</p>
+                          <p className='w-[50%]'>₱ {((transaction.vat + transaction.total_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</p>
                         </div>
                       </div>
 
-                      <div className='flex flex-col w-full justify-between items-center gap-4'>
-                        <div className='w-full flex items-center py-2'>
-                          <p className='w-[50%]'>Payment Method</p>
-                          <div className='w-[50%]'>
-                            <select
-                              id='paymentMethod'
-                              value={paymentMethod}
-                              onChange={handlePaymentMethodChange}
-                              className={`border rounded p-2 w-[240px]  ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}
-                              ${paymentMethod === '' 
-                                  ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
-                                  : (darkMode 
-                                  ? 'bg-light-activeLink text-light-primary' 
-                                  : 'bg-transparent text-black')} 
-                                    outline-none font-semibold`}>
-                              <option value=''>Select Option</option>
-                              <option value='Cash'>Cash</option>
-                              <option value='GCash'>GCash</option>
-                              <option value='GGvices'>GGvices</option>
-                              <option value='Bank Transfer'>Bank Transfer</option>
-                              <option value='BDO Credit Card'>BDO Credit Card</option>
-                              <option value='Credit Card - Online'>Credit Card - Online</option>
-                            </select>
+                      <div className='flex flex-col w-full justify-between items-center gap-2'>
+                       <div className='w-full flex items-center py-2'>
+                            <p className='w-[50%]'>Payment Method</p>
+                            <div className='w-[50%]'>
+                              <select
+                                id='paymentMethod'
+                                value={paymentMethod}
+                                onChange={handlePaymentMethodChange}
+                                className={`border rounded p-2 w-[240px]  ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}
+                                ${paymentMethod === '' 
+                                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                                    : (darkMode 
+                                    ? 'bg-light-activeLink text-light-primary' 
+                                    : 'bg-transparent text-black')} 
+                                      outline-none font-semibold`}>
+                                <option value=''>Select Option</option>
+                                <option value='Cash'>Cash</option>
+                                <option value='GCash'>GCash</option>
+                                <option value='GGvices'>GGvices</option>
+                                <option value='Bank Transfer'>Bank Transfer</option>
+                                <option value='BDO Credit Card'>BDO Credit Card</option>
+                                <option value='Credit Card - Online'>Credit Card - Online</option>
+                              </select>
+                            </div>
                           </div>
-                        </div>
 
-                        <div className='w-full flex items-center'>
-                          <p className='w-[50%]'>Total Amount Paid</p>
-                          <input
-                            type="text"
-                            value={paymentAmount}
-                            onChange={(e) => setPaymentAmount(e.target.value)}
-                            placeholder="₱ 0"
-                            className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
-                          />
-                        </div>
+                          {paymentMethod !== 'Cash' && paymentMethod !== '' && (
+                            <div className='w-full flex items-center py-2'>
+                              <p className='w-[50%]'>Reference Number</p>
+                              <div className='w-[50%]'>
+                                <input
+                                  type='text'
+                                  id='referenceNumber'
+                                  value={referenceNumber}
+                                  onChange={(e) => setReferenceNumber(e.target.value)}
+                                  className={`border rounded p-2 w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'} outline-none font-semibold`}
+                                  placeholder='Enter Reference Number'
+                                />
+                              </div>
+                            </div>
+                          )}
+
+
+
+                            <div className='w-full flex items-center'>
+                              <p className='w-[50%]'>Payment Received</p>
+                              <input
+                                type="text"
+                                value={paymentMethod !== 'Cash' && paymentMethod !== '' ? formatNumber(totalAmountAuto) : paymentAmount || 0}
+                                onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
+                                placeholder="₱ 0"
+                                className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                              />
+                            </div>
+
+
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Discount</p>
-                          <p className='w-[50%]'>{discountValue}</p>
+                          <p className='w-[50%]'>{discountValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Change</p>
                           <p className='w-[50%]'>
-                            {paymentAmount ? (paymentAmount - ((transaction.vat + transaction.total_price) - discountValue)).toFixed(2) : '₱ 0.00'}
+                            {paymentAmount ? (paymentAmount - ((transaction.vat + transaction.total_price) - discountValue)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '₱ 0.00'}
                           </p>
                         </div>
                       </div>

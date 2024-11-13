@@ -391,7 +391,7 @@ const DashboardPos = () => {
                           ? transaction.products.reduce((acc, item) => acc + item.quantity, 0)
                           : '0'}
                       </td>
-                      <td className="p-2 text-center">₱ {transaction.total_price || '0.00'}</td>
+                      <td className="p-2 text-center">₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
                       <td className="p-2 text-center">
                         {transaction.status ? (
                           (() => {

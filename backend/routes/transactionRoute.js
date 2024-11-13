@@ -83,6 +83,7 @@ router.post('/', async (req, res) => {
           vat,
           payment_method,
           status,
+          reference_number
       } = req.body;
 
       // Validate required fields
@@ -173,7 +174,8 @@ router.post('/', async (req, res) => {
           discount,
           vat,
           payment_method,
-          status
+          status,
+          reference_number
       });
 
       const transaction = await newTransaction.save();
@@ -209,6 +211,8 @@ router.post('/online-reservation', async (req, res) => {
       vat,
       payment_method,
       status,
+      reference_number
+
     } = req.body;
 
     // Validate required fields
@@ -300,6 +304,7 @@ router.post('/online-reservation', async (req, res) => {
       vat,
       payment_method,
       status,
+      reference_number
     });
 
     const transaction = await newTransaction.save();
@@ -467,7 +472,7 @@ router.get('/:transactionId', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const transaction = await Transaction.findOne({ _id: id })
+    const transaction = await Transaction.findOne({ transaction_id: id }) // Use `transaction_id` for better consistency
       .populate('products.product')
       .populate('customer');
 
@@ -482,6 +487,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+
 router.put('/:transactionId', async (req, res) => {
   try {
     const { transactionId } = req.params;
@@ -493,7 +499,8 @@ router.put('/:transactionId', async (req, res) => {
       payment_method, 
       total_amount_paid, 
       products, 
-      transaction_date // Add transaction_date here
+      transaction_date,
+      reference_number
     } = req.body;
 
     // Validate payment_status input
@@ -515,6 +522,7 @@ router.put('/:transactionId', async (req, res) => {
     if (payment_method) updateFields.payment_method = payment_method; // Add payment method
     if (total_amount_paid !== undefined) updateFields.total_amount_paid = total_amount_paid; // Add total amount
     if (transaction_date) updateFields.transaction_date = transaction_date; // Add transaction_date
+    if (reference_number) updateFields.reference_number = reference_number; // Add transaction_date
 
     // Update transaction
     const updatedTransaction = await Transaction.findOneAndUpdate(
@@ -560,7 +568,7 @@ router.put('/:transactionId', async (req, res) => {
 // Update Transaction
 router.put('/:id', async (req, res) => {
   try {
-    const { products, customer, total_amount_paid_paid, source, cashier,transaction_date } = req.body;
+    const { products, customer, total_amount_paid, source, cashier,transaction_date } = req.body;
     const { id } = req.params;
 
     // Validate required fields
@@ -595,7 +603,7 @@ router.put('/:id', async (req, res) => {
       products: productItems,
       customer,
       total_price,
-      total_amount_paid_paid,
+      total_amount_paid,
       payment_status,
       cashier,
       transaction_date

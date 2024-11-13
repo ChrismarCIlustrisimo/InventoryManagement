@@ -45,7 +45,7 @@ const CartPopup = ({
                             {cartItems.map((item, index) => (
                                 <li key={index} className="flex items-center py-4 border-b">
                                     <img
-                                        src={`${baseURL}/${item.image}`}
+                                        src={item.image}
                                         alt={item.name}
                                         className="w-16 h-16 mr-4 object-cover"
                                     />

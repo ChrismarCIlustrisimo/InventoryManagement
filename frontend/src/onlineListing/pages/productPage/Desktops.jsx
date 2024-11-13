@@ -24,7 +24,9 @@ const subcategories = [
         const fetchProducts = async () => {
             try {
                 const response = await axios.get(`${baseURL}/product`);
-                const filteredData = response.data.data.filter(r => r.category === "Desktops")
+                const filteredData = response.data.data
+                .filter(product => !product.isArchived && product.isApproved) // Filter by isArchived and isApproved
+                .filter(r => r.category === "Desktops")
                 .filter(product => product.units.some(unit => unit.status === 'in_stock'));
                 setProducts(filteredData);
             } catch (error) {

@@ -53,7 +53,7 @@ const CartPage = () => {
                                                 <tr key={item._id}>
                                                     <td className="border-b p-4 flex items-center">
                                                         <img
-                                                            src={`${baseURL}/${item.image}`}
+                                                            src={item.image}
                                                             alt={item.name}
                                                             className="w-24 h-24 object-cover mr-4"
                                                         />

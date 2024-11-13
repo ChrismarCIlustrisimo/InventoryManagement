@@ -104,7 +104,7 @@ const ViewProducts = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="flex justify-center">
                         <img
-                            src={`${baseURL}/${product.image}`}
+                            src={product.image}
                             alt={product.name}
                             className="w-full max-w-md h-auto object-cover"
                         />

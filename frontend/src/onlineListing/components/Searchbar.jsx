@@ -71,7 +71,7 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
                         >
                             {product.image && (
                                 <img
-                                    src={`${baseURL}/${product.image}`}
+                                    src={product.image}
                                     alt={product.name}
                                     className="w-10 h-10 mr-2 object-cover"
                                 />

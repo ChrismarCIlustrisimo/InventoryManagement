@@ -23,7 +23,7 @@ const ProductCard = ({ product }) => {
     return (
         <div className="rounded-lg bg-white border border-gray-200 p-2 text-center hover:shadow-lg transition duration-200 w-36 h-48 md:w-48 md:h-64 flex flex-col"> {/* Responsive width and height */}
             <div className='flex items-center justify-center'>
-                <img src={`${baseURL}/${product.image}`} alt={product.name} className="w-20 h-20 md:w-24 md:h-24 object-cover" /> {/* Responsive image size */}
+                <img src={product.image} alt={product.name} className="w-20 h-20 md:w-24 md:h-24 object-cover" /> {/* Responsive image size */}
             </div>
             <div className='flex flex-col items-center justify-center flex-grow'>
                 <p className="text-orange-500 text-xs md:text-sm font-bold mb-1 text-left w-full">

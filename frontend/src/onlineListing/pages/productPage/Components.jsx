@@ -30,18 +30,26 @@ const Components = () => {
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`${baseURL}/product`);
-                const filteredData = response.data.data.filter(r => r.category === "Components")
-                .filter(product => product.units.some(unit => unit.status === 'in_stock'));
+                const response = await axios.get(`${baseURL}/product`); // Fetch all products
+    
+                // Apply local filtering: 
+                // 1. Filter out archived products
+                // 2. Ensure products are approved
+                const filteredData = response.data.data
+                    .filter(product => !product.isArchived && product.isApproved) // Filter by isArchived and isApproved
+                    .filter(r => r.category === "Components")  // Filter by category
+                    .filter(product => product.units.some(unit => unit.status === 'in_stock')); // Filter by unit status
+    
                 setProducts(filteredData);
             } catch (error) {
                 console.error('Error fetching products:', error.message);
             }
         };
-
+    
         fetchProducts();
-    }, []);
-
+    }, []); // Empty dependency array to run once on mount
+    
+    
     const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState({
         priceRange: [0, 1000000],

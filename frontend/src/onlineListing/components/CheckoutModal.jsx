@@ -286,7 +286,7 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
                         {items.map((item) => (
                             <div key={item._id} className="flex flex-col gap-2 border-b pb-4">
                                 <div className="flex items-start gap-2">
-                                    <img src={`${baseURL}/${item.image}`} alt={item.name} className="w-24 h-24 object-cover" />
+                                    <img src={item.image} alt={item.name} className="w-24 h-24 object-cover" />
                                     <p className="font-semibold">{item.name}</p>
                                 </div>
                                 <div className="flex justify-between text-sm">
@@ -319,7 +319,7 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
                             {items.map((item) => (
                                 <tr key={item._id}>
                                     <td className="p-2 border-b flex gap-2 items-center">
-                                        <img src={`${baseURL}/${item.image}`} alt={item.name} className="w-24 h-24 object-cover" />
+                                        <img src={item.image} alt={item.name} className="w-24 h-24 object-cover" />
                                         <p className="p-2">{item.name}</p>
                                     </td>
                                     <td className="p-2 border-b text-red-500 font-bold text-center">₱{item.selling_price.toLocaleString()}</td>

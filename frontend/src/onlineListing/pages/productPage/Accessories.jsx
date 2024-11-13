@@ -22,8 +22,12 @@ import { ToastContainer } from 'react-toastify';
             const fetchProducts = async () => {
                 try {
                     const response = await axios.get(`${baseURL}/product`);
-                    const filteredData = response.data.data.filter(r => r.category === "Accessories")
+                    
+                    const filteredData = response.data.data
+                    .filter(product => !product.isArchived && product.isApproved) // Filter by isArchived and isApproved
+                    .filter(r => r.category === "Accessories")
                     .filter(product => product.units.some(unit => unit.status === 'in_stock'));
+
                     setProducts(filteredData);
                 } catch (error) {
                     console.error('Error fetching products:', error.message);

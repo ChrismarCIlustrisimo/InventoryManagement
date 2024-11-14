@@ -9,18 +9,12 @@ import { uploadImageToCloudinary } from '../cloudinary.js';
 
 const router = express.Router();
 
-// Middleware to require authentication for all routes
-//router.use(requireAuth);
-
-// Define category-specific thresholds
-// Define category-specific thresholds
 const categoryThresholds = {
   'Components': { low: 5 },
   'Peripherals': { low: 3 },
   'Accessories': { low: 10 },
   'PC Furniture': { low: 10 },
   'OS & Software': { low: 5 },
-  // Add more categories as needed
 };
 
 // Multer configuration to handle file uploads in memory

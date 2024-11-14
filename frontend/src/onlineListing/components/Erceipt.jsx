@@ -42,8 +42,8 @@ const Erceipt = () => {
   
   const addOneDay = (dateString) => {
     const date = new Date(dateString);
-    date.setDate(date.getDate() + 1);
-    return date.toISOString().split('T')[0]; // Format the date as 'YYYY-MM-DD'
+    date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
+    return date.toISOString().replace('T', ' ').slice(0, 16);
 };
 
 

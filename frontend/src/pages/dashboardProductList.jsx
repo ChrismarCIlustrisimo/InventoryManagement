@@ -556,37 +556,83 @@ const filteredProducts = products
                             </span>
                           </td>
 
-                          <td className='text-center'>
-                            <button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} onClick={() => handleViewProduct(product._id)}>
-                              <GrView size={20} />
-                            </button>
-                            <button className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} onClick={() => handleEditProduct(product._id)}>
-                              <BiEdit size={20} />
-                            </button>
-                            {product.canDelete && product.sales === 0 && (
-                                <button 
-                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} 
+                          <td className="text-center">
+                              <div className="relative inline-block group">
+                                <button
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                  onClick={() => handleViewProduct(product._id)}
+                                >
+                                  <GrView size={20} />
+                                </button>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ?  'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  View
+                                </span>
+                              </div>
+
+                              <div className="relative inline-block group">
+                                <button
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                  onClick={() => handleEditProduct(product._id)}
+                                >
+                                  <BiEdit size={20} />
+                                </button>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ?  'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Edit
+                                </span>
+                              </div>
+
+                              {product.canDelete && product.sales === 0 && (
+                                <div className="relative inline-block group">
+                                  <button
+                                    className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                    onClick={() => { 
+                                      setProductId(product._id); 
+                                      setActionType('delete'); // Set the action type to delete
+                                      setIsDialogOpen(true); 
+                                    }}
+                                  >
+                                    <AiOutlineDelete size={20} />
+                                  </button>
+                                  <span
+                                    className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                      darkMode ?  'bg-gray-200 text-black' : 'bg-black text-white'
+                                    }`}
+                                  >
+                                    Delete
+                                  </span>
+                                </div>
+                              )}
+
+                              <div className="relative inline-block group">
+                                <button
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                   onClick={() => { 
                                     setProductId(product._id); 
-                                    setActionType('delete'); // Set the action type to delete
+                                    setActionType('archive'); // Set the action type to archive
                                     setIsDialogOpen(true); 
                                   }}
                                 >
-                                  <AiOutlineDelete size={20} />
+                                  <IoArchiveOutline size={20} />
                                 </button>
-                              )}
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ?  'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Archive
+                                </span>
+                              </div>
+                            </td>
 
-                              <button 
-                                className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`} 
-                                onClick={() => { 
-                                  setProductId(product._id); 
-                                  setActionType('archive'); // Set the action type to archive
-                                  setIsDialogOpen(true); 
-                                }}
-                              >
-                                <IoArchiveOutline size={20} />
-                              </button>                             
-                          </td>
+
                         </tr>
                       );
                     })}

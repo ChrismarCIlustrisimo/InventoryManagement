@@ -340,18 +340,46 @@ const RefundedOrReplaced = () => {
 
                       </td>
 
-                    <td className='p-2'>
-                      {rma.units.map((unit) => (
-                        <div key={unit.serial_number} className="flex">
-                          <button onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} className={`rounded px-2 py-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
-                            <AiOutlineCheckCircle size={30} />
-                          </button>
-                          <button onClick={() => handleDeleteUnit(rma.product_id, unit._id)} className='rounded px-2 py-1'>
-                            <AiOutlineCloseCircle size={30} />
-                          </button>
-                        </div>
-                      ))}
-                    </td>
+                      <td className='p-2'>
+                          {rma.units.map((unit) => (
+                            <div key={unit.serial_number} className="flex">
+                              {/* In Stock Button with Tooltip */}
+                              <div className="relative inline-block group">
+                                <button 
+                                  onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} 
+                                  className={`rounded px-2 py-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                >
+                                  <AiOutlineCheckCircle size={30} />
+                                </button>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Return
+                                </span>
+                              </div>
+
+                              {/* Delete Button with Tooltip */}
+                              <div className="relative inline-block group">
+                                <button 
+                                  onClick={() => handleDeleteUnit(rma.product_id, unit._id)} 
+                                  className="rounded px-2 py-1"
+                                >
+                                  <AiOutlineCloseCircle size={30} />
+                                </button>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Delete
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </td>
+
                   </tr>
                 ))}
               </tbody>

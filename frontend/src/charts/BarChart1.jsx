@@ -95,7 +95,7 @@ const BarChart1 = () => {
   }, []);
 
   const options = {
-    indexAxis: 'y', 
+    indexAxis: 'y',
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -107,6 +107,15 @@ const BarChart1 = () => {
         backgroundColor: darkMode ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)',
         titleColor: darkMode ? '#000' : '#fff',
         bodyColor: darkMode ? '#000' : '#fff',
+        callbacks: {
+          title: (tooltipItem) => {
+            return ''; // Optionally hide the title if not needed
+          },
+          label: (tooltipItem) => {
+            // Display "Unit Sales" or "Units Sold" instead of "Sales"
+            return `Units Sold: ${tooltipItem.raw}`;
+          },
+        },
       },
     },
     scales: {
@@ -118,6 +127,13 @@ const BarChart1 = () => {
           stepSize: 10, // Display ticks at every 10 units
           font: {
             size: 14,
+          },
+          callback: function(value) {
+            // Avoid showing "0 units" by skipping it
+            if (value === 0) {
+              return '';  // Empty string means no label for 0
+            }
+            return `${value} units`; // Append 'units' for values greater than 0
           },
         },
         grid: {
@@ -136,6 +152,8 @@ const BarChart1 = () => {
       },
     },
   };
+  
+  
   
   return (
     <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>

@@ -161,6 +161,11 @@ const DashboardNavbar = () => {
         >
           <PiCubeBold className='text-lg' />
           <span>Inventory</span>
+          <div className="flex gap-6 absolute top-0 right-2">
+              {lowStockCount > 0 && (
+                <LowStockBadge badgeContent={lowStockCount} color="error" />
+              )}
+            </div>
           <GoTriangleDown className={`text-lg transition-transform duration-200 ${inventoryDropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
         </button>
         {inventoryDropdownOpen && (

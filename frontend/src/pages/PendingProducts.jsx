@@ -12,8 +12,8 @@ import io from 'socket.io-client';
 import { useLocation } from 'react-router-dom';
 import { GrView } from "react-icons/gr";
 import ConfirmationDialog from '../components/ConfirmationDialog';
-import { MdApproval } from "react-icons/md";
 import { MdDelete } from "react-icons/md";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
 
 
 const PendingProducts = () => {
@@ -440,19 +440,58 @@ const handlePriceRange = (e) => {
                           <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
                           <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                          <td className='text-center'>
-                            <button onClick={() => handleViewProduct(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
-                              <GrView size={20} />
-                            </button>
-                            <button onClick={() => handleApproveClick(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
-                              <MdApproval size={25} />
-                            </button>
-                            {product.canDelete && product.sales === 0 && (
-                              <button onClick={() => handleDeleteClick(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
-                                <MdDelete size={20} />
-                              </button>
-                            )}
-                          </td>
+                          <td className="text-center">
+                              <div className="relative inline-block group">
+                                <button
+                                  onClick={() => handleViewProduct(product._id)}
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                >
+                                  <GrView size={25} />
+                                </button>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  View
+                                </span>
+                              </div>
+
+                              <div className="relative inline-block group">
+                                <button
+                                  onClick={() => handleApproveClick(product._id)}
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                >
+                                  <IoCheckmarkCircleOutline size={25} />
+                                </button>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Approve
+                                </span>
+                              </div>
+
+                              {product.canDelete && product.sales === 0 && (
+                                <div className="relative inline-block group">
+                                  <button
+                                    onClick={() => handleDeleteClick(product._id)}
+                                    className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                  >
+                                    <MdDelete size={25} />
+                                  </button>
+                                  <span
+                                    className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                      darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                    }`}
+                                  >
+                                    Delete
+                                  </span>
+                                </div>
+                              )}
+                            </td>
+
                         </tr>
                       );
                     })}

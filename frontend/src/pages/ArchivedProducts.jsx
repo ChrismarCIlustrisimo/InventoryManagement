@@ -457,22 +457,60 @@ const handlePriceRange = (e) => {
                           <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className='text-center'>
-                                <button onClick={() => handleViewProduct(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
-                                    <GrView size={25} />
+                              {/* View Button with Tooltip */}
+                              <div className="relative inline-block group">
+                                <button 
+                                  onClick={() => handleViewProduct(product._id)} 
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                >
+                                  <GrView size={25} />
                                 </button>
-                                
-                                {/* Restore Button */}
-                                <button onClick={() => handleRestoreClick(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
-                                    <LuArchiveRestore size={25} />
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  View
+                                </span>
+                              </div>
+
+                              {/* Restore Button with Tooltip */}
+                              <div className="relative inline-block group">
+                                <button 
+                                  onClick={() => handleRestoreClick(product._id)} 
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                >
+                                  <LuArchiveRestore size={25} />
                                 </button>
-                                
-                                {/* Delete Button */}
-                                {product.canDelete && product.sales === 0 && (
-                                    <button onClick={() => handleDeleteClick(product._id)} className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Restore
+                                </span>
+                              </div>
+
+                              {/* Delete Button with Tooltip */}
+                              {product.canDelete && product.sales === 0 && (
+                                <div className="relative inline-block group">
+                                  <button 
+                                    onClick={() => handleDeleteClick(product._id)} 
+                                    className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                  >
                                     <MdDelete size={30} />
-                                    </button>
-                                )}
-                          </td>
+                                  </button>
+                                  <span
+                                    className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                      darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                    }`}
+                                  >
+                                    Delete
+                                  </span>
+                                </div>
+                              )}
+                            </td>
+
 
                         </tr>
                       );

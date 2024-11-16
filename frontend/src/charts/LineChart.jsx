@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import { useAuthContext } from '../hooks/useAuthContext';
-import { useAdminTheme } from '../context/AdminThemeContext'; // Import the theme context
+import { useAdminTheme } from '../context/AdminThemeContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -20,7 +20,12 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
   const [salesData, setSalesData] = useState([]);
   const { user } = useAuthContext();
-  const { darkMode } = useAdminTheme(); 
+  const { darkMode } = useAdminTheme();
+
+  const formatDate = (date) => {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(date).toLocaleDateString('en-US', options);
+  };
 
   const fetchSalesOrders = async () => {
     try {
@@ -30,19 +35,19 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
       // Adjust date range based on selected timeframe or custom dates
       switch (selectedTimeframe) {
         case 'Last 7 Days':
-          startDate.setDate(endDate.getDate() - 7);
+          startDate.setDate(endDate.getDate() - 6); // Adjust to last 7 days
           break;
         case 'Last 30 Days':
-          startDate.setDate(endDate.getDate() - 30);
+          startDate.setDate(endDate.getDate() - 30); // Adjust to last 30 days
           break;
         case 'Last 3 Months':
-          startDate.setMonth(endDate.getMonth() - 3);
+          startDate.setMonth(endDate.getMonth() - 2); // Go back 3 months
           break;
         case 'Last 6 Months':
-          startDate.setMonth(endDate.getMonth() - 6);
+          startDate.setMonth(endDate.getMonth() - 5); // Go back 6 months
           break;
         case 'This Year':
-          startDate.setMonth(0, 1);
+          startDate.setMonth(0, 1); // Start from January 1st of the current year
           break;
         case 'Custom Range':
           if (customStart && customEnd) {
@@ -67,111 +72,106 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
       const transactions = response.data.data;
   
       // Filter for Completed, RMA, and Replaced transactions
-      const validTransactions = transactions.filter(transaction => 
+      const validTransactions = transactions.filter(transaction =>
         ['Completed', 'RMA', 'Replaced'].includes(transaction.status) &&
         transaction.payment_status === 'paid'
       );
   
-      let totalSales = 0; // Total sales from valid transactions
-  
-      // Calculate total sales from valid transactions
-      validTransactions.forEach(transaction => {
-        totalSales += transaction.total_price; // Add total price to totalSales
-      });
-  
-      // Now check for refunded transactions that have sold products
-      const refundedTransactions = transactions.filter(transaction => transaction.status === 'Refunded');
-  
-      refundedTransactions.forEach(transaction => {
-        if (transaction.products) { // Ensure transaction.products exists
-          transaction.products.forEach(product => {
-            if (product.units) { // Ensure product.units exists
-              const soldUnits = product.units.filter(unit => unit.status === 'sold');
-  
-              if (soldUnits.length > 0) {
-                const additionalSales = product.selling_price * 0.12; 
-                totalSales += additionalSales; // Add to total sales
-              }
-            }
-          });
-        }
-      });
-  
-  
       // Group data for the chart
       const groupedData = validTransactions.reduce((acc, transaction) => {
-        const date = new Date(transaction.createdAt).toISOString().split('T')[0]; 
-        if (!acc[date]) {
-          acc[date] = 0;
+        const date = new Date(transaction.createdAt);
+        let label;
+        
+        // Format label based on selected timeframe
+        if (selectedTimeframe === 'Last 7 Days' || selectedTimeframe === 'Last 30 Days') {
+          label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } else {
+          label = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         }
-        acc[date] += transaction.total_price; // Group total price for each date
+  
+        if (!acc[label]) {
+          acc[label] = 0;
+        }
+        acc[label] += transaction.total_price;
         return acc;
       }, {});
   
-      // Prepare sales data for the chart, including sales from refunded transactions
-      if (['Last 3 Months', 'Last 6 Months', 'This Year'].includes(selectedTimeframe)) {
-        const monthlyData = {};
-        const monthKey = (date) => new Date(date).toLocaleString('default', { month: 'short' });
+      const dateLabels = [];
+      const formattedData = [];
+      let currentDate = new Date(startDate);
   
-        Object.entries(groupedData).forEach(([date, value]) => {
-          const month = monthKey(date);
-          if (!monthlyData[month]) {
-            monthlyData[month] = 0;
-          }
-          monthlyData[month] += value; // Group by month
-        });
+      while (currentDate <= endDate) {
+        let dateString;
+        
+        if (selectedTimeframe === 'Last 7 Days' || selectedTimeframe === 'Last 30 Days') {
+          dateString = currentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        } else {
+          dateString = currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        }
   
-        setSalesData(Object.entries(monthlyData).map(([date, value]) => ({ date, value })));
-      } else {
-        const formattedData = Object.entries(groupedData).map(([date, value]) => ({
-          date,
-          value, // Total sales for that date
-        }));
-        setSalesData(formattedData);
+        dateLabels.push(dateString);
+  
+        const value = groupedData[dateString] || 0;
+        formattedData.push({ date: dateString, value });
+  
+        if (selectedTimeframe === 'Last 7 Days' || selectedTimeframe === 'Last 30 Days') {
+          currentDate.setDate(currentDate.getDate() + 1); // Increment by day
+        } else {
+          currentDate.setMonth(currentDate.getMonth() + 1); // Increment by month
+        }
       }
+  
+      setSalesData(formattedData);
   
     } catch (error) {
       console.error('Error fetching sales orders:', error);
     }
   };
-  
 
   useEffect(() => {
     fetchSalesOrders();
-  }, [selectedTimeframe, customStart, customEnd]); // Add customStart and customEnd as dependencies
-  
+  }, [selectedTimeframe, customStart, customEnd]);
 
-  // Chart data
   const lineChartData = {
     labels: salesData.map(item => item.date),
     datasets: [
       {
         label: 'Sales Data',
         data: salesData.map(item => item.value),
-        borderColor: '#E84C19', // Change color based on dark mode
+        borderColor: '#E84C19',
         backgroundColor: 'rgba(232, 76, 25, 0.1)',
         fill: true,
         tension: 0,
         pointRadius: 5,
-        pointBackgroundColor:  '#E84C19', // Point color for dark mode
+        pointBackgroundColor: '#E84C19',
         pointBorderColor: '#fff',
       },
     ],
   };
 
-  // Chart options
+  const getMaxYValue = () => {
+    // For "Last 7 Days" and "Last 30 Days", set max Y value to 400k
+    if (selectedTimeframe === 'Last 7 Days' || selectedTimeframe === 'Last 30 Days') {
+      return 400000;
+    }
+
+    // For other timeframes, calculate the max dynamically based on data
+    const maxValue = Math.max(...salesData.map(item => item.value));
+    return Math.max(maxValue, 800000); // Default to 800k if the max value is lower than 800k
+  };
+
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        display: false, // Hide legend
+        display: false,
       },
       tooltip: {
         enabled: true,
-        backgroundColor: darkMode ? '#fff' : '#333'  , // Tooltip background in dark mode
-        titleColor: darkMode ? '#000' : '#fff', // Tooltip title color
-        bodyColor: darkMode ? '#000' : '#fff', // Tooltip body text color
+        backgroundColor: darkMode ? '#fff' : '#333',
+        titleColor: darkMode ? '#000' : '#fff',
+        bodyColor: darkMode ? '#000' : '#fff',
       },
       title: {
         display: false,
@@ -180,23 +180,23 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
     scales: {
       x: {
         ticks: {
-          color: darkMode ? '#000' : '#fff', // Axis label color in dark mode
+          color: darkMode ? '#000' : '#fff',
         },
         grid: {
-          color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)' , // Grid lines color for dark mode
+          color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
         },
       },
       y: {
         ticks: {
           color: darkMode ? '#000' : '#fff',
-          callback: (value) => `₱ ${value / 1000}K`, // Format as currency
+          callback: (value) => `₱ ${value / 1000}K`,
         },
         grid: {
-          color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)' , // Grid lines color for dark mode
+          color: darkMode ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)',
         },
         beginAtZero: true,
         min: 0,
-        max: 400000,
+        max: getMaxYValue(), // Dynamically set max value
       },
     },
   };

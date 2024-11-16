@@ -19,7 +19,7 @@ const AdminDashboard = () => {
   const { darkMode } = useAdminTheme();
   const { user } = useAuthContext();
   const baseURL = "http://localhost:5555";
-  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 30 Days');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 7 Days');
   const [transactionCount, setTransactionCount] = useState([]);
   const [totalPaidPrice, setTotalPaidPrice] = useState(0);
   const [changeSalesPercent, setChangeSalesPercent] = useState(0);  
@@ -233,10 +233,10 @@ const AdminDashboard = () => {
   
       const lastMonthSales = previousMonthTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
       const changePercent = lastMonthSales === 0 ? 100 : ((currentMonthSales - lastMonthSales) / lastMonthSales) * 100;
-      setChangeSalesPercent(parseFloat(changePercent.toFixed(2)));
+      setChangeSalesPercent(parseFloat(changePercent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
   
       const transactionChangePercent = previousMonthTransactions.length === 0 ? 100 : ((currentMonthTransactionCount - previousMonthTransactions.length) / previousMonthTransactions.length) * 100;
-      setTransactionChangePercent(parseFloat(transactionChangePercent.toFixed(2)));
+      setTransactionChangePercent(parseFloat(transactionChangePercent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
   
     } catch (error) {
       console.error('Error fetching sales orders:', error);
@@ -340,11 +340,11 @@ const AdminDashboard = () => {
 
         <StatsCard 
           title={'Refund / Return Rate'}
-          value={percentageChange.toFixed(2)}
+          value={percentageChange.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           bgColor={`bg-[#14AE5C]`}  // Additional custom styles
           percenText={'from last month'}
           showPercent={false}
-          percent={Math.abs(percentageChange).toFixed(2)} // Display the absolute value for percent, fixed to 2 decimal places
+          percent={Math.abs(percentageChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} // Display the absolute value for percent, fixed to 2 decimal places
           width="w-[22.5%]"
         />
         </div>
@@ -384,7 +384,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                    <div className={`w-[40%] h-full px-12 py-6 border border-gray-200 rounded-lg shadow-lg  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+                  <div className={`w-[40%] h-full px-12 py-6 border border-gray-200 rounded-lg shadow-lg  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
                         <div className="w-full h-[10%] flex items-center justify-between">
                           <h2 className="text-center text-lg font-semibold text-orange-600">Sales by Category</h2>
                         </div>

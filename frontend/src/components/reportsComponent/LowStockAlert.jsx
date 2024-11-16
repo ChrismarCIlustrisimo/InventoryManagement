@@ -14,13 +14,12 @@ const LowStockAlert = ({ inventoryData }) => {
         <div className='border-b-2 border-black w-full pb-12'>
             <div className='flex flex-col w-[70%] mt-4'>
                 <p className='text-2xl font-bold py-2'>Low Stock Alert</p>
-                <table className={`min-w-full table-auto mt-4 text-xs`}>
-                    <thead>
+                <table className={`min-w-full table-auto mt-4 text-xs `}>
+                    <thead className={`sticky top-[-15px] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
                         <tr className='border-b'>
                             <th className='text-left p-2' style={{ width: '60%' }}>Name</th>
                             <th className='text-center p-2' style={{ width: '20%' }}>Current Stock</th>
                             <th className='text-center p-2' style={{ width: '20%' }}>Status</th>
-
                         </tr>
                     </thead>
                     <tbody>

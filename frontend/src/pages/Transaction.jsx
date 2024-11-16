@@ -28,6 +28,17 @@ const Transaction = () => {
     setPaymentMethod(e.target.value);
 };
 
+useEffect(() => {
+  if (paymentMethod !== 'Cash' && paymentMethod !== '') {
+    // Only set the payment amount if the method is valid (non-Cash)
+    setPaymentAmount((transaction.vat + transaction.total_price) - discountValue);
+  } else {
+    // If payment method is 'Cash', leave the payment amount unchanged or reset it
+    setPaymentAmount(0);  // or set it to any default value you'd prefer
+  }
+}, [paymentMethod, discountValue, total_price]);
+
+
 
   // Function to format numbers as currency
 const formatNumber = (num) => {
@@ -103,38 +114,58 @@ const handlePayment = () => {
 
 const processPayment = async () => { 
   if (!paymentMethod) {
-    toast.error('Please select a payment method.'); // Show error message
-    return; // Exit the function early
+    toast.error('Please select a payment method.');
+    return; 
   }
 
-
   try {
+    // Update the transaction with payment details
     await axios.put(`${baseURL}/transaction/${id}`, {
-      payment_status: 'paid', // Set payment status to 'paid'
-      cashier: user.name, // Set the cashier's name
-      discount: discountValue, // Include discount value
-      status: 'Completed', // Set status to 'Completed'
-      payment_method: paymentMethod, // Include payment method
-      total_amount_paid: paymentAmount, // Include the amount paid
-      products: transaction.products, // Include the products array for updating units
+      payment_status: 'paid', 
+      cashier: user.name, 
+      discount: discountValue, 
+      status: 'Completed', 
+      payment_method: paymentMethod, 
+      total_amount_paid: paymentAmount, 
+      products: transaction.products, 
       transaction_date: new Date().toISOString(),
       reference_number: referenceNumber,
     }, {
       headers: {
-        Authorization: `Bearer ${user.token}`, // Include authorization token
+        Authorization: `Bearer ${user.token}`,
       },
     });
 
+    // Fetch the updated transaction
+    const response = await axios.get(`${baseURL}/transaction/${id}`, {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    });
+
+    const updatedTransaction = response.data;
+    console.log(updatedTransaction)
     toast.success('Payment processed successfully.');
-    
+
     setTimeout(() => {
-      navigate('/orders'); // Redirect to orders after processing
+      navigate('/resercation-receipt', { 
+        state: {
+          transaction: updatedTransaction,
+          transactionId: updatedTransaction.transaction_id,
+          totalVAT: updatedTransaction.vat,
+          discount: updatedTransaction.discount,
+          customer: updatedTransaction.customer,
+          products: updatedTransaction.products,
+        }
+      }); 
     }, 2000);
+    
   } catch (error) {
     console.error('Error processing payment:', error);
-    toast.error('Failed to process payment. Please try again.'); // Show error message
+    toast.error('Failed to process payment. Please try again.');
   }
 };
+
 
 
 
@@ -278,15 +309,15 @@ const processPayment = async () => {
                       <div className='flex flex-col w-full justify-between items-center gap-2'>
                         <div className='w-full flex items-center py-2'>
                           <p className='w-[50%]'>Discount</p>
-                          <div className='w-[50%]'>
-                          <input
-                              type="number"
-                              value={discountValue === 0 ? '' : discountValue}
-                              onChange={(e) => setDiscountValue(Number(e.target.value))}
-                              placeholder="₱ 0"
-                              className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
-                          />
-                          </div>
+                              <div className='w-[50%]'>
+                                <input
+                                    type="number"
+                                    value={discountValue === 0 ? '' : discountValue}
+                                    onChange={(e) => setDiscountValue(Number(e.target.value))}
+                                    placeholder="₱ 0"
+                                    className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                                  />
+                              </div>
                         </div>
 
                         <div className='w-full flex items-center'>
@@ -301,7 +332,7 @@ const processPayment = async () => {
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Total Amount</p>
-                          <p className='w-[50%]'>₱ {((transaction.vat + transaction.total_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</p>
+                          <p className='w-[50%]'>₱ {(((transaction.vat + transaction.total_price) - discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</p>
                         </div>
                       </div>
 
@@ -349,16 +380,16 @@ const processPayment = async () => {
 
 
 
-                            <div className='w-full flex items-center'>
-                              <p className='w-[50%]'>Payment Received</p>
-                              <input
-                                type="text"
-                                value={paymentMethod !== 'Cash' && paymentMethod !== '' ? formatNumber(totalAmountAuto) : paymentAmount || 0}
-                                onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
-                                placeholder="₱ 0"
-                                className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
-                              />
-                            </div>
+                              <div className='w-full flex items-center'>
+                                <p className='w-[50%]'>Payment Received</p>
+                                <input
+                                  type="text"
+                                  value={formatNumber(paymentAmount)}
+                                  onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
+                                  placeholder="₱ 0"
+                                  className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                                />
+                              </div>
 
 
 

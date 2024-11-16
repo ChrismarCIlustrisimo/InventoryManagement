@@ -17,8 +17,8 @@
             <div className='flex flex-col w-full '>
                 <p className='text-2xl font-bold py-2'>Sales Breakdown</p>
                 <table className={`min-w-full table-auto  text-xs`}>
-                    <thead>
-                        <tr className='border-b'>
+                <thead className={`sticky top-[-10px] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      <tr className='border-b'>
                             <th className='text-center p-2'>Transaction ID</th>
                             <th className='text-center p-2'>Sales Date</th>
                             <th className='text-center p-2'>Customer Name</th>

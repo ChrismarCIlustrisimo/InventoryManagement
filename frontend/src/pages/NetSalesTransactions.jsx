@@ -49,7 +49,7 @@ const NetSalesTransactions = () => {
                 <td>{transaction.transaction_id}</td>
                 <td>{new Date(transaction.transaction_date).toLocaleDateString()}</td>
                 <td>{transaction.customer ? transaction.customer.name : "None"}</td>
-                <td>₱ {transaction.total_price.toFixed(2)}</td>
+                <td>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
               </tr>
             ))}
           </tbody>

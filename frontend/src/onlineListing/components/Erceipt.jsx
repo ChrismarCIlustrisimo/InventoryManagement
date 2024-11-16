@@ -1,9 +1,10 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import React, { useRef, useS } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import LOGO from '../assets/iRig2.png'
+import { toast, ToastContainer } from 'react-toastify';
 
 
 
@@ -21,30 +22,29 @@ const Erceipt = () => {
     phone,
     fullAddress,
   } = location.state || {};
-  const baseURL = "http://localhost:5555";
 
-  const formatDate = (dateString) => {
-    const options = {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-    };
-
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', options);
-  };
-
-
-
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const month = d.toLocaleString('en-US', { month: 'short' }); // e.g., "Nov"
+    const day = d.getDate(); // Day of the month
+    const year = d.getFullYear(); // Full year
+    const hours = d.getHours() % 12 || 12; // Convert to 12-hour format
+    const minutes = d.getMinutes().toString().padStart(2, '0'); // Ensure two digits
+    const ampm = d.getHours() >= 12 ? 'PM' : 'AM'; // AM/PM suffix
   
-  const addOneDay = (dateString) => {
-    const date = new Date(dateString);
-    date.setTime(date.getTime() + 24 * 60 * 60 * 1000);
-    return date.toISOString().replace('T', ' ').slice(0, 16);
-};
+    // Add a comma after the day
+    return `${month} ${day}, ${year} ${hours}:${minutes} ${ampm}`;
+  };
+  
+  // Function to add one day to a date
+  const addOneDay = (date) => {
+    const newDate = new Date(date);
+    newDate.setDate(newDate.getDate() + 1);
+    return newDate;
+  };
+  
+  
+
 
 
   const downloadPDF = () => {
@@ -91,8 +91,21 @@ const Erceipt = () => {
   };
 
 
-  if (!transaction) return <p>Loading...</p>;
+  useEffect(() => {
+    if (transaction) {
+      toast.success('Reservation created successfully!', {
+        position: 'bottom-right',
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    }
+  }, [transaction]);
 
+  if (!transaction) return <p>Loading...</p>;
   return (
     <div className="w-full h-full flex flex-col p-4 md:p-8 md:pt-4">
       <div ref={receiptRef} className="max-w-xl w-full mx-auto bg-white p-6 rounded-lg shadow-lg text-gray-800">
@@ -139,7 +152,7 @@ const Erceipt = () => {
           ))}
           <div className="flex flex-row justify-between mt-2 pt-2"> 
             <span className="text-sm">TOTAL PRICE</span>
-            <span className="font-bold text-xl">₱ {(total + totalVat).toFixed(2)}</span> 
+            <span className="font-bold text-xl">₱ {(total + totalVat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> 
           </div>
         </section>
 
@@ -195,7 +208,7 @@ const Erceipt = () => {
             onClick={downloadPDF}
             className="border border-b  border-blue-500 text-blue-500 bg-transparent w-full py-2 rounded-lg transform transition-transform duration-200 hover:scale-105"
           >
-            Download Erceipt
+            Download E-Receipt
           </button>
           <button
             onClick={handleDone}
@@ -205,6 +218,7 @@ const Erceipt = () => {
           </button>
         </div>
       </footer>
+      <ToastContainer />
 
     </div>
   );

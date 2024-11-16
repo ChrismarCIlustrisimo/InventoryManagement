@@ -245,7 +245,7 @@ const filteredProducts = products
 
   
   const handleLowReports = () => {
-    navigate(`/admin-inventory-report`);
+    navigate(`/admin-sales-report`);
   };
 
   return (

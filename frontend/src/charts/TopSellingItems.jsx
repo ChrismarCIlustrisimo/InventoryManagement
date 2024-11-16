@@ -26,7 +26,7 @@ const TopSellingItems = ({topSellingItems}) => {
                   <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{index + 1}</td>
                   <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{item.name}</td>
                   <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{item.sales}</td>
-                  <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{`₱ ${item.sales * item.selling_price}`}</td>
+                  <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{`₱ ${(item.sales * item.selling_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</td>
                 </tr>
               ))}
             </tbody>

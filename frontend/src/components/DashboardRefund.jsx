@@ -81,9 +81,9 @@ const DashboardRefund = ({
                                                     />
                                                     <p className='text-sm'>{item.product.name || 'Unknown'}</p>
                                                 </td>
-                                                <td className="p-2 text-xs">₱ {unitPrice.toFixed(2)}</td>
+                                                <td className="p-2 text-xs">₱ {unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                                 <td className="p-2 text-xs">{quantity}</td>
-                                                <td className="p-2 text-xs">₱ {totalPrice.toFixed(2)}</td>
+                                                <td className="p-2 text-xs">₱ {totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                                 {showRefundControls && (
                                                     <td className="p-2 text-center">
                                                         <div className="custom-checkbox">
@@ -111,7 +111,7 @@ const DashboardRefund = ({
                         <div className='flex items-center justify-end w-full px-4 py-6 text-md'>
                             <div className={`flex items-center justify-between w-[30%] ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`}>
                                 <p>TOTAL</p>
-                                <p>₱ {total_price.toFixed(2)}</p> {/* Make total text black */}
+                                <p>₱ {total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p> {/* Make total text black */}
                             </div>
                         </div>
                         {showRefundControls ? (

@@ -52,7 +52,7 @@ const CartPopup = ({
                                     <div className="flex-1">
                                         <p className="font-semibold">{item.name}</p>
                                         <p className="text-orange-500 font-bold">
-                                            ₱{(item.selling_price * item.quantity).toFixed(2)}
+                                            ₱{(item.selling_price * item.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                         </p>
                                     </div>
                                     <td className="border-b p-4 text-center">
@@ -85,7 +85,7 @@ const CartPopup = ({
                     {cartItems.length > 0 && (
                         <div className="mt-4 flex justify-between items-center font-semibold text-lg">
                             <span>Total</span>
-                            <span className="text-orange-500">₱{totalPrice.toFixed(2)}</span>
+                            <span className="text-orange-500">₱{totalPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         </div>
                     )}
                     <div className="mt-4 flex justify-start items-center gap-4">

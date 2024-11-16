@@ -92,7 +92,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
     };
 
     const handleGenerateRMAForm = () => {
-        navigate('/RMAForm', { state: { rma } });
+        navigate('/rma-form', { state: { rma } });
     };
 
 

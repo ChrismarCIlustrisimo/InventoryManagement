@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const baseURL = 'http://localhost:5555';
 
-const Receipt = () => {
+const ReservationReceipt = () => {
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const componentRef = useRef();
@@ -18,8 +18,8 @@ const Receipt = () => {
   const transactionId = state.transactionId;
   const totalVAT = state.totalVAT;
   const discount = state.discount;
+  const products = state.products;  // Sample data for products
   const [customer, setCustomer] = useState(null);
-  const [products, setProducts] = useState([]);
 
     // Trigger success toast on successful transaction
     useEffect(() => {
@@ -28,50 +28,39 @@ const Receipt = () => {
 
 
   const handleBackClick = () => {
-    navigate(-1);
+    navigate('/orders');
   };
 
   const fetchCustomer = async () => {
     try {
-      const response = await axios.get(`${baseURL}/customer/${transaction.customer}`);
+      const response = await axios.get(`${baseURL}/customer/${transaction.customer._id}`);
       setCustomer(response.data);
     } catch (error) {
       console.error('Error fetching customer:', error);
     }
   };
 
-  const fetchProducts = async () => {
-    try {
-      const response = await axios.get(`${baseURL}/product`);
-      const fetchedProducts = response.data.data;
-
-      const matchedProducts = transaction.products.map(tranProduct => {
-        const matchedProduct = fetchedProducts.find(product => product._id === tranProduct.product);
-        return {
-          ...matchedProduct,
-          quantity: tranProduct.quantity,
-          serial_numbers: tranProduct.serial_numbers,
-        };
-      }).filter(Boolean);
-
-      setProducts(matchedProducts);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    }
+  useEffect(() => {
+    fetchCustomer();
+  }, [transaction.customer._id]);
+  // Calculate Subtotal: Sum of all product amounts (price * quantity)
+  const calculateSubtotal = () => {
+    return products.reduce((acc, product) => {
+      return acc + (product.selling_price * product.quantity || 0);
+    }, 0);
   };
 
-  
+  const subtotal = calculateSubtotal();
 
-  useEffect(() => {
-    fetchProducts();
-    fetchCustomer();
-  }, [transaction.customer]);
-
-  // Calculate the tax amount (12%)
+  // Calculate VAT (12%)
   const taxRate = 0.12; // 12%
-  const totalPrice = transaction.total_price; 
-  const taxAmount = totalPrice * taxRate;
-  const totalWithTax = totalPrice + taxAmount;
+  const vatAmount = subtotal * taxRate;
+
+  // Apply discount to subtotal
+  const discountedSubtotal = subtotal - discount;
+
+  // Calculate Total Amount (Subtotal + VAT - Discount)
+  const totalAmount = discountedSubtotal + vatAmount;
 
   return (
     <div className={`w-full flex items-center justify-center flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
@@ -86,7 +75,7 @@ const Receipt = () => {
           <ReactToPrint
             trigger={() => (
               <button className={`py-2 px-4 rounded-md ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'bg-light-primary text-dark-textPrimary'}`}>
-                Print Receipt
+                Print ReservationReceipt
               </button>
             )}
             content={() => componentRef.current}
@@ -164,39 +153,34 @@ const Receipt = () => {
                 </tr>
               </thead>
               <tbody>
-                {products.length > 0 ? products.map((product, index) => {
-                  const amount = product.selling_price * (product.quantity || 0); // Calculate amount
-                  const tranProduct = transaction.products.find(tranProduct => tranProduct.product === product._id);
-                  let serialNumbers = '';
-                  if (tranProduct) {
-                    const matchingUnits = product.units.filter(unit => tranProduct.serial_number.includes(unit._id));
-                    serialNumbers = matchingUnits.map(unit => unit.serial_number).join(', ');
-                  }
-                  return (
-                    <tr key={product._id} className={`border-b-2 border-black ${index % 2 === 0 ? (darkMode ? 'bg-dark-row' : 'bg-light-row') : (darkMode ? 'bg-light-row' : 'bg-dark-row')}`}>
-                      <td className='p-2 flex flex-col gap-2 text-left'>
-                        <p>{product.name || ''}</p>
-                        <p>{serialNumbers || ''}</p>
-                      </td>
-                      <td className='p-2 text-center'>₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
-                      <td className='p-2 text-center'>{product.quantity || ''}</td>
-                      <td className='p-2 text-center'>₱ {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
-                    </tr>
-                  );
+              {products && products.length > 0 ? products.map((product, index) => {
+                    const amount = (product.product.selling_price || 0) * (product.quantity || 0);
+                    let serialNumbers = product.serial_number.join(', ');
+                    return (
+                        <tr key={product._id} className={`border-b-2 border-black ${index % 2 === 0 ? (darkMode ? 'bg-dark-row' : 'bg-light-row') : (darkMode ? 'bg-light-row' : 'bg-dark-row')}`}>
+                            <td className='p-2 flex flex-col gap-2 text-left'>
+                                <p>{product.product_name || ''}</p>
+                                <p>{serialNumbers || ''}</p>
+                            </td>
+                            <td className='p-2 text-center'>₱ {product.product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
+                            <td className='p-2 text-center'>{product.quantity || ''}</td>
+                            <td className='p-2 text-center'>₱ {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
+                        </tr>
+                    );
                 }) : (
-                  <tr>
-                    <td colSpan={4} className='border p-2 text-center'>No products found for this transaction.</td>
-                  </tr>
+                    <tr>
+                        <td colSpan={4} className='border p-2 text-center'>No products found for this transaction.</td>
+                    </tr>
                 )}
-              </tbody>
+                </tbody>
             </table>
-          </div>      
+          </div>
 
           <div className='w-full flex items-center justify-end'>
             <div className='w-[40%] h-[120px]'>
               <div className='flex justify-between py-2'>
                 <span>Subtotal</span>
-                <span>₱ {((transaction.total_price + discount) - totalVAT).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</span>
+                <span>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</span>
               </div>
               <div className='flex justify-between py-2'>
                 <span>VAT (12%)</span>
@@ -204,11 +188,11 @@ const Receipt = () => {
               </div>
               <div className='flex justify-between py-2'>
                 <span>Discount</span>
-                <span>₱ {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</span>
+                <span>₱ {discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</span>
                 </div>
               <div className='flex justify-between border-t-2 border-black py-4 font-semibold'>
                 <span>Total Amount</span>
-                <span>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</span>
+                <span>₱ {((transaction.total_price - discount) + totalVAT).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</span>
               </div>
             </div>
           </div>
@@ -230,17 +214,13 @@ const Receipt = () => {
                     ) : ''}
                 </div>
             </div>
-        </div>
-
-
-          <div className='flex items-center justify-start py-6 text-sm'>
-            <p>Thank you for your purchase!</p>
           </div>
         </div>
       </div>
       <ToastContainer />
+
     </div>
   );
 };
 
-export default Receipt;
+export default ReservationReceipt;

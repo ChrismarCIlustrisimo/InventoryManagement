@@ -246,7 +246,7 @@ const calculateTotalVAT = () => {
 
   // Function to format numbers as currency
 const formatNumber = (num) => {
-  return num.toLocaleString();
+  return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
 
@@ -372,17 +372,17 @@ useEffect(() => {
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>Subtotal</p>
-                  <p className='w-[50%]'>₱ {totalAmount.toLocaleString()}</p>
+                  <p className='w-[50%]'>₱ {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>VAT</p>
-                  <p className='w-[50%]'>₱ {totalVAT.toLocaleString()}</p>
+                  <p className='w-[50%]'>₱ {totalVAT.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
                 <div className='w-full flex items-center'>
                   <p className='w-[50%]'>Total Amount</p>
-                  <p className='w-[50%]'>₱ {formatNumber(totalVAT + totalAmount - discountValue)}</p>
+                  <p className='w-[50%]'>₱ {formatNumber(totalVAT + totalAmount - discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
               </div>
@@ -441,12 +441,12 @@ useEffect(() => {
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>Discount</p>
-                  <p className='w-[50%]'>{discountValue.toLocaleString()}</p>
+                  <p className='w-[50%]'>{discountValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>Change</p>
-                  <p className='w-[50%]'>{change < 0 ? '₱ 0.00' : change.toLocaleString()}</p>
+                  <p className='w-[50%]'>{change < 0 ? '₱ 0.00' : change.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
               </div>
               </div>

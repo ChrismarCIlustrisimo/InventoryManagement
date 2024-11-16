@@ -9,21 +9,17 @@ const StatsCard = ({
   changePercent, 
   className = '', 
   percenText = '', 
-  width = 'w-72', // default width if not passed
-  bgColor = 'bg-white', // default background color if not passed
-  showPercent = true, // control to display percentage
-  currency = false, // control to display currency symbol
-  warning = false, // control to display warning component
+  width = 'w-72', 
+  bgColor = 'bg-white', 
+  showPercent = true, 
+  currency = false, 
+  warning = false, 
   percent = false,
   onClick, 
+  valueStyle = 'text-6xl' // Add default class for text size
 }) => {
-  // Set the color for increase or decrease
   const changeColor = changeType === 'increase' ? 'text-green-400' : 'text-red-400';
-
-  // Map background colors to text colors
   const textColor = bgColor === 'bg-white' ? 'text-black' : 'text-white';
-
-  // Conditionally apply the cursor-pointer class if onClick is provided
   const cursorStyle = onClick ? 'cursor-pointer' : '';
 
   return (
@@ -34,7 +30,7 @@ const StatsCard = ({
     >
       <h3 className={`text-lg font-normal ${textColor}`}>{title}</h3>
       <div className={`mt-2 ${textColor}`}>
-        <span className={`text-6xl font-medium ${warning ? `flex gap-2 items-center justify-center`: ``} ${percent ? `flex gap-2 items-center justify-center`: ``}`}>
+        <span className={`font-medium ${valueStyle} ${warning ? `flex gap-2 items-center justify-center`: ``} ${percent ? `flex gap-2 items-center justify-center`: ``}`}>
           {currency ? `₱` : ''}
           {value}
           {warning ? <AiOutlineAlert size={46}/> : ''}
@@ -42,21 +38,22 @@ const StatsCard = ({
         </span>
       </div>
       <div className='mt-2'>
-        {showPercent ? ( // Show percentage only if showPercent is true
+        {showPercent ? ( 
           <div className="flex items-center text-sm">
             {changeType === 'increase' ? (
               <span className={`text-${textColor}`}><AiOutlineArrowUp /></span>
             ) : (
-              <span className={`text-${textColor}`}><AiOutlineArrowDown /></span> // Use down arrow for decrease
+              <span className={`text-${textColor}`}><AiOutlineArrowDown /></span> 
             )}
             <span className="ml-1">{changePercent}% {changeType === 'increase' ? 'increase' : 'decrease'} {percenText}</span>
           </div>
         ) : (
-          <p className={`text-${textColor} invisible`}>Make this hidden</p> // Invisible text with same color as bgColor
+          <p className={`text-${textColor} invisible`}>Make this hidden</p> 
         )}
       </div>
     </div>
   );
 };
+
 
 export default StatsCard;

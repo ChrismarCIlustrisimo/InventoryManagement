@@ -19,7 +19,7 @@ const AdminHome = () => {
   const { darkMode } = useAdminTheme();
   const { user } = useAuthContext();
   const baseURL = "http://localhost:5555";
-  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 30 Days');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('Last 7 Days');
   const [transactionCount, setTransactionCount] = useState([]);
   const [totalPaidPrice, setTotalPaidPrice] = useState(0);
   const [changeSalesPercent, setChangeSalesPercent] = useState(0);  
@@ -236,10 +236,10 @@ const AdminHome = () => {
   
       const lastMonthSales = previousMonthTransactions.reduce((total, transaction) => total + (transaction?.total_price || 0), 0);
       const changePercent = lastMonthSales === 0 ? 100 : ((currentMonthSales - lastMonthSales) / lastMonthSales) * 100;
-      setChangeSalesPercent(parseFloat(changePercent.toFixed(2)));
+      setChangeSalesPercent(parseFloat(changePercent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
   
       const transactionChangePercent = previousMonthTransactions.length === 0 ? 100 : ((currentMonthTransactionCount - previousMonthTransactions.length) / previousMonthTransactions.length) * 100;
-      setTransactionChangePercent(parseFloat(transactionChangePercent.toFixed(2)));
+      setTransactionChangePercent(parseFloat(transactionChangePercent.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })));
   
     } catch (error) {
       console.error('Error fetching sales orders:', error);
@@ -310,16 +310,19 @@ const AdminHome = () => {
         <div className='w-full h-[20%] max-h-[180px]  flex items-center gap-4'>
 
         <StatsCard
-            title={'Monthly Total Sales'}
-            value={totalPaidPrice.toLocaleString('en-US', { style: 'currency', currency: 'PHP', minimumFractionDigits: 0, maximumFractionDigits: 0 })} // Format without decimal places
-            changeType={changeSalesPercent >= 0 ? 'increase' : 'decrease'}  // Set the type based on percent change
-            changePercent={Math.abs(changeSalesPercent)}  // Show the absolute value of the percent change
-            bgColor={`bg-[#14AE5C]`}  // Additional custom styles
-            percenText={'from last month'}
-            width="w-[30%]"
-            onClick={handleGoSalesReport}  // Pass the function here
-
+          title={'Monthly Total Sales'}
+          value={totalPaidPrice.toLocaleString('en-US', { style: 'currency', currency: 'PHP', minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          changeType={changeSalesPercent >= 0 ? 'increase' : 'decrease'}  // Set the type based on percent change
+          changePercent={Math.abs(changeSalesPercent)}  // Show the absolute value of the percent change
+          bgColor={`bg-[#14AE5C]`}  // Additional custom styles
+          percenText={'from last month'}
+          width="w-[30%]"
+          onClick={handleGoSalesReport}  // Pass the function here
+          valueStyle={totalPaidPrice >= 1000000 ? 'text-5xl' : 'text-6xl'}  // Dynamically change text size based on value length
         />
+
+
+
             <StatsCard
                 title={'Monthly Total Transactions'}
                 value={transactionCount}
@@ -329,7 +332,7 @@ const AdminHome = () => {
                 percenText={'from last month'}
                 width="w-[25%]"
                 onClick={handleGoSales}  // Pass the function here
-            />s
+            />
 
 
           <StatsCard
@@ -346,11 +349,11 @@ const AdminHome = () => {
 
         <StatsCard 
           title={'Refund / Return Rate'}
-          value={percentageChange.toFixed(2)}
+          value={percentageChange.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           bgColor={`bg-[#14AE5C]`}  // Additional custom styles
           percenText={'from last month'}
           showPercent={false}
-          percent={Math.abs(percentageChange).toFixed(2)} // Display the absolute value for percent, fixed to 2 decimal places
+          percent={Math.abs(percentageChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} // Display the absolute value for percent, fixed to 2 decimal places
           width="w-[22.5%]"
           onClick={handleGoRefund}
         />

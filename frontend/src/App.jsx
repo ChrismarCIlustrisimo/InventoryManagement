@@ -73,6 +73,8 @@ import AdminAddProduct from './pages/AdminAddProduct.jsx';
 import PendingProducts from './pages/PendingProducts.jsx';
 import ArchivedProducts from './pages/ArchivedProducts.jsx';
 import AdminViewProduct from './pages/AdminViewProduct.jsx';
+import ReservationReceipt from './pages/ReservationReceipt.jsx';
+
 
 const App = () => {
     const { user } = useAuthContext();
@@ -121,6 +123,7 @@ const App = () => {
                                         <Route path="/transaction" element={<PrivateRoute allowedRoles={['cashier']}><Transaction /></PrivateRoute>} />
                                         <Route path="/orders" element={<PrivateRoute allowedRoles={['cashier']}><SalesOrder /></PrivateRoute>} />
                                         <Route path="/receipt" element={<PrivateRoute allowedRoles={['cashier']}><Receipt /></PrivateRoute>} />
+                                        <Route path="/resercation-receipt" element={<PrivateRoute allowedRoles={['cashier']}><ReservationReceipt /></PrivateRoute>} />
                                         <Route path="/refund" element={<PrivateRoute allowedRoles={['cashier']}><Refund /></PrivateRoute>} />
                                         <Route path="/cashier-rma" element={<PrivateRoute allowedRoles={['cashier']}><CashierRMA /></PrivateRoute>} />
                                         <Route path="/cashier-sales-report" element={<PrivateRoute allowedRoles={['cashier']}><CashierSalesReport /></PrivateRoute>} />

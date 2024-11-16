@@ -1,6 +1,8 @@
 import React from 'react';
+import { useAdminTheme } from '../../context/AdminThemeContext';
 
 const RmaDetail = ({ filteredRMA }) => {
+  const { darkMode } = useAdminTheme();
 
     const formatDate = (date) => {
         const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -12,8 +14,8 @@ const RmaDetail = ({ filteredRMA }) => {
       <div className='flex flex-col w-full'>
         <p className='text-2xl font-bold py-2'>Sales Breakdown</p>
         <table className={`min-w-full table-auto text-xs`}>
-          <thead>
-            <tr className='border-b'>
+        <thead className={`sticky top-[-15px] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+         <tr className='border-b'>
               <th className='text-center p-2'>RMA ID</th>
               <th className='text-center p-2'>Customer Name</th>
               <th className='text-center p-2'>Product Name</th>

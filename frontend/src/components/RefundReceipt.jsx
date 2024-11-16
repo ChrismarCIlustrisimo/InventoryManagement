@@ -80,7 +80,7 @@ const RefundReceipt = ({ onClose, refundData, rma }) => {
         </div>
 
         {/* Transaction Details */}
-        <div className={`w-full h-[90%] flex items-center justify-center overflow-y-auto ${darkMode ? 'text-light-textPrimary border-light-border bg-light-container' : 'text-light-textPrimary border-light-border border-gray-600 bg-dark-container'}`}>
+        <div className={`w-full h-[90%] flex items-center justify-center overflow-y-auto ${darkMode ? 'text-light-textPrimary border-light-border bg-light-container' : 'text-light-textPrimary border-gray-600 bg-dark-container'}`}>
           <div className={`w-full h-full items-center flex flex-col justify-start p-4 rounded-md`}>
             <div ref={componentRef} className={`flex flex-col w-full h-full justify-start gap-4 rounded-lg px-6`}>
               {/* Company Information */}
@@ -139,7 +139,7 @@ const RefundReceipt = ({ onClose, refundData, rma }) => {
                   </div>
                   <div className='flex w-[60%]'>
                     <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Amount:</p>
-                    <p className='print-value font-semibold text-start w-[60%]'>₱ {refundData?.refund_amount}</p>
+                    <p className='print-value font-semibold text-start w-[60%]'>₱ {refundData?.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                   <div className='flex w-[60%]'>
                     <p className={`print-label font-bold w-[20%] ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Method:</p>

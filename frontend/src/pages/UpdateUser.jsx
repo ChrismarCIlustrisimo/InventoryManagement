@@ -3,7 +3,8 @@ import axios from 'axios';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
-
+import { ToastContainer, toast } from 'react-toastify'; // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
 const UpdateUser = () => {
     const { darkMode } = useAdminTheme();
     const navigate = useNavigate();
@@ -20,8 +21,6 @@ const UpdateUser = () => {
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [error, setError] = useState('');
-    const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -37,7 +36,6 @@ const UpdateUser = () => {
             })
             .catch(err => {
                 console.error('Error fetching user:', err.response ? err.response.data : err.message);
-                setError('An unknown error occurred');
             });
     }, [userId]);
 
@@ -46,13 +44,16 @@ const UpdateUser = () => {
     };
 
     const handleUpdateUser = () => {
-        axios.put(`${baseURL}/user/${userId}`, { username, name, contact, role })
+        axios.patch(`${baseURL}/user/${userId}`, { username, name, contact, role })
             .then(() => {
-                navigate('/profile');
+                toast.success('User updated successfully!'); // Success toast
+                setTimeout(() => {
+                    navigate(-1); // Delay navigation by 3 seconds
+                }, 3000); 
             })
             .catch(err => {
                 console.error('Error updating user:', err.response ? err.response.data : err.message);
-                setError('An unknown error occurred');
+                toast.error('Error updating user.'); // Error toast
             });
     };
 
@@ -60,12 +61,12 @@ const UpdateUser = () => {
         if (isChangingPassword) {
             // Check if fields are filled
             if (!currentPassword || !password || !confirmPassword) {
-                setError('All password fields must be filled.');
+                toast.error('All password fields must be filled.'); // Show error toast
                 return;
             }
             // Check if new passwords match
             if (password !== confirmPassword) {
-                setError('New passwords do not match.');
+                toast.error('New passwords do not match.'); // Show error toast
                 return;
             }
     
@@ -78,10 +79,10 @@ const UpdateUser = () => {
                         'Password changed successfully.', 
                         'Error changing password:');
                 } else {
-                    setError('Current password is incorrect.');
+                    toast.error('Current password is incorrect.'); // Show error toast
                 }
             } catch (error) {
-                setError('Error validating current password: ' + (error.response ? error.response.data.error : error.message));
+                toast.error('Error validating current password: ' + (error.response ? error.response.data.error : error.message)); // Show error toast
             }
         }
         setIsChangingPassword(prev => !prev);
@@ -90,17 +91,15 @@ const UpdateUser = () => {
 
     const saveChanges = async (endpoint, data, successMessage, errorMessage) => {
         try {
-            // Change from POST to PATCH
             const response = await axios.patch(`${baseURL}${endpoint}`, data);
             setMessage(successMessage);
-            setError('');
-            console.log(successMessage, response.data);
+            toast.success(successMessage); // Show success toast
         } catch (error) {
-            setError(errorMessage + (error.response ? error.response.data : error.message));
             setMessage('');
-            console.error(errorMessage, error.response ? error.response.data : error.message);
+            toast.error(errorMessage); // Show error toast
         }
     };
+    
     
 
     const togglePasswordForm = () => {
@@ -169,8 +168,6 @@ const UpdateUser = () => {
                                         </div>
                                     </div>
                                 </label>
-                                    {message && <p className='text-green-600'>{message}</p>}
-                                    {error && <p className='text-red-600'>{error}</p>}
                                 <div className='flex items-center justify-center gap-2'>
                                     <button
                                         onClick={togglePasswordForm}
@@ -219,7 +216,6 @@ const UpdateUser = () => {
                                     <option value="cashier">Cashier</option>
                                     <option value="admin">Admin</option>
                                 </select>
-                                {error && <p className='mt-2 text-red-500'>{error}</p>}
                                 <button
                                     onClick={togglePasswordForm}
                                     className={`px-4 py-2 mt-4 rounded ${darkMode ? 'text-dark-textPrimary bg-light-primary' : 'text-light-textPrimary bg-dark-primary'}`}
@@ -251,6 +247,8 @@ const UpdateUser = () => {
                 </div>
                )}
             </div>
+            <ToastContainer /> {/* Toast container to show notifications */}
+
         </div>
     );
 };

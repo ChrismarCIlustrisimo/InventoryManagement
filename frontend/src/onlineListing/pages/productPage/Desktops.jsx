@@ -27,7 +27,9 @@ const subcategories = [
                 const filteredData = response.data.data
                 .filter(product => !product.isArchived && product.isApproved) // Filter by isArchived and isApproved
                 .filter(r => r.category === "Desktops")
-                .filter(product => product.units.some(unit => unit.status === 'in_stock'));
+                .filter(product => 
+                    product.units && product.units.some(unit => unit.status === 'in_stock') // Ensure at least one unit is in_stock
+                );
                 setProducts(filteredData);
             } catch (error) {
                 console.error('Error fetching products:', error.message);

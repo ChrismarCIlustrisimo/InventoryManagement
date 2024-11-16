@@ -9,33 +9,40 @@ const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
     const navigate = useNavigate();
     const baseURL = "http://localhost:5555";
 
+    // Handle input change and trigger product search
     const handleChange = (event) => {
         const value = event.target.value;
-        onQueryChange(value);
-        fetchProducts(value);
+        onQueryChange(value);  // Update parent query state
+        fetchProducts(value);  // Fetch products based on search query
     };
 
+    // Clear the search input and reset products list
     const handleClear = () => {
-        onQueryChange('');
-        setProducts([]);
+        onQueryChange('');  // Reset the query state
+        setProducts([]);    // Clear the products
     };
 
+    // Fetch products from the backend based on the search query
     const fetchProducts = async (searchQuery) => {
         if (searchQuery) {
             try {
-                const response = await axios.get(`http://localhost:5555/product/search?name=${searchQuery}`);
+                const response = await axios.get(`${baseURL}/product/search?name=${searchQuery}`);
+                
+                // Filter products to show only those with 'in_stock' units
                 const availableProducts = response.data.filter(product =>
                     product.units && product.units.some(unit => unit.status === 'in_stock')
                 );
-                setProducts(availableProducts);
+
+                setProducts(availableProducts);  // Set filtered products to state
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
         } else {
-            setProducts([]);
+            setProducts([]);  // If search query is empty, clear the products
         }
     };
 
+    // Navigate to product view page when a product is clicked
     const handleViewProduct = (product) => {
         navigate(`/iRIG/products/view/${product._id}`, { state: { product } });
     };

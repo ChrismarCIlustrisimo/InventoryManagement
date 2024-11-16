@@ -88,7 +88,7 @@ const ArchivedUsers = () => {
                         <thead className={`sticky top-0 rounded-lg py-6 border-b ${darkMode ? 'border-light-primary bg-light-container text-light-textPrimary' : 'border-dark-primary bg-dark-container text-dark-textPrimary'}`}>
                             <tr>
                                 <th style={{ width: '40%' }} className={`p-2 py-4 text-left`}>NAME</th>
-                                <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ROLE</th>
+                                <th style={{ width: '30%' }} className={`p-2 py-4 text-center`}>ROLE</th>
                                 <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>CONTACT</th>
                                 <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ACTION</th>
                             </tr>
@@ -98,21 +98,15 @@ const ArchivedUsers = () => {
                                 .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
                                 .map((user) => (
                                     <tr key={user._id} className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}>
-                                        <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center text-left ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                                        <td style={{ width: '40%' }} className={`p-2 py-4 flex gap-4 items-center text-left ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                             <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
                                             <p>{user.name}</p>
                                         </td>
-                                        <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.role}</td>
+                                        <td style={{ width: '30%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.role}</td>
                                         <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.contact}</td>
                                         <td style={{ width: '20%' }} className='text-center gap-4'>
                                             <button
-                                                className={`px-4 py-2 rounded-md font-semibold mr-4 transform transition-transform duration-150 ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'} hover:scale-105`}
-                                                onClick={() => handleViewUserClick(user._id)}
-                                            >
-                                                View
-                                            </button>
-                                            <button
-                                                className={`px-4 py-2 rounded-md font-semibold transform transition-transform duration-150 ${darkMode ? 'bg-green-500' : 'bg-green-600'}`}
+                                                className={`px-4 py-2 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 ${darkMode ? 'bg-green-500' : 'bg-green-600'}`}
                                                 onClick={() => handleRestoreUser(user._id)}
                                             >
                                                 Restore

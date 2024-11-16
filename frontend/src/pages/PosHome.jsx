@@ -82,10 +82,10 @@ const PosHome = () => {
     }
   };
 
-
-
-
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCart([]);
+  };
 
   const handlePaymentSuccess = async () => {
     toast.success('Payment successful!');

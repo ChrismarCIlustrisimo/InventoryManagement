@@ -315,7 +315,7 @@ const SalesOrder = () => {
             <Spinner />
           ) : salesOrder.length === 0 ? (
             <div className='w-[80%] h-[78vh] flex items-center justify-center'>
-              <p className={`text-xl ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>No Orders Found</p>
+              <p className={`text-xl ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary' }`}>No Reservation Found</p>
             </div>
           ) : (
             <div className='w-[80%] h-[78vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>

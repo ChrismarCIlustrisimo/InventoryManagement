@@ -20,14 +20,13 @@ import html2canvas from 'html2canvas'; // Import html2canvas
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
   const { darkMode } = useTheme();
-  const [selectedDate, setSelectedDate] = useState('Today'); // Set default to 'Today'
+  const [selectedDate, setSelectedDate] = useState('This Month'); // Set default to 'Today'
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [salesData, setSalesData] = useState([]);
   const [filteredSalesData, setFilteredSalesData] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
-  const [dateFilter, setDateFilter] = useState('');
 
 
   const formatDate = (date) => {
@@ -41,6 +40,7 @@ const CashierSalesReport = () => {
     };
     return new Date(date).toLocaleDateString('en-US', options);
 };
+
 
 const handleDateFilterChange = (filter) => {
   setSelectedDate(filter); 
@@ -75,7 +75,7 @@ const handleDateFilterChange = (filter) => {
 
   // Set default date filter on mount
   useEffect(() => {
-    handleDateFilterChange("Today");
+    handleDateFilterChange("This Month");
   }, []);
 
 
@@ -136,13 +136,12 @@ const handleDateFilterChange = (filter) => {
     if (!salesData.length) return;
 
     let filteredData = [...salesData];
-
-    if (selectedCategory) {
-      filteredData = filteredData.filter(item => 
-        item.products.some(product => product.product && product.product.category === selectedCategory) // Add null check
-      );
-    }
-    
+  // Filter by selected category
+  if (selectedCategory) {
+    filteredData = filteredData.filter(item => 
+      item.products.some(product => product.product && product.product.category === selectedCategory) // Ensure product and category exist
+    );
+  }
 
     if (startDate && endDate) {
       filteredData = filteredData.filter(item => {
@@ -159,6 +158,7 @@ const handleDateFilterChange = (filter) => {
 
 const handleResetFilters = () => {
   setSelectedDate('');
+  setSelectedCategory('');
   setReportIncluded({
     'Sales by Category': false,
     'Payment Method': false,
@@ -269,8 +269,8 @@ const handleExportPdf = () => {
                             ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
                             : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
                         : (darkMode 
-                            ? 'bg-dark-activeLink text-light-primary ' 
-                            : 'bg-light-activeLink text-dark-primary ')} 
+                            ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                            : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                         outline-none font-semibold`}
                   >
                       <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Date</option>
@@ -297,16 +297,16 @@ const handleExportPdf = () => {
                           ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
                           : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
                       : (darkMode 
-                          ? 'bg-dark-activeLink text-light-primary ' 
-                          : 'bg-light-activeLink text-dark-primary ')} 
+                          ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                          : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                       outline-none font-semibold`}
                   >
-                    <option value=''>Select Category</option>
-                    <option value='Components'>Components</option>
-                    <option value='Peripherals'>Peripherals</option>
-                    <option value='Accessories'>Accessories</option>
-                    <option value='PC Furniture'>PC Furniture</option>
-                    <option value='OS & Software'>OS & Software</option>
+                    <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Category</option>
+                    <option value='Components' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Components</option>
+                    <option value='Peripherals' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Peripherals</option>
+                    <option value='Accessories' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Accessories</option>
+                    <option value='PC Furniture' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>PC Furniture</option>
+                    <option value='OS & Software' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>OS & Software</option>
                   </select>
                 </div>
 
@@ -330,15 +330,14 @@ const handleExportPdf = () => {
             </div>
 
             <div className='flex flex-col gap-2'>
-              <button
-                className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
-                  ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
-                onClick={handleResetFilters}
-              >
-                <HiOutlineRefresh className={`mr-2 text-2xl text-white`} />
-                <p className={`text-lg text-white`}>Reset Filters</p>
-              </button>
-            </div>
+                  <button
+                      className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
+                      ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
+                      onClick={handleResetFilters}>
+                      <HiOutlineRefresh className='mr-2 text-2xl text-white' />
+                      <p className='text-lg text-white'>Reset Filters</p>
+                  </button>
+              </div>
           </div>
 
           
@@ -352,21 +351,16 @@ const handleExportPdf = () => {
                 <div className="print-header flex items-center justify-start">
                   <div className='w-[80%] flex'>
                     <div className='w-[20%]  flex flex-col items-start justify-start text-gray-400'>
-                      <p>DATE FILTER</p>
                       <p>GENERATED ON</p>
                       <p>GENERATED BY</p>
                     </div>
                     <div className='w-[80%]  flex items-start justify-start flex-col '>
-                     <p>
-                        {startDate && endDate 
-                          ? `${selectedDate}` 
-                          : 'No Date Filter Applied'}
-                      </p>
                       <p>{formatDate(new Date().toLocaleString())}</p>
                       <p>{user.name}</p>
                     </div>
                   </div>
                 </div>
+
 
 
                   <SalesSummary salesData={filteredSalesData} />
@@ -376,6 +370,9 @@ const handleExportPdf = () => {
                     {reportIncluded['Payment Method'] && (<PaymentMethods salesData={filteredSalesData} />)}
                     {reportIncluded['Refunds Summary'] && (<RefundSummary salesData={filteredSalesData} />)}
                     {reportIncluded['VAT Summary'] && (<VATSummary salesData={filteredSalesData} />)}
+                    <div className='flex items-center justify-center print-header'>
+                      <p className='text-4xl font-semibold pb-4 text-black'>Nothing follows</p>
+                    </div>
                   </div>
             </div>
           </div>

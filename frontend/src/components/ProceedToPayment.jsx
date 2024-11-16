@@ -279,7 +279,7 @@ useEffect(() => {
         {isCustomerInput ? (
 
           <div className='w-[40%] h-full'>
-            <p className='mb-2 text-center text-2xl font-semibold py-6'>Billing Information</p>
+            <p className='mb-2 text-center text-4xl font-semibold py-6'>Customer Information</p>
             <div className={`flex flex-col gap-4 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
             <div>
               <label htmlFor="customerName" className="block text-sm font-medium mb-1">
@@ -356,19 +356,8 @@ useEffect(() => {
           <div className='w-[60%] '>
             <div className={`flex flex-col w-full h-full px-4 py-4 rounded-2xl gap-12 font-semibold`}>
               <div className='flex flex-col w-full justify-between items-center gap-4'>
+              <p className='text-center text-4xl font-semibold py-4'>Payment Details</p>
 
-                <div className='w-full flex items-center py-2'>
-                  <p className='w-[50%]'>Discount</p>
-                  <div className='w-[50%]'>
-                    <input
-                        type="number"
-                        value={discountValue === 0 ? '' : discountValue}
-                        onChange={(e) => setDiscountValue(Number(e.target.value))}
-                        placeholder="₱ 0"
-                        className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
-                      />
-                  </div>
-                </div>
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>Subtotal</p>
@@ -390,7 +379,21 @@ useEffect(() => {
 
 
               <div className='flex flex-col w-full justify-between items-center gap-2'>
-              <div className='w-full flex items-center py-2'>
+                
+              <div className='w-full flex items-center'>
+                  <p className='w-[50%]'>Discount</p>
+                  <div className='w-[50%]'>
+                    <input
+                        type="number"
+                        value={discountValue === 0 ? '' : discountValue}
+                        onChange={(e) => setDiscountValue(Number(e.target.value))}
+                        placeholder="₱ 0"
+                        className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                      />
+                  </div>
+                </div>
+                
+              <div className='w-full flex items-center'>
                   <p className='w-[50%]'>Payment Method</p>
                   <div className='w-[50%]'>
                     <select
@@ -412,7 +415,7 @@ useEffect(() => {
 
                 {/* Conditionally render reference number field based on payment method */}
                 {paymentMethod !== 'Cash' && paymentMethod !== '' && (
-                  <div className='w-full flex items-center py-2'>
+                  <div className='w-full flex items-center'>
                     <p className='w-[50%]'>Reference Number</p>
                     <div className='w-[50%]'>
                       <input
@@ -439,10 +442,6 @@ useEffect(() => {
                   />
                 </div>
 
-                <div className='w-full flex items-center  '>
-                  <p className='w-[50%]'>Discount</p>
-                  <p className='w-[50%]'>{discountValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                </div>
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>Change</p>

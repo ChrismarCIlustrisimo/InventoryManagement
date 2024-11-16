@@ -22,20 +22,24 @@ import { ToastContainer } from 'react-toastify';
             const fetchProducts = async () => {
                 try {
                     const response = await axios.get(`${baseURL}/product`);
-                    
+        
+                    // Apply filtering for isArchived, isApproved, category, and in_stock units
                     const filteredData = response.data.data
-                    .filter(product => !product.isArchived && product.isApproved) // Filter by isArchived and isApproved
-                    .filter(r => r.category === "Accessories")
-                    .filter(product => product.units.some(unit => unit.status === 'in_stock'));
-
+                        .filter(product => !product.isArchived && product.isApproved) // Filter non-archived and approved products
+                        .filter(product => product.category === "Accessories")       // Filter by category
+                        .filter(product => 
+                            product.units && product.units.some(unit => unit.status === 'in_stock') // Ensure at least one unit is in_stock
+                        );
+        
                     setProducts(filteredData);
                 } catch (error) {
                     console.error('Error fetching products:', error.message);
                 }
             };
-    
+        
             fetchProducts();
         }, []);
+        
     
         const [currentPage, setCurrentPage] = useState(1);
         const [filters, setFilters] = useState({

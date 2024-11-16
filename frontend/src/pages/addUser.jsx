@@ -4,6 +4,9 @@ import { useAdminTheme } from '../context/AdminThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa'; // Import icons
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Make sure to import the CSS for toastify
+import { ToastContainer } from 'react-toastify';
 
 const AddUser = () => {
     const { darkMode } = useAdminTheme();
@@ -23,25 +26,31 @@ const AddUser = () => {
     };
 
     const handleAddUser = async () => {
+        // Reset error before processing
         setError('');
-    
+      
         if (!username || !password || !name || !contact) {
-            setError('All fields are required.');
+            toast.error('All fields are required.');
             return;
         }
     
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
-            setError('Password must be at least 8 characters long, include a capital letter, a number, and a symbol.');
+            toast.error('Password must be at least 8 characters long, include a capital letter, a number, and a symbol.');
             return;
         }
     
         try {
             await signup({ username, password, name, contact, role });
-            localStorage.setItem('nextView', 'users');
-            navigate('/profile');
+            // Show success toast
+            toast.success('User successfully created!');
+            // Wait for 3 seconds before navigating
+            setTimeout(() => {
+                localStorage.setItem('nextView', 'users');
+                navigate('/profile');
+            }, 3000);
         } catch (error) {
-            setError(error.message || 'Failed to add user');
+            toast.error(error.message || 'Failed to add user');
         }
     };
 
@@ -93,15 +102,14 @@ const AddUser = () => {
                             className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                         />
                         <select
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
-                        className={`w-full border rounded-md p-2 bg-transparent 
-                            ${darkMode ? 'bg-light-bg text-light-textPrimary border-light-primary' : 'dark:bg-dark-bg dark:text-dark-textPrimary dark:border-dark-primary'}`}
+                            value={role}
+                            onChange={(e) => setRole(e.target.value)}
+                            className={`w-full border rounded-md p-2 bg-transparent 
+                                ${darkMode ? 'bg-light-bg text-light-textPrimary border-light-primary' : 'dark:bg-dark-bg dark:text-dark-textPrimary dark:border-dark-primary'}`}
                         >
-                        <option value="cashier">Cashier</option>
-                        <option value="admin">Admin</option>
+                            <option value="cashier">Cashier</option>
+                            <option value="admin">Admin</option>
                         </select>
-
 
                         {error && <p className='mt-2 text-red-500'>{error}</p>}
                     </div>
@@ -126,6 +134,7 @@ const AddUser = () => {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     );
 };

@@ -8,8 +8,6 @@ import { BsFileText } from "react-icons/bs";
 import { AiOutlineTag } from "react-icons/ai";
 import { BiCalendarCheck } from "react-icons/bi";
 import { TiArrowSortedUp, TiArrowSortedDown } from 'react-icons/ti';
-import { BiSolidReport } from "react-icons/bi"; // Import report icon
-import { GoTriangleDown } from "react-icons/go"; // Import triangle down icon
 import { BsArrowRepeat } from "react-icons/bs";
 
 const Navbar = () => {
@@ -28,7 +26,7 @@ const Navbar = () => {
       setSelected('Orders');
     } else if (location.pathname === '/cashier-rma') {
       setSelected('RMA');
-    } else if (location.pathname.includes('/cashier-SalesReport')) {
+    } else if (location.pathname.includes('/cashier-sales-report')) {
       setSelected('Reporting');
     } else {
       setSelected('');

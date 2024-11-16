@@ -306,20 +306,9 @@ const processPayment = async () => {
                 <div className='flex gap-2 items-center justify-center w-full h-full'>
                   <div className='w-[60%]'>
                     <div className={`flex flex-col w-full h-full px-4 py-4 rounded-2xl gap-12 font-semibold`}>
-                      <div className='flex flex-col w-full justify-between items-center gap-2'>
-                        <div className='w-full flex items-center py-2'>
-                          <p className='w-[50%]'>Discount</p>
-                              <div className='w-[50%]'>
-                                <input
-                                    type="number"
-                                    value={discountValue === 0 ? '' : discountValue}
-                                    onChange={(e) => setDiscountValue(Number(e.target.value))}
-                                    placeholder="₱ 0"
-                                    className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
-                                  />
-                              </div>
-                        </div>
+                    <p className='text-center text-4xl font-semibold py-2'>Payment Details</p>
 
+                      <div className='flex flex-col w-full justify-between items-center gap-4'>
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Subtotal</p>
                           <p className='w-[50%]'>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
@@ -336,8 +325,20 @@ const processPayment = async () => {
                         </div>
                       </div>
 
-                      <div className='flex flex-col w-full justify-between items-center gap-2'>
-                       <div className='w-full flex items-center py-2'>
+                      <div className='flex flex-col w-full justify-between items-center gap-4'>
+                      <div className='w-full flex items-center'>
+                          <p className='w-[50%]'>Discount</p>
+                              <div className='w-[50%]'>
+                                <input
+                                    type="number"
+                                    value={discountValue === 0 ? '' : discountValue}
+                                    onChange={(e) => setDiscountValue(Number(e.target.value))}
+                                    placeholder="₱ 0"
+                                    className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                                  />
+                              </div>
+                        </div>
+                       <div className='w-full flex items-center'>
                             <p className='w-[50%]'>Payment Method</p>
                             <div className='w-[50%]'>
                               <select
@@ -363,7 +364,7 @@ const processPayment = async () => {
                           </div>
 
                           {paymentMethod !== 'Cash' && paymentMethod !== '' && (
-                            <div className='w-full flex items-center py-2'>
+                            <div className='w-full flex items-center'>
                               <p className='w-[50%]'>Reference Number</p>
                               <div className='w-[50%]'>
                                 <input
@@ -390,13 +391,6 @@ const processPayment = async () => {
                                   className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
                                 />
                               </div>
-
-
-
-                        <div className='w-full flex items-center'>
-                          <p className='w-[50%]'>Discount</p>
-                          <p className='w-[50%]'>{discountValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                        </div>
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Change</p>

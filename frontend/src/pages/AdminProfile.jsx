@@ -36,12 +36,22 @@ const AdminProfile = () => {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [message, setMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [userToDelete, setUserToDelete] = useState(null);
-    const [userId, setuserId] = useState(user._id);
     const [userToArchive, setUserToArchive] = useState(null);
     const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
+    const handleLogoutClick = () => {
+      setShowModal(true);  // Show the confirmation modal when logout is clicked
+    };
+  
+    const handleConfirm = () => {
+      onLogout();          // Call onLogout if confirmed
+      setShowModal(false); // Close the modal
+    };
+  
+    const handleCancel = () => {
+      setShowModal(false); // Close the modal without logging out
+    };
     const resetToUserData = () => {
         setName(user.name);
         setUsername(user.username);
@@ -137,7 +147,7 @@ useEffect(() => {
     };
 
     const handleAddUserClick = () => {
-        navigate('/addUser');
+        navigate('/add-user');
     };
 
     const handleViewUserClick = (userId) => {
@@ -335,7 +345,12 @@ useEffect(() => {
                                             <button onClick={toggleChangePassword} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Change Password</button>
                                             <div className='flex gap-4'>
                                                 <button  onClick={() => setIsEditable(true)} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} >Edit Info</button>
-                                                <button onClick={() => onLogout()} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-red-600 text-white' : 'bg-red-600 text-white'}`}>Logout</button>
+                                                <button
+                                                    onClick={handleLogoutClick}
+                                                    className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-red-600 text-white' : 'bg-red-600 text-white'}`}
+                                                >
+                                                    Logout
+                                                </button>                             
                                             </div>
                                         </div>
                                     )}
@@ -349,7 +364,7 @@ useEffect(() => {
                                         <div className='w-full flex justify-end gap-4 my-4'>
                                             <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search User by name'}/>
                                             <button
-                                                className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
+                                                className={`px-4 py-2 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
                                                 onClick={handleAddUserClick}
                                             >
                                                 Add User
@@ -362,7 +377,7 @@ useEffect(() => {
                                             <thead className={`sticky top-0 rounded-lg py-6 border-b ${darkMode ? 'border-light-primary bg-light-container text-light-textPrimary' : 'border-dark-primary bg-dark-container text-dark-textPrimary'}`}>
                                                 <tr>
                                                     <th style={{ width: '40%' }} className={`p-2 py-4 text-left`}>NAME</th>
-                                                    <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ROLE</th>
+                                                    <th style={{ width: '10%' }} className={`p-2 py-4 text-center`}>ROLE</th>
                                                     <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>CONTACT</th>
                                                     <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ACTION</th>
                                                 </tr>
@@ -373,22 +388,22 @@ useEffect(() => {
                                                         .filter(user => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
                                                         .map(user => (
                                                             <tr key={user._id} className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}>
-                                                                <td style={{ width: '50%' }} className={`p-2 py-4 flex gap-4 items-center text-left ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                                                                <td style={{ width: '40%' }} className={`p-2 py-4 flex gap-4 items-center text-left ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                                                     <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
                                                                     <p>{user.name}</p>
                                                                 </td>
-                                                                <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.role}</td>
+                                                                <td style={{ width: '10%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.role}</td>
                                                                 <td style={{ width: '20%' }} className={`p-2 py-4 text-center ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{user.contact}</td>
                                                                 <td style={{ width: '20%' }} className='text-center gap-4'>
                                                                     <button
-                                                                        className={`px-4 py-2 rounded-md font-semibold mr-4 transform transition-transform duration-150 ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'} hover:scale-105`}
+                                                                        className={`w-[46%] py-2 bg-transparent mr-2 border rounded-md transition-transform duration-200 transform hover:scale-110 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
                                                                         onClick={() => handleViewUserClick(user._id)}
                                                                         disabled={user.archived} // Disable edit for archived users
                                                                     >
                                                                         Edit
                                                                     </button>
                                                                     <button
-                                                                        className={`px-4 py-2 rounded-md font-semibold transform transition-transform duration-150 ${darkMode ? 'bg-red-500' : 'bg-red-600'}`}
+                                                                        className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 text-white ${darkMode ? 'bg-light-primary hover:bg-light-primary' : 'bg-dark-primary  hover:bg-dark-primary'}`}
                                                                         onClick={() => handleArchiveUserClick(user._id)}
                                                                         disabled={user.archived} // Disable archive button if already archived
                                                                     >
@@ -398,8 +413,6 @@ useEffect(() => {
                                                             </tr>
                                                         ))}
                                                 </tbody>
-
-
                                         </table>
                                     </div>
                                 </div>
@@ -417,6 +430,28 @@ useEffect(() => {
                             message="Are you sure you want to archive this user?"  // Custom message to display in the dialog
                         />
 
+
+                    {showModal && (
+                            <div className={`fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50`}>
+                            <div className={`p-6 rounded-md shadow-lg w-full max-w-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'text-dark-textPrimary bg-dark-container'}`}>
+                                <p className="text-lg mb-4">Are you sure you want to Logout?</p>
+                            <div className="flex justify-end gap-4">
+                                <button
+                                    onClick={handleConfirm}
+                                    className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
+                                >
+                                    Confirm
+                                </button>
+                                <button
+                                    onClick={handleCancel}
+                                    className={`w-[46%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-110 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
+                                >
+                                    Cancel
+                                </button>
+                                </div>
+                            </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

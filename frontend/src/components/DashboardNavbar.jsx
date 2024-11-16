@@ -52,7 +52,7 @@ const DashboardNavbar = () => {
       setSelected('Orders');
     } else if (path === '/dashboard') {
       setSelected('Dashboard');
-    } else if (path.startsWith('/inventory')) {  // Matches all inventory-related routes
+    } else if (path === '/inventory') {  // Matches all inventory-related routes
       setSelected('Inventory');
     } else if (path === '/rma' || path === '/refund-replace-units') {
       setSelected('RMA');

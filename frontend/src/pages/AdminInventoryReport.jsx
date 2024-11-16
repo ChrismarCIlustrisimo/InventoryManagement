@@ -285,6 +285,9 @@ useEffect(() => {
               <InventorySummary inventoryData={filteredInventoryData}/>
               <LowStockAlert inventoryData={filteredInventoryData} />
               {showMetrics && <LowStockMetrics inventoryData={filteredInventoryData} />} {/* Conditional rendering of LowStockMetrics */}
+                <div className='flex items-center justify-center print-header'>
+                      <p className='text-4xl font-semibold pb-4 text-black'>Nothing follows</p>
+                </div>
             </div>
           </div>
         </div>

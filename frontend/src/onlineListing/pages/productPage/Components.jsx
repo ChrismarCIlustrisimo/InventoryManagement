@@ -38,8 +38,9 @@ const Components = () => {
                 const filteredData = response.data.data
                     .filter(product => !product.isArchived && product.isApproved) // Filter by isArchived and isApproved
                     .filter(r => r.category === "Components")  // Filter by category
-                    .filter(product => product.units.some(unit => unit.status === 'in_stock')); // Filter by unit status
-    
+                    .filter(product => 
+                        product.units && product.units.some(unit => unit.status === 'in_stock') // Ensure at least one unit is in_stock
+                    );    
                 setProducts(filteredData);
             } catch (error) {
                 console.error('Error fetching products:', error.message);

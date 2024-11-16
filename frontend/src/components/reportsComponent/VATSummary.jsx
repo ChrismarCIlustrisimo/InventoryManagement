@@ -37,6 +37,7 @@ const VATSummary = ({ salesData }) => {
             <span>₱ {vatSummary.netSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
         </div>
+        
       </div>
   );
 };

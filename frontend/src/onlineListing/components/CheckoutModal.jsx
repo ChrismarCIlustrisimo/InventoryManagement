@@ -219,7 +219,7 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
                     <button className="text-blue-500 mb-4" onClick={onRequestClose}>
                         &lt; Return to Cart
                     </button>
-                    <h2 className="text-xl font-semibold mb-4">Customer Details</h2>
+                    <h2 className="text-2xl font-semibold mb-4">Customer Details</h2>
                     <form className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input
                             type="text"

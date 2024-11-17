@@ -52,17 +52,21 @@ const sendEmail = (to, subject, text) => {
 const createTestAdmin = async () => {
   try {
     // Hash the password
-    const hashedPassword = await bcrypt.hash('password123', 10);
+    const hashedPassword = await bcrypt.hash('SuperAdmin123!', 10);
+
     // Check if an admin already exists
-    const existingAdmin = await User.findOne({ username: 'ADMIN' });
+    const existingAdmin = await User.findOne({ username: 'superadmin' });
     if (!existingAdmin) {
       const user = new User({
-        username: 'ADMIN',
+        username: 'superadmin',
         password: hashedPassword,
-        name: 'ADMIN',
+        name: 'superadmin',
         contact: '1234567890',
-        role: 'admin',
+        role: 'super-admin',
+        email: 'irigcomputers6@gmail.com',
+        archived: false,
       });
+
       await user.save();
       console.log('Admin user created');
     } else {

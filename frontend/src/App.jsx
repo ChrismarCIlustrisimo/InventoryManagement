@@ -74,7 +74,7 @@ import PendingProducts from './pages/PendingProducts.jsx';
 import ArchivedProducts from './pages/ArchivedProducts.jsx';
 import AdminViewProduct from './pages/AdminViewProduct.jsx';
 import ReservationReceipt from './pages/ReservationReceipt.jsx';
-
+import FrontPage from './pages/FrontPage.jsx';
 
 const App = () => {
     const { user } = useAuthContext();
@@ -89,7 +89,7 @@ const App = () => {
                                 <AdminThemeProvider>
                                     <Routes>
                                         {/* Route for login page */}
-                                        <Route path="/" element={<CashierLogin />} />
+                                        <Route path="/" element={<FrontPage />} />
 
                                         {/* Route for different role logins */}
                                         <Route 
@@ -179,7 +179,7 @@ const App = () => {
                                         <Route path="/iRIG/osandsoftware" element={<OSAndSoftware />} />
                                         <Route path="/iRIG/components" element={<Components />} />
 
-                                        z
+                                        
                                     </Routes>
                                 </AdminThemeProvider>
                             </ThemeProvider>

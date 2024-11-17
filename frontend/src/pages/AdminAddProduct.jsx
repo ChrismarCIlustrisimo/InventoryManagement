@@ -8,6 +8,7 @@ import { AiOutlineUpload } from "react-icons/ai";
 import ProductModal from '../components/ProductModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_DOMAIN } from '../utils/constants';
 
 const AdminAddProduct = () => {
   const handleCloseModal = () => setOpenModal(false);
@@ -247,7 +248,7 @@ const upload = () => {
 
   formData.append('units', JSON.stringify(units));
 
-  axios.post('http://localhost:5555/product', formData)
+  axios.post(`${API_DOMAIN}/product`, formData)
       .then(res => {
           setLoading(false); // Set loading to false after successful upload
           toast.success('Product added successfully!');

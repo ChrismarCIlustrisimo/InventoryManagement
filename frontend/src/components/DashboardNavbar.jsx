@@ -14,6 +14,7 @@ import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import { BiReceipt } from "react-icons/bi";
 import { GoTriangleDown } from "react-icons/go";
+import { API_DOMAIN } from '../utils/constants';
 
 // Styled Badge components with custom colors
 const LowStockBadge = styled(Badge)(({ theme }) => ({
@@ -33,7 +34,7 @@ const DashboardNavbar = () => {
   const [lowStockCount, setLowStockCount] = useState(0);
   const [outOfStockCount, setOutOfStockCount] = useState(0);
   const [products, setProducts] = useState([]);
-  const baseURL = 'http://localhost:5555';
+  const baseURL = API_DOMAIN;
   const location = useLocation();
   const [selected, setSelected] = useState('');
   const { darkMode } = useAdminTheme();

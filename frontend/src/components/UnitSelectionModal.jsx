@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import SearchBar from './SearchBar'; // Assuming SearchBar is in the same directory
+import { API_DOMAIN } from "../utils/constants";
 
 const UnitSelectionModal = ({ isOpen, onClose, product, onSelectUnit, image }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const { darkMode } = useTheme(); // Get darkMode from context
-  const baseURL = 'http://localhost:5555';
+  const baseURL = API_DOMAIN;
 
   if (!isOpen) return null;
 

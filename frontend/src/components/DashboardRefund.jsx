@@ -3,6 +3,7 @@ import { useTheme } from '../context/ThemeContext';
 import { GoTriangleRight } from "react-icons/go";
 import companyLogo from '../assets/companyLogo.png'; // Adjust the path as needed
 import '../App.css';
+import { API_DOMAIN } from '../utils/constants';
 
 const DashboardRefund = ({
     isOpen,
@@ -15,7 +16,7 @@ const DashboardRefund = ({
     cashier,
 }) => {
     const { darkMode } = useTheme();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const [showRefundControls, setShowRefundControls] = useState(false);
     const [refundReason, setRefundReason] = useState("");
 

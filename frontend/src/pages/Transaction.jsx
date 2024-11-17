@@ -6,6 +6,7 @@ import { useAuthContext } from '../hooks/useAuthContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { IoCaretBackOutline } from 'react-icons/io5';
+import { API_DOMAIN } from '../utils/constants';
 
 const Transaction = () => {
   const { id } = useParams();
@@ -14,7 +15,7 @@ const Transaction = () => {
   const [discountType, setDiscountType] = useState('percentage');
   const [discountValue, setDiscountValue] = useState(0);
   const [paymentAmount, setPaymentAmount] = useState(0);
-  const baseURL = 'http://localhost:5555';
+  const baseURL = API_DOMAIN;
   const { darkMode } = useTheme(); 
   const { user } = useAuthContext(); 
   const navigate = useNavigate();

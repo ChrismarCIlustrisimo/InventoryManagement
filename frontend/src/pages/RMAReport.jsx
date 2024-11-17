@@ -13,11 +13,12 @@ import { jsPDF } from 'jspdf'; // Import jsPDF
 import html2canvas from 'html2canvas'; // Import html2canvas
 import reportLogo from '../assets/reportLogo.png'; 
 import { HiOutlineRefresh } from "react-icons/hi";
+import { API_DOMAIN } from '../utils/constants';
 
 const RMAReport = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [rmaData, setRmaData] = useState([]);

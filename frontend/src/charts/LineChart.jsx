@@ -61,7 +61,7 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
           break;
       }
   
-      const response = await axios.get(`${API_DOMAIN}/transaction`, {
+      const response = await axios.get(`${baseURL}/transaction`, {
         params: {
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),

@@ -11,6 +11,7 @@ import axios from 'axios';
 import io from 'socket.io-client'; // Import socket.io-client
 import { useLocation } from 'react-router-dom';
 import { useStockAlerts } from '../context/StockAlertsContext';
+import { API_DOMAIN } from '../utils/constants';
 
 
 const getStatusStyles = (status) => {
@@ -48,7 +49,7 @@ const AdminInventory = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('');

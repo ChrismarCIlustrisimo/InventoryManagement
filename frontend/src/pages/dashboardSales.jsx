@@ -6,12 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/adminSearchBar';
 import DashboardNavbar from '../components/DashboardNavbar';
 import { GrPowerReset } from 'react-icons/gr';
+import { API_DOMAIN } from '../utils/constants';
 
 const DashboardSales = () => {
     const { user } = useAuthContext();
     const { darkMode } = useAdminTheme();
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
 
     const [searchQuery, setSearchQuery] = useState("");
     const [category, setCategory] = useState("");

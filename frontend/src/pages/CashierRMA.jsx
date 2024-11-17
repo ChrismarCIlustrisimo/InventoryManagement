@@ -10,12 +10,13 @@ import { HiOutlineRefresh } from "react-icons/hi";
 import { useTheme } from '../context/ThemeContext';
 import ViewRMACashier from '../components/ViewRMACashier';
 import ProcessRefund from '../components/ProcessRefund';
+import { API_DOMAIN } from '../utils/constants';
 
 const CashierRMA = () => {
     const { user } = useAuthContext();
     const { darkMode } = useTheme();
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const [searchQuery, setSearchQuery] = useState('');
     const [customerName, setCustomerName] = useState(''); // Add this line
     const [cashierName, setCashierName] = useState('');

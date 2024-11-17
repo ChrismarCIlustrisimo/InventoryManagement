@@ -4,11 +4,13 @@ import { useTheme } from '../context/ThemeContext';
 import { IoCaretBackOutline } from "react-icons/io5";
 import ReactToPrint from 'react-to-print';
 import axios from 'axios';
+import { API_DOMAIN } from "../utils/constants";
 
 const RefundReceipt = ({ onClose, refundData, rma }) => {
   const { darkMode } = useTheme();
   const componentRef = useRef();
   const [customer, setCustomer] = useState(null); // State for customer data
+  const baseURL = API_DOMAIN;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -22,7 +24,7 @@ const RefundReceipt = ({ onClose, refundData, rma }) => {
   useEffect(() => {
     const fetchCustomer = async () => {
       try {
-        const response = await axios.get(`http://localhost:5555/customer/${rma.customerID}`); // Adjust the URL as needed
+        const response = await axios.get(`${baseURL}/customer/${rma.customerID}`); // Adjust the URL as needed
         setCustomer(response.data);
       } catch (error) {
         console.error('Error fetching customer data:', error);

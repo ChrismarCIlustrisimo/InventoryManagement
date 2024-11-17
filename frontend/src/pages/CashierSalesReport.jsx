@@ -16,6 +16,7 @@ import Navbar from '../components/Navbar';
 import reportLogo from '../assets/reportLogo.png';
 import { jsPDF } from 'jspdf'; // Import jsPDF
 import html2canvas from 'html2canvas'; // Import html2canvas
+import { API_DOMAIN } from '../utils/constants';
 
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
@@ -111,7 +112,7 @@ const handleDateFilterChange = (filter) => {
 
   const fetchSales = async () => {
     try {
-      const response = await axios.get('http://localhost:5555/transaction', {
+      const response = await axios.get(`${API_DOMAIN}/transaction`, {
         params: {
           payment_status: 'paid',
         },

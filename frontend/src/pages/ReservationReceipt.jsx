@@ -6,8 +6,9 @@ import { IoCaretBackOutline } from 'react-icons/io5';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_DOMAIN } from '../utils/constants';
 
-const baseURL = 'http://localhost:5555';
+const baseURL = API_DOMAIN;
 
 const ReservationReceipt = () => {
   const { darkMode } = useAdminTheme();

@@ -8,6 +8,7 @@ import { AiOutlineUpload } from "react-icons/ai";
 import ProductModal from '../components/ProductModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_DOMAIN } from '../utils/constants';
 
 const AddProduct = () => {
   const handleCloseModal = () => setOpenModal(false);
@@ -39,6 +40,7 @@ const AddProduct = () => {
   const [descriptionArray, setDescriptionArray] = useState([]);
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [loading, setLoading] = useState(false); // Add loading state to control spinner visibility
+  const baseURL = API_DOMAIN;
 
   
 
@@ -247,7 +249,7 @@ const upload = () => {
 
   formData.append('units', JSON.stringify(units));
 
-  axios.post('http://localhost:5555/product', formData)
+  axios.post(`${baseURL}/product`, formData)
       .then(res => {
           setLoading(false); // Set loading to false after successful upload
           toast.success('Product added successfully!');

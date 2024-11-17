@@ -82,7 +82,7 @@ const AdminLogin = () => {
     };
 
     return (
-        <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col">
+        <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col text-black">
             <div className=" flex flex-col items-center">
                 <img src={loginLogo} alt="Login Logo" className="w-32 mb-2" />
             </div>

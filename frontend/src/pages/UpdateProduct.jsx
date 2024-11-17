@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AiOutlineUpload } from "react-icons/ai";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_DOMAIN } from '../utils/constants';
 
 const UpdateProduct = () => {
   const [file, setFile] = useState(null);
@@ -30,7 +31,7 @@ const UpdateProduct = () => {
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const { productId } = useParams();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [rows, setRows] = useState(3); // Initial number of rows
 
   useEffect(() => {

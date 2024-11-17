@@ -8,13 +8,14 @@ import SearchBar from '../components/adminSearchBar';
 import { GrPowerReset } from 'react-icons/gr';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import CustomerModal from '../components/CustomerModal';
+import { API_DOMAIN } from '../utils/constants';
 
 
 const DashboardCustomer = () => {
     const { user } = useAuthContext();
     const { darkMode } = useAdminTheme();
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const [searchQuery, setSearchQuery] = useState("");
     const [emailQuery, setEmailQuery] = useState("");
     const [addressQuery, setAddressQuery] = useState("");

@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import UpdateStatusPopup from './UpdateStatusPopup';
 import AddNotes from './AddNotes';
 import { AiOutlineClose } from "react-icons/ai";
+import { API_DOMAIN } from "../utils/constants";
 
 const ViewRMA = ({ rma, onClose, darkMode }) => {
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const [isApproveRMA, setIsApproveRMA] = useState(false);
     const [isAddNotesOpen, setIsAddNotesOpen] = useState(false);
     const [isConfirmCloseOpen, setConfirmCloseOpen] = useState(false); // State for confirmation modal

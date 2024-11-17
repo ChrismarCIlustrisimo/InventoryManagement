@@ -5,6 +5,7 @@ import { IoCaretBackOutline } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
 import { useNavigate, useParams } from 'react-router-dom';
 import ConfirmationDialog from '../components/ConfirmationDialog';
+import { API_DOMAIN } from '../utils/constants';
 
 const UpdateSupplier = () => {
   const [supplier, setSupplier] = useState(null);
@@ -14,7 +15,7 @@ const UpdateSupplier = () => {
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const { supplierId } = useParams();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
 
   useEffect(() => {
     axios.get(`${baseURL}/supplier/${supplierId}`)

@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { FaTrash } from "react-icons/fa";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import AddUnitModal  from '../components/AddUnitModal';
+import { API_DOMAIN } from '../utils/constants';
 
 
 const AdminViewProduct = () => {
@@ -15,7 +16,7 @@ const AdminViewProduct = () => {
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const { productId } = useParams();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
 
   useEffect(() => {
     axios.get(`${baseURL}/product/${productId}`)

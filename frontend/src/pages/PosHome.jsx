@@ -20,10 +20,11 @@ import useSocket from '../hooks/useSocket';
 import UnitSelectionModal from "../components/UnitSelectionModal";
 import { FaLaptop } from "react-icons/fa";
 import { FaDesktop } from "react-icons/fa";
+import { API_DOMAIN } from '../utils/constants';
 
 
 
-const baseURL = 'http://localhost:5555';
+const baseURL = API_DOMAIN;
 
 const PosHome = () => {
   const [products, setProducts] = useState([]);

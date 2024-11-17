@@ -5,6 +5,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { ToastContainer, toast } from 'react-toastify'; // Import toast
 import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
+import { API_DOMAIN } from '../utils/constants';
+
 const UpdateUser = () => {
     const { darkMode } = useAdminTheme();
     const navigate = useNavigate();
@@ -24,7 +26,7 @@ const UpdateUser = () => {
     const [loading, setLoading] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
 
     useEffect(() => {
         axios.get(`${baseURL}/user/${userId}`)

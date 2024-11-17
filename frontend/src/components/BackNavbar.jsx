@@ -8,7 +8,7 @@ import { API_DOMAIN } from '../utils/constants';
 
 const BackNavbar = ({ id }) => {
   const navigate = useNavigate();
-  const baseURL = 'http://localhost:5555';
+  const baseURL = API_DOMAIN;
   const { darkMode } = useTheme(); // Access darkMode from context
 
   const handleBackClick = () => {

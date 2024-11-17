@@ -7,9 +7,10 @@ import axios from 'axios';
 import PrintableReceipt from './PrintableReceipt';
 import '../App.css';
 import RMARequestForm from '../pages/RMARequestForm';
+import { API_DOMAIN } from "../utils/constants";
 
 const ViewTransactionCashier = ({ transaction, onClose }) => {
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const navigate = useNavigate();
     const { darkMode } = useTheme();
     const componentRef = useRef();

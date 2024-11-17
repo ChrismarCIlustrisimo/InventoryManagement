@@ -14,11 +14,12 @@ import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useStockAlerts } from '../context/StockAlertsContext';
 import { useDateFilter } from '../context/DateFilterContext';
+import { API_DOMAIN } from '../utils/constants';
 
 const AdminHome = () => {
   const { darkMode } = useAdminTheme();
   const { user } = useAuthContext();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [selectedTimeframe, setSelectedTimeframe] = useState('Last 7 Days');
   const [transactionCount, setTransactionCount] = useState([]);
   const [totalPaidPrice, setTotalPaidPrice] = useState(0);

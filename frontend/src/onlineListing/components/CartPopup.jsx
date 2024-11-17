@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify'; 
 import 'react-toastify/dist/ReactToastify.css'; 
 import CheckoutModal from './CheckoutModal';
+import { API_DOMAIN } from '../utils/constants';
 
 const CartPopup = ({
     isOpen,
@@ -14,7 +15,7 @@ const CartPopup = ({
     setCart,
 }) => {
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
     if (!isOpen) return null;

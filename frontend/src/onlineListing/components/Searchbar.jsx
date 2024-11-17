@@ -3,11 +3,12 @@ import { FaSearch } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_DOMAIN } from '../utils/constants';
 
 const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
     const [products, setProducts] = useState([]);
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
 
     // Handle input change and trigger product search
     const handleChange = (event) => {

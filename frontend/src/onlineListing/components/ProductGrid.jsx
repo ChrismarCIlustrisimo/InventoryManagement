@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import ProductCard from './ProductCard'; // Adjust the import path as needed
 import axios from 'axios';
+import { API_DOMAIN } from '../utils/constants';
 
 const ProductGrid = () => {
   const [desktops, setDesktops] = useState([]);
   const [laptops, setLaptops] = useState([]);
-  const baseURL = "http://localhost:5555"; // Replace with your API URL
+  const baseURL = API_DOMAIN; // Replace with your API URL
 
   useEffect(() => {
     const fetchProducts = async () => {

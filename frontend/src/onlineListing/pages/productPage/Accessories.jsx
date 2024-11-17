@@ -5,6 +5,7 @@ import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
+import { API_DOMAIN } from '../utils/constants';
 
     const subcategories = [
         "Cables",
@@ -15,7 +16,7 @@ import { ToastContainer } from 'react-toastify';
         const [products, setProducts] = useState([]);
         const [query, setQuery] = useState('');
         const productsPerPage = 10;
-        const baseURL = "http://localhost:5555";
+        const baseURL = API_DOMAIN;
         const [sortOrder, setSortOrder] = useState('');
     
         useEffect(() => {

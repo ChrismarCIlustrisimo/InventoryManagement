@@ -6,6 +6,7 @@ import AdminSearchBar from './adminSearchBar';
 import { useAdminTheme } from '../context/AdminThemeContext'; // Import context
 import { ToastContainer, toast } from 'react-toastify';  // Import ToastContainer and toast
 import 'react-toastify/dist/ReactToastify.css';  // Import the required CSS
+import { API_DOMAIN } from '../utils/constants';
 
 const ArchivedUsers = () => {
     const { darkMode } = useAdminTheme(); // Access darkMode from context
@@ -13,7 +14,7 @@ const ArchivedUsers = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [isRestoreDialogOpen, setIsRestoreDialogOpen] = useState(false);
     const [userToRestore, setUserToRestore] = useState(null);
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
 
     const getIconColor = (role) => {
         switch (role) {

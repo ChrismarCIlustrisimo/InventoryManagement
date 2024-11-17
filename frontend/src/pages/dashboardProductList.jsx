@@ -17,6 +17,7 @@ import { BiEdit } from "react-icons/bi";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { useStockAlerts } from '../context/StockAlertsContext';
 import { IoArchiveOutline } from "react-icons/io5";
+import { API_DOMAIN } from '../utils/constants';
 
 
 const getStatusStyles = (status) => {
@@ -54,7 +55,7 @@ const DashboardProductList = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('');

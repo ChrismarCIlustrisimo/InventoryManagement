@@ -3,12 +3,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useAdminTheme } from '../context/AdminThemeContext';
+import { API_DOMAIN } from '../utils/constants';
 
 const NetSalesTransactions = () => {
 
     const { darkMode } = useAdminTheme();
   const { user } = useAuthContext();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [transactions, setTransactions] = useState([]);
 
   const fetchTransactions = async () => {

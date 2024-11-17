@@ -9,6 +9,7 @@ import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { AiOutlineCheckCircle } from "react-icons/ai";
+import { API_DOMAIN } from '../utils/constants';
 
 const ConfirmationModal = ({ message, onConfirm, onCancel, darkMode }) => (
   <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
@@ -40,7 +41,7 @@ const RefundedOrReplaced = () => {
   const [cashierName, setCashierName] = useState('');
   const [rmas, setRmas] = useState([]);
   const [filteredRmas, setFilteredRmas] = useState([]);
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [reason, setReason] = useState('');
   const [status, setStatus] = useState('');
   const [isOpenConfirmDialog, setIsOpenConfirmDialog] = useState(false);

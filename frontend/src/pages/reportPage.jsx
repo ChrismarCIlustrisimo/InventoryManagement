@@ -4,6 +4,7 @@ import { useAdminTheme } from '../context/AdminThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { IoCaretBackOutline } from 'react-icons/io5';
 import ReactToPrint from 'react-to-print';
+import { API_DOMAIN } from '../utils/constants';
 
 const ReportPage = () => {
     const location = useLocation();

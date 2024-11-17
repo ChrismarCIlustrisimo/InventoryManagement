@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_DOMAIN } from '../utils/constants';
 
 const RMARequestForm = ({ onClose, transaction }) => {
   const { darkMode } = useTheme();
@@ -168,7 +169,7 @@ const handleProductChange = (event) => {
   
   
     try {
-      const response = await axios.post("http://localhost:5555/rma", rmaData, {
+      const response = await axios.post(`${API_DOMAIN}/rma`, rmaData, {
           headers: {
               "Content-Type": "application/json",
           },

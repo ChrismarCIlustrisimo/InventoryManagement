@@ -5,10 +5,11 @@ import { useAdminTheme } from '../context/AdminThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import AdminSearchBar from '../components/adminSearchBar';
 import { useNavigate } from 'react-router-dom';
+import { API_DOMAIN } from '../utils/constants';
 
 const DashboardSupplier = () => {
     const { darkMode } = useAdminTheme();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const { user } = useAuthContext();
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');

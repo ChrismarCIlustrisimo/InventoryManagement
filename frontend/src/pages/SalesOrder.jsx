@@ -9,6 +9,7 @@ import { HiOutlineRefresh } from "react-icons/hi";
 import { useAuthContext } from '../hooks/useAuthContext';
 import { useTheme } from '../context/ThemeContext';
 import SearchBar from '../components/SearchBar';
+import { API_DOMAIN } from '../utils/constants';
 
 const SalesOrder = () => {
   const [startDate, setStartDate] = useState(null);
@@ -35,7 +36,7 @@ const SalesOrder = () => {
   const fetchSalesOrders = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5555/transaction', {
+      const response = await axios.get(`${API_DOMAIN}/transaction`, {
         params: {
           startDate: startDate ? startDate.toISOString() : undefined,
           endDate: endDate ? endDate.toISOString() : undefined,

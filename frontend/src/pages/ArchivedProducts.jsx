@@ -14,6 +14,7 @@ import { GrView } from "react-icons/gr";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { MdDelete } from "react-icons/md";
 import { LuArchiveRestore } from "react-icons/lu";
+import { API_DOMAIN } from '../utils/constants';
 
 
 
@@ -21,7 +22,7 @@ const ArchivedProducts = () => {
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [sortBy, setSortBy] = useState('');

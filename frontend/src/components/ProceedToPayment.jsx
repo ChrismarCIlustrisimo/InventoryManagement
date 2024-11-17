@@ -6,11 +6,12 @@ import { AuthContext } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'; // Ensure you import useNavigate
 import { BiArrowBack } from "react-icons/bi";
+import { API_DOMAIN } from '../utils/constants';
 
 
 const ProceedToPayment = ({ isOpen, onClose, totalAmount, cart, onPaymentSuccess, onPaymentError }) => {
   if (!isOpen) return null;
-  const baseURL = 'http://localhost:5555';
+  const baseURL = API_DOMAIN;
   const { darkMode } = useTheme();
   const [discountValue, setDiscountValue] = useState(0);
   const [paymentAmount, setPaymentAmount] = useState('');

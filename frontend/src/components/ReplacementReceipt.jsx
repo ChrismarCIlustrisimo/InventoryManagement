@@ -3,16 +3,18 @@ import { useTheme } from '../context/ThemeContext';
 import { IoCaretBackOutline } from "react-icons/io5";
 import ReactToPrint from 'react-to-print';
 import axios from 'axios';
+import { API_DOMAIN } from "../utils/constants";
 
 const ReplacementReceipt = ({ rma, newSerialNumber, oldSerialNumber, onClose }) => {
     const { darkMode } = useTheme();
     const componentRef = useRef();
     const [customer, setCustomer] = useState(null);
+    const baseURL = API_DOMAIN;
 
     useEffect(() => {
         const fetchCustomer = async () => {
           try {
-            const response = await axios.get(`http://localhost:5555/customer/${rma.customerID}`); // Adjust the URL as needed
+            const response = await axios.get(`${baseURL}/customer/${rma.customerID}`); // Adjust the URL as needed
             setCustomer(response.data);
           } catch (error) {
             console.error('Error fetching customer data:', error);
@@ -68,7 +70,7 @@ const ReplacementReceipt = ({ rma, newSerialNumber, oldSerialNumber, onClose }) 
                         />
                     </div>
                 </div>
-                <div className={`w-full h-[90%] flex items-center justify-center overflow-y-auto ${darkMode ? 'text-light-textPrimary border-light-border bg-light-container' : 'text-light-textPrimary border-light-border border-gray-600 bg-dark-container'}`}>
+                <div className={`w-full h-[90%] flex items-center justify-center overflow-y-auto ${darkMode ? 'text-light-textPrimary border-light-border bg-light-container' : 'text-light-textPrimary  border-gray-600 bg-dark-container'}`}>
                     <div className={`w-full h-full items-center flex flex-col justify-start p-4 rounded-md`}>
                         <div ref={componentRef} className={`flex flex-col w-full h-full justify-start gap-4 rounded-lg px-6`}>
                             {/* Company Information */}

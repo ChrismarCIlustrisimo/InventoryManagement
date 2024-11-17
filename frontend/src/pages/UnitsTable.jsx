@@ -6,6 +6,7 @@ import { useAdminTheme } from '../context/AdminThemeContext';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuthContext } from '../hooks/useAuthContext';
+import { API_DOMAIN } from '../utils/constants';
 
 
 const UnitsTable = () => {
@@ -22,7 +23,7 @@ const UnitsTable = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const { darkMode } = useAdminTheme();
   const [editStatus, setEditStatus] = useState("");
   const { user } = useAuthContext();

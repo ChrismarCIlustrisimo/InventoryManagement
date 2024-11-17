@@ -1,15 +1,17 @@
 import { useState } from 'react';
+import { API_DOMAIN } from "../utils/constants";
 
 export const useSignUp = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const baseURL = API_DOMAIN;
 
     const signup = async ({ username, password, name, contact, role, email }) => {
         setLoading(true);
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:5555/user/signup', {
+            const response = await fetch(`${baseURL}/user/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import io from 'socket.io-client';
+import { API_DOMAIN } from "../utils/constants";
 
-const socket = io('http://localhost:5555'); // Ensure the URL matches your server
+const socket = io(API_DOMAIN); // Ensure the URL matches your server
 
 const useSocket = (onProductUpdate, onProductsFetched) => {
   useEffect(() => {

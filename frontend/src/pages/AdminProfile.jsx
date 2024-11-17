@@ -12,13 +12,14 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import ArchivedUsers from '../components/ArchivedUsers';
+import { API_DOMAIN } from '../utils/constants';
 
 
 const AdminProfile = () => {
     const { user } = useAuthContext();
     const { darkMode } = useAdminTheme();
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const [activeButton, setActiveButton] = useState('profile');
     const [searchQuery, setSearchQuery] = useState('');
     const [contact, setContact] = useState(user.contact);

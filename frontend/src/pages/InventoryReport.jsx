@@ -12,6 +12,7 @@ import { jsPDF } from 'jspdf'; // Import jsPDF
 import html2canvas from 'html2canvas'; // Import html2canvas
 import reportLogo from '../assets/reportLogo.png'; 
 import { useAuthContext } from '../hooks/useAuthContext';
+import { API_DOMAIN } from '../utils/constants';
 
 const InventoryReport = () => {
   const { darkMode } = useAdminTheme();
@@ -41,7 +42,7 @@ const InventoryReport = () => {
 useEffect(() => {
   const fetchProducts = async () => {
       try {
-          const response = await axios.get('http://localhost:5555/product'); // Adjust the endpoint if necessary
+          const response = await axios.get(`${API_DOMAIN}/product`); // Adjust the endpoint if necessary
           setInventoryData(response.data); 
       } catch (error) {
           console.error('Error fetching products:', error);

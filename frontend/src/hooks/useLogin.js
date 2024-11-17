@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useAuthContext } from './useAuthContext';
 import { useNavigate } from 'react-router-dom';
+import { API_DOMAIN } from "../utils/constants";
 
 export const useLogin = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const { dispatch } = useAuthContext();
     const navigate = useNavigate();
+    const baseURL = API_DOMAIN;
 
     // Login function
     const login = async (username, password, role) => {
@@ -14,7 +16,7 @@ export const useLogin = () => {
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:5555/user/login', {
+            const response = await fetch(`${baseURL}/user/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -58,7 +60,7 @@ export const useLogin = () => {
     // Check if user exists
     const checkUserExistence = async (username, email) => {
         try {
-            const response = await fetch('http://localhost:5555/user/check-user', {
+            const response = await fetch(`${baseURL}/user/check-user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +90,7 @@ export const useLogin = () => {
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:5555/user/reset-password', {
+            const response = await fetch(`${baseURL}/user/reset-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

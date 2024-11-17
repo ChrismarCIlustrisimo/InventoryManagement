@@ -6,6 +6,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import RefundReceipt from "./RefundReceipt";
+import { API_DOMAIN } from "../utils/constants";
 
 const ProcessRefund = ({ rma, onClose }) => {
   const { darkMode } = useTheme();
@@ -18,7 +19,7 @@ const ProcessRefund = ({ rma, onClose }) => {
   const [refundData, setRefundData] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

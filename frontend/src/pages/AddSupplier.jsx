@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { IoCaretBackOutline } from "react-icons/io5";
+import { API_DOMAIN } from '../utils/constants';
 
 const AddSupplier = () => {
   const [file, setFile] = useState(null);
@@ -25,7 +26,7 @@ const AddSupplier = () => {
       formData.append('contact_number', contact);
       formData.append('email', email);
 
-      const response = await axios.post('http://localhost:5555/supplier', formData);
+      const response = await axios.post(`${API_DOMAIN}/supplier`, formData);
       console.log('Supplier added:', response.data);
       navigate('/inventory/supplier');
     } catch (err) {

@@ -91,7 +91,7 @@ const SuperAdminLogin = () => {
                             Super Admin
                         </div>
                         <form onSubmit={handleLogin} className="space-y-6">
-                            <div>
+                            <div className='text-black'>
                                 <label htmlFor="username" className="block text-gray-700">Username</label>
                                 <div className="flex items-center mt-1 border border-gray-300 rounded-lg p-2">
                                     <RiUserLine className="text-xl text-black" />
@@ -105,13 +105,14 @@ const SuperAdminLogin = () => {
                                     />
                                 </div>
                             </div>
-                            <div>
+                            <div className='text-black'>
                                 <label htmlFor="password" className="block text-gray-700">Password</label>
                                 <PasswordInput
                                     id="password"
                                     placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    className={`text-black`}
                                 />
                             </div>
                             <button
@@ -146,7 +147,7 @@ const SuperAdminLogin = () => {
                                     onChange={(e) => setUsername(e.target.value)}
                                 />
                             </div>
-                            <div>
+                            <div className='text-black'>
                                 <label htmlFor="email" className="block text-gray-700">Email</label>
                                 <input
                                     id="email"

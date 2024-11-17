@@ -9,15 +9,16 @@ const userSchema = new Schema({
     password: { type: String, required: true },
     name: { type: String, required: true },
     contact: { type: String },
+    email: { type: String, required: true, unique: true, validate: [validator.isEmail, 'Invalid email'] },
     role: { type: String, required: true },
     archived: { type: Boolean, default: false }
 });
 
 // Static Signup method
-userSchema.statics.signup = async function(username, password, name, contact, role) {
+userSchema.statics.signup = async function(username, password, name, contact, role, email) {
     // Validation
-    if (!username || !password || !name || !contact || !role) {
-        throw new Error('Please provide username, password, name, contact, and role');
+    if (!username || !password || !name || !contact || !role || !email) {
+        throw new Error('Please provide username, password, name, contact, role, and email');
     }
 
     if (!validator.isStrongPassword(password)) {
@@ -28,17 +29,27 @@ userSchema.statics.signup = async function(username, password, name, contact, ro
         throw new Error('Contact is not a valid phone number');
     }
 
+    if (!validator.isEmail(email)) {
+        throw new Error('Invalid email format');
+    }
+
     const exists = await this.findOne({ username });
 
     if (exists) {
         throw new Error('Username already exists');
     }
 
+    const emailExists = await this.findOne({ email });
+
+    if (emailExists) {
+        throw new Error('Email already exists');
+    }
+
     // Hashing password
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
-    const user = new this({ username, password: hash, name, contact, role });
+    const user = new this({ username, password: hash, name, contact, role, email });
     try {
         return await user.save();
     } catch (error) {

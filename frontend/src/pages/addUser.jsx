@@ -15,6 +15,7 @@ const AddUser = () => {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [contact, setContact] = useState('');
+    const [email, setEmail] = useState(''); // State for email
     const [role, setRole] = useState('cashier');
     const [error, setError] = useState('');
     const { signup, loading } = useSignUp();
@@ -29,11 +30,17 @@ const AddUser = () => {
         // Reset error before processing
         setError('');
       
-        if (!username || !password || !name || !contact) {
+        if (!username || !password || !name || !contact || !email) {
             toast.error('All fields are required.');
             return;
         }
     
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Email regex
+        if (!emailRegex.test(email)) {
+            toast.error('Please enter a valid email address.');
+            return;
+        }
+
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
             toast.error('Password must be at least 8 characters long, include a capital letter, a number, and a symbol.');
@@ -41,7 +48,7 @@ const AddUser = () => {
         }
     
         try {
-            await signup({ username, password, name, contact, role });
+            await signup({ username, password, name, contact, email, role }); // Pass email here
             // Show success toast
             toast.success('User successfully created!');
             // Wait for 3 seconds before navigating
@@ -99,6 +106,13 @@ const AddUser = () => {
                             value={contact}
                             onChange={(e) => setContact(e.target.value)}
                             placeholder="Contact"
+                            className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                        />
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)} // Email field
+                            placeholder="Email"
                             className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                         />
                         <select

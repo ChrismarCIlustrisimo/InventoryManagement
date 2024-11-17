@@ -8,6 +8,7 @@ export const useLogin = () => {
     const { dispatch } = useAuthContext();
     const navigate = useNavigate();
 
+    // Login function
     const login = async (username, password, role) => {
         setLoading(true);
         setError(null);
@@ -54,5 +55,64 @@ export const useLogin = () => {
         }
     };
 
-    return { error, loading, login };
+    // Check if user exists
+    const checkUserExistence = async (username, email) => {
+        try {
+            const response = await fetch('http://localhost:5555/user/check-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email }),
+            });
+            
+    
+            const json = await response.json();
+    
+            if (!response.ok) {
+                setError(json.message || 'Error checking user existence');
+                return null;  // Return null when the user doesn't exist
+            }
+    
+            return json.exists ? json.user : null; // Return the user if exists, or null otherwise
+        } catch (error) {
+            console.error('Error checking user existence:', error);
+            setError('Server error. Please try again.');
+            return null;  // Return null in case of error
+        }
+    };
+    
+    // Reset password
+    const resetPassword = async (username, email, newPassword) => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            const response = await fetch('http://localhost:5555/user/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, email, newPassword }),
+            });
+
+            const json = await response.json();
+
+            if (!response.ok) {
+                setError(json.message || 'Error resetting password');
+                setLoading(false);
+                return false;
+            }
+
+            setLoading(false);
+            return true; // Password reset successful
+        } catch (error) {
+            console.error('Error resetting password:', error);
+            setError('Server error. Please try again.');
+            setLoading(false);
+            return false;
+        }
+    };
+
+    return { error, loading, login, checkUserExistence, resetPassword };
 };

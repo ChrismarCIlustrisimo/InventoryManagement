@@ -14,14 +14,49 @@ const createToken = (user) => {
 
 //signup route
 router.post('/signup', async (req, res) => {
-    const { username, password, name, contact, role } = req.body;
+    const { username, password, name, contact, role, email } = req.body;
 
     try {
-        const user = await User.signup(username, password, name, contact, role);
+        const user = await User.signup(username, password, name, contact, role, email);
         const token = createToken(user);
         res.status(201).json({ username, name, token });
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+});
+
+router.post('/check-user', async (req, res) => {
+    const { username, email } = req.body;
+
+    try {
+        const user = await User.findOne({ username, email });
+        if (user) {
+            return res.json({ exists: true, user });  // Return user object as part of the response
+        } else {
+            return res.json({ exists: false });
+        }
+    } catch (err) {
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+
+
+router.post('/reset-password', async (req, res) => {
+    const { username, email, newPassword } = req.body;
+
+    try {
+        const user = await User.findOne({ username, email });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        // Hash and set new password
+        user.password = await bcrypt.hash(newPassword, 10);
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 

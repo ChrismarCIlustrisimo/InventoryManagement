@@ -6,6 +6,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify'; // Import Toastify components
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 import { IoCameraOutline } from "react-icons/io5";
+import { API_DOMAIN } from '../utils/constants';
+
 
 const AddUnitModal = ({ isOpen, onClose, productId }) => {
   const [quantity, setQuantity] = useState('');  // Changed to an empty string
@@ -13,7 +15,7 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
   const [serialNumberImages, setSerialNumberImages] = useState([]);
   const [localInputs, setLocalInputs] = useState([]);
   const [editModes, setEditModes] = useState([]);
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
   const { darkMode } = useAdminTheme();
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false); // Track if saving

@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { API_DOMAIN } from '../utils/constants';
 
 // Register the required components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -20,7 +21,7 @@ const BarChart2 = () => {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme(); // Access darkMode from AdminThemeContext
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
 
   const allCategories = [
     'Components',

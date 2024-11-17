@@ -1,5 +1,5 @@
 {
-  "proxy": "http://localhost:5555",
+  "proxy": "irig-computers-api.vercel.app",
   "name": "frontend",
   "private": true,
   "version": "0.0.0",

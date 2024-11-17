@@ -14,6 +14,7 @@ import {
   Filler
 } from 'chart.js'; 
 import axios from 'axios';
+import { API_DOMAIN } from '../utils/constants';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
@@ -21,6 +22,7 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
   const [salesData, setSalesData] = useState([]);
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme();
+  const baseURL = API_DOMAIN;
 
   const formatDate = (date) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -59,7 +61,7 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
           break;
       }
   
-      const response = await axios.get('http://localhost:5555/transaction', {
+      const response = await axios.get(`${API_DOMAIN}/transaction`, {
         params: {
           startDate: startDate.toISOString(),
           endDate: endDate.toISOString(),

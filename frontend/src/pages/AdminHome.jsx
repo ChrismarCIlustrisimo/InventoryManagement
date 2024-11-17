@@ -38,7 +38,7 @@ const AdminHome = () => {
   const { stockAlerts, setStockAlerts } = useStockAlerts();
   const { dateFilter, handleDateFilterChange } = useDateFilter(); // Access context values
 
-s
+
   useEffect(() => {
     if (user && user.token) {
       // Check if the toast has been shown in the current session

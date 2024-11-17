@@ -416,7 +416,7 @@ const upload = () => {
                   </div>
 
                   <div className='flex w-full gap-2 items-center justify-between'>
-                    <label htmlFor="supplier" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER<span className="text-red-500">*</span></label>
+                    <label htmlFor="supplier" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER</label>
                     <input type='text' placeholder='Supplier Name' id="supplier"
                       className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
                       value={supplier}

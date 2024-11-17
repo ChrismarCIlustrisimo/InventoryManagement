@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import axios from 'axios';
 import { useAuthContext } from '../hooks/useAuthContext';
@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import { API_DOMAIN } from '../utils/constants';
 
 // Register the required components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -40,7 +41,7 @@ const BarChart1 = () => {
   const [chartData, setChartData] = useState({ labels: [], datasets: [] });
   const { user } = useAuthContext();
   const { darkMode } = useAdminTheme(); 
-  const baseURL = "http://localhost:5555";
+  const baseURL = API_DOMAIN;
 
   const fetchProducts = async () => {
     try {

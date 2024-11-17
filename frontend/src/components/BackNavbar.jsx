@@ -4,6 +4,7 @@ import { MdDelete } from "react-icons/md";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTheme } from '../context/ThemeContext';
+import { API_DOMAIN } from '../utils/constants';
 
 const BackNavbar = ({ id }) => {
   const navigate = useNavigate();

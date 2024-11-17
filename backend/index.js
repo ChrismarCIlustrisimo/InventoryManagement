@@ -20,10 +20,8 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import User from './models/userModel.js'; // Ensure this path is correct
-
 // Load environment variables
 dotenv.config();
-
 // Create a Nodemailer transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -35,7 +33,6 @@ const transporter = nodemailer.createTransport({
       pass: process.env.EMAIL_PASS,  // Email password from .env
   },
 });
-
 // Example function to send an email
 const sendEmail = (to, subject, text) => {
   const mailOptions = {
@@ -44,7 +41,6 @@ const sendEmail = (to, subject, text) => {
       subject: subject,              // Subject line
       text: text,                    // Plain text body
   };
-
   transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
           return console.log('Error occurred: ' + error.message);
@@ -52,26 +48,21 @@ const sendEmail = (to, subject, text) => {
       console.log('Email sent: ' + info.response);
   });
 };
-
 // Function to create a default admin user
 const createTestAdmin = async () => {
   try {
     // Hash the password
-    const hashedPassword = await bcrypt.hash('SuperAdmin123!', 10);
-
+    const hashedPassword = await bcrypt.hash('password123', 10);
     // Check if an admin already exists
-    const existingAdmin = await User.findOne({ username: 'superadmin' });
+    const existingAdmin = await User.findOne({ username: 'ADMIN' });
     if (!existingAdmin) {
       const user = new User({
-        username: 'superadmin',
+        username: 'ADMIN',
         password: hashedPassword,
-        name: 'superadmin',
+        name: 'ADMIN',
         contact: '1234567890',
-        role: 'super-admin',
-        email: 'irigcomputers6@gmail.com',
-        archived: false,
+        role: 'admin',
       });
-
       await user.save();
       console.log('Admin user created');
     } else {
@@ -81,36 +72,38 @@ const createTestAdmin = async () => {
     console.error('Error creating admin user:', error);
   }
 };
-
 const app = express();
 const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://irig-computers.vercel.app',
+  'https://irig-computers-api.vercel.app'
+];
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Check if the origin is in the allowed origins array
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
   },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+// Apply CORS configuration
+app.use(cors(corsOptions));
+// Handle preflight requests for all routes
+app.options('*', cors(corsOptions));
+// Configure CORS for the Socket.IO server as well
+const io = new Server(server, {
+  cors: corsOptions,
 });
-
-// CORS configuration
-app.use(cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-
-// Handle preflight requests
-app.options('*', cors({
-  origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-
 app.use(express.json());
 app.use(express.static('public'));
-
 app.set('io', io);
-
 // Define routes
 app.use('/product', productRoutes);
 app.use('/customer', customerRoutes);
@@ -119,21 +112,17 @@ app.use('/user', userRoute);
 app.use('/supplier', SupplierRoute);
 app.use('/rma', RMARoute);
 app.use('/refund', refundRoute);
-
 // WebSocket connection
 io.on('connection', (socket) => {
   console.log('A user connected');
-
   socket.on('disconnect', () => {
     console.log('User disconnected');
   });
-
   // Dynamically import WebSocket handlers
   import('./websockets/productSocket.js').then(({ default: productSocket }) => productSocket(io, socket));
   import('./websockets/customerSocket.js').then(({ default: customerSocket }) => customerSocket(io, socket));
   import('./websockets/transactionSocket.js').then(({ default: transactionSocket }) => transactionSocket(io, socket));
 });
-
 // Initialize counter
 const initializeCounter = async () => {
   try {
@@ -145,10 +134,8 @@ const initializeCounter = async () => {
     console.error('Error initializing counter:', error);
   }
 };
-
 const processOldTransactions = async () => {
   const now = new Date();
-
   try {
     // Find transactions that are 'Reserved' and 'unpaid' and past their due date
     const transactions = await Transaction.find({
@@ -156,17 +143,14 @@ const processOldTransactions = async () => {
       payment_status: 'unpaid',
       due_date: { $lt: now }
     });
-
     for (const transaction of transactions) {
       // Get customer email if available
       const customer = await Customer.findById(transaction.customer);
       const customerEmail = customer ? customer.email : 'no-email@example.com'; // Fallback email
-
       // Update each product's status to 'in_stock'
       await Promise.all(
         transaction.products.map(async (productItem) => {
           const product = await Product.findById(productItem.product);
-
           if (product) {
             await Promise.all(
               product.units.map(async (unit) => {
@@ -179,10 +163,8 @@ const processOldTransactions = async () => {
           }
         })
       );
-
       // Send email notification to customer
       sendEmail(customerEmail, 'Transaction Expired', `Your reservation with ID ${transaction.transaction_id} has expired and has been removed. Please contact support for more information.`);
-
       // Delete the transaction
       await Transaction.findByIdAndDelete(transaction._id);
       console.log(`Deleted transaction ${transaction.transaction_id} and updated associated products.`);
@@ -192,13 +174,11 @@ const processOldTransactions = async () => {
     console.error('Error processing old transactions:', error);
   }
 };
-
 // Schedule the job to run daily at midnight
 cron.schedule('* * * * *', () => {
   console.log('Running scheduled job to process old transactions...');
   processOldTransactions();
 });
-
 // Connect to MongoDB and start the server
 mongoose
   .connect(mongoDBURL)
@@ -213,3 +193,4 @@ mongoose
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error.message);
   });
+export default app;

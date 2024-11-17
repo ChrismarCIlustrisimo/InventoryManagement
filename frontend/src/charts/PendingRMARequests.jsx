@@ -4,8 +4,6 @@ import { useAdminTheme } from "../context/AdminThemeContext";
 const PendingRMARequests = ({ rmaRequests }) => {
   const { darkMode } = useAdminTheme();
 
-  console.log(`PendingRMARequests`, rmaRequests)
-
   const getStatusStyles = (status) => {
     let statusStyles = {
       textClass: 'text-[#8E8E93]',

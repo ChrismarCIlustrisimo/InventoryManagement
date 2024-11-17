@@ -78,21 +78,9 @@ const createTestAdmin = async () => {
 };
 const app = express();
 const server = http.createServer(app);
-const allowedOrigins = [
-  'http://localhost:5173',
-  'http://localhost:5175',
-  'https://irig-computers.vercel.app',
-  'https://irig-computers-api.vercel.app'
-];
+
 const corsOptions = {
-  origin: function (origin, callback) {
-    // Check if the origin is in the allowed origins array
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD'],
   allowedHeaders: ['Content-Type', 'Authorization'],

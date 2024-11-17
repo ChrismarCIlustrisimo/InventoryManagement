@@ -6,6 +6,8 @@ import { useLogin } from '../hooks/useLogin';
 import { FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { toast, ToastContainer } from 'react-toastify'; // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import styles
 
 const CashierLogin = () => {
     const [email, setEmail] = useState('');
@@ -13,8 +15,7 @@ const CashierLogin = () => {
     const [username, setUsername] = useState('');
     const [forgotPassword, setForgotPassword] = useState(false);
     const [newPassword, setNewPassword] = useState('');
-    const [error, setError] = useState('');
-    const [isAccountValid, setIsAccountValid] = useState(false); // Check if account exists
+    const [isAccountValid, setIsAccountValid] = useState(false);
     const { login, resetPassword, checkUserExistence } = useLogin();
     const navigate = useNavigate();
     const { darkMode } = useTheme();
@@ -25,22 +26,21 @@ const CashierLogin = () => {
 
     const handleCancel = () => {
         setForgotPassword(false);
-        setError('');
         setUsername('');
         setEmail('');
         setNewPassword('');
-        setIsAccountValid(false);  // Reset account validity
+        setIsAccountValid(false);
     };
-    
 
     // Handle login process
     const handleLogin = async (e) => {
         e.preventDefault();
         const response = await login(username, password, 'cashier');
         if (response && response.role === 'cashier') {
+            toast.success("Login successful!"); // Show success toast
             navigate('/cashier-dashboard');
         } else {
-            setError('Invalid credentials');
+            toast.error("Invalid credentials"); // Show error toast
         }
     };
 
@@ -52,50 +52,48 @@ const CashierLogin = () => {
             const isValid = await checkUserExistence(username, email);
             
             if (isValid) {
-                // Assuming isValid returns user data, now we check the role
-                const user = isValid; // Adjust this based on your checkUserExistence response
+                const user = isValid; // Assuming isValid returns user data
                 if (user.role !== 'cashier') {
-                    setError('Password reset is only available for cashiers.');
-                    setIsAccountValid(false); // Do not proceed with reset for non-cashiers
+                    toast.error('Password reset is only available for cashiers.');
+                    setIsAccountValid(false);
                 } else {
-                    setIsAccountValid(true); // Account exists and is a cashier
-                    setError(''); // Clear any previous errors
+                    setIsAccountValid(true);
+                    toast.success('Account found! Proceed with password reset.');
                 }
             } else {
-                setError('Username or email not found');
-                setIsAccountValid(false); // Account doesn't exist, so no reset process
+                toast.error('Username or email not found');
+                setIsAccountValid(false);
             }
         } catch (error) {
-            setError('An error occurred while checking the account. Please try again.');
+            toast.error('An error occurred while checking the account. Please try again.');
         }
     };
-    
 
     // Handle reset password
     const handleResetPassword = async (e) => {
         e.preventDefault();
         const response = await resetPassword(username, email, newPassword);
         if (response) {
+            toast.success('Password reset successful! Please login again.'); // Show success toast
             setForgotPassword(false);
-            setError('');
             setUsername('');
             setEmail('');
             setNewPassword('');
             navigate('/cashier-login');
         } else {
-            setError('Failed to reset password');
+            toast.error('Failed to reset password'); // Show error toast
         }
     };
 
     return (
         <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col">
+            <ToastContainer /> {/* Add ToastContainer for toast notifications */}
             <div className=" flex flex-col items-center">
                 <img src={loginLogo} alt="Login Logo" className="w-32 mb-2" />
             </div>
 
             <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8 ">
-            {!forgotPassword ? (
-                    // Login Section
+                {!forgotPassword ? (
                     <>
                         <h1 className="text-4xl font-bold text-gray-800 text-center">Login</h1>
                         <div className="flex justify-center">
@@ -110,14 +108,10 @@ const CashierLogin = () => {
                         </div>
                     </>
                 ) : (
-                    // Reset Password Section
                     <h1 className="text-4xl font-bold text-gray-800 text-center py-4">Reset Password</h1>
                 )}
 
-
                 {forgotPassword ? (
-                    // Forgot password form
-                    // Reset Password Form
                     <form onSubmit={handleForgotPassword} className="space-y-6 text-black">
                         <div>
                             <label htmlFor="username" className="block text-gray-700">Username</label>
@@ -141,25 +135,22 @@ const CashierLogin = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
-                        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                         {!isAccountValid && (
                             <>
-                            <button
-                                type="submit"
-                                className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
-                            >
-                                Check Account
-                            </button>
+                                <button
+                                    type="submit"
+                                    className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
+                                >
+                                    Check Account
+                                </button>
                                 <button
                                     type="button"
-                                    onClick={() => handleCancel()} // Cancels the password reset
+                                    onClick={() => handleCancel()}
                                     className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600"
                                 >
                                     Cancel
                                 </button>
-                                </>
-
-                            
+                            </>
                         )}
                         {isAccountValid && (
                             <div>
@@ -178,7 +169,7 @@ const CashierLogin = () => {
                                 </button>
                                 <button
                                     type="button"
-                                    onClick={() => handleCancel()} // Cancels the password reset
+                                    onClick={() => handleCancel()}
                                     className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600"
                                 >
                                     Cancel
@@ -187,7 +178,6 @@ const CashierLogin = () => {
                         )}
                     </form>
                 ) : (
-                    // Login form
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className='flex flex-col ga-2'>
                             <div className='text-black'>
@@ -215,7 +205,6 @@ const CashierLogin = () => {
                             </div>
                         </div>
 
-                        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                         <button
                             type="submit"
                             className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
@@ -223,17 +212,15 @@ const CashierLogin = () => {
                             Login
                         </button>
                         <div className="mt-4 text-center">
-                        <button
+                            <button
                                 type="button"
                                 className="text-blue-500 hover:underline"
                                 onClick={() => {
-                                    setForgotPassword(true);  // Shows the reset password flow
-                                    setIsAccountValid(false);  // Reset account validity
+                                    setForgotPassword(true);
                                 }}
                             >
                                 Forgot Password?
                             </button>
-
                         </div>
                     </form>
                 )}

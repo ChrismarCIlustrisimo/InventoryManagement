@@ -38,9 +38,21 @@ const AdminHome = () => {
   const { stockAlerts, setStockAlerts } = useStockAlerts();
   const { dateFilter, handleDateFilterChange } = useDateFilter(); // Access context values
 
-
-
-
+s
+  useEffect(() => {
+    if (user && user.token) {
+      // Check if the toast has been shown in the current session
+      const isToastShown = sessionStorage.getItem('toastShown');
+      
+      if (!isToastShown) {
+        // Show the success toast for the first login in this session
+        toast.success('Login successful! Welcome back!');
+        
+        // Set a flag in sessionStorage so the toast won't show again during this session
+        sessionStorage.setItem('toastShown', 'true');
+      }
+    }
+  }, [user]); // Dependency on `user` to trigger when user logs in
 
   const fetchRMARequests = async () => {
     try {

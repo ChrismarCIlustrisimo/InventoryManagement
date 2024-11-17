@@ -17,7 +17,7 @@
             <div className='flex flex-col w-full '>
                 <p className='text-2xl font-bold py-2'>Sales Breakdown</p>
                 <table className={`min-w-full table-auto  text-xs`}>
-                <thead className={`sticky top-[-10px] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                <thead className={`sticky top-[-10px] bg-gray-400`}>
                       <tr className='border-b'>
                             <th className='text-center p-2'>Transaction ID</th>
                             <th className='text-center p-2'>Sales Date</th>
@@ -43,7 +43,7 @@
                                 const totalAfterDiscount = originalAmountInclVAT - transactionDiscount; // Total after discount
 
                                 return (
-                                    <tr key={`${transaction.transaction_id}-${idx}`} className={`border-b ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
+                                    <tr key={`${transaction.transaction_id}-${idx}`} className={`border-b`}>
                                         <td className={`p-2 text-center`}>{transaction.transaction_id || 'N/A'}</td>
                                         <td className={`p-2 text-center`}>{formatDate(transaction.transaction_date) || 'N/A'}</td>
                                         <td className={`p-2 text-center`}>{transaction.customer?.name || 'None'}</td>

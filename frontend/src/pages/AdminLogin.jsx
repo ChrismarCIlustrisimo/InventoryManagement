@@ -5,16 +5,17 @@ import loginLogo from '../assets/iControlLight.png';
 import { useLogin } from '../hooks/useLogin';
 import { useNavigate } from 'react-router-dom'; 
 import { FaUser } from "react-icons/fa";
+import { toast, ToastContainer } from 'react-toastify';  // Import ToastContainer and toast
+import 'react-toastify/dist/ReactToastify.css';  // Import styles for toast
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
-    const [username, setUsername] = useState(''); // Add a username state for forgot password
+    const [username, setUsername] = useState(''); 
     const [password, setPassword] = useState('');
     const [forgotPassword, setForgotPassword] = useState(false);
     const [newPassword, setNewPassword] = useState('');
     const { login, resetPassword, checkUserExistence } = useLogin();
-    const [error, setError] = useState('');
-    const [isAccountValid, setIsAccountValid] = useState(false); // Account validation flag
+    const [isAccountValid, setIsAccountValid] = useState(false); 
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -23,11 +24,10 @@ const AdminLogin = () => {
 
     const handleCancel = () => {
         setForgotPassword(false);
-        setError('');
         setUsername('');
         setEmail('');
         setNewPassword('');
-        setIsAccountValid(false);  // Reset account validity
+        setIsAccountValid(false); 
     };
 
     const handleLogin = async (e) => {
@@ -35,10 +35,11 @@ const AdminLogin = () => {
         const response = await login(username, password, 'admin');
         if (response) {
             if (response.role === 'admin' || response.role === 'super-admin') {
+                toast.success('Login successful!');  // Success toast on successful login
                 navigate('/admin-dashboard');
             }
         } else {
-            setError('Invalid credentials');
+            toast.error('Invalid credentials');  // Error toast for invalid credentials
         }
     };
 
@@ -46,39 +47,37 @@ const AdminLogin = () => {
         e.preventDefault();
     
         try {
-            const user = await checkUserExistence(username, email); // This should now return the full user object
+            const user = await checkUserExistence(username, email);
             
             if (user) {
-                if (user.role !== 'admin') { // Ensure the user role is admin
-                    setError('Password reset is only available for admins.');
-                    setIsAccountValid(false); // Do not proceed with reset for non-admins
+                if (user.role !== 'admin') {
+                    setIsAccountValid(false);
+                    toast.error('Password reset is only available for admins.');  // Error toast for non-admin users
                 } else {
-                    setIsAccountValid(true); // Account exists and is an admin
-                    setError(''); // Clear any previous errors
+                    setIsAccountValid(true);
+                    toast.info('Account found, you can reset the password now.');  // Info toast for valid account
                 }
             } else {
-                setError('Username or email not found');
-                setIsAccountValid(false); // Account doesn't exist, so no reset process
+                setIsAccountValid(false);
+                toast.error('Username or email not found');  // Error toast for account not found
             }
         } catch (error) {
-            setError('An error occurred while checking the account. Please try again.');
+            toast.error('An error occurred while checking the account. Please try again.');  // Error toast on failure
         }
     };
     
-    
-
     const handleResetPassword = async (e) => {
         e.preventDefault();
         const response = await resetPassword(username, email, newPassword);
         if (response) {
+            toast.success('Password reset successful!');  // Success toast on successful password reset
             setForgotPassword(false);
-            setError('');
             setUsername('');
             setEmail('');
             setNewPassword('');
             navigate('/admin-login');
         } else {
-            setError('Failed to reset password');
+            toast.error('Failed to reset password');  // Error toast on password reset failure
         }
     };
 
@@ -89,8 +88,7 @@ const AdminLogin = () => {
             </div>
 
             <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
-            {!forgotPassword ? (
-                    // Login Section
+                {!forgotPassword ? (
                     <>
                         <h1 className="text-4xl font-bold text-gray-800 text-center">Login</h1>
                         <div className="flex justify-center">
@@ -105,12 +103,10 @@ const AdminLogin = () => {
                         </div>
                     </>
                 ) : (
-                    // Reset Password Section
                     <h1 className="text-4xl font-bold text-gray-800 text-center py-4">Reset Password</h1>
                 )}
 
                 {forgotPassword ? (
-                    // Forgot password form
                     <form onSubmit={handleForgotPassword} className="space-y-6 text-black">
                         <div>
                             <label htmlFor="username" className="block text-gray-700">Username</label>
@@ -134,7 +130,6 @@ const AdminLogin = () => {
                                 onChange={(e) => setEmail(e.target.value)}
                             />
                         </div>
-                        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                         {!isAccountValid && (
                             <>
                             <button
@@ -178,7 +173,6 @@ const AdminLogin = () => {
                         )}
                     </form>
                 ) : (
-                    // Login form
                     <form onSubmit={handleLogin} className="space-y-6">
                         <div className='flex flex-col ga-2'>
                             <div className='text-black'>
@@ -206,7 +200,6 @@ const AdminLogin = () => {
                             </div>
                         </div>
 
-                        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
                         <button
                             type="submit"
                             className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
@@ -214,7 +207,7 @@ const AdminLogin = () => {
                             Login
                         </button>
                         <div className="mt-4 text-center">
-                        <button
+                            <button
                                 type="button"
                                 className="text-blue-500 hover:underline"
                                 onClick={() => setForgotPassword(true)} // Shows the reset password flow
@@ -225,6 +218,9 @@ const AdminLogin = () => {
                     </form>
                 )}
             </div>
+
+            {/* Toast Container */}
+            <ToastContainer />
         </div>
     );
 };

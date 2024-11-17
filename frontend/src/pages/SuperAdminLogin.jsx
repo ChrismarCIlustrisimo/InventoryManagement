@@ -5,6 +5,8 @@ import loginLogo from '../assets/iControlLight.png';
 import { useLogin } from '../hooks/useLogin';
 import { useNavigate } from 'react-router-dom'; 
 import { FaUser } from "react-icons/fa";
+import { toast, ToastContainer } from 'react-toastify'; // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import styles
 
 const SuperAdminLogin = () => {
     const [email, setEmail] = useState('');
@@ -13,7 +15,6 @@ const SuperAdminLogin = () => {
     const [forgotPassword, setForgotPassword] = useState(false);
     const [newPassword, setNewPassword] = useState('');
     const { login, resetPassword, checkUserExistence, error } = useLogin();
-    const [resetError, setResetError] = useState('');
     const [isAccountValid, setIsAccountValid] = useState(false); // Account validation flag
     const navigate = useNavigate();
 
@@ -25,9 +26,10 @@ const SuperAdminLogin = () => {
         e.preventDefault();
         const response = await login(username, password, 'super-admin');
         if (response && response.role === 'super-admin') {
+            toast.success('Login successful!'); // Success toast
             navigate('/super-admin-dashboard');
         } else {
-            setResetError('Invalid credentials');
+            toast.error('Invalid credentials'); // Error toast
         }
     };
 
@@ -38,18 +40,17 @@ const SuperAdminLogin = () => {
             const user = await checkUserExistence(username, email); // Ensure the user exists
             if (user) {
                 if (user.role !== 'super-admin') {
-                    setResetError('Password reset is only available for super-admins.');
                     setIsAccountValid(false); // Only allow reset for super-admins
+                    toast.error('Password reset is only available for super-admins.');
                 } else {
                     setIsAccountValid(true); // Account exists and is a super-admin
-                    setResetError('');
                 }
             } else {
-                setResetError('Username or email not found');
                 setIsAccountValid(false); // Account doesn't exist
+                toast.error('Username or email not found'); // Error toast
             }
         } catch (error) {
-            setResetError('An error occurred while checking the account. Please try again.');
+            toast.error('An error occurred while checking the account. Please try again.'); // Error toast
         }
     };
 
@@ -57,14 +58,14 @@ const SuperAdminLogin = () => {
         e.preventDefault();
         const response = await resetPassword(username, email, newPassword);
         if (response) {
+            toast.success('Password reset successful!'); // Success toast
             setForgotPassword(false);
-            setResetError('');
             setUsername('');
             setEmail('');
             setNewPassword('');
             navigate('/super-admin-login');
         } else {
-            setResetError('Failed to reset password');
+            toast.error('Failed to reset password'); // Error toast
         }
     };
 
@@ -113,7 +114,6 @@ const SuperAdminLogin = () => {
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
                             </div>
-                            {resetError && <p className="text-red-500 text-xs mt-1">{resetError}</p>}
                             <button
                                 type="submit"
                                 className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
@@ -157,7 +157,6 @@ const SuperAdminLogin = () => {
                                     onChange={(e) => setEmail(e.target.value)}
                                 />
                             </div>
-                            {resetError && <p className="text-red-500 text-xs mt-1">{resetError}</p>}
                             {!isAccountValid ? (
                                 <>
                                     <button
@@ -202,6 +201,7 @@ const SuperAdminLogin = () => {
                     </>
                 )}
             </div>
+            <ToastContainer /> {/* Add ToastContainer here */}
         </div>
     );
 };

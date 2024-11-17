@@ -43,7 +43,7 @@ const SalesByCategory = ({ salesData }) => {
             <div className='flex flex-col w-[90%] '>
                 <p className='text-2xl font-bold py-2'>Sales by Category</p>
                 <table className={`min-w-full table-auto  text-xs`}>
-                <thead className={`sticky top-[-10px] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                <thead className={`sticky top-[-10px] bg-gray-400`}>
                        <tr className='border-b'>
                             <th className='text-center p-2'>Category</th>
                             <th className='text-center p-2'>Units Sold</th>

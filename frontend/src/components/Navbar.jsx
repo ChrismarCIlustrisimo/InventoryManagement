@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import ProfileInfo from './ProfileInfo';
 import light from '../assets/iControlLoginLogo.png';
 import dark from '../assets/iControlLight.png';
 import { useTheme } from '../context/ThemeContext';
@@ -9,6 +8,8 @@ import { AiOutlineTag } from "react-icons/ai";
 import { BiCalendarCheck } from "react-icons/bi";
 import { TiArrowSortedUp, TiArrowSortedDown } from 'react-icons/ti';
 import { BsArrowRepeat } from "react-icons/bs";
+import ProfileInfoCashier from './ProfileInfoCashier';
+
 
 const Navbar = () => {
   const location = useLocation();
@@ -123,7 +124,7 @@ const Navbar = () => {
         </Link>
 
       </div>
-      <ProfileInfo />
+      <ProfileInfoCashier />
     </div>
   );
 };

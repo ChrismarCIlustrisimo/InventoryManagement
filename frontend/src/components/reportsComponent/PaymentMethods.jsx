@@ -31,8 +31,8 @@ const PaymentMethods = ({ salesData }) => {
         <div className='flex flex-col w-[60%] '>
       <p className='text-2xl font-bold py-2'>Payment Methods</p>
       <table className={`min-w-full table-auto  text-xs`}>
-      <thead className={`sticky top-[-10px] ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-       <tr className='border-b'>
+      <thead className={`sticky top-[-10px] bg-gray-400`}>
+      <tr className='border-b'>
             <th className='text-center p-2'>Payment Method</th>
             <th className='text-center p-2'>No. of Transactions</th>
             <th className='text-center p-2'>Total Amount</th>

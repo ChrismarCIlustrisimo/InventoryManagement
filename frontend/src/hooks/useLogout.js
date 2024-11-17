@@ -12,6 +12,7 @@ export const useLogout = () => {
         // Dispatch logout action and remove user data from localStorage
         dispatch({ type: 'LOGOUT' });
         localStorage.removeItem('user');
+        sessionStorage.removeItem('toastShown');
 
         // Redirect to the appropriate login page based on the user's role
         if (user?.role === 'cashier') {

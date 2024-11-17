@@ -23,10 +23,6 @@ const RefundSummary = ({ salesData }) => {
                 <span className='font-bold'>Refund Amount:</span>
                 <span>₱ {refund.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</span>
               </div>
-              <div className='flex justify-between'>
-                <span className='font-bold'>Reason:</span>
-                <span>{refund.reason_for_refund || 'N/A'}</span>
-              </div>
             </div>
           ))
         ) : (

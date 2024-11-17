@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // Import toast
 import { useProductContext } from '../page';
+import { API_DOMAIN } from '../utils/constants';
 
 const ConfirmationModal = ({ message, onConfirm, onCancel, darkMode }) => {
     // Calculate the claim deadline (1 day from now)
@@ -40,7 +41,7 @@ const ConfirmationModal = ({ message, onConfirm, onCancel, darkMode }) => {
 
 const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
     const navigate = useNavigate();
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const { cart, setCart } = useProductContext(); // Get cart and setCart from context
     const [showConfirmation, setShowConfirmation] = useState(false);
 

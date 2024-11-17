@@ -5,12 +5,13 @@ import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
+import { API_DOMAIN } from '../utils/constants';
 
 const PCFurniture = () => {
     const [products, setProducts] = useState([]);
     const [query, setQuery] = useState('');
     const productsPerPage = 10;
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const [sortOrder, setSortOrder] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(''); // State for selected category
 

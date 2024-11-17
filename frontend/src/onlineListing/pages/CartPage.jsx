@@ -4,11 +4,12 @@ import Footer from '../components/Footer';
 import CheckoutModal from '../components/CheckoutModal';
 import { useProductContext } from '../page'; // Adjust the import path as needed
 import { ToastContainer } from 'react-toastify';
+import { API_DOMAIN } from '../utils/constants';
 
 const CartPage = () => {
     const { cart, increaseQuantity, decreaseQuantity, removeItem } = useProductContext();
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
 
     console.log("CART", cart);
 

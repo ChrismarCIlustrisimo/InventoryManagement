@@ -6,12 +6,13 @@ import axios from 'axios';
 import ProductCard from './ProductCard'; 
 import { ToastContainer, toast } from 'react-toastify'; 
 import { useProductContext } from '../page';
+import { API_DOMAIN } from '../utils/constants';
 
 const ViewProducts = () => {
     const [query, setQuery] = useState('');
     const [relatedProducts, setRelatedProducts] = useState([]);
     const [quantity, setQuantity] = useState(1);
-    const baseURL = "http://localhost:5555";
+    const baseURL = API_DOMAIN;
     const { addToCart } = useProductContext();
     const location = useLocation();
     const navigate = useNavigate();

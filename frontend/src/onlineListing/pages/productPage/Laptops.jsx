@@ -5,13 +5,14 @@
     import ProductHeader from '../../components/ProductHeader';
     import axios from 'axios';
     import { ToastContainer } from 'react-toastify';
+    import { API_DOMAIN } from '../utils/constants';
 
 
     const Laptops = () => {
         const [products, setProducts] = useState([]);
         const [query, setQuery] = useState('');
         const productsPerPage = 10;
-        const baseURL = "http://localhost:5555";
+        const baseURL = API_DOMAIN;
         const [sortOrder, setSortOrder] = useState('');
 
     const subcategories = [

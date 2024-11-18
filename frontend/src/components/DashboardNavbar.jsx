@@ -51,9 +51,9 @@ const DashboardNavbar = () => {
       setSelected('Transaction');
     } else if (path === '/orders') {
       setSelected('Orders');
-    } else if (path === '/dashboard') {
+    } else if (path === '/dashboard' || path === '/super-admin-dashboard') {
       setSelected('Dashboard');
-    } else if (path === '/inventory') {  // Matches all inventory-related routes
+    } else if (path === '/inventory' || path === '/inventory/not-approved' || path === '/inventory/archive') {  // Matches all inventory-related routes
       setSelected('Inventory');
     } else if (path === '/rma' || path === '/refund-replace-units') {
       setSelected('RMA');

@@ -232,43 +232,47 @@ const formatDate = (dateString) => {
 
                   <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>AMOUNT RANGE</label>
 
-                  <div className={`flex justify-between items-center gap-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}> 
-                        <div className={`flex flex-col`}>
-                          <div className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>
-                            <input
-                              type='number'
-                              id='minPrice'
-                              value={minPrice}
-                              onChange={(e) => {
-                                setMinPrice(e.target.value);
-                                handleMinPriceChange(e);
-                              }}
-                              className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
-                              min='0'
-                              placeholder='Min'
-                            />
-                          </div>
-                        </div>
-
-                        <span className='text-2xl text-center h-full text-[#a8adb0]'>-</span>
-
-                        <div className={`flex flex-col`}>
-                          <div className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}>
-                            <input
-                              type='number'
-                              id='maxPrice'
-                              value={maxPrice}
-                              onChange={(e) => {
-                                setMaxPrice(e.target.value);
-                                handleMaxPriceChange(e);
-                              }}
-                              className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${maxPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
-                              min='0'
-                              placeholder='Max'
-                            />
-                          </div>
-                        </div>
+                  <div className='flex justify-center items-center'>
+                    <div className='flex flex-col'>
+                      <div 
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary')}`}
+                      >
+                        <input
+                          type='number'
+                          id='minPrice'
+                          value={minPrice}
+                          onChange={(e) => {
+                            setMinPrice(e.target.value);
+                            handleMinPriceChange(e);
+                          }}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
+                          min='0'
+                          placeholder='Min'
+                        />
                       </div>
+                    </div>
+
+                    <span className='text-2xl text-center h-full text-[#a8adb0] mx-2'>-</span>
+
+                    <div className='flex flex-col'>
+                      <div 
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
+                      >
+                        <input
+                          type='number'
+                          id='maxPrice'
+                          value={maxPrice}s
+                          onChange={(e) => {
+                            setMaxPrice(e.target.value);
+                            handleMaxPriceChange(e);
+                          }}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${maxPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
+                          min='0'
+                          placeholder='Max'
+                        />
+                      </div>
+                    </div>
+                  </div>
 
 
                       <div className='flex flex-col'>
@@ -281,7 +285,7 @@ const formatDate = (dateString) => {
                                 ? (darkMode ? 'bg-transparent text-black border-light-textPrimary' : 'bg-transparent text-white border-dark-textPrimary') 
                                 : (darkMode 
                                   ? ' text-light-primary border-light-textPrimary' 
-                                  : ' text-dark-primary border-dark-textPrimary')} `}>
+                                  : ' text-dark-primary border-dark-primary')} `}>
                               <DatePicker
                                 selected={startDate}
                                 onChange={handleStartDateChange}

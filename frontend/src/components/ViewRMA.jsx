@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import UpdateStatusPopup from './UpdateStatusPopup';
 import AddNotes from './AddNotes';
 import { AiOutlineClose } from "react-icons/ai";
+import { toast,ToastContainer } from 'react-toastify'; // Import toastify
+import 'react-toastify/dist/ReactToastify.css'; // Import the toastify CSS
 import { API_DOMAIN } from "../utils/constants";
 
 const ViewRMA = ({ rma, onClose, darkMode }) => {
@@ -100,7 +102,6 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
     const statusStyles = getStatusStyles(rma.status);
     const warrantyStyles = getWarrantyStyles(rma.warranty_status);
 
-
     const handleStatusUpdate = async (newProcess, newStatus) => {
         try {
             const response = await fetch(`${baseURL}/rma/${rma._id}`, {
@@ -114,21 +115,27 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                     process: newProcess
                 }),
             });
-    
+
             if (!response.ok) {
                 const errorMessage = await response.json();
                 throw new Error(errorMessage.message || 'Failed to update status');
             }
             const updatedRMA = await response.json();
-            console.log(updatedRMA);
+
+            // Show toast notification based on status update
+            if (newStatus === 'Approved') {
+                toast.success("RMA has been approved!");
+            } else if (newStatus === 'Rejected') {
+                toast.error("RMA has been rejected!");
+            }
+
             onClose();
             toggleIsApproveRMA(); // Close the popup after successful update
         } catch (error) {
             console.error(error);
-            alert(error.message); // Display error message to the user
+            toast.error(error.message || 'Failed to update RMA status'); // Show error toast
         }
     };
-    
 
     const handleAddNotes = async (newNotes) => {
         try {
@@ -149,6 +156,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
             toggleAddNotes(); // Close the popup after successful addition of notes
         } catch (error) {
             console.error(error);
+            toast.error('Failed to add notes');
         }
     };
 
@@ -256,6 +264,8 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                     </div>
                 )}
             </div>
+            <ToastContainer />
+
         </div>
     );
 };

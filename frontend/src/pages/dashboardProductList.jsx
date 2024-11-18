@@ -18,7 +18,8 @@ import ConfirmationDialog from '../components/ConfirmationDialog';
 import { useStockAlerts } from '../context/StockAlertsContext';
 import { IoArchiveOutline } from "react-icons/io5";
 import { API_DOMAIN } from '../utils/constants';
-
+import { toast,ToastContainer } from 'react-toastify'; // Import toastify
+import 'react-toastify/dist/ReactToastify.css';
 
 const getStatusStyles = (status) => {
   let statusStyles = {
@@ -72,6 +73,7 @@ const DashboardProductList = () => {
   const isInputsEmpty = minPrice === '' && maxPrice === '';
   const { stockAlerts, setStockAlerts } = useStockAlerts();
   const [actionType, setActionType] = useState(null); // State to track the action type
+  const [filteredProducts, setFilteredProducts] = useState(products);  // Store filtered products
 
 
   const handleStockAlertChange = (e) => {
@@ -183,46 +185,56 @@ const handlePriceRange = (e) => {
   }
 };
 
-const filteredProducts = products
-  .filter(product => {
-    // Price range filter
-    const isInPriceRange = (minPrice || maxPrice)
-      ? product.selling_price >= minPrice && product.selling_price <= maxPrice
-      : true; // If no price range is selected, include all products
-    
-    // Category filter
-    const isInCategory = categoryFilter === '' || product.category === categoryFilter;
-    
-    // Supplier filter
-    const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier;
+useEffect(() => {
+  const updatedFilteredProducts = products
+    .filter(product => {
+      // Price range filter
+      const isInPriceRange = (minPrice || maxPrice)
+        ? product.selling_price >= (minPrice || 0) && product.selling_price <= (maxPrice || Infinity)
+        : true;
 
-    // Stock alerts filter with fixed logical conditions
-    const isInStockStatus =
-      (stockAlerts['LOW'] && product.current_stock_status === 'LOW') ||
-      (stockAlerts['HIGH'] && product.current_stock_status === 'HIGH') ||
-      (stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK') ||
-      (!stockAlerts['LOW'] && !stockAlerts['HIGH'] && !stockAlerts['OUT OF STOCK']);
-    
-    // Search query filter
-    const matchesSearchQuery =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.model.toLowerCase().includes(searchQuery.toLowerCase());
+      // Category filter
+      const isInCategory = categoryFilter === '' || product.category === categoryFilter;
 
-    return (
-      matchesSearchQuery &&
-      isInCategory &&
-      isInSupplier &&
-      isInStockStatus &&
-      isInPriceRange
-    );
-  })
-  .sort((a, b) => {
-    if (sortBy === 'price_asc') return a.selling_price - b.selling_price;
-    if (sortBy === 'price_desc') return b.selling_price - a.selling_price;
-    if (sortBy === 'product_name_asc') return a.name.localeCompare(b.name);
-    if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
-    return 0;
-  });
+      // Supplier filter
+      const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier;
+
+      // Stock alerts filter
+      const isInStockStatus =
+        (stockAlerts['LOW'] && product.current_stock_status === 'LOW') ||
+        (stockAlerts['HIGH'] && product.current_stock_status === 'HIGH') ||
+        (stockAlerts['OUT OF STOCK'] && product.current_stock_status === 'OUT OF STOCK') ||
+        (!stockAlerts['LOW'] && !stockAlerts['HIGH'] && !stockAlerts['OUT OF STOCK']);
+
+      // Search query filter
+      const matchesSearchQuery =
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.model.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // Combine all filters
+      return matchesSearchQuery && isInCategory && isInSupplier && isInStockStatus && isInPriceRange;
+    })
+    .sort((a, b) => {
+      // Sorting logic
+      switch (sortBy) {
+        case 'price_asc':
+          return a.selling_price - b.selling_price;
+        case 'price_desc':
+          return b.selling_price - a.selling_price;
+        case 'product_name_asc':
+          return a.name.localeCompare(b.name);
+        case 'product_name_desc':
+          return b.name.localeCompare(a.name);
+        default:
+          return 0; // No sorting if sortBy is empty
+      }
+    });
+
+  setFilteredProducts(updatedFilteredProducts); // Update state with the filtered products
+}, [products, minPrice, maxPrice, categoryFilter, selectedSupplier, stockAlerts, searchQuery, sortBy]);  // Re-run effect when any of these change
+
+
+
 
 
 
@@ -240,10 +252,9 @@ const filteredProducts = products
     setMaxPrice(e.target.value);
   };
 
-  const handleSortByChange = e => setSortBy(e.target.value);
-
-
-
+  const handleSortByChange = (event) => {
+    setSortBy(event.target.value);
+  };
 
   const handleResetFilters = () => {
     setSelectedCategory('');
@@ -265,6 +276,7 @@ const filteredProducts = products
 
   const handleAddProductClick = () => {
     navigate('/addproduct');
+    toast.success('Product added successfully')
   };
 
   const deleteProduct = async () => {
@@ -272,10 +284,10 @@ const filteredProducts = products
   
     try {
       await axios.delete(`${baseURL}/product/${productId}`);
-      console.log('Delete successful');
+      toast.success('Product deleted successfully'); // Toast notification for success
       fetchProducts(); // Refetch products after deletion
     } catch (error) {
-      console.error('Error deleting product:', error.response ? error.response.data : error.message);
+      toast.error(`Error deleting product: ${error.response ? error.response.data : error.message}`); // Toast notification for error
     } finally {
       setIsDialogOpen(false); // Close the dialog
       setProductId(null); // Reset the productId
@@ -287,10 +299,10 @@ const filteredProducts = products
   
     try {
       await axios.patch(`${baseURL}/product/archive/${productId}`);
-      console.log('Product archived:', productId);
+      toast.success('Product archived successfully'); // Toast notification for success
       fetchProducts(); // Refetch products after archiving
     } catch (error) {
-      console.error('Error archiving product:', error.response ? error.response.data : error.message);
+      toast.error(`Error archiving product: ${error.response ? error.response.data : error.message}`); // Toast notification for error
     } finally {
       setIsDialogOpen(false); // Close the dialog
       setProductId(null); // Reset the productId
@@ -319,6 +331,7 @@ const filteredProducts = products
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
       <DashboardNavbar />
+      <ToastContainer />
       <div className='pt-[70px] px-6 py-4'>
         <div className='flex items-center justify-center py-5'>
           <div className='flex w-[30%]'>
@@ -384,26 +397,25 @@ const filteredProducts = products
               <div className='flex flex-col'>
                 <label htmlFor='sortBy' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SORT BY</label>
                 <select
-                    id="sortBy"
-                    value={sortBy}
-                    onChange={handleSortByChange}
-                    className={`border rounded p-2 my-1 outline-none font-semibold ${
-                        sortBy === ''
-                            ? (darkMode 
-                                ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
-                                : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
-                            : (darkMode 
-                                ? 'bg-dark-activeLink text-light-primary border-light-primary' 
-                                : 'bg-light-activeLink text-dark-primary border-dark-primary')
-                    }`}
+                  id="sortBy"
+                  value={sortBy}
+                  onChange={handleSortByChange}
+                  className={`border rounded p-2 my-1 outline-none font-semibold ${
+                    sortBy === ''
+                      ? (darkMode 
+                          ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                          : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                      : (darkMode 
+                          ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                          : 'bg-light-activeLink text-dark-primary border-dark-primary')
+                  }`}
                 >
-                    <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
-                    <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
-                    <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Highest to Lowest</option>
-                    <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name A-Z</option>
-                    <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name Z-A</option>
+                  <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                  <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
+                  <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Highest to Lowest</option>
+                  <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name A-Z</option>
+                  <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name Z-A</option>
                 </select>
-
               </div>
 
 
@@ -457,7 +469,7 @@ const filteredProducts = products
                 <div className='flex justify-center items-center'>
                     <div className='flex flex-col'>
                       <div 
-                        className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${minPrice === '' ? (darkMode ? 'border-black' : 'border-white') : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
                       >
                         <input
                           type='number'
@@ -467,7 +479,7 @@ const filteredProducts = products
                             setMinPrice(e.target.value);
                             handleMinPriceChange(e);
                           }}
-                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : (darkMode ? 'text-light-primary' : 'text-dark-primary')}`}
                           min='0'
                           placeholder='Min'
                         />
@@ -478,23 +490,24 @@ const filteredProducts = products
 
                     <div className='flex flex-col'>
                       <div 
-                        className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? `${darkMode ? 'border-black' : 'border-white'}` : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
+                        className={`w-[130px] border rounded bg-transparent pl-1 ${maxPrice === '' ? (darkMode ? 'border-black' : 'border-white') : (darkMode ? 'border-light-primary' : 'border-dark-primary')}`}
                       >
                         <input
                           type='number'
                           id='maxPrice'
-                          value={maxPrice}s
+                          value={maxPrice}
                           onChange={(e) => {
                             setMaxPrice(e.target.value);
                             handleMaxPriceChange(e);
                           }}
-                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${maxPrice === '' ? (darkMode ? 'text-black' : 'text-white') : (darkMode ? 'text-light-primary' : 'text-dark-primary')}`}
                           min='0'
                           placeholder='Max'
                         />
                       </div>
                     </div>
                   </div>
+
 
 
             </div>
@@ -515,7 +528,7 @@ const filteredProducts = products
           </div>
 
           <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
-              {sortedProducts.length > 0 ? (
+              {filteredProducts.length > 0 ? (
                 <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                   <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                     <tr>
@@ -527,11 +540,13 @@ const filteredProducts = products
                       <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
                       <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
                       <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Stock Status</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Actions</th>
+                      <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedProducts.map((product, index) => {
+                    {filteredProducts
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort products from new to old
+                    .map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
                       const statusStyles = getStatusStyles(product.current_stock_status);
 
@@ -590,6 +605,27 @@ const filteredProducts = products
                                 </span>
                               </div>
 
+
+                              <div className="relative inline-block group">
+                                <button
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                  onClick={() => { 
+                                    setProductId(product._id); 
+                                    setActionType('archive'); // Set the action type to archive
+                                    setIsDialogOpen(true); 
+                                  }}
+                                >
+                                  <IoArchiveOutline size={20} />
+                                </button>
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ?  'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Archive
+                                </span>
+                              </div>
+
                               {product.canDelete && product.sales === 0 && (
                                 <div className="relative inline-block group">
                                   <button
@@ -612,25 +648,7 @@ const filteredProducts = products
                                 </div>
                               )}
 
-                              <div className="relative inline-block group">
-                                <button
-                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
-                                  onClick={() => { 
-                                    setProductId(product._id); 
-                                    setActionType('archive'); // Set the action type to archive
-                                    setIsDialogOpen(true); 
-                                  }}
-                                >
-                                  <IoArchiveOutline size={20} />
-                                </button>
-                                <span
-                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                                    darkMode ?  'bg-gray-200 text-black' : 'bg-black text-white'
-                                  }`}
-                                >
-                                  Archive
-                                </span>
-                              </div>
+
                             </td>
 
 

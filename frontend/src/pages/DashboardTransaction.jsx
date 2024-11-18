@@ -292,7 +292,7 @@ const DashboardTransaction = () => {
                                 id='minPrice'
                                 value={minPrice}
                                 onChange={handleMinPriceChange}
-                                className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                                className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
                                 min='0'
                                 placeholder='Min'
                               />
@@ -308,7 +308,7 @@ const DashboardTransaction = () => {
                                 id='maxPrice'
                                 value={maxPrice}
                                 onChange={handleMaxPriceChange}
-                                className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-black' : 'text-white'}`}
+                                className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${maxPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
                                 min='0'
                                 placeholder='Max'
                               />

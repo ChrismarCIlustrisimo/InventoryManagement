@@ -250,17 +250,21 @@ const upload = () => {
   formData.append('units', JSON.stringify(units));
 
   axios.post(`${baseURL}/product`, formData)
-      .then(res => {
-          setLoading(false); // Set loading to false after successful upload
-          toast.success('Product added successfully!');
-          handleBackClick();
-      })
-      .catch(err => {
-          setLoading(false); // Set loading to false if there's an error
-          const errorMessage = err.response?.data.message || 'An unknown error occurred';
-          console.error('Error:', errorMessage);
-          setError(errorMessage);
-      });
+  .then(res => {
+      setLoading(false); // Set loading to false after successful upload
+      toast.success('Product added successfully!');
+      
+      // Delay the back navigation by 3 seconds (3000 milliseconds)
+      setTimeout(() => {
+          handleBackClick(); // Trigger handleBackClick after 3 seconds
+      }, 2000);
+  })
+  .catch(err => {
+      setLoading(false); // Set loading to false if there's an error
+      const errorMessage = err.response?.data.message || 'An unknown error occurred';
+      console.error('Error:', errorMessage);
+      setError(errorMessage);
+  });
 };
 
   const handleBackClick = () => {

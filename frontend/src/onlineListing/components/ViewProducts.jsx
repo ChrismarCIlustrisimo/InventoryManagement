@@ -6,7 +6,7 @@ import axios from 'axios';
 import ProductCard from './ProductCard'; 
 import { ToastContainer, toast } from 'react-toastify'; 
 import { useProductContext } from '../page';
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../utils/constants';
 
 const ViewProducts = () => {
     const [query, setQuery] = useState('');

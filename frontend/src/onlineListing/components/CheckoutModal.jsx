@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify'; // Import toast
 import { useProductContext } from '../page';
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../utils/constants';
 
 const ConfirmationModal = ({ message, onConfirm, onCancel, darkMode }) => {
     // Calculate the claim deadline (1 day from now)

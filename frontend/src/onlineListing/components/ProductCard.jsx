@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'; // Import toast
 import 'react-toastify/dist/ReactToastify.css'; // Import toast CSS
 import '../onlineListing.css';
 import { useProductContext } from '../page'; // Adjust path if necessary
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../utils/constants';
 
 const ProductCard = ({ product }) => {
     const navigate = useNavigate();

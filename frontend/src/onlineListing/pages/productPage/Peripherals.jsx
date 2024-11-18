@@ -5,7 +5,8 @@ import ProductCard from '../../components/ProductCard';
 import ProductHeader from '../../components/ProductHeader';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../../utils/constants';
+
 
 const subcategories = [
     "Headphones",

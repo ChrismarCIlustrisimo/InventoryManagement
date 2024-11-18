@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ProductCard from './ProductCard'; // Adjust the import path as needed
 import axios from 'axios';
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../utils/constants';
 
 const ProductGrid = () => {
   const [desktops, setDesktops] = useState([]);

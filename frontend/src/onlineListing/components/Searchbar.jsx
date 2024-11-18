@@ -3,7 +3,7 @@ import { FaSearch } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../utils/constants';
 
 const Searchbar = ({ query, onQueryChange, placeholderMessage }) => {
     const [products, setProducts] = useState([]);

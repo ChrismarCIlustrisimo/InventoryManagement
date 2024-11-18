@@ -7,7 +7,7 @@ import '../onlineListing.css';
 import IRIGImage from '../assets/IRIGImage.png';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../utils/constants';
 
 const Ecommerce = () => {
     const [query, setQuery] = useState('');

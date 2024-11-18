@@ -4,7 +4,7 @@ import Footer from '../components/Footer';
 import CheckoutModal from '../components/CheckoutModal';
 import { useProductContext } from '../page'; // Adjust the import path as needed
 import { ToastContainer } from 'react-toastify';
-import { API_DOMAIN } from '../utils/constants';
+import { API_DOMAIN } from '../../utils/constants';
 
 const CartPage = () => {
     const { cart, increaseQuantity, decreaseQuantity, removeItem } = useProductContext();

@@ -94,7 +94,9 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
   
       if (response.status === 201) {
         toast.success("Units added successfully!");
-        onClose();
+        setTimeout(() => {
+          onClose();
+        }, 1000); // 1000ms = 1 second
       }
     } catch (error) {
       console.error('Error adding units:', error);

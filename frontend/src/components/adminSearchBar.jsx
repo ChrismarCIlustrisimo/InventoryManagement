@@ -15,7 +15,7 @@ const AdminSearchBar = ({ query, onQueryChange, placeholderMessage }) => {
   };
 
   return (
-    <div className={`w-[480px] flex items-center px-4 rounded-md border ${darkMode ? 'bg-light-container text-light-textPrimary boder-border' : 'dark:bg-dark-container dark:text-dark-textPrimary boder-border'}`}>
+    <div className={`w-[480px] flex items-center px-4 rounded-md border ${darkMode ? 'bg-light-container text-light-textPrimary border-border' : 'dark:bg-dark-container dark:text-dark-textPrimary border-border'}`}>
       <input 
         type="text"
         placeholder={placeholderMessage}
@@ -24,9 +24,14 @@ const AdminSearchBar = ({ query, onQueryChange, placeholderMessage }) => {
         onChange={handleChange}       
       />
       {query ? (
-        <IoMdClose className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'} hover:text-white cursor-pointer`} onClick={handleClear} />
+        <IoMdClose 
+          className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'} hover:${darkMode ? 'text-dark-primary' : 'text-light-primary'} cursor-pointer`} 
+          onClick={handleClear} 
+        />
       ) : (
-        <FaSearch className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'} hover:text-white cursor-pointer`} />
+        <FaSearch 
+          className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'} hover:${darkMode ? 'text-dark-primary' : 'text-light-primary'} cursor-pointer`} 
+        />
       )}
     </div>
   );

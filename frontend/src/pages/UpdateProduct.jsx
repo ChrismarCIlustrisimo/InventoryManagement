@@ -12,7 +12,6 @@ const UpdateProduct = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('Upload Product Photo');
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
   const [image, setImage] = useState('');
   const [supplier, setSupplier] = useState('');
   const [productID, setProductID] = useState('');
@@ -22,7 +21,6 @@ const UpdateProduct = () => {
   const [updatedAt, setUpdatedAt] = useState('');
   const [lowStockThreshold, setLowStockThreshold] = useState(0);
   const [currentStockStatus, setCurrentStockStatus] = useState('');
-  const [subCategory, setSubCategory] = useState('');
   const [model, setModel] = useState('');
   const [warranty, setWarranty] = useState('');
   const [description, setDescription] = useState('');
@@ -33,6 +31,47 @@ const UpdateProduct = () => {
   const { productId } = useParams();
   const baseURL = API_DOMAIN;
   const [rows, setRows] = useState(3); // Initial number of rows
+
+  const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  
+
+  
+  const categories = [
+    {
+      name: "Components",
+      subcategories: ["Chassis Fan", "CPU Cooler", "Graphics Card", "Hard Drive", "Memory", "Motherboard", "PC Case", "Power Supply", "Intel Processor", "Processor Tray", "Solid State Drive (SSD)"]
+    },
+    {
+      name: "Peripherals",
+      subcategories: ["CCTV Camera", "Headset", "Keyboard", "Keyboard and Mouse Combo", "Monitor", "Mouse", "Network Devices", "Printer & Scanner", "Projector", "Audio Recorder", "Speaker", "UPS & AVR", "Web & Digital Camera"]
+    },
+    {
+      name: "Accessories",
+      subcategories: ["Cables", "Earphones", "Gaming Surface", "Power Bank"]
+    },
+    {
+      name: "PC Furniture",
+      subcategories: ["Chairs", "Tables"]
+    },
+    {
+      name: "OS & Software",
+      subcategories: ["Antivirus Software", "Office Applications", "Operating Systems"]
+    },
+    {
+      name: "Laptops",
+      subcategories: ["Chromebooks", "Laptops"]
+    },
+    {
+      name: "Desktops",
+      subcategories: ["Home Use Builds", "Productivity Builds", "Gaming Builds"]
+    }
+  ];
+  
+  // Find subcategories based on the selected category
+  const selectedCategory = categories.find((cat) => cat.name === category);
+  const subCategories = selectedCategory ? selectedCategory.subcategories : [];
+  
 
   useEffect(() => {
     const descriptionArray = parseDescription();
@@ -119,13 +158,18 @@ const UpdateProduct = () => {
     formData.append('description', description);
   
     axios.put(`${baseURL}/product/${productId}`, formData)
-      .then(res => {
-        toast.success('Product updated successfully!');
-      })
-      .catch(err => {
-        console.error('Error updating product:', err);
-        toast.error('Failed to update product.');
-      });
+    .then(res => {
+      toast.success('Product updated successfully!');
+      
+      // Delay the handleBackClick by 2 seconds (2000ms)
+      setTimeout(() => {
+        handleBackClick(); // Trigger handleBackClick after the delay
+      }, 1000);
+    })
+    .catch(err => {
+      console.error('Error updating product:', err);
+      toast.error('Failed to update product.');
+    });
   };
   
 
@@ -145,15 +189,17 @@ const UpdateProduct = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'long', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).format(date);
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    }) + ' ' + date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    });
   };
-
 
   // Function to get the status styles based on the status
 const getStatusStyles = (status) => {
@@ -193,6 +239,17 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
     navigate(`/units-product/${productId}`);
   };
 
+
+  const handleCategoryChange = (e) => {
+    const selectedCategory = e.target.value;
+    setCategory(selectedCategory);
+    
+    // Filter to find the subcategories for the selected category
+    const foundCategory = categories.find(cat => cat.name === selectedCategory);
+    setSubCategories(foundCategory ? foundCategory.subcategories : []);
+    setSubCategory(''); // Reset sub-category when category changes
+  };
+
   return (
     <div className={`flex flex-col h-auto ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-dark-bg'}`}>
       <div className='flex items-center justify-between h-[8%] p-4'>
@@ -225,11 +282,11 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
               </label>
             </div>
             <div className="text-md bg-white rounded-lg shadow-md p-4 font-medium flex py-4">
-              <div className="w-[40%] flex flex-col justify-between h-full gap-4">
-                <p>Date Added</p>
-                <p>Date Updated</p>
+            <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                <p>DATE ADDED</p>
+                <p>DATE UPDATED</p>
               </div>
-              <div className="w-[60%] flex flex-col justify-between h-full gap-4">
+              <div className="w-[60%] flex flex-col justify-between h-full gap-4 font-semibold">
                 <p>{formatDate(dateAdded)}</p>
                 <p>{formatDate(updatedAt)}</p>
               </div>
@@ -248,8 +305,47 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
                 <p>Status</p>
               </div>
               <div className="w-[50%] flex flex-col justify-between h-full gap-7">
-                <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="border rounded p-2" />
-                <input type="text" value={subCategory} onChange={(e) => setSubCategory(e.target.value)} placeholder="Sub-Category" className="border rounded p-2" />
+              <div className="flex w-full gap-2 justify-between">
+                  <select 
+                    id="category"
+                    className={`border rounded p-2 my-1 font-semibold w-full ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                    value={category} 
+                    onChange={handleCategoryChange}
+                  >
+                    <option value="" disabled selected={!category}>Select Category</option>
+                    {categories.map((cat) => (
+                      <option key={cat.name} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex w-full gap-2 justify-between">
+                  <select 
+                    id="sub-category" 
+                    className={`border rounded p-2 my-1 font-semibold w-full ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                    value={subCategory}
+                    onChange={(e) => setSubCategory(e.target.value)}
+                    disabled={!category} // Disable subcategory if no category is selected
+                  >
+                    <option value="" disabled selected={!subCategory}>Select Sub-Category</option>
+                    {subCategories.map((subCat) => (
+                      <option key={subCat} value={subCat}>
+                        {subCat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+
+
+
+
+
+
+
+
                 <input type="text" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Model" className="border rounded p-2" />
                 <input type="text" value={warranty} onChange={(e) => setWarranty(e.target.value)} placeholder="Warranty" className="border rounded p-2" />
                 <input
@@ -273,10 +369,37 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
                   <div className="text-gray-500">SUPPLIER</div>
                 </div>
                 <div className="w-[60%] flex flex-col justify-between h-full gap-4">
-                  <input type="number" value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} placeholder="Buying Price" className="border rounded p-2" />
-                  <input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} placeholder="Selling Price" className="border rounded p-2" />
-                  <input type="text" value={supplier} onChange={(e) => setSupplier(e.target.value)} placeholder="Supplier" className="border rounded p-2" />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg">₱</span>
+                    <input 
+                      type="number" 
+                      value={buyingPrice} 
+                      onChange={(e) => setBuyingPrice(e.target.value)} 
+                      placeholder="Buying Price" 
+                      className="border rounded p-2 pl-7"  // Add padding-left to make room for the peso sign
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg">₱</span>
+                    <input 
+                      type="number" 
+                      value={sellingPrice} 
+                      onChange={(e) => setSellingPrice(e.target.value)} 
+                      placeholder="Selling Price" 
+                      className="border rounded p-2 pl-7"  // Add padding-left to make room for the peso sign
+                    />
+                  </div>
+
+                  <input 
+                    type="text" 
+                    value={supplier} 
+                    onChange={(e) => setSupplier(e.target.value)} 
+                    placeholder="Supplier" 
+                    className="border rounded p-2"
+                  />
                 </div>
+
               </div>
             </div>
 

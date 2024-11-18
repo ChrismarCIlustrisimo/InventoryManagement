@@ -376,7 +376,7 @@ const AdminHome = () => {
               <div className='w-full h-[50%] flex gap-4 pb-4'>
                   <div className={`w-[60%] h-full px-12 py-6 border border-gray-200 rounded-lg shadow-lg  ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
                     <div className="w-full h-[10%] flex items-center justify-between">
-                      <h2 className="text-center text-lg font-semibold text-orange-600">Sales by Categoryview</h2>
+                      <h2 className="text-center text-lg font-semibold text-orange-600">Sales Overview</h2>
                       <select
                         value={selectedTimeframe}
                         onChange={handleDropdownChange}

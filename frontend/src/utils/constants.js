@@ -1,1 +1,1 @@
-export const API_DOMAIN = 'https://inventorymanagement-4r8x.onrender.com';
+export const API_DOMAIN = 'http://localhost:5555';

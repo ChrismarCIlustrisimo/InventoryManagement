@@ -14,6 +14,8 @@ import { GrView } from "react-icons/gr";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import { MdDelete } from "react-icons/md";
 import { LuArchiveRestore } from "react-icons/lu";
+import { toast,ToastContainer } from 'react-toastify'; // Import toastify
+import 'react-toastify/dist/ReactToastify.css';
 import { API_DOMAIN } from '../utils/constants';
 
 
@@ -25,7 +27,6 @@ const ArchivedProducts = () => {
   const baseURL = API_DOMAIN;
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [sortBy, setSortBy] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [products, setProducts] = useState([]);
   const [productCount, setProductCount] = useState();
@@ -38,22 +39,22 @@ const ArchivedProducts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isInputsEmpty = minPrice === '' && maxPrice === '';
   const [actionType, setActionType] = useState(null);
+  const [sortOrder, setSortOrder] = useState(''); // Options: 'A-Z', 'Z-A', 'Price-High-Low', 'Price-Low-High'
 
   const restoreProduct = async () => {
     if (!productId) return;
   
     try {
       await axios.patch(`${baseURL}/product/archive/${productId}`);
-      console.log('Product restored:', productId);
+      toast.success('Product restored successfully'); // Success toast notification
       fetchProducts(); // Refetch products after restoration
     } catch (error) {
-      console.error('Error restoring product:', error.response ? error.response.data : error.message);
+      toast.error(`Error restoring product: ${error.response ? error.response.data : error.message}`); // Error toast notification
     } finally {
       setIsDialogOpen(false); // Close the dialog
       setProductId(null); // Reset the productId
     }
   };
-  
 
   useEffect(() => {
     if (user && user.token) {
@@ -158,13 +159,6 @@ const filteredProducts = products
       isInPriceRange
     );
   })
-  .sort((a, b) => {
-    if (sortBy === 'price_asc') return a.selling_price - b.selling_price;
-    if (sortBy === 'price_desc') return b.selling_price - a.selling_price;
-    if (sortBy === 'product_name_asc') return a.name.localeCompare(b.name);
-    if (sortBy === 'product_name_desc') return b.name.localeCompare(a.name);
-    return 0;
-  });
 
 
 
@@ -182,7 +176,6 @@ const filteredProducts = products
     setMaxPrice(e.target.value);
   };
 
-  const handleSortByChange = e => setSortBy(e.target.value);
 
 // Handle price range selection
 const handlePriceRange = (e) => {
@@ -204,7 +197,6 @@ const handlePriceRange = (e) => {
     setSelectedCategory('');
     setMinPrice('');
     setMaxPrice('');
-    setSortBy('');
     setSearchQuery('');
     setCategoryFilter(''); // Reset category filter
     setPriceRange(''); // Reset price range
@@ -233,20 +225,20 @@ const handlePriceRange = (e) => {
       };
 
 
-  const deleteProduct = async () => {
-    if (!productId) return;
-
-    try {
-      await axios.delete(`${baseURL}/product/${productId}`);
-      console.log('Delete successful');
-      fetchProducts(); // Assuming this function reloads the products
-    } catch (error) {
-      console.error('Error deleting product:', error.response ? error.response.data : error.message);
-    } finally {
-      setIsDialogOpen(false);
-      setProductId(null);
-    }
-  };
+      const deleteProduct = async () => {
+        if (!productId) return;
+      
+        try {
+          await axios.delete(`${baseURL}/product/${productId}`);
+          toast.success('Product deleted successfully'); // Success toast notification
+          fetchProducts(); // Assuming this function reloads the products
+        } catch (error) {
+          toast.error(`Error deleting product: ${error.response ? error.response.data : error.message}`); // Error toast notification
+        } finally {
+          setIsDialogOpen(false);
+          setProductId(null);
+        }
+      };
 
   const approveProduct = async () => {
     if (!productId) return;
@@ -273,6 +265,8 @@ const handlePriceRange = (e) => {
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
       <DashboardNavbar />
+      <ToastContainer />
+
       <div className='pt-[70px] px-6 py-4'>
         <div className='flex items-center justify-center py-5'>
           <div className='flex w-[60%]'>
@@ -317,30 +311,6 @@ const handlePriceRange = (e) => {
 
               </div>
               
-
-              <div className='flex flex-col'>
-                <label htmlFor='sortBy' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SORT BY</label>
-                <select
-                    id="sortBy"
-                    value={sortBy}
-                    onChange={handleSortByChange}
-                    className={`border rounded p-2 my-1 outline-none font-semibold ${
-                        sortBy === ''
-                            ? (darkMode 
-                                ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
-                                : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
-                            : (darkMode 
-                                ? 'bg-dark-activeLink text-light-primary border-light-primary' 
-                                : 'bg-light-activeLink text-dark-primary border-dark-primary')
-                    }`}
-                >
-                    <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
-                    <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
-                    <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Highest to Lowest</option>
-                    <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name A-Z</option>
-                    <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name Z-A</option>
-                </select>
-              </div>
               
                 <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
 

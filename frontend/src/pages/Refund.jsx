@@ -264,7 +264,7 @@ const formatDate = (dateString) => {
                             setMaxPrice(e.target.value);
                             handleMaxPriceChange(e);
                           }}
-                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${minPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
+                          className={`border-none px-2 py-1 text-sm bg-transparent w-[100%] outline-none ${maxPrice === '' ? (darkMode ? 'text-black' : 'text-white') : darkMode ? 'text-light-primary' : 'text-dark-primary'}`}
                           min='0'
                           placeholder='Max'
                         />
@@ -279,33 +279,36 @@ const formatDate = (dateString) => {
                     <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
                     <div className='flex justify-center items-center'>
                       <div className='flex flex-col'>
-                      <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
-                      <DatePicker
+                        <div className={`w-[130px] border rounded border-3 pl-1 ${startDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
+                          <DatePicker
                             selected={startDate}
                             onChange={handleStartDateChange}
                             dateFormat='MM-dd-yyyy'
                             className='p-1 bg-transparent w-[100%] outline-none'
                             placeholderText='MM-DD-YYYY'
-                          />    
+                            inputMode="numeric" // Restrict input to numbers
+                          />
                         </div>
                       </div>
 
                       <span className='text-2xl text-center h-full w-full text-[#a8adb0] mx-2'>-</span>
 
                       <div className='flex flex-col'>
-                      <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
-                      <DatePicker
+                        <div className={`w-[130px] border rounded border-3 pl-1 ${endDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
+                          <DatePicker
                             selected={endDate}
                             onChange={handleEndDateChange}
                             dateFormat='MM-dd-yyyy'
                             className='bg-transparent w-[100%] p-1 outline-none'
                             placeholderText='MM-DD-YYYY'
                             minDate={startDate}
+                            inputMode="numeric" // Restrict input to numbers
                           />
                         </div>
                       </div>
                     </div>
                   </div>
+
                 </div>
 
                 <div className='flex flex-col gap-2'>

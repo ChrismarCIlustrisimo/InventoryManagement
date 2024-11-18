@@ -8,6 +8,8 @@ import ViewRMA from '../components/ViewRMA';
 import { HiOutlineRefresh } from "react-icons/hi";
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
+import { toast,ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { API_DOMAIN } from '../utils/constants';
 
 const Rma = () => {
@@ -163,6 +165,8 @@ const Rma = () => {
     return (
         <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
             <DashboardNavbar />
+            <ToastContainer />
+
             <div className='pt-[70px] px-6 py-4 w-full h-full'>
                 <div className='flex items-center justify-center py-5'>
                     <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>

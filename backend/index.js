@@ -85,7 +85,6 @@ const allowedOrigins = [
   'https://irig-computers-api.vercel.app',
   'https://irigcomputers.vercel.app',
   'https://inventorymanagement-4r8x.onrender.com',
-  'https://irigcomputers-xi.vercel.app'
 ];
 const corsOptions = {
   origin: function (origin, callback) {

@@ -53,24 +53,25 @@ const handleDateFilterChange = (filter) => {
   const today = new Date();
   
   switch (filter) {
-      case 'Today':
-          setStartDate(new Date(today.setHours(0, 0, 0, 0)));
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-      case 'This Week':
-          const dayOfWeek = today.getDay();
-          const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
-          setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-      case 'This Month':
-          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-          setStartDate(startOfMonth);
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-      default:
-          setStartDate(null);
-          setEndDate(null);
+    case 'Today':
+        setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+        setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+        break;
+    case 'This Week':
+        const currentDayOfWeek = today.getDay(); // 0 (Sunday) - 6 (Saturday)
+        const weekStartOffset = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Adjust for Monday as the start
+        const startOfWeek = new Date(today.setDate(today.getDate() - weekStartOffset));
+        setStartDate(new Date(startOfWeek.setHours(0, 0, 0, 0)));
+        setEndDate(new Date(new Date().setHours(23, 59, 59, 999))); // End of today
+        break;
+    case 'This Month':
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        setStartDate(startOfMonth);
+        setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+        break;
+    default:
+        setStartDate(null);
+        setEndDate(null);
   }
 };
 
@@ -259,7 +260,7 @@ const handleExportPdf = () => {
          <div className='flex flex-col gap-6 flex-grow'>
               <div className="flex flex-col gap-4">
                 <div className='flex flex-col'>
-                  <label htmlFor='date' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Date</label>
+                  <label htmlFor='date' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>DATE</label>
                   <select 
                       id='date'
                       value={selectedDate}
@@ -287,7 +288,7 @@ const handleExportPdf = () => {
 
                 {/* Category Dropdown */}
                 <div className='flex flex-col'>
-                  <label htmlFor='category' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Product Category</label>
+                  <label htmlFor='category' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                   <select
                     id='category'
                     value={selectedCategory} // Set the value of the select to the state
@@ -312,7 +313,7 @@ const handleExportPdf = () => {
                 </div>
 
                 <div className='flex flex-col gap-2 py-2 pb-8'>
-                  <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Included Reports</span>
+                  <span className={`text-sm font-semibold mb-2 ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>INCLUDE REPORTS</span>
                   {Object.keys(reportIncluded).map((status) => (
                     <label key={status} className='custom-checkbox flex items-center'>
                       <input 

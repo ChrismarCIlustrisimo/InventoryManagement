@@ -39,7 +39,13 @@ const ArchivedProducts = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const isInputsEmpty = minPrice === '' && maxPrice === '';
   const [actionType, setActionType] = useState(null);
-  const [sortOrder, setSortOrder] = useState(''); // Options: 'A-Z', 'Z-A', 'Price-High-Low', 'Price-Low-High'
+  const [filteredProducts, setFilteredProducts] = useState(products);  // Store filtered products
+  const [sortBy, setSortBy] = useState('');
+
+  const handleSortByChange = (e) => {
+    setSortBy(e.target.value); // Update the sortBy state
+  };
+  
 
   const restoreProduct = async () => {
     if (!productId) return;
@@ -138,27 +144,43 @@ const priceRanges = {
   '21K-30K': [21000, 30000],
 };
 
-const filteredProducts = products
-  .filter(product => {
-    const isInPriceRange = (minPrice || maxPrice)
-      ? product.selling_price >= minPrice && product.selling_price <= maxPrice
-      : true; 
-    
-    const isInCategory = categoryFilter === '' || product.category === categoryFilter;
-    
-    const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier;
+useEffect(() => {
+  const updatedFilteredProducts = products
+    .filter((product) => {
+      const min = parseFloat(minPrice) || 0;
+      const max = parseFloat(maxPrice) || Infinity;
 
-    const matchesSearchQuery =
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.model.toLowerCase().includes(searchQuery.toLowerCase());
+      // Filter logic
+      const isInPriceRange = (minPrice || maxPrice)
+        ? product.selling_price >= min && product.selling_price <= max
+        : true;
 
-    return (
-      matchesSearchQuery &&
-      isInCategory &&
-      isInSupplier &&
-      isInPriceRange
-    );
-  })
+      const isInCategory = categoryFilter === '' || product.category === categoryFilter;
+      const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier;
+      const matchesSearchQuery =
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.model.toLowerCase().includes(searchQuery.toLowerCase());
+
+      return matchesSearchQuery && isInCategory && isInSupplier && isInPriceRange;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'price_asc':
+          return a.selling_price - b.selling_price;
+        case 'price_desc':
+          return b.selling_price - a.selling_price;
+        case 'product_name_asc':
+          return a.name.localeCompare(b.name);
+        case 'product_name_desc':
+          return b.name.localeCompare(a.name);
+        default:
+          // Default: New to Old
+          return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+    });
+
+  setFilteredProducts(updatedFilteredProducts);
+}, [products, minPrice, maxPrice, categoryFilter, selectedSupplier, searchQuery, sortBy]);
 
 
 
@@ -197,6 +219,7 @@ const handlePriceRange = (e) => {
     setSelectedCategory('');
     setMinPrice('');
     setMaxPrice('');
+    setSortBy('');
     setSearchQuery('');
     setCategoryFilter(''); // Reset category filter
     setPriceRange(''); // Reset price range
@@ -284,7 +307,7 @@ const handlePriceRange = (e) => {
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
             <div className='flex flex-col gap-3'>
               <div className='flex flex-col'>
-                <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
+                <label htmlFor='category' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                 <select
                       id="category"
                       value={selectedCategory}
@@ -311,6 +334,45 @@ const handlePriceRange = (e) => {
 
               </div>
               
+
+              <div className="flex flex-col">
+                  <label
+                    htmlFor="sortBy"
+                    className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}
+                  >
+                    SORT BY
+                  </label>
+                  <select
+                    id="sortBy"
+                    value={sortBy}
+                    onChange={handleSortByChange}
+                    className={`border rounded p-2 my-1 outline-none font-semibold ${
+                      sortBy === ''
+                        ? darkMode
+                          ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400'
+                          : 'bg-transparent text-white border-gray-400 placeholder-gray-500'
+                        : darkMode
+                        ? 'bg-dark-activeLink text-light-primary border-light-primary'
+                        : 'bg-light-activeLink text-dark-primary border-dark-primary'
+                    }`}
+                  >
+                    <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Select Option
+                    </option>
+                    <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Price Lowest to Highest
+                    </option>
+                    <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Price Highest to Lowest
+                    </option>
+                    <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Product Name A-Z
+                    </option>
+                    <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Product Name Z-A
+                    </option>
+                  </select>
+                </div>
               
                 <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
 
@@ -409,8 +471,25 @@ const handlePriceRange = (e) => {
                 </thead>
                 <tbody>
                   {filteredProducts
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
-                    .map((product, index) => {
+                        .sort((a, b) => {
+                          if (sortBy) {
+                            // Respect the sortBy logic
+                            switch (sortBy) {
+                              case 'price_asc':
+                                return a.selling_price - b.selling_price;
+                              case 'price_desc':
+                                return b.selling_price - a.selling_price;
+                              case 'product_name_asc':
+                                return a.name.localeCompare(b.name);
+                              case 'product_name_desc':
+                                return b.name.localeCompare(a.name);
+                              default:
+                                return 0;
+                            }
+                          } 
+                          // Default to new to old sorting
+                          return new Date(b.createdAt) - new Date(a.createdAt);
+                        })                    .map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
 
                       return (

@@ -289,7 +289,7 @@ const AdminHome = () => {
   const percentageChange = calculatePercentageChange();
 
   const handleGoSalesReport = () => {
-    navigate('/SalesReport');
+    navigate('/sales-report');
   };
 
   const handleGoInventoryReport = () => {

@@ -12,7 +12,6 @@ const UpdateProduct = () => {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('Upload Product Photo');
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
   const [image, setImage] = useState('');
   const [supplier, setSupplier] = useState('');
   const [productID, setProductID] = useState('');
@@ -22,7 +21,6 @@ const UpdateProduct = () => {
   const [updatedAt, setUpdatedAt] = useState('');
   const [lowStockThreshold, setLowStockThreshold] = useState(0);
   const [currentStockStatus, setCurrentStockStatus] = useState('');
-  const [subCategory, setSubCategory] = useState('');
   const [model, setModel] = useState('');
   const [warranty, setWarranty] = useState('');
   const [description, setDescription] = useState('');
@@ -33,6 +31,57 @@ const UpdateProduct = () => {
   const { productId } = useParams();
   const baseURL = API_DOMAIN;
   const [rows, setRows] = useState(3); // Initial number of rows
+  const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
+  const [selectedValue, setSelectedValue] = useState('');
+  const [selectedNumber, setSelectedNumber] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState('');
+
+  const handleChange = (number, unit) => {
+    if (!number || !unit) {
+      setSelectedValue("N/A"); // Use "N/A" if either field is not selected
+    } else {
+      // Pluralize unit if number > 1
+      const formattedWarranty = `${number} ${unit}${number > 1 ? 's' : ''}`.trim();
+      setSelectedValue(formattedWarranty);
+    }
+  };
+
+  const categories = [
+    {
+      name: "Components",
+      subcategories: ["Chassis Fan", "CPU Cooler", "Graphics Card", "Hard Drive", "Memory", "Motherboard", "PC Case", "Power Supply", "Intel Processor", "Processor Tray", "Solid State Drive (SSD)"]
+    },
+    {
+      name: "Peripherals",
+      subcategories: ["CCTV Camera", "Headset", "Keyboard", "Keyboard and Mouse Combo", "Monitor", "Mouse", "Network Devices", "Printer & Scanner", "Projector", "Audio Recorder", "Speaker", "UPS & AVR", "Web & Digital Camera"]
+    },
+    {
+      name: "Accessories",
+      subcategories: ["Cables", "Earphones", "Gaming Surface", "Power Bank"]
+    },
+    {
+      name: "PC Furniture",
+      subcategories: ["Chairs", "Tables"]
+    },
+    {
+      name: "OS & Software",
+      subcategories: ["Antivirus Software", "Office Applications", "Operating Systems"]
+    },
+    {
+      name: "Laptops",
+      subcategories: ["Chromebooks", "Laptops"]
+    },
+    {
+      name: "Desktops",
+      subcategories: ["Home Use Builds", "Productivity Builds", "Gaming Builds"]
+    }
+  ];
+  
+  // Find subcategories based on the selected category
+  const selectedCategory = categories.find((cat) => cat.name === category);
+  const subCategories = selectedCategory ? selectedCategory.subcategories : [];
+  
 
   useEffect(() => {
     const descriptionArray = parseDescription();
@@ -77,9 +126,13 @@ const UpdateProduct = () => {
         setLowStockThreshold(data.low_stock_threshold);
         setSubCategory(data.sub_category); 
         setModel(data.model); 
-        setWarranty(data.warranty); 
         setDescription(data.description); 
-  
+        setWarranty(data.warranty);
+
+        // Parse warranty into number and unit
+        const warrantyParts = data.warranty?.split(" ") || [];
+        setSelectedNumber(warrantyParts[0] || ''); // e.g., "2"
+        setSelectedUnit(warrantyParts[1]?.replace(/s$/, '') || ''); 
         // Count units with status 'in_stock'
         const count = data.units.filter(unit => unit.status === 'in_stock').length;
         setAvailableUnitsCount(count); // Store the count in state
@@ -115,17 +168,22 @@ const UpdateProduct = () => {
     formData.append('product_id', productID);
     formData.append('sub_category', subCategory);
     formData.append('model', model);
-    formData.append('warranty', warranty); // Ensure warranty is included
+    formData.append('warranty', selectedValue); // Ensure warranty is included
     formData.append('description', description);
   
     axios.put(`${baseURL}/product/${productId}`, formData)
-      .then(res => {
-        toast.success('Product updated successfully!');
-      })
-      .catch(err => {
-        console.error('Error updating product:', err);
-        toast.error('Failed to update product.');
-      });
+    .then(res => {
+      toast.success('Product updated successfully!');
+      
+      // Delay the handleBackClick by 2 seconds (2000ms)
+      setTimeout(() => {
+        handleBackClick(); // Trigger handleBackClick after the delay
+      }, 1000);
+    })
+    .catch(err => {
+      console.error('Error updating product:', err);
+      toast.error('Failed to update product.');
+    });
   };
   
 
@@ -145,15 +203,17 @@ const UpdateProduct = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'long', 
-      day: '2-digit', 
-      year: 'numeric' 
-    }).format(date);
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    }) + ' ' + date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true
+    });
   };
-
 
   // Function to get the status styles based on the status
 const getStatusStyles = (status) => {
@@ -186,11 +246,24 @@ const getStatusStyles = (status) => {
   return statusStyles; // Return the status styles directly
 };
 
+
+
 const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on the current stock status
 
 
   const handleViewUnits = (productId) => {
     navigate(`/units-product/${productId}`);
+  };
+
+
+  const handleCategoryChange = (e) => {
+    const selectedCategory = e.target.value;
+    setCategory(selectedCategory);
+    
+    // Filter to find the subcategories for the selected category
+    const foundCategory = categories.find(cat => cat.name === selectedCategory);
+    setSubCategories(foundCategory ? foundCategory.subcategories : []);
+    setSubCategory(''); // Reset sub-category when category changes
   };
 
   return (
@@ -225,11 +298,11 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
               </label>
             </div>
             <div className="text-md bg-white rounded-lg shadow-md p-4 font-medium flex py-4">
-              <div className="w-[40%] flex flex-col justify-between h-full gap-4">
-                <p>Date Added</p>
-                <p>Date Updated</p>
+            <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                <p>DATE ADDED</p>
+                <p>DATE UPDATED</p>
               </div>
-              <div className="w-[60%] flex flex-col justify-between h-full gap-4">
+              <div className="w-[60%] flex flex-col justify-between h-full gap-4 font-semibold">
                 <p>{formatDate(dateAdded)}</p>
                 <p>{formatDate(updatedAt)}</p>
               </div>
@@ -238,25 +311,92 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
 
           {/* Middle Section: Basic Information */}
           <div className="w-[30%] bg-white rounded-lg shadow-md p-6  flex flex-col">
-            <h2 className="text-xl font-bold mb-4">Basic Information</h2>
+            <h2 className="text-xl font-bold mb-4">BASIC INFORMATION</h2>
             <div className="mt-4 text-md p-4 font-medium flex py-4 ">
-              <div className={`w-[50%] flex flex-col justify-between h-full gap-7 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
-                <p>Category</p>
-                <p>Sub-Category</p>
-                <p>Model</p>
-                <p>Warranty</p>
-                <p>Status</p>
+              <div className={`w-[40%] flex flex-col justify-between h-full gap-7 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+                <p>Category<span className="text-red-500">*</span></p>
+                <p>Sub-Category<span className="text-red-500">*</span></p>
+                <p>Model<span className="text-red-500">*</span></p>
+                <p>Warranty<span className="text-red-500">*</span></p>
+                <p>Status<span className="text-red-500">*</span></p>
               </div>
-              <div className="w-[50%] flex flex-col justify-between h-full gap-7">
-                <input type="text" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="border rounded p-2" />
-                <input type="text" value={subCategory} onChange={(e) => setSubCategory(e.target.value)} placeholder="Sub-Category" className="border rounded p-2" />
+              <div className="w-[60%] flex flex-col justify-between h-full gap-7">
+              <div className="flex w-full gap-2 justify-between">
+                  <select 
+                    id="category"
+                    className={`border rounded p-2 my-1 font-semibold w-full ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                    value={category} 
+                    onChange={handleCategoryChange}
+                  >
+                    <option value="" disabled selected={!category}>Select Category</option>
+                    {categories.map((cat) => (
+                      <option key={cat.name} value={cat.name}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex w-full gap-2 justify-between">
+                  <select 
+                    id="sub-category" 
+                    className={`border rounded p-2 my-1 font-semibold w-full ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                    value={subCategory}
+                    onChange={(e) => setSubCategory(e.target.value)}
+                    disabled={!category} // Disable subcategory if no category is selected
+                  >
+                    <option value="" disabled selected={!subCategory}>Select Sub-Category</option>
+                    {subCategories.map((subCat) => (
+                      <option key={subCat} value={subCat}>
+                        {subCat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <input type="text" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Model" className="border rounded p-2" />
                 <input type="text" value={warranty} onChange={(e) => setWarranty(e.target.value)} placeholder="Warranty" className="border rounded p-2" />
+
+                <div className="flex w-full gap-2 justify-between">
+                    <div className='flex gap-2 w-full'>
+                      <select
+                        value={selectedNumber}
+                        onChange={(e) => {
+                          setSelectedNumber(e.target.value);
+                          handleChange(e.target.value, selectedUnit);
+                        }}
+                        className="border border-gray-300 rounded p-2 w-[30%]"
+                      >
+                        <option value="">0</option> {/* Placeholder option */}
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <option key={i + 1} value={i + 1}>
+                            {i + 1}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select
+                        value={selectedUnit}
+                        onChange={(e) => {
+                          setSelectedUnit(e.target.value);
+                          handleChange(selectedNumber, e.target.value);
+                        }}
+                        className="border border-gray-300 rounded p-2 w-full"
+                      >
+                        <option value="">Time Frame</option> {/* Placeholder option */}
+                        <option value={`Year`}>Year{selectedNumber > 1 ? 's' : ''}</option>
+                        <option value={`Month`}>Month{selectedNumber > 1 ? 's' : ''}</option>
+                        <option value={`Day`}>Day{selectedNumber > 1 ? 's' : ''}</option>
+                      </select>
+                    </div>
+                  </div>
+
+
                 <input
                     type="text"
                     value={currentStockStatus}
                     readOnly
-                    className={`border rounded p-2 ${getStatusStyles(currentStockStatus).bgClass} ${getStatusStyles(currentStockStatus).textClass}`} // Apply text color from statusStyles
+                    className={`rounded p-2 text-center ${getStatusStyles(currentStockStatus).bgClass} ${getStatusStyles(currentStockStatus).textClass}`} // Apply text color from statusStyles
                   />
               </div>
             </div>
@@ -265,31 +405,58 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
           {/* Right Section: Purchase Info and Stock Level */}
           <div className="w-[30%] space-y-8  flex flex-col">
             <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
-              <h2 className="text-xl font-bold mb-4">Purchase Information</h2>
+              <h2 className="text-xl font-bold mb-4">PURCHASE INFORMATION</h2>
               <div className="mt-4 text-md p-4 font-medium flex py-4">
                 <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
-                  <div className="text-gray-500">BUYING PRICE</div>
-                  <div className="text-gray-500">SELLING PRICE</div>
+                  <div className="text-gray-500">BUYING PRICE<span className="text-red-500">*</span></div>
+                  <div className="text-gray-500">SELLING PRICE<span className="text-red-500">*</span></div>
                   <div className="text-gray-500">SUPPLIER</div>
                 </div>
                 <div className="w-[60%] flex flex-col justify-between h-full gap-4">
-                  <input type="number" value={buyingPrice} onChange={(e) => setBuyingPrice(e.target.value)} placeholder="Buying Price" className="border rounded p-2" />
-                  <input type="number" value={sellingPrice} onChange={(e) => setSellingPrice(e.target.value)} placeholder="Selling Price" className="border rounded p-2" />
-                  <input type="text" value={supplier} onChange={(e) => setSupplier(e.target.value)} placeholder="Supplier" className="border rounded p-2" />
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg">₱</span>
+                    <input 
+                      type="number" 
+                      value={buyingPrice} 
+                      onChange={(e) => setBuyingPrice(e.target.value)} 
+                      placeholder="Buying Price" 
+                      className="border rounded p-2 pl-7"  // Add padding-left to make room for the peso sign
+                    />
+                  </div>
+
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-lg">₱</span>
+                    <input 
+                      type="number" 
+                      value={sellingPrice} 
+                      onChange={(e) => setSellingPrice(e.target.value)} 
+                      placeholder="Selling Price" 
+                      className="border rounded p-2 pl-7"  // Add padding-left to make room for the peso sign
+                    />
+                  </div>
+
+                  <input 
+                    type="text" 
+                    value={supplier} 
+                    onChange={(e) => setSupplier(e.target.value)} 
+                    placeholder="Supplier" 
+                    className="border rounded p-2"
+                  />
                 </div>
+
               </div>
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-6 w-full h-full">
               <div className="flex items-center justify-between w-full">
-                <h2 className="text-xl font-bold">Stock Level</h2>
+                <h2 className="text-xl font-bold">STOCK LEVEL</h2>
                 <div className="bg-green-500 text-white px-4 py-1 rounded-[6px] text-sm flex gap-2 items-center justify-center">
                   Total stock <span className="font-bold">{availableUnitsCount}</span>
                 </div>
               </div>
               <div className="mt-4 text-md p-4 font-medium flex py-4">
                 <div className={`w-[70%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
-                  <div className="text-gray-500">LOW STOCK</div>
+                  <div className="text-gray-500">LOW STOCK<span className="text-red-500">*</span></div>
                 </div>
                 <div className="w-[30%] flex flex-col justify-between h-full gap-4 font-bold">
                   <input type="number" value={lowStockThreshold} onChange={(e) => setLowStockThreshold(e.target.value)} placeholder="Low Stock Threshold" className="border rounded p-2" />
@@ -304,8 +471,8 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
               darkMode ? 'bg-light-container' : 'bg-dark-container'
             }`}
           >
-            <h2 className="text-xl w-full text-left font-bold mb-4">Description</h2>
-            <textarea
+          <h2 className="text-xl w-full text-left font-bold mb-4">PRODUCT SPECIFICATION<span className="text-red-500">*</span></h2>
+          <textarea
               className="w-full overflow-y-auto p-2 border "
               style={{ maxHeight: '250px' }}
               rows={rows}

@@ -64,16 +64,19 @@ const Rma = () => {
     };
 
     const filteredRMA = rmaData.filter(rma => {
-        const matchesSearchQuery = rma.rma_id.includes(searchQuery);
+        const matchesSearchQuery = rma.rma_id.includes(searchQuery) || rma.transaction.includes(searchQuery);
         const matchesCustomerName = rma.customer_name.includes(customerNameFilter);
         const matchesStatus = statusFilter ? rma.status === statusFilter : true;
         const matchesWarrantyStatus = warranty_status ? rma.warranty_status === warranty_status : true;
         const matchesDateRange = (startDate ? new Date(rma.date_initiated) >= new Date(startDate) : true) &&
                                   (endDate ? new Date(rma.date_initiated) <= new Date(endDate) : true);
-
-        
-        return matchesSearchQuery && matchesCustomerName && matchesWarrantyStatus && matchesDateRange && matchesStatus;
+        const matchesProductName = productNameFilter 
+            ? rma.product.toLowerCase().includes(productNameFilter.toLowerCase()) 
+            : true;
+    
+        return matchesSearchQuery && matchesCustomerName && matchesWarrantyStatus && matchesDateRange && matchesStatus && matchesProductName;
     });
+    
 
     
     
@@ -182,13 +185,13 @@ const Rma = () => {
 
 
                     <div className='flex flex-col gap-2'>
-                        <label htmlFor='customerName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Customer Name</label>
+                        <label htmlFor='customerName' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CUSTOMER NAME</label>
                         <input
                             type='text'
                             placeholder='Enter Customer Name'
                             value={customerNameFilter}
                             onChange={(e) => setCustomerNameFilter(e.target.value)}
-                            className={`border rounded p-2 my-1 ${customerNameFilter === '' 
+                            className={`border rounded p-2 ${customerNameFilter === '' 
                                 ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                                 : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
                               outline-none font-semibold`}
@@ -196,13 +199,13 @@ const Rma = () => {
                     </div>
 
                     <div className='flex flex-col gap-2'>
-                        <label htmlFor='productName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Product Name</label>
+                        <label htmlFor='productName' className={`text-sm  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Product Name</label>
                         <input
                             type='text'
                             placeholder='Enter Product Name'
                             value={productNameFilter}
                             onChange={(e) => setProductNameFilter(e.target.value)}
-                            className={`border rounded p-2 my-1 ${productNameFilter === '' 
+                            className={`border rounded p-2 ${productNameFilter === '' 
                                 ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                                 : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
                               outline-none font-semibold`}
@@ -210,11 +213,11 @@ const Rma = () => {
                     </div>
 
                     <div className='flex flex-col gap-2'>
-                            <label className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>RMA Status</label>
+                            <label className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>RMA Status</label>
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className={`border rounded p-2 my-1 
+                                className={`border rounded p-2  
                                     ${statusFilter === '' 
                                       ? (darkMode 
                                         ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
@@ -236,7 +239,7 @@ const Rma = () => {
                     
 
                     <div className='flex flex-col'>
-                        <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'text-light-border'}`}>
+                        <label className={`text-sm font-semibold mb-2 ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>
                             SALES DATE
                         </label>
 
@@ -363,27 +366,3 @@ const Rma = () => {
 };
 
 export default Rma;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

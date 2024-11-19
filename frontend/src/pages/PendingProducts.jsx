@@ -39,9 +39,13 @@ const PendingProducts = () => {
   const isInputsEmpty = minPrice === '' && maxPrice === '';
   const [actionType, setActionType] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);  // Store filtered products
+  const [sortBy, setSortBy] = useState('');
 
 
-
+  const handleSortByChange = (e) => {
+    setSortBy(e.target.value); // Update the sortBy state
+  };
+  
   useEffect(() => {
     if (user && user.token) {
       fetchProducts();
@@ -126,29 +130,41 @@ const priceRanges = {
 
 useEffect(() => {
   const updatedFilteredProducts = products
-    .filter(product => {
-      // Parse minPrice and maxPrice to ensure they are numbers
+    .filter((product) => {
       const min = parseFloat(minPrice) || 0;
       const max = parseFloat(maxPrice) || Infinity;
 
-      // Price range filter
+      // Filter logic
       const isInPriceRange = (minPrice || maxPrice)
         ? product.selling_price >= min && product.selling_price <= max
         : true;
 
       const isInCategory = categoryFilter === '' || product.category === categoryFilter;
-      const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier; // Filter by supplier
-
-      // Search query filter
+      const isInSupplier = selectedSupplier === '' || product.supplier === selectedSupplier;
       const matchesSearchQuery =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         product.model.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // Combine all filters
       return matchesSearchQuery && isInCategory && isInSupplier && isInPriceRange;
     })
-  setFilteredProducts(updatedFilteredProducts); // Update state with the filtered products
-}, [products, minPrice, maxPrice, categoryFilter, selectedSupplier, searchQuery]);
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'price_asc':
+          return a.selling_price - b.selling_price;
+        case 'price_desc':
+          return b.selling_price - a.selling_price;
+        case 'product_name_asc':
+          return a.name.localeCompare(b.name);
+        case 'product_name_desc':
+          return b.name.localeCompare(a.name);
+        default:
+          // Default: New to Old
+          return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+    });
+
+  setFilteredProducts(updatedFilteredProducts);
+}, [products, minPrice, maxPrice, categoryFilter, selectedSupplier, searchQuery, sortBy]);
 
 
 
@@ -187,6 +203,7 @@ const handlePriceRange = (e) => {
     setSelectedCategory('');
     setMinPrice('');
     setMaxPrice('');
+    setSortBy('');
     setSearchQuery('');
     setCategoryFilter(''); // Reset category filter
     setPriceRange(''); // Reset price range
@@ -257,7 +274,7 @@ const handlePriceRange = (e) => {
             <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Unapproved Products</h1>
             <div className={`flex w-[40%] gap-2 items-center justify-center border rounded-xl ${darkMode ? 'border-black' : 'border-white'}`}>
               <p className={`font-semibold text-lg ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{productCount}</p>
-              <p className={`text-xs ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>total products</p>
+              <p className={`text-sm ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>total products</p>
             </div>
           </div>
           <div className='w-full flex justify-end gap-2'>
@@ -268,7 +285,7 @@ const handlePriceRange = (e) => {
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
             <div className='flex flex-col gap-3'>
               <div className='flex flex-col'>
-                <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
+                <label htmlFor='category' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                 <select
                       id="category"
                       value={selectedCategory}
@@ -294,11 +311,51 @@ const handlePriceRange = (e) => {
 
 
               </div>
+
+              <div className="flex flex-col">
+                  <label
+                    htmlFor="sortBy"
+                    className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}
+                  >
+                    SORT BY
+                  </label>
+                  <select
+                    id="sortBy"
+                    value={sortBy}
+                    onChange={handleSortByChange}
+                    className={`border rounded p-2 my-1 outline-none font-semibold ${
+                      sortBy === ''
+                        ? darkMode
+                          ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400'
+                          : 'bg-transparent text-white border-gray-400 placeholder-gray-500'
+                        : darkMode
+                        ? 'bg-dark-activeLink text-light-primary border-light-primary'
+                        : 'bg-light-activeLink text-dark-primary border-dark-primary'
+                    }`}
+                  >
+                    <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Select Option
+                    </option>
+                    <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Price Lowest to Highest
+                    </option>
+                    <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Price Highest to Lowest
+                    </option>
+                    <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Product Name A-Z
+                    </option>
+                    <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+                      Product Name Z-A
+                    </option>
+                  </select>
+                </div>
+
               
 
 
               
-                <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
+                <label className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
 
                 <select
                   id='price_range'
@@ -389,35 +446,53 @@ const handlePriceRange = (e) => {
                 <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                   <tr>
                     <th className='p-2 text-center' style={{ width: '400px' }}>Product Name</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '120px' }}>Category</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Qty.</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Actions</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '100px' }}>Model</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '120px' }}>Category</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '80px' }}>Qty.</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '80px' }}>Supplier</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '150px' }}>Buying Price</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '150px' }}>Selling Price</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '150px' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredProducts
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
-                    .map((product, index) => {
+                        .sort((a, b) => {
+                          if (sortBy) {
+                            // Respect the sortBy logic
+                            switch (sortBy) {
+                              case 'price_asc':
+                                return a.selling_price - b.selling_price;
+                              case 'price_desc':
+                                return b.selling_price - a.selling_price;
+                              case 'product_name_asc':
+                                return a.name.localeCompare(b.name);
+                              case 'product_name_desc':
+                                return b.name.localeCompare(a.name);
+                              default:
+                                return 0;
+                            }
+                          } 
+                          // Default to new to old sorting
+                          return new Date(b.createdAt) - new Date(a.createdAt);
+                        })
+                        .map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
 
                       return (
                         <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
                           <td className='flex items-center justify-left p-2'>
                             <img src={product.image} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
-                            <p className='text-xs'>{product.name}</p>
+                            <p className='text-sm'>{product.name}</p>
                           </td>
-                          <td className='text-center text-xs'>{product.model}</td>
-                          <td className='text-center text-xs'>{product.category}</td>
-                          <td className={`text-center text-xs font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
+                          <td className='text-center text-sm'>{product.model}</td>
+                          <td className='text-center text-sm'>{product.category}</td>
+                          <td className={`text-center text-sm font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
                             {inStockUnits}
                           </td>
-                          <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-sm'>{product.supplier || 'N/A'}</td>
+                          <td className='text-center text-sm'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-sm'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className="text-center">
                               <div className="relative inline-block group">
                                 <button
@@ -427,7 +502,7 @@ const handlePriceRange = (e) => {
                                   <GrView size={25} />
                                 </button>
                                 <span
-                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                                     darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
                                   }`}
                                 >
@@ -443,7 +518,7 @@ const handlePriceRange = (e) => {
                                   <IoCheckmarkCircleOutline size={25} />
                                 </button>
                                 <span
-                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                                     darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
                                   }`}
                                 >
@@ -460,7 +535,7 @@ const handlePriceRange = (e) => {
                                     <MdDelete size={25} />
                                   </button>
                                   <span
-                                    className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                                       darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
                                     }`}
                                   >

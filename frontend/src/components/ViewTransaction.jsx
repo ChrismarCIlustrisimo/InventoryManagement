@@ -13,11 +13,24 @@ const ViewTransaction = ({ transaction, onClose }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options).replace(/^(.*?), (.*), (.*)$/, (match, month, day, year) => {
-      return `${month.charAt(0).toUpperCase() + month.slice(1)} ${day}, ${year}`;
-    });
+    
+    // Get date in the desired format
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: true 
+    };
+    
+    // Format the date and time
+    const formattedDate = date.toLocaleString('en-US', options);
+  
+    return formattedDate;
   };
+  
+  
   
 
 
@@ -154,7 +167,7 @@ const ViewTransaction = ({ transaction, onClose }) => {
               {transaction.payment_method !== 'Cash' ? (
                   <div className="text-md w-full flex items-center justify-between">
                     <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} `}>
-                      PAYMENT METHOD
+                       REFERENCE NO.
                     </div>
                     <div className='font-semibold w-[50%]'>
                       {transaction.reference_number}

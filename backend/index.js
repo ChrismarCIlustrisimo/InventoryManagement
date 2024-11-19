@@ -81,10 +81,8 @@ const server = http.createServer(app);
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5175',
-  'https://irig-computers.vercel.app',
-  'https://irig-computers-api.vercel.app',
-  'https://irigcomputers.vercel.app',
-  'https://inventorymanagement-4r8x.onrender.com',
+  'https://icontrol-irig.vercel.app/',
+  'https://icontrol-backend.onrender.com'
 ];
 const corsOptions = {
   origin: function (origin, callback) {

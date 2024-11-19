@@ -82,7 +82,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5175',
   'https://icontrol-irig.vercel.app',
-  'https://icontrol-backend.onrender.com'
+  'https://icontrol-backend.onrender.com',
+  'https://irig-computers-nexus.vercel.app',
 ];
 const corsOptions = {
   origin: function (origin, callback) {

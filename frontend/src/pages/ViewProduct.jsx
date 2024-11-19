@@ -3,9 +3,9 @@ import axios from 'axios';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { IoCaretBackOutline } from "react-icons/io5";
 import { useNavigate, useParams } from 'react-router-dom';
-import { FaTrash } from "react-icons/fa";
 import ConfirmationDialog from '../components/ConfirmationDialog';
 import AddUnitModal  from '../components/AddUnitModal';
+import { IoArchiveOutline } from "react-icons/io5";
 import { API_DOMAIN } from '../utils/constants';
 
 
@@ -29,15 +29,19 @@ const ViewProduct = () => {
       });
   }, [productId]);
 
-  const deleteProduct = () => {
-    axios.delete(`${baseURL}/product/${productId}`)
-      .then(() => {
-        navigate('/inventory/product');
-      })
-      .catch(err => {
-        console.error('Error deleting product:', err);
-      });
-    setIsDialogOpen(false);
+  const archiveProduct = async () => {
+    if (!productId) return;
+  
+    try {
+      await axios.patch(`${baseURL}/product/archive/${productId}`);
+      toast.success('Product archived successfully'); // Toast notification for success
+      fetchProducts(); // Refetch products after archiving
+    } catch (error) {
+      toast.error(`Error archiving product: ${error.response ? error.response.data : error.message}`); // Toast notification for error
+    } finally {
+      setIsDialogOpen(false); // Close the dialog
+      setProductId(null); // Reset the productId
+    }
   };
 
   const handleBackClick = () => {
@@ -115,11 +119,25 @@ const getStatusStyles = (status) => {
         <button className={`flex gap-2 items-center py-2 px-4 rounded-md ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} hover:underline`} onClick={handleBackClick}>
           <IoCaretBackOutline /> Back to inventory
         </button>
-        <div className='flex gap-4 items-center'>
-          <button className={`px-4 py-2 rounded-md font-semibold text-sm text-white ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} onClick={() => handleUpdateProduct(product._id)}> Edit </button>
-          <div className={`flex-grow border-l h-[38px] ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>
-          <button className={`text-2xl ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`} onClick={() => setIsDialogOpen(true)}><FaTrash /></button>
-        </div>
+        <div className='flex items-center justify-center space-x-4'>
+            <button
+              className={`px-4 py-2 rounded-md font-semibold text-sm text-white  ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'} hover:scale-110 transition-transform duration-200`}
+              onClick={() => handleUpdateProduct(product._id)}
+            >
+              Edit
+            </button>
+
+            <div className={`border-l h-[38px]  ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}></div>
+
+              <button
+                className={`text-4xl ${darkMode ? 'text-light-primary' : 'text-dark-primary'} hover:scale-110 transition-transform duration-200`}
+                onClick={() => setIsDialogOpen(true)}
+              >
+                <IoArchiveOutline />
+              </button>
+          </div>
+
+
       </div>
 
       <div className="p-8 bg-transparent h-full"> {/* Removed min-h-screen */}
@@ -156,11 +174,11 @@ const getStatusStyles = (status) => {
             </div>
 
             <div className={`mt-4 text-md rounded-lg shadow-md p-4 font-medium flex py-4 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-              <div className='w-[40%] flex flex-col justify-between h-full gap-4'>
-                <p>Date Added</p>
-                <p>Date Updated</p>
+              <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                <p>DATE ADDED</p>
+                <p>DATE UPDATED</p>
               </div>
-              <div className='w-[60%] flex flex-col justify-between h-full gap-4'>
+              <div className='w-[60%] flex flex-col justify-between h-full gap-4 font-semibold'>
                 <p>{formatDate(product.createdAt)}</p>
                 <p>{formatDate(product.updatedAt)}</p>
               </div>
@@ -169,7 +187,7 @@ const getStatusStyles = (status) => {
 
           {/* Middle Section: Basic Information */}
           <div className={`col-span-1 rounded-lg shadow-md p-6 w-full h-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-            <h2 className="text-xl font-bold mb-4">Basic information</h2>
+            <h2 className="text-xl font-bold mb-4">BASIC INFORMATION</h2>
             <div className='mt-4 text-md p-4 font-medium flex py-4'>
               <div className={`w-[50%] flex flex-col justify-between h-full gap-10 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                 <p>Category</p>
@@ -179,7 +197,7 @@ const getStatusStyles = (status) => {
                 <p>Status</p>
               </div>
               
-              <div className='w-[50%] flex flex-col justify-between h-full gap-10'>
+              <div className='w-[50%] flex flex-col justify-between h-full gap-10 font-semibold'>
                 <p>{product.category}</p>
                 <p>{product.sub_category || 'N/A'}</p>
                 <p>{product.model || 'N/A'}</p>
@@ -191,11 +209,11 @@ const getStatusStyles = (status) => {
             </div>
           </div>
 
-          {/* Right Section: Purchase Info and Stock Level */}
+          {/* Right Section: Purchase Info and STOCK LEVEL */}
           <div className="col-span-1 space-y-16">
             {/* Purchase Information */}
             <div className={`rounded-lg shadow-md p-6 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-              <h2 className="text-xl font-bold mb-4">Purchase information</h2>
+              <h2 className="text-xl font-bold mb-4">PURCHASE INFORMATION</h2>
               <div className='mt-4 text-md p-4 font-medium flex py-4'>
               <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                   <div className="text-gray-500">BUYING PRICE</div>
@@ -210,14 +228,14 @@ const getStatusStyles = (status) => {
               </div>
             </div>
 
-            {/* Stock Level */}
+            {/* STOCK LEVEL */}
             <div className={`rounded-lg shadow-md p-6 w-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-              <h2 className="text-xl font-bold mb-4">Stock Level</h2>
+              <h2 className="text-xl font-bold mb-4">STOCK LEVEL</h2>
               <div className='mt-4 text-md p-4 font-medium flex py-4 '>
-              <div className={`w-[70%] flex flex-col justify-between h-full gap-4  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+              <div className={`w-[50%] flex flex-col justify-between h-full gap-4  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                   <div className="text-gray-500">LOW STOCK</div>
                 </div>
-                <div className='w-[30%] flex flex-col justify-between h-full gap-4 font-bold'>
+                <div className='w-[50%] flex flex-col justify-between h-full gap-4 font-bold'>
                   <div>{product.low_stock_threshold}</div>
                 </div>
               </div>
@@ -225,8 +243,8 @@ const getStatusStyles = (status) => {
           </div>
         </div>          
         <div className={`rounded-lg shadow-md p-4 flex flex-col items-center justify-center py-2 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
-          <h2 className="text-xl w-full text-left font-bold mb-4">Description</h2>
-          <p className='h-auto overflow-y-auto w-full'>
+        <h2 className="text-xl w-full text-left font-bold mb-4">PRODUCT SPECIFICATION</h2>
+        <p className='h-auto overflow-y-auto w-full'>
              {(() => {
                 try {
                   const descriptionArray = JSON.parse(product.description);
@@ -264,13 +282,14 @@ const getStatusStyles = (status) => {
         productId={productId}  // Make sure selectedProductId is a valid ID
       />
 
-      <ConfirmationDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        onConfirm={deleteProduct}
-        title="Delete Product"
-        message={`Are you sure you want to delete ${product.name}? This action cannot be undone.`}
-      />
+        <ConfirmationDialog
+          isOpen={isDialogOpen}
+          onCancel={() => setIsDialogOpen(false)}
+          onConfirm={archiveProduct}
+          title="Archive Product"
+          message={`Are you sure you want to archive ${product.name}?`}
+        />
+
     </div>
   );
 };

@@ -9,11 +9,6 @@ export const useLogout = () => {
         // Get user data from localStorage to check their role
         const user = JSON.parse(localStorage.getItem('user'));
 
-        // Dispatch logout action and remove user data from localStorage
-        dispatch({ type: 'LOGOUT' });
-        localStorage.removeItem('user');
-        sessionStorage.removeItem('toastShown');
-
         // Redirect to the appropriate login page based on the user's role
         if (user?.role === 'cashier') {
             window.location.reload();
@@ -25,8 +20,16 @@ export const useLogout = () => {
             window.location.reload(); 
             window.location.href = '/admin-login';
         } else {
-            navigate('/login');
+            navigate('/cashier-login');
         }
+
+
+        // Dispatch logout action and remove user data from localStorage
+        dispatch({ type: 'LOGOUT' });
+        localStorage.removeItem('user');
+        sessionStorage.removeItem('toastShown');
+
+
     };
     
     

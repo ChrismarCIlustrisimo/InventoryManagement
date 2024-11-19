@@ -7,6 +7,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { API_DOMAIN } from '../utils/constants';
+import SearchBar from '../components/adminSearchBar';
+import { AiOutlineCamera } from 'react-icons/ai'; // Import the camera icon
 
 
 const UnitsTable = () => {
@@ -27,6 +29,25 @@ const UnitsTable = () => {
   const { darkMode } = useAdminTheme();
   const [editStatus, setEditStatus] = useState("");
   const { user } = useAuthContext();
+  const [filteredUnits, setFilteredUnits] = useState([]); // New state for filtered units
+  const [searchTerm, setSearchTerm] = useState(""); // State to hold search term
+  
+  const handleSearchChange = (newQuery) => {
+    setSearchTerm(newQuery);
+  };
+
+  // Effect to filter units based on search term
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredUnits(units);
+    } else {
+      setFilteredUnits(
+        units.filter(unit =>
+          unit.serial_number.toLowerCase().includes(searchTerm.toLowerCase()) // Filter by serial number
+        )
+      );
+    }
+  }, [searchTerm, units]);
 
 
   const videoRef = useRef(null);
@@ -238,11 +259,21 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
       </div>
 
       <div className="w-full h-full flex flex-col items-center justify-start">
-        <div className="w-full flex items-center justify-between px-48 py-6">
+        <div className="w-full flex items-center justify-between px-24 py-6">
           <h1 className="text-3xl font-bold">{productName}</h1>
+
+          <div className="flex gap-4">
+          <SearchBar 
+            query={searchTerm}
+            onQueryChange={handleSearchChange}
+            placeholderMessage="Search by Serial Number"
+          />
           <button className={`${darkMode ? 'bg-light-button' : 'bg-dark-textSecondary'} text-white px-4 py-2 rounded`} onClick={() => handleBackClick(-1)}>Back to Description</button>
+
+
+          </div>
         </div>
-        <div className="w-[80%] h-[84%] overflow-y-auto border border-gray-200 shadow-md rounded-lg">
+        <div className="w-[90%] h-[84%] overflow-y-auto border border-gray-200 shadow-md rounded-lg">
           <table className="min-w-full table-auto">
             <thead className={`sticky top-0 z-10 ${darkMode ? 'bg-gray-300' : 'bg-dark-textSecondary'}`}>
               <tr>
@@ -254,7 +285,7 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
               </tr>
             </thead>
             <tbody>
-              {units.map((unit, index) => (
+              {filteredUnits.map((unit, index) => (
                 <tr key={unit._id}   className={`${
                   index % 2 === 0
                     ? darkMode ? 'bg-light-container' : 'bg-dark-container'
@@ -270,11 +301,11 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                           {editImageFile ? (
                             <img src={URL.createObjectURL(editImageFile)} alt="Captured" className="mt-4" width="320" height="240" />
                           ) : (
-                            <video ref={videoRef} width="320" height="240" className="mt-4" />
+                            <video ref={videoRef} width="320" height="240" className="mt-4 border-2 border-dashed" />
                           )}
-                          <div className="w-auto flex gap-4 items-center justify-center mt-2">
-                            <button onClick={captureImage} className="bg-green-500 text-white p-2 rounded-md">Capture Image</button>
-                            <button onClick={startCamera} className="bg-blue-500 text-white p-2 rounded-md">Open Camera</button>
+                          <div className="w-auto flex gap-2  items-center justify-between mt-2">
+                            <button onClick={captureImage} className="bg-green-500 text-white p-2 rounded-md w-[50%]">Capture Image</button>
+                            <button onClick={startCamera} className="bg-blue-500 text-white p-2 rounded-md w-[50%]">Open Camera</button>
                           </div>
                         </div>
 
@@ -302,10 +333,11 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                   </td>
 
                   <td className="px-4 py-2 text-center">
-                  {isEditing && editUnitIndex === index ? (
+                  {isEditing && editUnitIndex === index ? ( 
                         <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
+                        className="border"
                       >
                         <option value="">Select Status</option>
                         <option value="in_stock">In Stock</option>

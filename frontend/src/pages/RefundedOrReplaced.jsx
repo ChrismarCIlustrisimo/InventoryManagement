@@ -229,7 +229,7 @@ const RefundedOrReplaced = () => {
             <div className='flex flex-col gap-6 h-full'>
               <div className='flex flex-col gap-2 flex-grow'>
                 <div className='flex flex-col'>
-                  <label htmlFor='ProductName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRODUCT NAME</label>
+                  <label htmlFor='ProductName' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRODUCT NAME</label>
                   <input
                     type='text'
                     placeholder='Enter Product Name'
@@ -245,7 +245,7 @@ const RefundedOrReplaced = () => {
                   />
                 </div>
                 <div className='flex flex-col'>
-                <label htmlFor="reason" className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REASON</label>
+                <label htmlFor="reason" className={`text-sm  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REASON</label>
                   <select
                     id="reason"
                     name="reason"
@@ -268,7 +268,7 @@ const RefundedOrReplaced = () => {
                   </select>
                 </div>
                 <div className='flex flex-col'>
-                <label htmlFor="status" className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STATUS</label>
+                <label htmlFor="status" className={`text-sm  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STATUS</label>
                   <select
                     id="status"
                     name="status"
@@ -303,6 +303,7 @@ const RefundedOrReplaced = () => {
               </div>
           </div>
           <div className='flex-grow'>
+            {}
             <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
               <thead>
                 <tr>

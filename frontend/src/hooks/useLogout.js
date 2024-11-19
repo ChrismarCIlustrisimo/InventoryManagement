@@ -11,14 +11,11 @@ export const useLogout = () => {
 
         // Redirect to the appropriate login page based on the user's role
         if (user?.role === 'cashier') {
-            window.location.reload();
-            window.location.href = '/cashier-login';
+            navigate('/cashier-login');
         } else if (user?.role === 'super-admin') {
-           window.location.reload();
-           window.location.href = '/super-admin-login';
+           navigate('/super-admin-login');
         } else if (user?.role === 'admin') {
-            window.location.reload(); 
-            window.location.href = '/admin-login';
+            navigate('/admin-login');
         } else {
             navigate('/cashier-login');
         }

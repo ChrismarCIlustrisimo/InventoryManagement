@@ -161,6 +161,26 @@ const formatDate = (dateString) => {
   });
 };
 
+const formatDates = (dateString) => {
+  const date = new Date(dateString);
+  
+  // Get date in the desired format
+  const options = { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit', 
+    hour12: true 
+  };
+  
+  // Format the date and time
+  const formattedDate = date.toLocaleString('en-US', options);
+
+  return formattedDate;
+};
+
+
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
         <DashboardNavbar />
@@ -180,7 +200,7 @@ const formatDate = (dateString) => {
              <div className='flex flex-col gap-6 h-full'>
                 <div className='flex flex-col gap-2 flex-grow'>
                   <div className='flex flex-col'>
-                    <label htmlFor='customerName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CUSTOMER NAME</label>
+                    <label htmlFor='customerName' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CUSTOMER NAME</label>
                     <input
                       type='text'
                       placeholder='Enter Customer Name'
@@ -192,7 +212,7 @@ const formatDate = (dateString) => {
                       outline-none font-semibold`}/>
                   </div>
                   <div className='flex flex-col gap-2'>
-                    <label htmlFor='cashierName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER NAME</label>
+                    <label htmlFor='cashierName' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER NAME</label>
                     <input
                       type='text'
                       placeholder='Enter Cashier Name'
@@ -205,7 +225,7 @@ const formatDate = (dateString) => {
                   </div>
 
                   <div className='flex flex-col gap-2 py-2'>
-                    <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REFUND METHOD</label>
+                    <label className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REFUND METHOD</label>
                     <select
                       id='paymentMethod'
                       value={paymentMethod}
@@ -230,7 +250,7 @@ const formatDate = (dateString) => {
                     </select>
                   </div>
 
-                  <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>AMOUNT RANGE</label>
+                  <label className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>AMOUNT RANGE</label>
 
                   <div className='flex justify-center items-center'>
                     <div className='flex flex-col'>
@@ -276,7 +296,7 @@ const formatDate = (dateString) => {
 
 
                       <div className='flex flex-col'>
-                        <label className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
+                        <label className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SALES DATE</label>
 
                         <div className='flex justify-center items-center'>
                           <div className='flex flex-col'>
@@ -340,10 +360,10 @@ const formatDate = (dateString) => {
                       <tr>
                         <th className='p-2 text-center'>Refund ID</th>
                         <th className='p-2 text-center text-xs'>Sales Date</th>
+                        <th className='p-2 text-center text-xs'>Customer Name</th>
+                        <th className='p-2 text-center text-xs'>Cashier Name</th>
                         <th className='p-2 text-center text-xs'>Refund Amount</th>
-                        <th className='p-2 text-center text-xs'>Refund Method</th>
                         <th className='p-2 text-center text-xs'>Product Name</th>
-                        <th className='p-2 text-center text-xs'>Serial Number</th>
                         <th className='p-2 text-center text-xs'>Reason</th>
                         <th className='p-2 text-center text-xs'>Action</th>
                       </tr>
@@ -354,10 +374,10 @@ const formatDate = (dateString) => {
                             <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container border-light-primary' : 'bg-dark-container border-dark-primary'}`}>
                               <td className='p-4 text-center'>{refund.refund_id}</td>
                               <td className='p-4 text-center'>{formatDate(refund.sales_date)}</td>
-                              <td className='p-4 text-center'>{refund.refund_amount}</td>
-                              <td className='p-4 text-center'>{refund.refund_method.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className='p-4 text-center'>{refund.customer_name}</td>
+                              <td className='p-4 text-center'>{refund.cashier}</td>
+                              <td className='p-4 text-center'>{refund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                               <td className='p-4 text-center'>{shortenString(refund.product_name)}</td>
-                              <td className='p-4 text-center'>{refund.serial_number}</td>
                               <td className='p-4 text-center'>{refund.reason}</td>
                               <td className='p-4 text-center'>
                                 <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleRowClick(refund)}>
@@ -397,16 +417,35 @@ const formatDate = (dateString) => {
                                 REFUND ID: {selectedRefund.refund_id}
                               </div>
                           </div>
+                          
                         <div className="border-b pb-4 flex flex-col gap-4">
                           <h3 className="font-semibold text-xl pb-2">Refund Info</h3>
-
                           <div className="text-md w-full flex items-center justify-between">
                             <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                              REFUND AMOUNT
+                              TRANSACTION ID
                             </div>
-                            <div className="font-semibold w-[50%]">{selectedRefund.refund_amount}</div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.transaction_id}</div>
                           </div>
-
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              CUSTOMER NAME
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.customer_name}</div>
+                          </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+s                              REFUND AMOUNT
+                            </div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                          </div>
+                          <div className="text-md w-full flex items-center justify-between">
+                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                              SALES DATE
+                            </div>
+                            <div className="font-semibold w-[50%]">
+                              {formatDates(new Date(selectedRefund.sales_date).toLocaleDateString())}
+                            </div>
+                          </div>
                           <div className="text-md w-full flex items-center justify-between">
                             <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
                               REFUND METHOD
@@ -420,28 +459,11 @@ const formatDate = (dateString) => {
                             </div>
                             <div className="font-semibold w-[50%]">{selectedRefund.cashier}</div>
                           </div>
-                          <div className="text-md w-full flex items-center justify-between">
-                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                              CUSTOMER NAME
-                            </div>
-                            <div className="font-semibold w-[50%]">{selectedRefund.customer_name}</div>
-                          </div>
 
-                          <div className="text-md w-full flex items-center justify-between">
-                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                              TRANSACTION ID
-                            </div>
-                            <div className="font-semibold w-[50%]">{selectedRefund.transaction_id}</div>
-                          </div>
 
-                          <div className="text-md w-full flex items-center justify-between">
-                            <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                              SALES DATE
-                            </div>
-                            <div className="font-semibold w-[50%]">
-                              {formatDate(new Date(selectedRefund.sales_date).toLocaleDateString())}
-                            </div>
-                          </div>
+
+
+
                         </div>
 
                         {/* Product Info Section */}
@@ -465,7 +487,7 @@ const formatDate = (dateString) => {
                             <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
                               UNIT PRICE
                             </div>
-                            <div className="font-semibold w-[50%]">{selectedRefund.unit_price}</div>
+                            <div className="font-semibold w-[50%]">{selectedRefund.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                           </div>
 
                           <div className="text-md w-full flex items-center justify-between">

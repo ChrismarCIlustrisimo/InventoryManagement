@@ -307,7 +307,7 @@ const handlePriceRange = (e) => {
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
             <div className='flex flex-col gap-3'>
               <div className='flex flex-col'>
-                <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
+                <label htmlFor='category' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                 <select
                       id="category"
                       value={selectedCategory}
@@ -338,7 +338,7 @@ const handlePriceRange = (e) => {
               <div className="flex flex-col">
                   <label
                     htmlFor="sortBy"
-                    className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}
+                    className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}
                   >
                     SORT BY
                   </label>

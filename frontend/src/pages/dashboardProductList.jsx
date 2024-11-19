@@ -366,7 +366,7 @@ useEffect(() => {
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
             <div className='flex flex-col gap-3'>
               <div className='flex flex-col'>
-                <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
+                <label htmlFor='category' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                 <select
                       id="category"
                       value={selectedCategory}
@@ -395,7 +395,7 @@ useEffect(() => {
               
 
               <div className='flex flex-col'>
-                <label htmlFor='sortBy' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SORT BY</label>
+                <label htmlFor='sortBy' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SORT BY</label>
                 <select
                   id="sortBy"
                   value={sortBy}
@@ -420,7 +420,7 @@ useEffect(() => {
 
 
               <div className='flex flex-col mb-2'>
-                <label htmlFor='stockAlert' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STOCK ALERT</label>
+                <label htmlFor='stockAlert' className={`text-md font-semibold pb-2 ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STOCK ALERT</label>
                 <div id='stockAlert' className='flex flex-col'>
                   <label className='custom-checkbox flex items-center'>
                     <input type='checkbox' name='stockAlert' value='HIGH' id='highStock' checked={stockAlerts['HIGH']} onChange={handleStockAlertChange}/>
@@ -441,7 +441,7 @@ useEffect(() => {
               </div>
               
 
-                <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
+                <label className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
 
                 <select
                   id='price_range'

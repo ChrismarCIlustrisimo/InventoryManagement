@@ -198,7 +198,7 @@ const RMAReport = () => {
             <div className='flex flex-col gap-6 flex-grow'> {/* Ensure this takes up available space */}
               <div className="flex flex-col gap-2">
                 <div className='flex flex-col'>
-                  <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
+                  <label htmlFor='category' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                   <select
                     id='category'
                     value={selectedDate}
@@ -222,7 +222,7 @@ const RMAReport = () => {
                 </div>
 
                 <div className='flex flex-col'>
-                  <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Stock Status</span>
+                  <span className={`text-sm font-semibold mb-2 ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Stock Status</span>
                   {Object.keys(rmaStatus).map((status) => (
                     <label key={status} className='custom-checkbox flex items-center'>
                       <input 
@@ -238,7 +238,7 @@ const RMAReport = () => {
 
 
                 <div className='flex flex-col'>
-                  <label htmlFor='reason' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Reason for RMA</label>
+                  <label htmlFor='reason' className={`text-sm font-semibold mb-2 ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REASON FOR RMA</label>
                   <select
                     id='reason'
                     value={selectedReason}
@@ -264,7 +264,7 @@ const RMAReport = () => {
                 </div>
 
                 <div className='flex flex-col'>
-                  <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Reports</span>
+                  <span className={`text-sm font-semibold mb-2 ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>INCLUDE REPORTS</span>
                   <label className='custom-checkbox flex items-center'>
                     <input 
                       type='checkbox' 
@@ -309,7 +309,7 @@ const RMAReport = () => {
                   </div>
                 </div>
 
-                <RmaSummary filteredRMA={rmaData} />
+                <RmaSummary filteredRMA={filteredRMA} />
                 <RmaDetail filteredRMA={filteredRMA} />
                   {includeReports && (
                       <RmaSummaryMatrics filteredRMA={filteredRMA} />

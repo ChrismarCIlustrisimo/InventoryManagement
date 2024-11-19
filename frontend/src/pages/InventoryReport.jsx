@@ -182,10 +182,10 @@ useEffect(() => {
         <div className='flex gap-4 items-center justify-center'>
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary'}`}>
             <div className='flex flex-col gap-6 flex-grow'>
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
 
                 <div className='flex flex-col gap-2'>
-                  <label htmlFor='category' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Product Category</label>
+                  <label htmlFor='category' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                   <select
                     id='category'
                     value={selectedCategory} // Set the value of the select to the state
@@ -210,7 +210,7 @@ useEffect(() => {
                 </div>
 
                 <div className='flex flex-col gap'>
-                  <label htmlFor='SupplierName' className={`text-md  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Supplier Name</label>
+                  <label htmlFor='SupplierName' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>SUPPLIER NAME</label>
                   <input 
                     id='SupplierName'
                     type='text'
@@ -225,7 +225,7 @@ useEffect(() => {
                 </div>
 
                 <div className='flex flex-col'>
-                  <label htmlFor='ProductName' className={`text-md  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Product Name</label>
+                  <label htmlFor='ProductName' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRODUCT NAME</label>
                   <input 
                     id='ProductName'
                     type='text'
@@ -235,13 +235,13 @@ useEffect(() => {
                       ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
                       : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
                     outline-none font-semibold`}
-                    placeholder='Search Product Name'
+                    placeholder='Search PRODUCT NAME'
                   />
                 </div>
 
                 {/* Include Reports Section */}
                 <div className='flex flex-col py-4 gap-2'>
-                  <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Include Reports</span>
+                  <span className={`text-sm font-semibold mb-2 ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>INCLUDE REPORTS</span>
                   <label className='custom-checkbox flex items-center'>
                     <input 
                       type='checkbox' 

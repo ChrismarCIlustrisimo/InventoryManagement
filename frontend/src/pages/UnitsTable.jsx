@@ -333,7 +333,7 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                   </td>
 
                   <td className="px-4 py-2 text-center">
-                  {isEditing && editUnitIndex === index ? (
+                  {isEditing && editUnitIndex === index ? ( 
                         <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}

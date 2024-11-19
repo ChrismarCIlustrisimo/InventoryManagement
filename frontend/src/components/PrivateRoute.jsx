@@ -15,7 +15,7 @@ const PrivateRoute = ({ allowedRoles, children }) => {
     // Redirect to the appropriate login route if no user is authenticated
     if (!user) {
         const loginRoute = allowedRoles.map(role => loginRoutes[role]).find(Boolean);
-        return <Navigate to={loginRoute || '/login'} />;
+        return <Navigate to={loginRoute || '/cashier-login'} />;
     }
 
     // Check if the user's role is included in allowedRoles

@@ -274,7 +274,7 @@ const handlePriceRange = (e) => {
             <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>Unapproved Products</h1>
             <div className={`flex w-[40%] gap-2 items-center justify-center border rounded-xl ${darkMode ? 'border-black' : 'border-white'}`}>
               <p className={`font-semibold text-lg ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{productCount}</p>
-              <p className={`text-xs ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>total products</p>
+              <p className={`text-sm ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>total products</p>
             </div>
           </div>
           <div className='w-full flex justify-end gap-2'>
@@ -285,7 +285,7 @@ const handlePriceRange = (e) => {
           <div className={`h-[78vh] w-[22%] rounded-2xl p-4 flex flex-col justify-between ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
             <div className='flex flex-col gap-3'>
               <div className='flex flex-col'>
-                <label htmlFor='category' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
+                <label htmlFor='category' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
                 <select
                       id="category"
                       value={selectedCategory}
@@ -315,7 +315,7 @@ const handlePriceRange = (e) => {
               <div className="flex flex-col">
                   <label
                     htmlFor="sortBy"
-                    className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}
+                    className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}
                   >
                     SORT BY
                   </label>
@@ -355,7 +355,7 @@ const handlePriceRange = (e) => {
 
 
               
-                <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
+                <label className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
 
                 <select
                   id='price_range'
@@ -446,13 +446,13 @@ const handlePriceRange = (e) => {
                 <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                   <tr>
                     <th className='p-2 text-center' style={{ width: '400px' }}>Product Name</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '120px' }}>Category</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Qty.</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Actions</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '100px' }}>Model</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '120px' }}>Category</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '80px' }}>Qty.</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '80px' }}>Supplier</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '150px' }}>Buying Price</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '150px' }}>Selling Price</th>
+                    <th className='p-2 text-center text-sm' style={{ width: '150px' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -483,16 +483,16 @@ const handlePriceRange = (e) => {
                         <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
                           <td className='flex items-center justify-left p-2'>
                             <img src={product.image} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
-                            <p className='text-xs'>{product.name}</p>
+                            <p className='text-sm'>{product.name}</p>
                           </td>
-                          <td className='text-center text-xs'>{product.model}</td>
-                          <td className='text-center text-xs'>{product.category}</td>
-                          <td className={`text-center text-xs font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
+                          <td className='text-center text-sm'>{product.model}</td>
+                          <td className='text-center text-sm'>{product.category}</td>
+                          <td className={`text-center text-sm font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
                             {inStockUnits}
                           </td>
-                          <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-sm'>{product.supplier || 'N/A'}</td>
+                          <td className='text-center text-sm'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center text-sm'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                           <td className="text-center">
                               <div className="relative inline-block group">
                                 <button
@@ -502,7 +502,7 @@ const handlePriceRange = (e) => {
                                   <GrView size={25} />
                                 </button>
                                 <span
-                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                                     darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
                                   }`}
                                 >
@@ -518,7 +518,7 @@ const handlePriceRange = (e) => {
                                   <IoCheckmarkCircleOutline size={25} />
                                 </button>
                                 <span
-                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                                     darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
                                   }`}
                                 >
@@ -535,7 +535,7 @@ const handlePriceRange = (e) => {
                                     <MdDelete size={25} />
                                   </button>
                                   <span
-                                    className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-sm rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
                                       darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
                                     }`}
                                   >

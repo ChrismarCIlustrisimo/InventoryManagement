@@ -130,7 +130,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
             }
 
             onClose();
-            toggleIsApproveRMA(); // Close the popup after successful update
+            toggleIsApproveRMA();
         } catch (error) {
             console.error(error);
             toast.error(error.message || 'Failed to update RMA status'); // Show error toast
@@ -161,14 +161,19 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
     };
 
     
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-          month: 'short', // This will return 'Oct' for 'October'
-          day: 'numeric',
-          year: 'numeric'
-        });
-      };
+    const formatDate = (date) => {
+        const options = {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true // Formats time in 12-hour format with AM/PM
+        };
+        return new Date(date).toLocaleString('en-US', options).replace(/, /g, ' '); // Replaces comma and space with just a space
+    };
+    
+    
       
     
 
@@ -213,12 +218,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                                 <span className={`p-2 rounded-md ${statusStyles.textClass} ${statusStyles.bgClass}`}>{rma.status}</span>
                             </p>
                         </div>
-                        <div className={`text-sm flex items-center justify-between ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                            <p className={`font-medium w-[30%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>WARRANTY STATUS</p>
-                            <p className={`py-2 rounded-md w-[70%]`}>
-                                <span className={`p-2 rounded-md ${warrantyStyles.textClass} ${warrantyStyles.bgClass}`}>{rma.warranty_status}</span>
-                            </p>
-                        </div>
+
                         <div className="w-full flex flex-col space-y-2 py-4 gap-2">
                             <p className={`text-xl w-full flex items-center justify-start font-semibold py-2`}>RMA Actions</p>
                             <div className='flex gap-2'>

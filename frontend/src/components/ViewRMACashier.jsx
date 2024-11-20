@@ -239,12 +239,6 @@ const ViewRMACashier = ({ onClose, rma }) => {
                                 <span className={`p-2 rounded-md ${getProcessStyles(rma.process).bgClass} ${getProcessStyles(rma.process).textClass}`}>{rma.process}</span>
                             </p>
                         </div>
-                        <div className={`text-sm flex items-center justify-between ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                            <p className={`font-medium w-[30%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>WARRANTY STATUS</p>
-                            <p className={`py-2 rounded-md w-[70%]`}>
-                                <span className={`p-2 rounded-md ${getWarrantyStyles(rma.warranty_status).bgClass} ${getWarrantyStyles(rma.warranty_status).textClass}`}>{rma.warranty_status}</span>
-                            </p>
-                        </div>
                         <div className={`text-sm flex items-start justify-between ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                             <p className={`font-medium w-[30%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>NOTES</p>
                             <p className={`w-[70%] font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{rma.notes}</p>

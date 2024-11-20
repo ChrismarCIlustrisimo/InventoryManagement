@@ -121,7 +121,7 @@ const ViewProducts = () => {
                             <div className='flex items-center gap-4'>
                                 <label className="text-gray-700 mr-4 font-semibold">Price:</label>
                                 <p className="text-5xl font-semibold text-light-primary">
-                                    ₱ {product.selling_price.toLocaleString()}
+                                    ₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </p>
                             </div>
                             <div className="flex items-center space-x-4">
@@ -135,8 +135,12 @@ const ViewProducts = () => {
                                     <input
                                         type="number"
                                         value={quantity}
-                                        onChange={(e) => setQuantity(Number(e.target.value))}
+                                        onChange={(e) => {
+                                            const newQuantity = Math.min(Number(e.target.value), inStockQuantity); // Limit to available stock
+                                            setQuantity(newQuantity);
+                                        }}
                                         min="1"
+                                        max={inStockQuantity}  // Set the max quantity to available stock
                                         className="w-20 text-center border text-gray-700 border-gray-300 rounded-md px-2 py-1"
                                     />
                                 </div>

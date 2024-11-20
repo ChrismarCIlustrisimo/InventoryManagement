@@ -355,7 +355,6 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
                 </div>
 
                 <input type="text" value={model} onChange={(e) => setModel(e.target.value)} placeholder="Model" className="border rounded p-2" />
-                <input type="text" value={warranty} onChange={(e) => setWarranty(e.target.value)} placeholder="Warranty" className="border rounded p-2" />
 
                 <div className="flex w-full gap-2 justify-between">
                     <div className='flex gap-2 w-full'>

@@ -321,8 +321,26 @@ const SalesOrder = () => {
           ) : (
             <div className='w-[80%] h-[78vh] flex flex-col gap-4 overflow-y-auto scrollbar-custom'>
               {salesOrder
-                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                .map((transaction) => (
+                         .sort((a, b) => {
+                          if (sortBy) {
+                            // Respect the sortBy logic
+                            switch (sortBy) {
+                              case 'price_asc':
+                                return a.selling_price - b.selling_price;
+                              case 'price_desc':
+                                return b.selling_price - a.selling_price;
+                              case 'product_name_asc':
+                                return a.name.localeCompare(b.name);
+                              case 'product_name_desc':
+                                return b.name.localeCompare(a.name);
+                              default:
+                                return 0;
+                            }
+                          } 
+                          // Default to new to old sorting
+                          return new Date(b.createdAt) - new Date(a.createdAt);
+                        })
+                  .map((transaction) => (
                   <div
                     key={transaction._id}
                     className={`rounded-lg p-4 flex gap-4 cursor-pointer 
@@ -352,7 +370,7 @@ const SalesOrder = () => {
                         <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                           <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
                           <p className='tracking-wider ml-auto'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
-                          <p className='ml-auto'>₱ {(transaction.total_price + transaction.vat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          <p className='ml-auto'>₱ {(transaction.total_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
                       </div>
                     </div>

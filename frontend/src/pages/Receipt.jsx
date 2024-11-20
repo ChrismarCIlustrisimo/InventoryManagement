@@ -196,8 +196,8 @@ const Receipt = () => {
           <div className='w-full flex items-center justify-end'>
             <div className='w-[40%] h-[120px]'>
               <div className='flex justify-between py-2'>
-                <span>Subtotal</span>
-                <span>₱ {((transaction.total_price + discount) - totalVAT).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</span>
+                <span>Vatable Sales</span>
+                <span>₱ {(transaction.total_price / 1.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</span>
               </div>
               <div className='flex justify-between py-2'>
                 <span>VAT (12%)</span>

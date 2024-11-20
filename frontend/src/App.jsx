@@ -123,7 +123,7 @@ const App = () => {
                                         <Route path="/transaction" element={<PrivateRoute allowedRoles={['cashier']}><Transaction /></PrivateRoute>} />
                                         <Route path="/orders" element={<PrivateRoute allowedRoles={['cashier']}><SalesOrder /></PrivateRoute>} />
                                         <Route path="/receipt" element={<PrivateRoute allowedRoles={['cashier']}><Receipt /></PrivateRoute>} />
-                                        <Route path="/resercation-receipt" element={<PrivateRoute allowedRoles={['cashier']}><ReservationReceipt /></PrivateRoute>} />
+                                        <Route path="/reservation-receipt" element={<PrivateRoute allowedRoles={['cashier']}><ReservationReceipt /></PrivateRoute>} />
                                         <Route path="/refund" element={<PrivateRoute allowedRoles={['cashier']}><Refund /></PrivateRoute>} />
                                         <Route path="/cashier-rma" element={<PrivateRoute allowedRoles={['cashier']}><CashierRMA /></PrivateRoute>} />
                                         <Route path="/cashier-sales-report" element={<PrivateRoute allowedRoles={['cashier']}><CashierSalesReport /></PrivateRoute>} />
@@ -175,8 +175,8 @@ const App = () => {
                                         <Route path="/iRIG/desktops" element={<Desktops />} />
                                         <Route path="/iRIG/accessories" element={<Accessories />} />
                                         <Route path="/iRIG/peripherals" element={<Peripherals />} />
-                                        <Route path="/iRIG/pcfurniture" element={<PCFurniture />} />
-                                        <Route path="/iRIG/osandsoftware" element={<OSAndSoftware />} />
+                                        <Route path="/iRIG/pc-furniture" element={<PCFurniture />} />
+                                        <Route path="/iRIG/os-software" element={<OSAndSoftware />} />
                                         <Route path="/iRIG/components" element={<Components />} />
 
                                         

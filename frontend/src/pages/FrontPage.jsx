@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUserShield, FaUserTie, FaCashRegister } from 'react-icons/fa'; // Importing icons
 import loginLogo from '../assets/iControlLight.png';
 
 const FrontPage = () => {
     const navigate = useNavigate();
+
+    useEffect(() => {
+        localStorage.removeItem('user');
+    }, []);
 
     return (
         <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col">

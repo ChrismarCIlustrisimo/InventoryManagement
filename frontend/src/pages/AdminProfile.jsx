@@ -36,7 +36,6 @@ const AdminProfile = () => {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [message, setMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
     const [userToArchive, setUserToArchive] = useState(null);
     const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -67,31 +66,39 @@ const AdminProfile = () => {
     const toggleChangePassword = async () => {
         if (isChangingPassword) {
             if (!currentPassword || !newPassword || !confirmPassword) {
-                setErrorMessage('All password fields must be filled.');
+                toast.error('All password fields must be filled.');
                 return;
             }
-            
+    
             if (newPassword !== confirmPassword) {
-                setErrorMessage('New passwords do not match.');
+                toast.error('New passwords do not match.');
                 return;
             }
     
             try {
                 const response = await axios.post(`${baseURL}/user/${user._id}/validate-password`, { currentPassword });
+                
                 if (response.data.valid) {
                     await saveChanges(`/user/${user._id}/change-password`, { currentPassword, newPassword }, 'Password changed successfully.', 'Error changing password:');
                     toast.success('Password changed successfully!');
                 } else {
-                    setErrorMessage('Current password is incorrect.');
+                    // Prevent redirection and handle error without going back to the previous page
+                    toast.error('Current password is incorrect.');
                 }
             } catch (error) {
-                setErrorMessage('Error validating current password: ' + (error.response ? error.response.data : error.message));
+                // Handle the error and prevent redirection
+                const errorMessage = error.response?.data?.error || error.message || 'Error validating current password.';
+                toast.error(errorMessage);  // Show error via toast notification
             }
         } else {
             resetToUserData();
         }
         setIsChangingPassword(prev => !prev);
     };
+    
+    
+    
+    
     
     const toggleEdit = async () => {
         if (isEditable) {
@@ -103,14 +110,14 @@ const AdminProfile = () => {
         setIsEditable(prev => !prev);
     };
     
-    
     const saveChanges = async (endpoint, data, successMessage, errorMessage) => {
         try {
             const response = await axios.patch(`${baseURL}${endpoint}`, data);
-            setMessage(successMessage); // Set success message
-            setErrorMessage(''); // Clear error message
+            toast.success(successMessage); // Show success toast
+            setMessage(successMessage); // Set success message if needed elsewhere
         } catch (error) {
-            setErrorMessage(errorMessage + (error.response ? error.response.data : error.message)); // Set error message
+            const errMessage = errorMessage + (error.response ? error.response.data : error.message);
+            toast.error(errMessage); // Show error toast
             setMessage(''); // Clear success message
         }
     };
@@ -232,19 +239,18 @@ useEffect(() => {
                         <div className='flex flex-col w-[80%] items-start justify-start gap-6 p-8 pl-24'>
                             {activeButton === 'profile' && (
                                 <>
-                                    <p className={`text-xl ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Profile</p>
                                     <BsPersonCircle className={`w-20 h-20 ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`} />
                                     {!isChangingPassword && !isEditable && (
                                         <>
                                             <p className={`text-4xl font-semibold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>{name}</p>
-                                            <p className={`${darkMode ? 'text-light-primary' : 'text-dark-primary'}`}>{user.role.toUpperCase()}</p>
+                                            <p className={`font-semibold ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`}>{user.role.toUpperCase()}</p>
                                             <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                                                Username
-                                                <input type="text"  value={username}  placeholder="Username" disabled className={`w-[100%] border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} />
+                                                USERNAME
+                                                <input type="text"  value={username}  placeholder="Username" disabled className={`w-[100%] border bg-transparent rounded-md p-2 mt-1 border-gray-400`} />
                                             </label>
                                             <label className={`text-sm font-medium flex flex-col ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                                                Contact
-                                                <input  type="text" value={contact} placeholder="Contact" disabled  className={`w-full border bg-transparent rounded-md p-2 mt-1 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`} />
+                                                CONTACT NUMBER
+                                                <input  type="text" value={contact} placeholder="Contact" disabled  className={`w-full border bg-transparent rounded-md p-2 mt-1 border-gray-400`} />
                                             </label>
                                         </>
                                     )}
@@ -324,7 +330,6 @@ useEffect(() => {
                                                                 </div>
                                                             </label>
                                                             {message && <p className='text-green-600'>{message}</p>}
-                                                            {errorMessage && <p className='text-red-600'>{errorMessage}</p>}
                                                         </>
                                                     )}
                                                 </>
@@ -343,16 +348,19 @@ useEffect(() => {
                                     )}
                                     {!isChangingPassword && !isEditable && (
                                         <div className='flex flex-col gap-4'>
-                                            <button onClick={toggleChangePassword} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}>Change Password</button>
-                                            <div className='flex gap-4'>
-                                                <button  onClick={() => setIsEditable(true)} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`} >Edit Info</button>
+                                                <button  onClick={() => setIsEditable(true)} className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-button' : 'bg-dark-primary'}`} >Edit Info</button>
+                                                <div className='flex flex-col'>
+                                                <label className={`text-sm font-medium flex flex-col pb-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                                                    PASSWORD
+                                                </label>
+                                                    <button onClick={toggleChangePassword} className={`px-4 py-2 rounded-md font-semibold text-white ${darkMode ? 'bg-light-button' : 'bg-dark-primary'}`}>Change Password</button>
+                                                </div>
                                                 <button
                                                     onClick={handleLogoutClick}
                                                     className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-red-600 text-white' : 'bg-red-600 text-white'}`}
                                                 >
                                                     Logout
                                                 </button>                             
-                                            </div>
                                         </div>
                                     )}
                                 </>

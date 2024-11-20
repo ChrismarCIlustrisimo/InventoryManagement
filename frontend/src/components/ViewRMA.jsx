@@ -11,20 +11,32 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
     const baseURL = API_DOMAIN;
     const [isApproveRMA, setIsApproveRMA] = useState(false);
     const [isAddNotesOpen, setIsAddNotesOpen] = useState(false);
-    const [isConfirmCloseOpen, setConfirmCloseOpen] = useState(false); // State for confirmation modal
-    const navigate = useNavigate(); // Initialize useNavigate
+    const [isConfirmCloseOpen, setConfirmCloseOpen] = useState(false);
+    const [newStatus, setNewStatus] = useState(false);
 
-    const toggleIsApproveRMA = () => {
-        setIsApproveRMA(!isApproveRMA);
-    };
+    const navigate = useNavigate();
 
-    const toggleAddNotes = () => {
-        setIsAddNotesOpen(!isAddNotesOpen);
-    };
+    const toggleIsApproveRMA = () => setIsApproveRMA(!isApproveRMA);
+    const toggleAddNotes = () => setIsAddNotesOpen(!isAddNotesOpen);
+    const toggleConfirmClose = () => setConfirmCloseOpen(!isConfirmCloseOpen);
 
-    // Function to toggle the confirmation modal
-    const toggleConfirmClose = () => {
-        setConfirmCloseOpen(!isConfirmCloseOpen);
+    const handleStatusUpdate = async (newProcess, newStatus) => {
+        try {
+            const response = await fetch(`${baseURL}/rma/${rma._id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus, notes: rma.notes, process: newProcess }),
+            });
+
+            if (!response.ok) throw new Error('Failed to update status');
+            const updatedRMA = await response.json();
+
+            onClose();
+            toggleIsApproveRMA();
+        } catch (error) {
+            console.error(error);
+            toast.error(error.message || 'Failed to update RMA status');
+        }
     };
 
     const handleCloseRMA = () => {
@@ -102,40 +114,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
     const statusStyles = getStatusStyles(rma.status);
     const warrantyStyles = getWarrantyStyles(rma.warranty_status);
 
-    const handleStatusUpdate = async (newProcess, newStatus) => {
-        try {
-            const response = await fetch(`${baseURL}/rma/${rma._id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    status: newStatus,
-                    notes: rma.notes,
-                    process: newProcess
-                }),
-            });
 
-            if (!response.ok) {
-                const errorMessage = await response.json();
-                throw new Error(errorMessage.message || 'Failed to update status');
-            }
-            const updatedRMA = await response.json();
-
-            // Show toast notification based on status update
-            if (newStatus === 'Approved') {
-                toast.success("RMA has been approved!");
-            } else if (newStatus === 'Rejected') {
-                toast.error("RMA has been rejected!");
-            }
-
-            onClose();
-            toggleIsApproveRMA();
-        } catch (error) {
-            console.error(error);
-            toast.error(error.message || 'Failed to update RMA status'); // Show error toast
-        }
-    };
 
     const handleAddNotes = async (newNotes) => {
         try {
@@ -248,6 +227,7 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                 </div>
                 {isApproveRMA && <UpdateStatusPopup onClose={toggleIsApproveRMA} rmaId={rma._id}  currentStatus={rma.status} onUpdate={handleStatusUpdate} />}
                 {isAddNotesOpen && <AddNotes onClose={(newNotes) => {handleAddNotes(newNotes); toggleAddNotes();}} rmaId={rma.rma_id}  />}
+                <ToastContainer />
                 {isConfirmCloseOpen && (
                      <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`}>
                           <div className={`bg-white shadow-lg rounded-lg p-6 w-[30%] relative flex flex-col gap-4 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} `}>
@@ -264,8 +244,6 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                     </div>
                 )}
             </div>
-            <ToastContainer />
-
         </div>
     );
 };

@@ -152,7 +152,7 @@ const Erceipt = () => {
           ))}
           <div className="flex flex-row justify-between mt-2 pt-2"> 
             <span className="text-sm">TOTAL PRICE</span>
-            <span className="font-bold text-xl">₱ {(total + totalVat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> 
+            <span className="font-bold text-xl">₱ {(total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> 
           </div>
         </section>
 

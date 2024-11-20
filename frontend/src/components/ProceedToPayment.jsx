@@ -58,25 +58,20 @@ const parseNumber = (value) => {
   const handleBackgroundClick = (e) => {
     e.stopPropagation();
   };
-  // Calculate total VAT
-// Calculate total VAT
-const calculateTotalVAT = () => {
-  return cart.reduce((acc, item) => {
-    const productPrice = item.product.selling_price; // Ensure this is the selling price
-    const productVAT = productPrice * 0.12; // 12% VAT
-    const totalVATForItem = productVAT * item.quantity;
-    const newAcc = acc + totalVATForItem;
-
-    return newAcc; // Return the updated accumulator
-    
-  }, 0);
-};
-
-
-
-
+  const calculateTotalVAT = () => {
+    const totalPrice = cart.reduce((acc, item) => {
+      return acc + item.product.selling_price * item.quantity;
+    }, 0);
+  
+    // Calculate VAT based on total price
+    const totalVAT = (totalPrice / 1.12) * 0.12;
+    return totalVAT;
+  };
+  
   const totalVAT = calculateTotalVAT();
-  const finalAmount = (totalAmount + totalVAT) - calculateDiscount();
+  
+  
+  const finalAmount = totalAmount - calculateDiscount();
 
   const change = (parseNumber(paymentAmount) || 0) - finalAmount;
 
@@ -255,7 +250,7 @@ const formatNumber = (num) => {
 useEffect(() => {
   // Automatically set paymentAmount when payment method changes
   if (paymentMethod !== 'Cash' && paymentMethod !== '') {
-    setPaymentAmount(totalVAT + totalAmount - discountValue); // Set total price
+    setPaymentAmount(totalAmount - discountValue); // Set total price
   }
 }, [paymentMethod, totalVAT, totalAmount, discountValue]);
 
@@ -361,18 +356,18 @@ useEffect(() => {
 
 
                 <div className='w-full flex items-center  '>
-                  <p className='w-[50%]'>Subtotal</p>
-                  <p className='w-[50%]'>₱ {totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className='w-[50%]'>Vatable Sales</p>
+                  <p className='w-[50%]'>₱ {(totalAmount / 1.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
                 <div className='w-full flex items-center  '>
-                  <p className='w-[50%]'>VAT</p>
-                  <p className='w-[50%]'>₱ {totalVAT.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className='w-[50%]'>VAT (12%)</p>
+                  <p className='w-[50%]'>₱ {((totalAmount / 1.12) * 0.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
                 <div className='w-full flex items-center'>
                   <p className='w-[50%]'>Total Amount</p>
-                  <p className='w-[50%]'>₱ {formatNumber(totalVAT + totalAmount - discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className='w-[50%]'>₱ {formatNumber(totalAmount - discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
               </div>
@@ -385,14 +380,23 @@ useEffect(() => {
                   <p className='w-[50%]'>Discount</p>
                   <div className='w-[50%]'>
                     <input
-                        type="number"
-                        value={discountValue === 0 ? '' : discountValue}
-                        onChange={(e) => setDiscountValue(Number(e.target.value))}
-                        placeholder="₱ 0"
-                        className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
-                      />
+                      type="number"
+                      value={discountValue === 0 ? '' : discountValue}
+                      onChange={(e) => {
+                        const value = e.target.value === '' ? '' : Number(e.target.value); // Allow empty input
+                        if (value === '' || value <= totalAmount) {
+                          setDiscountValue(value);
+                        } else {
+                          setDiscountValue(totalAmount); // Optional: Set to max if exceeded
+                        }
+                      }}
+                      max={totalAmount}
+                      placeholder="₱ 0"
+                      className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                    />
                   </div>
                 </div>
+
                 
               <div className='w-full flex items-center'>
                   <p className='w-[50%]'>Payment Method</p>

@@ -174,8 +174,12 @@ const handleProductChange = (event) => {
               "Content-Type": "application/json",
           },
       });
-      console.log("RMA request submitted successfully!", response.data);
-      navigate(-1);
+      toast.success("RMA request submitted successfully!");
+
+      // Introduce a 3-second delay before navigating
+      setTimeout(() => {
+        navigate(-1);
+      }, 3000);
   } catch (error) {
       console.error("Error submitting RMA request:", error);
       if (error.response) {
@@ -186,10 +190,7 @@ const handleProductChange = (event) => {
   };
 
   const shortenString = (str) => {
-    // Log the input for debugging
-    console.log('Input string:', str);
 
-    // Check if the input is a valid string and trim it
     if (typeof str === 'string') {
         const trimmedStr = str.trim(); // Remove leading and trailing spaces
         if (trimmedStr.length > 20) {

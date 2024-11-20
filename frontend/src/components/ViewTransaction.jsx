@@ -10,24 +10,21 @@ const ViewTransaction = ({ transaction, onClose }) => {
   const { darkMode } = useAdminTheme();
   const baseURL = API_DOMAIN;
 
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    
-    // Get date in the desired format
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit', 
-      hour12: true 
-    };
-    
-    // Format the date and time
-    const formattedDate = date.toLocaleString('en-US', options);
   
-    return formattedDate;
+    // Options for date and time formatting
+    const optionsDate = { year: 'numeric', month: 'short', day: 'numeric' };
+    const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: true };
+  
+    // Format the date
+    const formattedDate = date.toLocaleDateString('en-US', optionsDate);
+  
+    // Format the time
+    const formattedTime = date.toLocaleTimeString('en-US', optionsTime);
+  
+    // Combine both date and time into the desired format
+    return `${formattedDate} ${formattedTime}`;
   };
   
   

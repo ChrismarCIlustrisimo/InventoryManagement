@@ -186,7 +186,7 @@ const formatDates = (dateString) => {
         <DashboardNavbar />
         <div className='pt-[70px] px-6 py-4 w-full h-full'>
         <div className='flex items-center justify-center py-5'>
-            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refunds</h1>
+            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refund</h1>
               <div className='w-full flex justify-end gap-2'>
               <AdminSearchBar
                     query={searchQuery}
@@ -436,7 +436,7 @@ const formatDates = (dateString) => {
                             <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
 s                              REFUND AMOUNT
                             </div>
-                            <div className="font-semibold w-[50%]">{selectedRefund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                            <div className="font-semibold w-[50%]">₱ {selectedRefund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                           </div>
                           <div className="text-md w-full flex items-center justify-between">
                             <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>

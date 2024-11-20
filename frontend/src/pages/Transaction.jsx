@@ -95,15 +95,28 @@ const handlePayButton = () => {
     return;
   }
 
-  if(paymentMethod !== 'Cash'){
+  if (paymentMethod !== 'Cash') {
+    if (!paymentMethod) {
+      toast.error('Please select a payment method.');
+      return; 
+    }
+  }
+
+
+  if(paymentMethod !== 'Cash' && paymentMethod !== '') {
     if (referenceNumber === '') {
       toast.warning('Please input reference number');
       return;
     }
   }
 
-  setTotal_price(transaction.vat + transaction.total_price);
-  console.log(transaction.vat + transaction.total_price)
+  const total = (transaction.total_price - discountValue);
+  if (paymentAmount < total) {
+    toast.warning(`Payment amount is less than the total amount. ${transaction.total_price} - ${discountValue}`);
+    return; 
+  }
+
+  setTotal_price(transaction.total_price);
   processPayment();
 };
 
@@ -114,14 +127,12 @@ const handlePayment = () => {
 
 
 const processPayment = async () => { 
-  if (!paymentMethod) {
-    toast.error('Please select a payment method.');
-    return; 
-  }
+
+
 
   try {
-    // Update the transaction with payment details
-    await axios.put(`${baseURL}/transaction/${id}`, {
+    // Prepare the payload
+    const payload = {
       payment_status: 'paid', 
       cashier: user.name, 
       discount: discountValue, 
@@ -130,8 +141,15 @@ const processPayment = async () => {
       total_amount_paid: paymentAmount, 
       products: transaction.products, 
       transaction_date: new Date().toISOString(),
-      reference_number: referenceNumber,
-    }, {
+    };
+
+    // Add reference number only if the payment method is not 'Cash'
+    if (paymentMethod !== 'Cash') {
+      payload.reference_number = referenceNumber;
+    }
+
+    // Update the transaction with payment details
+    await axios.put(`${baseURL}/transaction/${id}`, payload, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
@@ -145,11 +163,10 @@ const processPayment = async () => {
     });
 
     const updatedTransaction = response.data;
-    console.log(updatedTransaction)
     toast.success('Payment processed successfully.');
 
     setTimeout(() => {
-      navigate('/resercation-receipt', { 
+      navigate('/reservation-receipt', { 
         state: {
           transaction: updatedTransaction,
           transactionId: updatedTransaction.transaction_id,
@@ -266,10 +283,10 @@ const processPayment = async () => {
                                             <td className="p-2 flex flex-col gap-2 text-left">
                                                      <p>{item.product?.name}</p>
                                             </td>
-                                            <td className="p-2 text-center">₱ {item.product?.selling_price || 0}</td>
+                                            <td className="p-2 text-center">₱ {item.product?.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</td>
                                             <td className="p-2 text-center">{item.quantity}</td>
                                             <td className="p-2 text-center">{item.serial_number.length > 0 ? item.serial_number.join(', ') : 'N/A'}</td>
-                                            <td className="p-2 text-center">₱ {item.quantity * item.product?.selling_price}</td>
+                                            <td className="p-2 text-center">₱ {(item.quantity * item.product?.selling_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                             </tr>
                                         );
                                         })
@@ -285,16 +302,16 @@ const processPayment = async () => {
               <div className='w-full flex items-center justify-end'>
                 <div className='w-[40%] h-[120px]'>
                     <div className='flex justify-between py-2'>
-                        <span>Subtotal</span>
-                        <span>₱ {transaction.total_price}</span>
+                        <span>Vatable Sales</span>
+                        <span>₱ {(transaction.total_price / 1.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <div className='flex justify-between py-2'>
                         <span>VAT (12%)</span>
-                        <span>₱ {transaction.vat}</span>
+                        <span>₱ {((transaction.total_price  / 1.12) * 0.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                     <div className='flex justify-between border-t-2 border-black text-xl py-4 font-semibold'>
                         <span>Total</span>
-                        <span>₱ {transaction.total_price + transaction.vat}</span>
+                        <span>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                  </div>
               </div>
@@ -311,18 +328,18 @@ const processPayment = async () => {
 
                       <div className='flex flex-col w-full justify-between items-center gap-4'>
                         <div className='w-full flex items-center'>
-                          <p className='w-[50%]'>Subtotal</p>
-                          <p className='w-[50%]'>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          <p className='w-[50%]'>Vatable Sales</p>
+                          <p className='w-[50%]'>₱ {(transaction.total_price / 1.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
 
                         <div className='w-full flex items-center'>
-                          <p className='w-[50%]'>VAT</p>
-                          <p className='w-[50%]'>₱ {transaction.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          <p className='w-[50%]'>VAT (12%)</p>
+                          <p className='w-[50%]'>₱ {((transaction.total_price  / 1.12) * 0.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
 
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Total Amount</p>
-                          <p className='w-[50%]'>₱ {(((transaction.vat + transaction.total_price) - discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</p>
+                          <p className='w-[50%]'>₱ {((transaction.total_price - discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))}</p>
                         </div>
                       </div>
 
@@ -333,8 +350,16 @@ const processPayment = async () => {
                                 <input
                                     type="number"
                                     value={discountValue === 0 ? '' : discountValue}
-                                    onChange={(e) => setDiscountValue(Number(e.target.value))}
-                                    placeholder="₱ 0"
+                                    onChange={(e) => {
+                                      const value = Number(e.target.value);
+                                      // Prevent discountValue from exceeding total_price
+                                      if (value <= transaction.total_price) {
+                                        setDiscountValue(value);
+                                      } else {
+                                        setDiscountValue(transaction.total_price); // Optional: Set to max if exceeded
+                                      }
+                                    }}                                    placeholder="₱ 0"
+                                    max={transaction.total_price} // Adds a visual cue for max value
                                     className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
                                   />
                               </div>
@@ -353,7 +378,7 @@ const processPayment = async () => {
                                     ? 'bg-light-activeLink text-light-primary' 
                                     : 'bg-transparent text-black')} 
                                       outline-none font-semibold`}>
-                                <option value=''>Select Option</option>
+                                <option value=''>Select Option</option> 
                                 <option value='Cash'>Cash</option>
                                 <option value='GCash'>GCash</option>
                                 <option value='GGvices'>GGvices</option>
@@ -389,6 +414,7 @@ const processPayment = async () => {
                                   value={formatNumber(paymentAmount)}
                                   onChange={(e) => setPaymentAmount(parseNumber(e.target.value))}
                                   placeholder="₱ 0"
+                                  min={0}
                                   className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
                                 />
                               </div>
@@ -396,7 +422,7 @@ const processPayment = async () => {
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Change</p>
                           <p className='w-[50%]'>
-                            {paymentAmount ? (paymentAmount - ((transaction.vat + transaction.total_price) - discountValue)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '₱ 0.00'}
+                            {paymentAmount ? (paymentAmount - ( transaction.total_price - discountValue)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '₱ 0.00'}
                           </p>
                         </div>
                       </div>

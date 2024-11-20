@@ -275,7 +275,6 @@ const handleExportPdf = () => {
                             : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                         outline-none font-semibold`}
                   >
-                      <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Date</option>
                       <option value='Today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
                       <option value='This Week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
                       <option value='This Month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>

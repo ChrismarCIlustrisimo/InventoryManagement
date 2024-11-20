@@ -337,7 +337,7 @@ const AdminTransaction = () => {
                 <Spinner />
               ) : salesOrder.length === 0 ? (
                 <div className='w-[80%] h-[77vh] flex items-center justify-center'>
-                  <p className={`${darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>No Transactions Available</p>
+                  <p className={`text-2xl font-semibold ${darkMode ? 'dark:text-light-textPrimary ' : ' text-dark-container'}`}>No Transactions Available</p>
                 </div>
               ) : (
                 <div className='w-[80%] h-[77vh]'>
@@ -348,6 +348,7 @@ const AdminTransaction = () => {
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Transaction ID</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Sales Date</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Customer Name</th>
+                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Cashier Name</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Qty. Sold</th>
                           <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}> Total Amount</th>
@@ -367,6 +368,9 @@ const AdminTransaction = () => {
                               </td>
                               <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
                                 {transaction.customer?.name || 'None'}
+                              </td>
+                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                {transaction.cashier || 'None'}
                               </td>
                               <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
                                 {item.product?.name || 'Unknown Product'}

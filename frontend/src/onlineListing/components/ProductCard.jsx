@@ -28,7 +28,7 @@ const ProductCard = ({ product }) => {
             </div>
             <div className='flex flex-col items-center justify-center flex-grow'>
                 <p className="text-orange-500 text-xs md:text-sm font-bold mb-1 text-left w-full">
-                    ₱{product.selling_price ? product.selling_price.toLocaleString() : "N/A"}
+                    ₱ {product.selling_price ? product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"}
                 </p>
                 <p className="text-[8px] md:text-sm font-semibold mb-1 text-left w-full text-black">
                     {product.name || "No Name Available"}

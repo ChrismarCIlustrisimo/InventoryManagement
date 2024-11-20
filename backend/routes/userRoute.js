@@ -2,6 +2,9 @@ import express from 'express';
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import VerificationCode from '../models/VerificationCodeSchema.js';
+
 
 const router = express.Router();
 
@@ -245,6 +248,140 @@ router.post('/:id/validate-password', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+
+
+
+
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER, // Email address from .env
+        pass: process.env.EMAIL_PASS,  // Email password from .env
+    },
+  });
+  // Example function to send an email
+  const sendEmail = (to, subject, text) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER, // Sender address
+        to: to,                        // Recipient address
+        subject: subject,              // Subject line
+        text: text,                    // Plain text body
+    };
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return console.log('Error occurred: ' + error.message);
+        }
+        console.log('Email sent: ' + info.response);
+    });
+  };
+
+
+
+
+router.post('/send-verification-code', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 10 minutes expiry
+
+        // Upsert verification code in the database
+        await VerificationCode.findOneAndUpdate(
+            { email },
+            { code: verificationCode, expiresAt },
+            { upsert: true, new: true }
+        );
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Your Password Reset Verification Code',
+            text: `Your verification code is: ${verificationCode}`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Email sending error:', error);
+                return res.status(500).json({ message: 'Failed to send verification code', error });
+            }
+            console.log('Verification code sent:', info);
+            res.status(200).json({ message: 'Verification code sent successfully' });
+        });
+
+    } catch (error) {
+        console.error('Error sending verification code:', error);
+        return res.status(500).json({ message: 'Failed to send verification code' });
+    }
+});router.post('/verify-code', async (req, res) => { 
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+        return res.status(400).json({ success: false, message: 'Email and verification code are required' });
+    }
+
+    try {
+        const verification = await VerificationCode.findOne({ email });
+
+        if (!verification) {
+            return res.status(400).json({ success: false, message: 'No code sent to this email' });
+        }
+
+        if (new Date() > verification.expiresAt) {
+            await VerificationCode.deleteOne({ email }); // Clean up expired code
+            return res.status(400).json({ success: false, message: 'Verification code has expired' });
+        }
+
+        if (verification.code === code.trim()) {
+            await VerificationCode.deleteOne({ email }); // Delete the code after successful verification
+            return res.status(200).json({ success: true, message: 'Code verified successfully' });
+        } else {
+            return res.status(400).json({ success: false, message: 'Invalid verification code' });
+        }
+
+    } catch (error) {
+        console.error('Error verifying code:', error);
+        return res.status(500).json({ message: 'Failed to verify code' });
+    }
+});
+
+
+
+
+// Using PUT for password reset
+router.put('/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+
+        // Hash the new password before saving it
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        user.password = hashedPassword; // Update the password
+        await user.save();
+
+        return res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Error resetting password:', error);
+        return res.status(500).json({ message: 'Failed to reset password' });
+    }
+});
+
+
 
 
 

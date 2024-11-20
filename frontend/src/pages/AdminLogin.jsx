@@ -1,22 +1,25 @@
-import React, { useState, useEffect } from 'react';  
+import React, { useState, useEffect } from 'react';
 import PasswordInput from '../components/PasswordInput';
-import { RiUserLine } from 'react-icons/ri'; 
-import loginLogo from '../assets/iControlLight.png'; 
+import { RiUserLine } from 'react-icons/ri';
+import loginLogo from '../assets/iControlLight.png';
 import { useLogin } from '../hooks/useLogin';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import { FaUser } from "react-icons/fa";
-import { toast, ToastContainer } from 'react-toastify';  // Import ToastContainer and toast
-import 'react-toastify/dist/ReactToastify.css';  // Import styles for toast
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
-    const [username, setUsername] = useState(''); 
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [forgotPassword, setForgotPassword] = useState(false);
     const [newPassword, setNewPassword] = useState('');
-    const { login, resetPassword, checkUserExistence } = useLogin();
-    const [isAccountValid, setIsAccountValid] = useState(false); 
+    const [loading, setLoading] = useState(false);
+    const { login, resetPassword, sendVerificationCode, verifyCode } = useLogin();
+    const [isAccountValid, setIsAccountValid] = useState(false);
     const navigate = useNavigate();
+    const [codeSent, setCodeSent] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
 
     useEffect(() => {
         localStorage.removeItem('user');
@@ -27,62 +30,76 @@ const AdminLogin = () => {
         setUsername('');
         setEmail('');
         setNewPassword('');
-        setIsAccountValid(false); 
+        setIsAccountValid(false);
     };
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+    const handleLogin = async () => {
+        setLoading(true);
         const response = await login(username, password, 'admin');
+        setLoading(false);
         if (response) {
             if (response.role === 'admin' || response.role === 'super-admin') {
-                toast.success('Login successful!');  // Success toast on successful login
+                toast.success('Login successful!');
                 navigate('/admin-dashboard');
             }
         } else {
-            toast.error('Invalid credentials');  // Error toast for invalid credentials
+            toast.error('Invalid credentials');
         }
     };
 
-    const handleForgotPassword = async (e) => {
-        e.preventDefault();
-    
-        try {
-            const user = await checkUserExistence(username, email);
-            
-            if (user) {
-                if (user.role !== 'admin') {
-                    setIsAccountValid(false);
-                    toast.error('Password reset is only available for admins.');  // Error toast for non-admin users
-                } else {
-                    setIsAccountValid(true);
-                    toast.info('Account found, you can reset the password now.');  // Info toast for valid account
-                }
-            } else {
-                setIsAccountValid(false);
-                toast.error('Username or email not found');  // Error toast for account not found
-            }
-        } catch (error) {
-            toast.error('An error occurred while checking the account. Please try again.');  // Error toast on failure
+    const handleForgotPassword = async () => {
+        setLoading(true);
+        const response = await sendVerificationCode(email);
+        setLoading(false);
+        if (response) {
+            setCodeSent(true);
+            toast.success('Verification code sent!');
+        } else {
+            toast.error('Failed to send verification code');
         }
     };
-    
-    const handleResetPassword = async (e) => {
-        e.preventDefault();
-        const response = await resetPassword(username, email, newPassword);
-        if (response) {
-            toast.success('Password reset successful!');  // Success toast on successful password reset
-            setForgotPassword(false);
-            setUsername('');
-            setEmail('');
-            setNewPassword('');
-            navigate('/admin-login');
+
+    const handleVerifyCode = async () => {
+        setLoading(true);
+        const response = await verifyCode(email, verificationCode);
+        setLoading(false);
+        if (response?.success) {
+            setIsAccountValid(true);
+            toast.success('Code verified! You can now reset your password.');
         } else {
-            toast.error('Failed to reset password');  // Error toast on password reset failure
+            toast.error(response?.message || 'Invalid verification code');
+        }
+    };
+
+    const handleResetPassword = async () => {
+        if (!newPassword || !email) {
+            toast.error('Please fill in all the fields');
+            return;
+        }
+        setLoading(true);
+        try {
+            const response = await resetPassword(email, newPassword);
+            setLoading(false);
+            if (response) {
+                toast.success('Password reset successful!');
+                setForgotPassword(false);
+                setUsername('');
+                setEmail('');
+                setNewPassword('');
+                navigate('/admin-login');
+            } else {
+                toast.error(response?.message || 'Failed to reset password');
+            }
+        } catch (error) {
+            setLoading(false);
+            toast.error('An error occurred while resetting the password');
+            console.error(error);
         }
     };
 
     return (
         <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col text-black">
+            <ToastContainer />
             <div className=" flex flex-col items-center">
                 <img src={loginLogo} alt="Login Logo" className="w-32 mb-2" />
             </div>
@@ -107,7 +124,81 @@ const AdminLogin = () => {
                 )}
 
                 {forgotPassword ? (
-                    <form onSubmit={handleForgotPassword} className="space-y-6 text-black">
+                    <div className="space-y-6 text-black">
+                        {!isAccountValid && (
+                            <>
+                                <div>
+                                    <label htmlFor="email" className="block text-gray-700">Email</label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        placeholder="Enter Email"
+                                        className="w-full border border-gray-300 rounded-lg p-2"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                {!codeSent && (
+                                    <button
+                                        onClick={handleForgotPassword}
+                                        className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Sending...' : 'Send Verification Code'}
+                                    </button>
+                                )}
+                                {codeSent && (
+                                    <>
+                                        <div>
+                                            <label htmlFor="verificationCode" className="block text-gray-700">Verification Code</label>
+                                            <input
+                                                id="verificationCode"
+                                                type="text"
+                                                placeholder="Enter Code"
+                                                className="w-full border border-gray-300 rounded-lg p-2"
+                                                value={verificationCode}
+                                                onChange={(e) => setVerificationCode(e.target.value)}
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={handleVerifyCode}
+                                            className="w-full py-3 text-white bg-blue-500 rounded-lg font-semibold hover:bg-blue-600"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Verifying...' : 'Verify Code'}
+                                        </button>
+                                    </>
+                                )}
+                            </>
+                        )}
+                        {isAccountValid && (
+                            <>
+                                <div>
+                                    <label htmlFor="newPassword" className="block text-gray-700">New Password</label>
+                                    <PasswordInput
+                                        id="newPassword"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleResetPassword}
+                                    className="w-full py-3 text-white bg-green-500 rounded-lg font-semibold hover:bg-green-600"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Resetting...' : 'Reset Password'}
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={handleCancel}
+                            className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600 mt-4"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-6 text-black">
                         <div>
                             <label htmlFor="username" className="block text-gray-700">Username</label>
                             <input
@@ -120,107 +211,31 @@ const AdminLogin = () => {
                             />
                         </div>
                         <div>
-                            <label htmlFor="email" className="block text-gray-700">Email</label>
-                            <input
-                                id="email"
-                                type="email"
-                                placeholder="Enter Email"
-                                className="w-full border border-gray-300 rounded-lg p-2"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                            <label htmlFor="password" className="block text-gray-700">Password</label>
+                            <PasswordInput
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                             />
                         </div>
-                        {!isAccountValid && (
-                            <>
+                        <div className="flex flex-col gap-4 justify-between items-center">
                             <button
-                                type="submit"
+                                onClick={handleLogin}
                                 className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
+                                disabled={loading}
                             >
-                                Check Account
+                                {loading ? 'Logging in...' : 'Login'}
                             </button>
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600"
-                                >
-                                    Cancel
-                                </button>
-                            </>
-                        )}
-                        {isAccountValid && (
-                            <div>
-                                <label htmlFor="newPassword" className="block text-gray-700">New Password</label>
-                                <PasswordInput
-                                    id="newPassword"
-                                    placeholder="New Password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                />
-                                <button
-                                    onClick={handleResetPassword}
-                                    className="w-full py-3 my-6 text-white bg-green-500 rounded-lg font-semibold hover:bg-green-600"
-                                >
-                                    Reset Password
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        )}
-                    </form>
-                ) : (
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        <div className='flex flex-col ga-2'>
-                            <div className='text-black'>
-                                <label htmlFor="username" className="block text-gray-700">Username</label>
-                                <div className="flex items-center mt-1 border border-gray-300 rounded-lg p-2">
-                                    <RiUserLine className="text-xl text-black" />
-                                    <input
-                                        id="username"
-                                        type="text"
-                                        placeholder="Enter Username"
-                                        className="w-full pl-3 bg-transparent text-sm outline-none text-black"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <div className='py-4'>
-                                <label htmlFor="password" className="block text-gray-700">Password</label>
-                                <PasswordInput
-                                    id="password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <button
-                            type="submit"
-                            className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
-                        >
-                            Login
-                        </button>
-                        <div className="mt-4 text-center">
                             <button
-                                type="button"
-                                className="text-blue-500 hover:underline"
-                                onClick={() => setForgotPassword(true)} // Shows the reset password flow
+                                onClick={() => setForgotPassword(true)}
+                                className="text-blue-600 hover:underline"
                             >
                                 Forgot Password?
                             </button>
                         </div>
-                    </form>
+                    </div>
                 )}
             </div>
-
-            {/* Toast Container */}
-            <ToastContainer />
         </div>
     );
 };

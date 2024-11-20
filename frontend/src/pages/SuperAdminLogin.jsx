@@ -14,64 +14,93 @@ const SuperAdminLogin = () => {
     const [password, setPassword] = useState('');
     const [forgotPassword, setForgotPassword] = useState(false);
     const [newPassword, setNewPassword] = useState('');
-    const { login, resetPassword, checkUserExistence, error } = useLogin();
-    const [isAccountValid, setIsAccountValid] = useState(false); // Account validation flag
+    const [loading, setLoading] = useState(false);
+    const { login, resetPassword, sendVerificationCode, verifyCode } = useLogin();
+    const [isAccountValid, setIsAccountValid] = useState(false);
     const navigate = useNavigate();
+    const [codeSent, setCodeSent] = useState(false);
+    const [verificationCode, setVerificationCode] = useState('');
 
     useEffect(() => {
         localStorage.removeItem('user');
     }, []);
-    
-    const handleLogin = async (e) => {
-        e.preventDefault();
+
+    const handleCancel = () => {
+        setForgotPassword(false);
+        setUsername('');
+        setEmail('');
+        setNewPassword('');
+        setIsAccountValid(false);
+    };
+
+    const handleLogin = async () => {
+        setLoading(true);
         const response = await login(username, password, 'super-admin');
-        if (response && response.role === 'super-admin') {
-            toast.success('Login successful!'); // Success toast
-            navigate('/super-admin-dashboard');
+        setLoading(false);
+        if (response) {
+            if (response.role === 'super-admin') {
+                toast.success('Login successful!');
+                navigate('/super-admin-dashboard');
+            }
         } else {
-            toast.error('Invalid credentials'); // Error toast
+            toast.error('Invalid credentials');
         }
     };
 
-    const handleForgotPassword = async (e) => {
-        e.preventDefault();
+    const handleForgotPassword = async () => {
+        setLoading(true);
+        const response = await sendVerificationCode(email);
+        setLoading(false);
+        if (response) {
+            setCodeSent(true);
+            toast.success('Verification code sent!');
+        } else {
+            toast.error('Failed to send verification code');
+        }
+    };
 
+    const handleVerifyCode = async () => {
+        setLoading(true);
+        const response = await verifyCode(email, verificationCode);
+        setLoading(false);
+        if (response?.success) {
+            setIsAccountValid(true);
+            toast.success('Code verified! You can now reset your password.');
+        } else {
+            toast.error(response?.message || 'Invalid verification code');
+        }
+    };
+
+    const handleResetPassword = async () => {
+        if (!newPassword || !email) {
+            toast.error('Please fill in all the fields');
+            return;
+        }
+        setLoading(true);
         try {
-            const user = await checkUserExistence(username, email); // Ensure the user exists
-            if (user) {
-                if (user.role !== 'super-admin') {
-                    setIsAccountValid(false); // Only allow reset for super-admins
-                    toast.error('Password reset is only available for super-admins.');
-                } else {
-                    setIsAccountValid(true); // Account exists and is a super-admin
-                }
+            const response = await resetPassword(email, newPassword);
+            setLoading(false);
+            if (response) {
+                toast.success('Password reset successful!');
+                setForgotPassword(false);
+                setUsername('');
+                setEmail('');
+                setNewPassword('');
+                navigate('/super-admin-login');
             } else {
-                setIsAccountValid(false); // Account doesn't exist
-                toast.error('Username or email not found'); // Error toast
+                toast.error(response?.message || 'Failed to reset password');
             }
         } catch (error) {
-            toast.error('An error occurred while checking the account. Please try again.'); // Error toast
-        }
-    };
-
-    const handleResetPassword = async (e) => {
-        e.preventDefault();
-        const response = await resetPassword(username, email, newPassword);
-        if (response) {
-            toast.success('Password reset successful!'); // Success toast
-            setForgotPassword(false);
-            setUsername('');
-            setEmail('');
-            setNewPassword('');
-            navigate('/super-admin-login');
-        } else {
-            toast.error('Failed to reset password'); // Error toast
+            setLoading(false);
+            toast.error('An error occurred while resetting the password');
+            console.error(error);
         }
     };
 
     return (
-        <div className="flex items-center justify-center w-full h-screen bg-gray-100 text-black">
-            <div className="absolute top-10 flex flex-col items-center">
+        <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col text-black">
+            <ToastContainer />
+            <div className=" flex flex-col items-center">
                 <img src={loginLogo} alt="Login Logo" className="w-32 mb-2" />
             </div>
 
@@ -87,122 +116,126 @@ const SuperAdminLogin = () => {
                             </div>
                         </div>
                         <div className="px-6 py-2 mb-4 font-bold rounded-full flex items-center justify-center gap-2 text-xl text-light-primary">
-                            <FaUser />
                             Super Admin
                         </div>
-                        <form onSubmit={handleLogin} className="space-y-6">
-                            <div className='text-black'>
-                                <label htmlFor="username" className="block text-gray-700">Username</label>
-                                <div className="flex items-center mt-1 border border-gray-300 rounded-lg p-2">
-                                    <RiUserLine className="text-xl text-black" />
-                                    <input
-                                        id="username"
-                                        type="text"
-                                        placeholder="Enter Username"
-                                        className="w-full pl-3 bg-transparent text-sm outline-none text-black"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <div className='text-black'>
-                                <label htmlFor="password" className="block text-gray-700">Password</label>
-                                <PasswordInput
-                                    id="password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className={`text-black`}
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
-                            >
-                                Login
-                            </button>
-                            <div className="mt-4 text-center">
-                                <button
-                                    type="button"
-                                    className="text-blue-500 hover:underline"
-                                    onClick={() => setForgotPassword(true)} // Switch to the reset password flow
-                                >
-                                    Forgot Password?
-                                </button>
-                            </div>
-                        </form>
                     </>
                 ) : (
-                    <>
-                        <h1 className="text-4xl font-bold text-gray-800 text-center py-4">Reset Password</h1>
-                        <form onSubmit={handleForgotPassword} className="space-y-6">
-                            <div>
-                                <label htmlFor="username" className="block text-gray-700">Username</label>
-                                <input
-                                    id="username"
-                                    type="text"
-                                    placeholder="Enter Username"
-                                    className="w-full border border-gray-300 rounded-lg p-2"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                />
-                            </div>
-                            <div className='text-black'>
-                                <label htmlFor="email" className="block text-gray-700">Email</label>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    placeholder="Enter Email"
-                                    className="w-full border border-gray-300 rounded-lg p-2"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                            {!isAccountValid ? (
-                                <>
+                    <h1 className="text-4xl font-bold text-gray-800 text-center py-4">Reset Password</h1>
+                )}
+
+                {forgotPassword ? (
+                    <div className="space-y-6 text-black">
+                        {!isAccountValid && (
+                            <>
+                                <div>
+                                    <label htmlFor="email" className="block text-gray-700">Email</label>
+                                    <input
+                                        id="email"
+                                        type="email"
+                                        placeholder="Enter Email"
+                                        className="w-full border border-gray-300 rounded-lg p-2"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                    />
+                                </div>
+                                {!codeSent && (
                                     <button
-                                        type="submit"
+                                        onClick={handleForgotPassword}
                                         className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
+                                        disabled={loading}
                                     >
-                                        Check Account
+                                        {loading ? 'Sending...' : 'Send Verification Code'}
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setForgotPassword(false)} // Cancel and go back to login
-                                        className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600"
-                                    >
-                                        Cancel
-                                    </button>
-                                </>
-                            ) : (
+                                )}
+                                {codeSent && (
+                                    <>
+                                        <div>
+                                            <label htmlFor="verificationCode" className="block text-gray-700">Verification Code</label>
+                                            <input
+                                                id="verificationCode"
+                                                type="text"
+                                                placeholder="Enter Code"
+                                                className="w-full border border-gray-300 rounded-lg p-2"
+                                                value={verificationCode}
+                                                onChange={(e) => setVerificationCode(e.target.value)}
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={handleVerifyCode}
+                                            className="w-full py-3 text-white bg-blue-500 rounded-lg font-semibold hover:bg-blue-600"
+                                            disabled={loading}
+                                        >
+                                            {loading ? 'Verifying...' : 'Verify Code'}
+                                        </button>
+                                    </>
+                                )}
+                            </>
+                        )}
+                        {isAccountValid && (
+                            <>
                                 <div>
                                     <label htmlFor="newPassword" className="block text-gray-700">New Password</label>
                                     <PasswordInput
                                         id="newPassword"
-                                        placeholder="New Password"
                                         value={newPassword}
                                         onChange={(e) => setNewPassword(e.target.value)}
                                     />
-                                    <button
-                                        onClick={handleResetPassword}
-                                        className="w-full py-3 my-6 text-white bg-green-500 rounded-lg font-semibold hover:bg-green-600"
-                                    >
-                                        Reset Password
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setForgotPassword(false)} // Cancel and go back to login
-                                        className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600"
-                                    >
-                                        Cancel
-                                    </button>
                                 </div>
-                            )}
-                        </form>
-                    </>
+                                <button
+                                    onClick={handleResetPassword}
+                                    className="w-full py-3 text-white bg-green-500 rounded-lg font-semibold hover:bg-green-600"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Resetting...' : 'Reset Password'}
+                                </button>
+                            </>
+                        )}
+                        <button
+                            onClick={handleCancel}
+                            className="w-full py-3 text-white bg-gray-500 rounded-lg font-semibold hover:bg-gray-600 mt-4"
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-6 text-black">
+                        <div>
+                            <label htmlFor="username" className="block text-gray-700">Username</label>
+                            <input
+                                id="username"
+                                type="text"
+                                placeholder="Enter Username"
+                                className="w-full border border-gray-300 rounded-lg p-2"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="password" className="block text-gray-700">Password</label>
+                            <PasswordInput
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex flex-col gap-4 justify-between items-center">
+                            <button
+                                onClick={handleLogin}
+                                className="w-full py-3 text-white bg-orange-500 rounded-lg font-semibold hover:bg-orange-600"
+                                disabled={loading}
+                            >
+                                {loading ? 'Logging in...' : 'Login'}
+                            </button>
+                            <button
+                                onClick={() => setForgotPassword(true)}
+                                className="text-blue-600 hover:underline"
+                            >
+                                Forgot Password?
+                            </button>
+                        </div>
+                    </div>
                 )}
             </div>
-            <ToastContainer /> {/* Add ToastContainer here */}
         </div>
     );
 };

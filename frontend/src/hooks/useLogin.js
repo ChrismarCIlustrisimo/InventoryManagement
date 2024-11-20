@@ -57,55 +57,90 @@ export const useLogin = () => {
         }
     };
 
-    // Check if user exists
-    const checkUserExistence = async (username, email) => {
+    const verifyCode = async (email, verificationCode) => {
+        setLoading(true);
+        setError(null);
+    
         try {
-            const response = await fetch(`${baseURL}/user/check-user`, {
+            const response = await fetch(`${baseURL}/user/verify-code`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, email }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code: verificationCode }), // Use 'code' here
             });
-            
     
             const json = await response.json();
+            console.log('Verification code verification response:', json); // Check the response
     
             if (!response.ok) {
-                setError(json.message || 'Error checking user existence');
-                return null;  // Return null when the user doesn't exist
+                setError(json.message || 'Error verifying code');
+                setLoading(false);
+                return { success: false };
             }
     
-            return json.exists ? json.user : null; // Return the user if exists, or null otherwise
+            setLoading(false);
+            return { success: true }; // Code verified successfully
         } catch (error) {
-            console.error('Error checking user existence:', error);
+            console.error('Error verifying code:', error);
             setError('Server error. Please try again.');
-            return null;  // Return null in case of error
+            setLoading(false);
+            return { success: false }; // Error occurred
         }
     };
     
-    // Reset password
-    const resetPassword = async (username, email, newPassword) => {
+
+
+
+    // Add this to your useLogin hook
+
+    const sendVerificationCode = async (email) => {
         setLoading(true);
         setError(null);
-
+    
+        try {
+            const response = await fetch(`${baseURL}/user/send-verification-code`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+    
+            const json = await response.json();    
+            if (!response.ok) {
+                setError(json.message || 'Error sending verification code');
+                setLoading(false);
+                return false;
+            }
+    
+            setLoading(false);
+            return true;  // Verification code sent successfully
+        } catch (error) {
+            console.error('Error sending verification code:', error);
+            setError('Server error. Please try again.');
+            setLoading(false);
+            return false;  // Error occurred
+        }
+    };
+    
+    const resetPassword = async (email, newPassword) => {
+        setLoading(true);
+        setError(null);
+    
         try {
             const response = await fetch(`${baseURL}/user/reset-password`, {
-                method: 'POST',
+                method: 'PUT', // Change to PUT
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username, email, newPassword }),
+                body: JSON.stringify({ email, newPassword }),
             });
-
+    
             const json = await response.json();
-
+    
             if (!response.ok) {
                 setError(json.message || 'Error resetting password');
                 setLoading(false);
                 return false;
             }
-
+    
             setLoading(false);
             return true; // Password reset successful
         } catch (error) {
@@ -115,6 +150,8 @@ export const useLogin = () => {
             return false;
         }
     };
+    
+    
 
-    return { error, loading, login, checkUserExistence, resetPassword };
+    return { error, loading, login, resetPassword, sendVerificationCode, verifyCode  };
 };

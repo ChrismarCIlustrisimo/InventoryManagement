@@ -165,7 +165,7 @@ useEffect(() => {
     const handleConfirmArchive = async () => { 
         if (userToArchive) {
             try {
-                const response = await fetch(`http://localhost:5555/user/${userToArchive}/archive`, {
+                const response = await fetch(`${API_DOMAIN}/user/${userToArchive}/archive`, {
                     method: 'PATCH',
                 });
     

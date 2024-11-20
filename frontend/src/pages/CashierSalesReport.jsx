@@ -21,7 +21,7 @@ import { API_DOMAIN } from '../utils/constants';
 const CashierSalesReport = () => {
   const { user } = useAuthContext();
   const { darkMode } = useTheme();
-  const [selectedDate, setSelectedDate] = useState('This Month'); // Set default to 'Today'
+  const [selectedDate, setSelectedDate] = useState('Today'); // Set default to 'Today'
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [salesData, setSalesData] = useState([]);
@@ -53,30 +53,31 @@ const handleDateFilterChange = (filter) => {
   const today = new Date();
   
   switch (filter) {
-      case 'Today':
-          setStartDate(new Date(today.setHours(0, 0, 0, 0)));
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-      case 'This Week':
-          const dayOfWeek = today.getDay();
-          const startDateOfWeek = new Date(today.setDate(today.getDate() - dayOfWeek));
-          setStartDate(new Date(startDateOfWeek.setHours(0, 0, 0, 0)));
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-      case 'This Month':
-          const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-          setStartDate(startOfMonth);
-          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-          break;
-      default:
-          setStartDate(null);
-          setEndDate(null);
+    case 'Today':
+        setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+        setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+        break;
+    case 'This Week':
+        const currentDayOfWeek = today.getDay(); // 0 (Sunday) - 6 (Saturday)
+        const weekStartOffset = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Adjust for Monday as the start
+        const startOfWeek = new Date(today.setDate(today.getDate() - weekStartOffset));
+        setStartDate(new Date(startOfWeek.setHours(0, 0, 0, 0)));
+        setEndDate(new Date(new Date().setHours(23, 59, 59, 999))); // End of today
+        break;
+    case 'This Month':
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        setStartDate(startOfMonth);
+        setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+        break;
+    default:
+        setStartDate(null);
+        setEndDate(null);
   }
 };
 
   // Set default date filter on mount
   useEffect(() => {
-    handleDateFilterChange("This Month");
+    handleDateFilterChange("Today");
   }, []);
 
 
@@ -274,7 +275,6 @@ const handleExportPdf = () => {
                             : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                         outline-none font-semibold`}
                   >
-                      <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Date</option>
                       <option value='Today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
                       <option value='This Week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
                       <option value='This Month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>

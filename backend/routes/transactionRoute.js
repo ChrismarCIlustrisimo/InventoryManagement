@@ -371,6 +371,7 @@ router.get('/', async (req, res) => {
     if (req.query.cashier) {
       query.cashier = { $regex: req.query.cashier, $options: 'i' }; 
     }
+    
 
     // Date filtering
     if (req.query.startDate || req.query.endDate) {

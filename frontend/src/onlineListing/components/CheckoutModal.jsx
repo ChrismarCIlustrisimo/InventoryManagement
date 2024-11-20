@@ -67,11 +67,14 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
         return acc + price * quantity;
     }, 0);
 
-    // Calculate VAT
-    const totalVat = items.reduce((acc, item) => {
-        const price = Number(item.selling_price) || 0;
-        return acc + (price * 0.12); // Calculate VAT for each item
-    }, 0);
+// Calculate VAT
+const totalVat = items.reduce((acc, item) => {
+    const price = Number(item.selling_price) || 0;
+    // Calculate VAT for each item using the formula
+    const vat = (price / 1.12) * 0.12;
+    return acc + vat;
+}, 0);
+
 
     const handleCustomerChange = (e) => {
         const { name, value } = e.target;
@@ -137,7 +140,9 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
             const customerId = customerResponse.data._id;
 
             const transactionData = {
-                products: items.map(item => {
+                products: items
+                .filter(item => item.units.some(unit => unit.status === 'in_stock')) // Ensure availability
+                .map(item => {
                     const availableUnits = item.units.filter(unit => unit.status === 'in_stock');
                     const requestedQuantity = Math.min(item.quantity, availableUnits.length);
 
@@ -338,7 +343,7 @@ const CheckoutModal = ({ isOpen, onRequestClose, items }) => {
 
                     <div className="flex justify-between text-red-500 font-bold text-lg sm:text-xl mb-4">
                         <p>Total</p>
-                        <p>₱{(total + totalVat).toLocaleString()}</p>
+                        <p>₱{(total).toLocaleString()}</p>
                     </div>
 
                     <button className="bg-blue-500 text-white w-full py-2 rounded-lg" onClick={handleProceedToConfirm}>

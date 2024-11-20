@@ -9,6 +9,8 @@ import DatePicker from 'react-datepicker';
 import { HiOutlineRefresh } from "react-icons/hi";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import { AiOutlineCheckCircle } from "react-icons/ai";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { API_DOMAIN } from '../utils/constants';
 
 const ConfirmationModal = ({ message, onConfirm, onCancel, darkMode }) => (
@@ -96,38 +98,39 @@ const RefundedOrReplaced = () => {
       }
     };
 
-  const applyFilters = () => {
-    const filtered = rmas.filter((rma) => {
-      // Check if product name matches (assuming rma.product holds the product name)
-      if (ProductName && !rma.product?.toLowerCase().includes(ProductName.toLowerCase())) {
-        return false;
-      }
-  
-      // Check if RMA contains at least one unit with "replaced" or "refunded" status
-      const hasValidUnit = rma.units.some(unit => 
-        unit.status === 'refunded' || unit.status === 'replaced'
-      );
-
-      // Filter by reason
-      if (reason && rma.reason !== reason) {
-        return false;
-      }
-      
-      // Filter by status
-      if (status && !rma.units.some(unit => unit.status === status)) {
-        return false;
-      }
-      
-      if (!hasValidUnit) {
-        return false;
-      }
-  
-      
-      return true;
-    });
-  
-    setFilteredRmas(filtered);
-  };
+    const applyFilters = () => {
+      const filtered = rmas.filter((rma) => {
+        // Check if product name matches
+        if (ProductName && !rma.product?.toLowerCase().includes(ProductName.toLowerCase())) {
+          return false;
+        }
+    
+        // Check if RMA contains at least one unit with "replaced" or "refunded" status
+        const hasValidUnit = rma.units.some(unit => 
+          unit.status === 'refunded' || unit.status === 'replaced'
+        );
+    
+        // Filter by reason
+        if (reason && rma.reason !== reason) {
+          return false;
+        }
+    
+        // Filter by status
+        if (status && !rma.units.some(unit => unit.status === status)) {
+          return false;
+        }
+    
+        // If no valid unit, filter it out
+        if (!hasValidUnit) {
+          return false;
+        }
+    
+        return true;
+      });
+    
+      setFilteredRmas(filtered);
+    };
+    
   
   
 
@@ -140,11 +143,11 @@ const RefundedOrReplaced = () => {
   }, [ProductName, reason, status]);
 
   const handleResetFilters = () => {
-    setProductName('');
-    setReason('');
-    setStatus('');
-    setFilteredRmas(rmas);
+    setProductName(''); // Clear Product Name filter
+    setReason(''); // Clear Reason filter
+    setStatus(''); // Clear Status filter
   };
+  
   const openConfirmDialog = (message, onConfirm) => {
     setConfirmMessage(message);
     setOnConfirmAction(() => onConfirm);
@@ -158,24 +161,29 @@ const RefundedOrReplaced = () => {
         await axios.put(`${baseURL}/product/${productId}/unit/${unitId}`, { status: 'in_stock' }, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
+  
         fetchRmas(); // Re-fetch RMAs to update the display
+        toast.success('Product successfully put back into inventory!'); // Show success toast
       } catch (error) {
         console.error("Error updating unit:", error);
+        toast.error('Failed to update product status'); // Show error toast
       }
       setIsOpenConfirmDialog(false);
     });
   };
-
-
+  
   const handleDeleteUnit = async (productId, unitId) => {
     openConfirmDialog("Discard/Do Not Return to Inventory?", async () => {
       try {
         await axios.delete(`${baseURL}/product/${productId}/unit/${unitId}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
+  
         fetchRmas(); // Re-fetch RMAs to update the display
+        toast.success('Product successfully discarded!'); // Show success toast
       } catch (error) {
         console.error("Error deleting unit:", error);
+        toast.error('Failed to delete product'); // Show error toast
       }
       setIsOpenConfirmDialog(false);
     });
@@ -282,7 +290,7 @@ const RefundedOrReplaced = () => {
                           : 'bg-transparent text-black')}   
                       outline-none font-semibold`}                  >
                     <option value="">Select a reason</option>
-                    <option value="refunded">Returned</option>
+                    <option value="refunded">Refunded</option>
                     <option value="repalced">Replaced</option>
 
                   </select>
@@ -303,8 +311,8 @@ const RefundedOrReplaced = () => {
               </div>
           </div>
           <div className='flex-grow'>
-            {}
-            <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
+            
+          <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
               <thead>
                 <tr>
                   <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
@@ -316,76 +324,81 @@ const RefundedOrReplaced = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredRmas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rma) => (
-                  <tr key={rma.rma_id} className={`${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
-                    <td className='p-2'>{rma.product}</td>
-                    <td className='p-2'>{rma.reason}</td>
-                    <td className='p-2'>{rma.condition}</td>
-                    <td className='p-2'>
-                      <ul>
-                        {rma.units.map((unit) => (
-                          <li key={unit.serial_number}>{unit.serial_number}</li>
-                        ))}
-                      </ul>
+                {filteredRmas.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" rowSpan="10" className="text-center p-4 text-2xl text-gray-500">
+                      No data available
                     </td>
-                    <td className={`p-2 text-center`}>
-                
-                        <div className={`rounded-md py-2 px-4 font-semibold ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
-                        {rma.units.length > 0 
-                          ? rma.units[0].status === 'replaced' 
-                            ? 'Replaced' 
-                            : rma.units[0].status === 'refunded' 
-                              ? 'Returned' 
-                              : rma.units[0].status 
-                          : 'N/A'}
-                        </div>
-
-                      </td>
-
-                      <td className='p-2'>
-                          {rma.units.map((unit) => (
-                            <div key={unit.serial_number} className="flex">
-                              {/* In Stock Button with Tooltip */}
-                              <div className="relative inline-block group">
-                                <button 
-                                  onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} 
-                                  className={`rounded px-2 py-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
-                                >
-                                  <AiOutlineCheckCircle size={30} />
-                                </button>
-                                <span
-                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
-                                  }`}
-                                >
-                                  Return
-                                </span>
-                              </div>
-
-                              {/* Delete Button with Tooltip */}
-                              <div className="relative inline-block group">
-                                <button 
-                                  onClick={() => handleDeleteUnit(rma.product_id, unit._id)} 
-                                  className="rounded px-2 py-1"
-                                >
-                                  <AiOutlineCloseCircle size={30} />
-                                </button>
-                                <span
-                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                                    darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
-                                  }`}
-                                >
-                                  Delete
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </td>
-
                   </tr>
-                ))}
+                ) : (
+                  filteredRmas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rma) => (
+                    <tr key={rma.rma_id} className={`${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
+                      <td className='p-2'>{rma.product}</td>
+                      <td className='p-2'>{rma.reason}</td>
+                      <td className='p-2'>{rma.condition}</td>
+                      <td className='p-2'>
+                        <ul>
+                          {rma.units.map((unit) => (
+                            <li key={unit.serial_number}>{unit.serial_number}</li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className={`p-2 text-center`}>
+                        <div className={`rounded-md py-2 px-4 font-semibold ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
+                          {rma.units.length > 0 
+                            ? rma.units[0].status === 'replaced' 
+                              ? 'Replaced' 
+                              : rma.units[0].status === 'refunded' 
+                                ? 'Refunded' 
+                                : rma.units[0].status 
+                            : 'N/A'}
+                        </div>
+                      </td>
+                      <td className='p-2'>
+                        {rma.units.map((unit) => (
+                          <div key={unit.serial_number} className="flex">
+                            {/* In Stock Button with Tooltip */}
+                            <div className="relative inline-block group">
+                              <button 
+                                onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} 
+                                className={`rounded px-2 py-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                              >
+                                <AiOutlineCheckCircle size={30} />
+                              </button>
+                              <span
+                                className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                  darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                }`}
+                              >
+                                Return
+                              </span>
+                            </div>
+
+                            {/* Delete Button with Tooltip */}
+                            <div className="relative inline-block group">
+                              <button 
+                                onClick={() => handleDeleteUnit(rma.product_id, unit._id)} 
+                                className="rounded px-2 py-1"
+                              >
+                                <AiOutlineCloseCircle size={30} />
+                              </button>
+                              <span
+                                className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                  darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
+                                }`}
+                              >
+                                Delete
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
+
           </div>
         </div>
       </div>
@@ -397,7 +410,7 @@ const RefundedOrReplaced = () => {
             darkMode={darkMode}
           />
         )}
-
+    <ToastContainer />
     </div>
   );
 };

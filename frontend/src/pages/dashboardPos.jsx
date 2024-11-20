@@ -45,28 +45,66 @@ const DashboardPos = () => {
       fetchSalesOrders();
     }
   }, [startDate, endDate, minPrice, maxPrice, sortBy, searchQuery, cashierName, user]);
-
+  
   const fetchSalesOrders = async () => {
     setLoading(true);
     try {
       const response = await axios.get(`${API_DOMAIN}/transaction`, {
-        params: {
-          startDate: startDate ? startDate.toISOString() : undefined,
-          endDate: endDate ? endDate.toISOString() : undefined,
-          minPrice: minPrice !== '' ? minPrice : undefined, // Check if not empty
-          maxPrice: maxPrice !== '' ? maxPrice : undefined, // Check if not empty
-          sortBy,
-          payment_status: 'paid',
-          transaction_id: searchQuery,
-          cashier: cashierName,
-        },
         headers: {
           'Authorization': `Bearer ${user.token}`,
         },
       });
   
-      const sortedOrders = response.data.data.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
-      setSalesOrder(sortedOrders);
+      let orders = response.data.data;
+  
+      // Filtering logic based on frontend states
+  
+      // Filter by payment status (if needed)
+      orders = orders.filter(order => order.payment_status === 'paid');
+  
+      // Date filtering
+      if (startDate && endDate) {
+        orders = orders.filter(order => {
+          const transactionDate = new Date(order.transaction_date);
+          return transactionDate >= new Date(startDate) && transactionDate <= new Date(endDate);
+        });
+      }
+  
+      // Price range filtering
+      if (minPrice || maxPrice) {
+        orders = orders.filter(order => {
+          const totalPrice = order.total_price;
+          return (
+            (minPrice ? totalPrice >= minPrice : true) &&
+            (maxPrice ? totalPrice <= maxPrice : true)
+          );
+        });
+      }
+  
+      // Search query filtering (by sales ID or customer name)
+      if (searchQuery) {
+        orders = orders.filter(order => 
+          order.transaction_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          order.customer?.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+      }
+  
+      // Sort the orders based on selected criteria
+      if (sortBy === 'price_asc') {
+        orders = orders.sort((a, b) => a.total_price - b.total_price);
+      } else if (sortBy === 'price_desc') {
+        orders = orders.sort((a, b) => b.total_price - a.total_price);
+      } else if (sortBy === 'customer_name_asc') {
+        orders = orders.sort((a, b) => a.customer?.name.localeCompare(b.customer?.name));
+      } else if (sortBy === 'customer_name_desc') {
+        orders = orders.sort((a, b) => b.customer?.name.localeCompare(a.customer?.name));
+      } else if (sortBy === 'transaction_id_asc') {
+        orders = orders.sort((a, b) => a.transaction_id.localeCompare(b.transaction_id));
+      } else if (sortBy === 'transaction_id_desc') {
+        orders = orders.sort((a, b) => b.transaction_id.localeCompare(a.transaction_id));
+      }
+  
+      setSalesOrder(orders); // Set the filtered and sorted data
     } catch (error) {
       console.error('Error fetching sales orders:', error.message);
     } finally {
@@ -76,40 +114,68 @@ const DashboardPos = () => {
   
   
   
+  
   const handleDateFilter = (event) => {
     const value = event.target.value;
     setDate(value);
 
     const now = new Date();
+    const fiveHoursAgo = new Date(now);
+    fiveHoursAgo.setHours(now.getHours() - 5); // Set time to 5 hours ago
+    
     switch (value) {
         case 'today':
-            setStartDate(now);
-            setEndDate(now);
+            // Set start and end of today with exact times
+            const startOfToday = new Date(now.setHours(0, 0, 0, 0)); // Start of today at 00:00
+            const endOfToday = new Date(now.setHours(23, 59, 59, 999)); // End of today at 23:59:59
+            setStartDate(startOfToday);
+            setEndDate(endOfToday);
             break;
+    
+        case 'yesterday':
+            // Set date to exactly 24 hours ago (starting from 5 hours ago)
+            const startOfYesterday = new Date(now.setDate(now.getDate() - 1)); // Subtract 1 day
+            startOfYesterday.setHours(0, 0, 0, 0); // Set to start of yesterday
+            const endOfYesterday = new Date(startOfYesterday);
+            endOfYesterday.setHours(23, 59, 59, 999); // Set to end of yesterday
+            setStartDate(startOfYesterday);
+            setEndDate(endOfYesterday);
+            break;
+    
         case 'this_week':
             const startOfWeek = new Date(now);
-            startOfWeek.setDate(now.getDate() - now.getDay());
+            startOfWeek.setDate(now.getDate() - now.getDay()); // Start of the week (Sunday)
             const endOfWeek = new Date(now);
-            endOfWeek.setDate(now.getDate() + (6 - now.getDay()));
+            endOfWeek.setDate(now.getDate() + (6 - now.getDay())); // End of the week (Saturday)
             setStartDate(startOfWeek);
             setEndDate(endOfWeek);
             break;
+    
         case 'this_month':
-            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); // First day of the current month
+            const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Last day of the current month
             setStartDate(startOfMonth);
             setEndDate(endOfMonth);
             break;
+    
+        case 'last_5_hours':
+            // Set date to 5 hours ago and today
+            setStartDate(fiveHoursAgo); // 5 hours ago
+            setEndDate(now); // Current time
+            break;
+    
         case '':
             // Reset the date filter
             setStartDate(null);
             setEndDate(null);
             break;
+    
         default:
             setStartDate(null);
             setEndDate(null);
             break;
     }
+    
 };
 
 
@@ -353,71 +419,75 @@ const DashboardPos = () => {
                 </tr>
               </thead>
               <tbody>
-                  {salesOrder.map((transaction) => (
-                    <tr key={transaction._id} className={`${darkMode ? 'text-light-textPrimary bg-light-container ' : 'dark:text-dark-textPrimary bg-dark-container'} text-sm`}>
-                      <td className="p-2 text-center">{transaction.transaction_id || 'N/A'}</td>
-                      <td className="p-2 text-center">{formatDate(transaction.transaction_date)}</td>
-                      <td className="p-2 text-center">{transaction.customer ? shortenString(transaction.customer.name) : 'None'}</td>
-                      <td className="p-2 text-center">
-                        {transaction.products.length > 0
-                          ? transaction.products.map((item, idx) => (
-                              <div key={idx}>
-                                <p>{shortenString(item.product?.name || 'Unknown')}</p>
-                              </div>
-                            ))
-                          : 'N/A'}
-                      </td>
-                      <td className="p-2 text-center">
-                        {transaction.products.length > 0
-                          ? transaction.products.map((item, idx) => (
-                              <div key={idx}>
-                                <p>{shortenString(item.product?.model || 'Unknown')}</p>
-                              </div>
-                            ))
-                          : 'N/A'}
-                      </td>
-                      <td className="p-2 text-center">
-                        {transaction.products.length > 0 ? (
-                          transaction.products.map((item, idx) => (
-                            <div key={idx}>
-                              <p>{item.serial_number.length > 0 ? shortenString(item.serial_number.join(', '), 20) : 'N/A'}</p>
-                            </div>
-                          ))
-                        ) : (
-                          'N/A'
-                        )}
-                      </td>
-                      <td className="p-2 text-center">
-                        {transaction.products.length > 0
-                          ? transaction.products.reduce((acc, item) => acc + item.quantity, 0)
-                          : '0'}
-                      </td>
-                      <td className="p-2 text-center">₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
-                      <td className="p-2 text-center">
-                        {transaction.status ? (
-                          (() => {
-                            const { textClass, bgClass } = getStatusStyles(transaction.status);
-                            return (
-                              <div className={`inline-block p-2 w-[90%] rounded ${textClass} ${bgClass}`}>
-                                {transaction.status}
-                              </div>
-                            );
-                          })()
-                        ) : (
-                          'Pending'
-                        )}
-                      </td>
-                      <td className='text-center py-4 text-sm'>
-                        <button
-                          className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
-                          onClick={() => handleViewTransaction(transaction)}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
+                    {salesOrder
+                      .slice()  // Create a shallow copy to avoid mutating the original array
+                      .reverse()  // Reverse the copied array
+                      .map((transaction) => (
+                        <tr key={transaction._id} className={`${darkMode ? 'text-light-textPrimary bg-light-container ' : 'dark:text-dark-textPrimary bg-dark-container'} text-sm`}>
+                          <td className="p-2 text-center">{transaction.transaction_id || 'N/A'}</td>
+                          <td className="p-2 text-center">{formatDate(transaction.transaction_date)}</td>
+                          <td className="p-2 text-center">{transaction.customer ? shortenString(transaction.customer.name) : 'None'}</td>
+                          <td className="p-2 text-center">
+                            {transaction.products.length > 0
+                              ? transaction.products.map((item, idx) => (
+                                  <div key={idx}>
+                                    <p>{shortenString(item.product?.name || 'Unknown')}</p>
+                                  </div>
+                                ))
+                              : 'N/A'}
+                          </td>
+                          <td className="p-2 text-center">
+                            {transaction.products.length > 0
+                              ? transaction.products.map((item, idx) => (
+                                  <div key={idx}>
+                                    <p>{shortenString(item.product?.model || 'Unknown')}</p>
+                                  </div>
+                                ))
+                              : 'N/A'}
+                          </td>
+                          <td className="p-2 text-center">
+                            {transaction.products.length > 0 ? (
+                              transaction.products.map((item, idx) => (
+                                <div key={idx}>
+                                  <p>{item.serial_number.length > 0 ? shortenString(item.serial_number.join(', '), 20) : 'N/A'}</p>
+                                </div>
+                              ))
+                            ) : (
+                              'N/A'
+                            )}
+                          </td>
+                          <td className="p-2 text-center">
+                            {transaction.products.length > 0
+                              ? transaction.products.reduce((acc, item) => acc + item.quantity, 0)
+                              : '0'}
+                          </td>
+                          <td className="p-2 text-center">₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
+                          <td className="p-2 text-center">
+                            {transaction.status ? (
+                              (() => {
+                                const { textClass, bgClass } = getStatusStyles(transaction.status);
+                                return (
+                                  <div className={`inline-block p-2 w-[90%] rounded ${textClass} ${bgClass}`}>
+                                    {transaction.status}
+                                  </div>
+                                );
+                              })()
+                            ) : (
+                              'Pending'
+                            )}
+                          </td>
+                          <td className="text-center py-4 text-sm">
+                            <button
+                              className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
+                              onClick={() => handleViewTransaction(transaction)}
+                            >
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+
 
           </table>
         </div>

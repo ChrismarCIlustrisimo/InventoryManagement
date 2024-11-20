@@ -1,11 +1,13 @@
 import React from 'react';
 import { useAdminTheme } from "../context/AdminThemeContext";
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const LowStockItems = ({lowStockItems}) => {
     const { darkMode } = useAdminTheme();
+    const { user } = useAuthContext();
 
   return (
-    <div className='w-[25%] h-full flex gap-4'>
+    <div className={`${user.role === "super-admin" ? 'w-[40%]' : 'w-[40%]'} h-full flex gap-4`}>
       <div className={`border border-gray-200 rounded-lg shadow-lg w-full h-full ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
         <div className='w-full  px-4 py-2 flex items-center justify-start'>
           <h2 className={`font-semibold text-lg ${darkMode ? 'text-light-primary' : 'text-dark-primary'}`}>Low Stock Items</h2>

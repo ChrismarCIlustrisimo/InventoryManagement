@@ -30,6 +30,38 @@ const AdminRefundPage = () => {
   const [filteredRefunds, setFilteredRefunds] = useState([]); // State for filtered refund data
   const [selectedRefund, setSelectedRefund] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      month: 'short', // This will return 'Oct' for 'October'
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+  const formatDates = (dateString) => {
+    const date = new Date(dateString);
+  
+    // Get date and time in the desired format
+    const options = { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: true 
+    };
+  
+    // Format the date and time
+    let formattedDate = date.toLocaleString('en-US', options);
+  
+    // Remove any commas
+    formattedDate = formattedDate.replace(/,/g, '');
+  
+    return formattedDate;
+  };
+  
+  
   
   const handleRowClick = (refund) => {
     setSelectedRefund(refund);
@@ -152,21 +184,14 @@ const AdminRefundPage = () => {
     return 'N/A';
 };
 
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    month: 'short', // This will return 'Oct' for 'October'
-    day: 'numeric',
-    year: 'numeric'
-  });
-};
+
 
   return (
     <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
         <AdminNavbar />
         <div className='pt-[70px] px-6 py-4 w-full h-full'>
         <div className='flex items-center justify-center py-5'>
-            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refunds</h1>
+            <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refund</h1>
               <div className='w-full flex justify-end gap-2'>
               <AdminSearchBar
                     query={searchQuery}
@@ -400,7 +425,7 @@ const formatDate = (dateString) => {
                             <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
                               REFUND AMOUNT
                             </div>
-                            <div className="font-semibold w-[50%]">{selectedRefund.refund_amount}</div>
+                            <div className="font-semibold w-[50%]">₱ {selectedRefund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                           </div>
 
                           <div className="text-md w-full flex items-center justify-between">
@@ -435,7 +460,7 @@ const formatDate = (dateString) => {
                               SALES DATE
                             </div>
                             <div className="font-semibold w-[50%]">
-                              {formatDate(new Date(selectedRefund.sales_date).toLocaleDateString())}
+                              {formatDates(new Date(selectedRefund.sales_date))}
                             </div>
                           </div>
                         </div>
@@ -461,7 +486,7 @@ const formatDate = (dateString) => {
                             <div className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
                               UNIT PRICE
                             </div>
-                            <div className="font-semibold w-[50%]">{selectedRefund.unit_price}</div>
+                            <div className="font-semibold w-[50%]">  ₱ {selectedRefund.unit_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                           </div>
 
                           <div className="text-md w-full flex items-center justify-between">

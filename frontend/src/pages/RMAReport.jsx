@@ -198,7 +198,7 @@ const RMAReport = () => {
             <div className='flex flex-col gap-6 flex-grow'> {/* Ensure this takes up available space */}
               <div className="flex flex-col gap-2">
                 <div className='flex flex-col'>
-                  <label htmlFor='category' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CATEGORY</label>
+                  <label htmlFor='category' className={`text-sm font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>DATE</label>
                   <select
                     id='category'
                     value={selectedDate}
@@ -213,7 +213,6 @@ const RMAReport = () => {
                           : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                       outline-none font-semibold`}
                   >
-                    <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Date</option>
                     <option value='Today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
                     <option value='This Week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
                     <option value='This Month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>

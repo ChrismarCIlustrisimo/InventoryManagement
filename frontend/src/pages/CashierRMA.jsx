@@ -219,18 +219,15 @@ const CashierRMA = () => {
       };
 
       const shortenString = (str) => {
-        // Log the input for debugging
-        console.log('Input string:', str);
-    
-        // Check if the input is a valid string and trim it
+
         if (typeof str === 'string') {
-            const trimmedStr = str.trim(); // Remove leading and trailing spaces
-            if (trimmedStr.length > 12) {
-                return trimmedStr.slice(0, 12) + '...'; // Shorten and add ellipsis
+            const trimmedStr = str.trim(); 
+            if (trimmedStr.length > 20) {
+                return trimmedStr.slice(0, 18) + '...'; 
             }
-            return trimmedStr; // Return the original trimmed string if it's 10 characters or less
+            return trimmedStr; 
         }
-        return 'N/A'; // Return 'N/A' if input is not a string
+        return 'N/A';
     };
       
 
@@ -361,17 +358,25 @@ const CashierRMA = () => {
                                         <th className='p-2 text-center'>TRANSACTION ID</th>
                                         <th className='p-2 text-center text-xs'>Date Initiated</th>
                                         <th className='p-2 text-center text-xs'>Customer Name</th>
+                                        <th className='p-2 text-center text-xs'>Cashier Name</th>
                                         <th className='p-2 text-center text-xs'>Product Name</th>
-                                        <th className='p-2 text-center text-xs'>Serial Number</th>
+                                     {/*<th className='p-2 text-center text-xs'>Serial Number</th>*/}
                                         <th className='p-2 text-center text-xs'>Status</th>
                                         <th className='p-2 text-center text-xs'>Process</th>
-                                        <th className='p-2 text-center text-xs'>Warranty Status</th>
+                                    {/*<th className='p-2 text-center text-xs'>Warranty Status</th>*/}
                                         <th className='p-2 text-center text-xs'>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {filteredRMA
-                                        .sort((a, b) => (a.status === 'Pending' ? -1 : b.status === 'Pending' ? 1 : 0))
+                                {filteredRMA
+                                        .sort((a, b) => {
+                                        // Prioritize 'Pending' status
+                                        if (a.status === 'Pending' && b.status !== 'Pending') return -1;
+                                        if (b.status === 'Pending' && a.status !== 'Pending') return 1;
+
+                                        // Sort by date (newest to oldest)
+                                        return new Date(b.date_initiated) - new Date(a.date_initiated);
+                                        })
                                         .map((rmaRequest, index) => {
                                             const { statusStyles, warrantyStyles, processStyles } = getStatusStyles(
                                                 rmaRequest.status,
@@ -385,8 +390,9 @@ const CashierRMA = () => {
                                                     <td className='text-center py-4 text-sm'>{rmaRequest.transaction}</td>
                                                     <td className='text-center py-4 text-sm'>{formatDate(rmaRequest.date_initiated)}</td>
                                                     <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.customer_name)}</td>
+                                                    <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.cashier)}</td>
                                                     <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.product)}</td>
-                                                    <td className='text-center py-4 text-sm'>{rmaRequest.serial_number}</td>
+                                                 {/*<td className='text-center py-4 text-sm'>{rmaRequest.serial_number}</td>*/}
                                                     <td className={`text-center py-4 rounded-md px-2 text-sm`}>
                                                         <p className={`${statusStyles.textClass} ${statusStyles.bgClass} p-2 rounded-md`}>
                                                             {rmaRequest.status}
@@ -397,11 +403,11 @@ const CashierRMA = () => {
                                                             {rmaRequest.process}
                                                         </p>
                                                     </td>
-                                                    <td className={`text-center py-4 rounded-md px-4 text-sm`}>
+                                                    {/*<td className={`text-center py-4 rounded-md px-4 text-sm`}>
                                                         <p className={`${warrantyStyles.textClass} ${warrantyStyles.bgClass} p-2 rounded-md`}>
                                                             {rmaRequest.warranty_status}
                                                         </p>
-                                                    </td>
+                                                    </td>*/}
                                                     <td className='text-center py-4 text-sm'>
                                                         <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleViewRMACashier(rmaRequest)}>
                                                             View

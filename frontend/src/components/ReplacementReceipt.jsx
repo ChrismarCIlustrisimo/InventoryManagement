@@ -127,7 +127,7 @@ const ReplacementReceipt = ({ rma, newSerialNumber, oldSerialNumber, onClose }) 
                                     </div>
                                     <div className='flex w-[60%]'>
                                         <p className={`print-label font-bold w-[25%] ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Product Price:</p>
-                                        <p className='print-value font-semibold text-start w-[60%]'>₱ {rma.product_price}</p>
+                                        <p className='print-value font-semibold text-start w-[60%]'>₱ {rma.product_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                                     </div>
                                 </div>
                             </div>

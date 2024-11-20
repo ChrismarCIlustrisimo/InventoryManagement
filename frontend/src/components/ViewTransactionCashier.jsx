@@ -89,18 +89,44 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
 
     
         const shortenString = (str) => {
-            // Log the input for debugging
-            console.log('Input string:', str);
-        
-            // Check if the input is a valid string and trim it
             if (typeof str === 'string') {
-                const trimmedStr = str.trim(); // Remove leading and trailing spaces
+                const trimmedStr = str.trim(); 
                 if (trimmedStr.length > 15) {
-                    return trimmedStr.slice(0, 25) + '...'; // Shorten and add ellipsis
+                    return trimmedStr.slice(0, 25) + '...'; 
                 }
                 return trimmedStr; // Return the original trimmed string if it's 10 characters or less
             }
             return 'N/A'; // Return 'N/A' if input is not a string
+        };
+        
+
+
+        const isWarrantyExpired = (products) => {
+            // Check if any product's warranty is expired
+            for (let item of products) {
+                const warranty = item.product?.warranty || 'N/A';
+                if (warranty !== 'N/A') {
+                    const warrantyParts = warranty.split(' ');
+                    const warrantyNumber = parseInt(warrantyParts[0], 10);
+                    const warrantyUnit = warrantyParts[1];
+                    const expirationDate = new Date(item.product?.transaction_date);
+        
+                    if (warrantyUnit === 'Year' || warrantyUnit === 'Years') {
+                        expirationDate.setFullYear(expirationDate.getFullYear() + warrantyNumber);
+                    } else if (warrantyUnit === 'Month' || warrantyUnit === 'Months') {
+                        expirationDate.setMonth(expirationDate.getMonth() + warrantyNumber);
+                    } else if (warrantyUnit === 'Day' || warrantyUnit === 'Days') {
+                        expirationDate.setDate(expirationDate.getDate() + warrantyNumber);
+                    }
+        
+                    // Return true if warranty is expired
+                    if (new Date() > expirationDate) {
+                        return true;
+                    }
+                }
+            }
+        
+            return false; // No product has expired warranty
         };
         
 
@@ -120,12 +146,18 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                             )}
                             content={() => componentRef.current}
                         />
-                        <button className='bg-[#E8B931] py-2 px-4 rounded-md text-white' onClick={handleRMARequestFormOpen}>RMA Request</button>
+                            <button
+                                className={`bg-[#E8B931] py-2 px-4 rounded-md text-white ${isWarrantyExpired(transaction.products) || transaction.status === 'RMA' ? 'opacity-50 cursor-not-allowed hover:bg-[#E8B931]' : 'hover:bg-[#D8A31F]'}`}
+                                onClick={handleRMARequestFormOpen}
+                                disabled={isWarrantyExpired(transaction.products) || transaction.status === 'RMA'}
+                            >
+                                RMA Request
+                            </button>
                     </div>
                 </div>  
 
                 <div className='w-full h-[90%] flex items-center justify-center mt-[14%]'>
-                    <div className={`w-[60%] items-center flex flex-col justify-start border px-12  ${darkMode ? 'text-light-textPrimary border-light-border' : 'text-light-textPrimary border-light-border'} p-4 rounded-md`}>
+                    <div className={`w-[70%] items-center flex flex-col justify-start border px-12  ${darkMode ? 'text-light-textPrimary border-light-border' : 'text-light-textPrimary border-light-border'} p-4 rounded-md`}>
                         <div className='flex flex-col w-full items-start justify-between gap-4'>
                             <div className='flex w-full py-6'>
                                 <h2 className='text-2xl font-bold mr-2'>Transaction ID: </h2>
@@ -175,7 +207,7 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                                         <th className='p-2 text-center '>Quantity</th>
                                         <th className='p-2 text-center '>Serial Number</th>
                                         <th className='p-2 text-center '>Amount</th>
-                                        <th className='p-2 text-center '>Unit Status</th>
+                                        <th className='p-2 text-center '>Warranty</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -191,11 +223,72 @@ const ViewTransactionCashier = ({ transaction, onClose }) => {
                                             <td className="p-2 flex flex-col gap-2 text-left">
                                                      <p>{shortenString(item.product?.name)}</p>
                                             </td>
-                                            <td className="p-2 text-center">₱ {item.product?.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</td>
-                                            <td className="p-2 text-center">{item.quantity}</td>
-                                            <td className="p-2 text-center">{item.serial_number.length > 0 ? item.serial_number.join(', ') : 'N/A'}</td>
-                                            <td className="p-2 text-center">₱ {item.quantity * item.product?.selling_price}</td>
-                                            <td className="p-2 text-center">{unitStatuses.join(', ')}</td>
+                                                <td className="p-2 text-center">₱ {item.product?.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</td>
+                                                <td className="p-2 text-center">{item.quantity}</td>
+                                                <td className="p-2 text-center">{item.serial_number.length > 0 ? item.serial_number.join(', ') : 'N/A'}</td>
+                                                <td className="p-2 text-center">₱ {(item.quantity * item.product?.selling_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                                <td className="p-2 text-center">
+                                                    {(() => {
+                                                        const warranty = item.product?.warranty || 'N/A';
+                                                        if (warranty === 'N/A' || !transaction.transaction_date) {
+                                                        return <span className="text-[#8E8E93] bg-[#E5E5EA] px-2 py-1 rounded-md">N/A</span>;
+                                                        }
+
+                                                        // Parse warranty number and unit
+                                                        const warrantyParts = warranty.split(' '); // e.g., ['2', 'Years']
+                                                        const warrantyNumber = parseInt(warrantyParts[0], 10); // Extract the number part
+                                                        const warrantyUnit = warrantyParts[1]; // Extract the unit part (e.g., 'Years')
+
+                                                        if (isNaN(warrantyNumber)) {
+                                                        return <span className="text-[#8E8E93] bg-[#E5E5EA] px-2 py-1 rounded-md">Invalid Warranty</span>;
+                                                        }
+
+                                                        // Calculate the expiration date based on the warranty unit
+                                                        const expirationDate = new Date(transaction.transaction_date);
+
+                                                        if (warrantyUnit === 'Year' || warrantyUnit === 'Years') {
+                                                        expirationDate.setFullYear(expirationDate.getFullYear() + warrantyNumber);
+                                                        } else if (warrantyUnit === 'Month' || warrantyUnit === 'Months') {
+                                                        expirationDate.setMonth(expirationDate.getMonth() + warrantyNumber);
+                                                        } else if (warrantyUnit === 'Day' || warrantyUnit === 'Days') {
+                                                        expirationDate.setDate(expirationDate.getDate() + warrantyNumber);
+                                                        } else {
+                                                        return <span className="text-[#8E8E93] bg-[#E5E5EA] px-2 py-1 rounded-md">Invalid Warranty Unit</span>;
+                                                        }
+
+                                                        // Check if the warranty is still valid
+                                                        const isValid = new Date() <= expirationDate;
+                                                        const warrantyStatus = isValid ? 'Valid' : 'Expired';
+
+                                                        // Define warranty styles based on the warranty status
+                                                        let warrantyStyles = {
+                                                        textClass: 'text-[#8E8E93]',
+                                                        bgClass: 'bg-[#E5E5EA]',
+                                                        };
+
+                                                        switch (warrantyStatus) {
+                                                        case 'Valid':
+                                                            warrantyStyles = {
+                                                            textClass: 'text-[#14AE5C]',
+                                                            bgClass: 'bg-[#CFF7D3]',
+                                                            };
+                                                            break;
+                                                        case 'Expired':
+                                                            warrantyStyles = {
+                                                            textClass: 'text-[#EC221F]',
+                                                            bgClass: 'bg-[#FEE9E7]',
+                                                            };
+                                                            break;
+                                                        }
+
+                                                        return (
+                                                        <span className={`${warrantyStyles.textClass} ${warrantyStyles.bgClass} px-2 py-1 rounded-md`}>
+                                                            {warrantyStatus}
+                                                        </span>
+                                                        );
+                                                    })()}
+                                                    </td>
+
                                             </tr>
                                         );
                                         })

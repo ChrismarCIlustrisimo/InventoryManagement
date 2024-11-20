@@ -214,8 +214,31 @@ const filteredProducts = products
   const handleSortByChange = e => setSortBy(e.target.value);
 
   const handlePriceRange = (event) => {
-    setPriceRange(event.target.value); // Update the state based on selected value
+    const selectedRange = event.target.value;
+  
+    // Update the priceRange state
+    setPriceRange(selectedRange);
+  
+    // Extract min and max prices based on the selected price range
+    if (selectedRange === '1K-5K') {
+      setPriceRangeValues(1000, 5000);
+    } else if (selectedRange === '6K-10K') {
+      setPriceRangeValues(6000, 10000);
+    } else if (selectedRange === '11K-20K') {
+      setPriceRangeValues(11000, 20000);
+    } else if (selectedRange === '21K-30K') {
+      setPriceRangeValues(21000, 30000);
+    } else {
+      // Reset when 'Select Option' is chosen or any invalid range
+      setPriceRangeValues(null, null);
+    }
   };
+  
+  const setPriceRangeValues = (min, max) => {
+    setMinPrice(min);
+    setMaxPrice(max);
+  };
+  
 
 
   const handleResetFilters = () => {
@@ -331,8 +354,8 @@ const filteredProducts = products
                     }`}
                 >
                     <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
-                    <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
-                    <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Highest to Lowest</option>
+                    <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Selling Price Lowest to Highest</option>
+                    <option value="price_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Selling Price Highest to Lowest</option>
                     <option value="product_name_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name A-Z</option>
                     <option value="product_name_desc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Product Name Z-A</option>
                 </select>
@@ -365,26 +388,27 @@ const filteredProducts = products
                 <label className={`text-xs font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRICE RANGE BY SELLING PRICE</label>
 
                 <select
-                  id='price_range'
-                  value={priceRange}
-                  onChange={handlePriceRange}
-                  className={`border rounded p-2 my-1 
-                    ${priceRange === '' 
-                      ? (darkMode 
-                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
-                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
-                    : (darkMode 
-                        ? 'bg-dark-activeLink text-light-primary border-light-primary' 
-                        : 'bg-light-activeLink text-dark-primary border-dark-primary')
+                    id='price_range'
+                    value={priceRange}
+                    onChange={handlePriceRange}
+                    className={`border rounded p-2 my-1 
+                      ${priceRange === '' 
+                        ? (darkMode 
+                          ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
+                          : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
+                      : (darkMode 
+                          ? 'bg-dark-activeLink text-light-primary border-light-primary' 
+                          : 'bg-light-activeLink text-dark-primary border-dark-primary')
                       } 
                     outline-none font-semibold`}
-                >
-                  <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
-                  <option value='1K-5K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱1K - 5K</option>
-                  <option value='6K-10K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱6K - 10K</option>
-                  <option value='11K-20K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱11K - 20K</option>
-                  <option value='21K-30K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱21K - 30K</option>
-                </select>
+                  >
+                    <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
+                    <option value='1K-5K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱1K - 5K</option>
+                    <option value='6K-10K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱6K - 10K</option>
+                    <option value='11K-20K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱11K - 20K</option>
+                    <option value='21K-30K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱21K - 30K</option>
+                  </select>
+
 
 
                 <div className='flex justify-center items-center'>
@@ -464,7 +488,26 @@ const filteredProducts = products
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((product, index) => {
+                    {filteredProducts
+                    .sort((a, b) => {
+                        if (sortBy) {
+                            switch (sortBy) {
+                              case 'price_asc':
+                                return a.selling_price - b.selling_price;
+                              case 'price_desc':
+                                return b.selling_price - a.selling_price;
+                              case 'product_name_asc':
+                                return a.name.localeCompare(b.name);
+                              case 'product_name_desc':
+                                return b.name.localeCompare(a.name);
+                              default:
+                                return 0;
+                            }
+                          } 
+                          // Default to new to old sorting
+                          return new Date(b.createdAt) - new Date(a.createdAt);
+                    })
+                    .map((product, index) => {
                       const inStockUnits = product.units.filter(unit => unit.status === 'in_stock').length;
                       const statusStyles = getStatusStyles(product.current_stock_status);
 

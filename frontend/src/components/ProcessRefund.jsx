@@ -130,7 +130,7 @@ const ProcessRefund = ({ rma, onClose }) => {
               </div>
               <div className="flex">
                 <p className={`font-medium w-[40%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>UNIT PRICE</p>
-                <p className={`font-semibold w-[60%]`}>{rma.product_price}</p>
+                <p className={`font-semibold w-[60%]`}>{Number(rma.product_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <div className="flex">
                 <p className={`font-medium w-[40%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>REASON FOR REFUND</p>

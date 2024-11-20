@@ -327,7 +327,7 @@ const AdminDashboard = () => {
             changePercent={Math.abs(changeSalesPercent)}  // Show the absolute value of the percent change
             bgColor={`bg-[#14AE5C]`}  // Additional custom styles
             percenText={'from last month'}
-            width="w-[30%]"
+            width="w-[40%]"
             onClick={handleGoSalesReport}  // Pass the function here
 
         />
@@ -338,7 +338,7 @@ const AdminDashboard = () => {
                 changePercent={Math.abs(transactionChangePercent)}
                 bgColor={`bg-[#E8B931]`}
                 percenText={'from last month'}
-                width="w-[25%]"
+                width="w-[30%]"
                 onClick={handleGoSales}  // Pass the function here
             />
 
@@ -351,19 +351,11 @@ const AdminDashboard = () => {
             percenText={'from last month'}
             showPercent={false}
             warning={true}
-            width="w-[22.5%]"
+            width="w-[30%]"
             onClick={handleGoInventory} // Calls the function on click
           />
 
-        <StatsCard 
-          title={'Refund / Return Rate'}
-          value={percentageChange.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          bgColor={`bg-[#14AE5C]`}  // Additional custom styles
-          percenText={'from last month'}
-          showPercent={false}
-          percent={Math.abs(percentageChange).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} // Display the absolute value for percent, fixed to 2 decimal places
-          width="w-[22.5%]"
-        />
+
         </div>
         <div className='w-full h-[80%] '>
           <div className='w-full h-full flex flex-col gap-4'>
@@ -413,10 +405,9 @@ const AdminDashboard = () => {
           
               </div>
 
-              <div className='w-full h-[50%] flex gap-4'>
+              <div className='w-full h-[50%] flex gap-4 border'>
                 <TopSellingItems topSellingItems={topSellingItems} />
                 <LowStockItems lowStockItems={lowStockItems} />
-                <PendingRMARequests rmaRequests={rmaRequests} />
               </div>
               <ToastContainer />
 

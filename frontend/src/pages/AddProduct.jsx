@@ -179,7 +179,7 @@ const handleSerialNumberImageChange = (index, file) => {
       toast.success('File uploaded successfully!'); // Show success toast
     } else {
       setFile(null);
-      toast.error('Invalid file type. Please upload a PNG and JPEG image.'); // Show error toast
+      toast.error('Invalid file type. Please upload a PNG or JPEG image.'); // Show error toast
     }
   };
 

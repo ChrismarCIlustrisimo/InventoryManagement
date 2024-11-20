@@ -147,7 +147,7 @@ const ProcessReplacement = ({ onClose, rma }) => {
                             </div>
                             <div className="flex">
                                 <p className={`font-medium w-[40%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>UNIT PRICE</p>
-                                <p className={`font-semibold w-[60%]`}>{rma.product_price}</p>
+                                <p className={`font-semibold w-[60%]`}>{rma.product_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                             </div>
                         </div>
 

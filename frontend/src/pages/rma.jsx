@@ -50,6 +50,7 @@ const Rma = () => {
         setSelectedRma(null);
     };
 
+    
 
 
     const handleResetFilters = () => {
@@ -168,8 +169,6 @@ const Rma = () => {
     return (
         <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
             <DashboardNavbar />
-            <ToastContainer />
-
             <div className='pt-[70px] px-6 py-4 w-full h-full'>
                 <div className='flex items-center justify-center py-5'>
                     <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
@@ -360,7 +359,7 @@ const Rma = () => {
             {isModalOpen && selectedRma && (
                 <ViewRMA rma={selectedRma} onClose={closeModal} darkMode={darkMode} />
             )}
-
+            <ToastContainer />
         </div>
     );
 };

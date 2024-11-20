@@ -5,12 +5,14 @@ import { IoCaretBackOutline } from "react-icons/io5";
 import ReactToPrint from 'react-to-print';
 import axios from 'axios';
 import { API_DOMAIN } from "../utils/constants";
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const RefundReceipt = ({ onClose, refundData, rma }) => {
   const { darkMode } = useTheme();
   const componentRef = useRef();
   const [customer, setCustomer] = useState(null); // State for customer data
   const baseURL = API_DOMAIN;
+  const navigate = useNavigate(); // Initialize the navigate function
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -65,7 +67,7 @@ const RefundReceipt = ({ onClose, refundData, rma }) => {
           `}
         </style>
         <div className='flex items-center justify-between w-full h-[10%] top-0 py-4 fixed z-50 px-6 bg-white'>
-          <button className={`flex gap-2 items-center rounded-md hover:underline`} onClick={onClose}>
+          <button className={`flex gap-2 items-center rounded-md hover:underline`} onClick={() => navigate(-1)}>
             <IoCaretBackOutline /> Back to RMA
           </button>
           <div className='flex gap-4 items-end justify-center '>

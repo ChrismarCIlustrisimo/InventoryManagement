@@ -181,6 +181,7 @@ const PosHome = () => {
     
   }, [products, selectedCategory, searchQuery]);
   
+  
 
   
   const handleCategoryChange = (category) => setSelectedCategory(category);
@@ -300,7 +301,7 @@ const PosHome = () => {
         <SearchBar
           query={searchQuery}
           onQueryChange={setSearchQuery}
-          placeholderMessage={'Search product by name and product id'}
+          placeholderMessage={'Search product by name'}
         />
         <div className='w-full grid grid-cols-4 gap-3 h-[78vh] overflow-auto'>
         {loading ? (

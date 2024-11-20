@@ -190,9 +190,9 @@ const ViewRMACashier = ({ onClose, rma }) => {
                     <div className={`w-full flex items-center justify-between border-b py-2 px-4 ${darkMode ? 'border-light-textSecondary' : 'border-dark-textSecondary'}`}>
                         <p className='font-semibold text-4xl'>RMA Details</p>
                         <button 
-                            className={`px-4 py-2 text-white rounded-lg ${darkMode ? 'bg-light-button' : 'bg-blue-700'} ${rma.process === 'None' || rma.status === 'Completed' || warrantyStatus === 'Expired' ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                            className={`px-4 py-2 text-white rounded-lg ${darkMode ? 'bg-light-button' : 'bg-blue-700'} ${rma.process === 'None' || rma.status === 'Completed'  ? 'opacity-50 cursor-not-allowed' : ''}`} 
                             onClick={() => handleProcessOpen(rma.process)} 
-                            disabled={rma.process === 'None' || rma.status === 'Completed' || warrantyStatus === 'Expired'}
+                            disabled={rma.process === 'None' || rma.status === 'Completed'}
                         >
                             Process RMA
                         </button>

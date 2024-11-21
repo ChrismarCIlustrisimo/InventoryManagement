@@ -130,23 +130,23 @@ const RefundReceipt = ({ onClose, refundData, rma }) => {
 
                 <div className={`w-full flex flex-col border-b-2 border-black pb-4 gap-1`}>
                  <div className='flex w-[60%]'>
-                     <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction ID:</p>
+                     <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction ID:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>{refundData?.transaction_id}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction Date:</p>
+                    <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction Date:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>{formatDate(rma.transaction_date)}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Product:</p>
-                    <p className='print-value font-semibold text-start w-[70%]'>{refundData?.product_name}</p>
+                    <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Product:</p>
+                    <p className='print-value font-semibold text-start w-[60%]'>{refundData?.product_name}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Amount:</p>
+                    <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Amount:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>₱ {refundData?.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%] ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Method:</p>
+                    <p className={`print-label font-bold w-[24%] ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Method:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>{refundData?.refund_method}</p>
                   </div>
                 </div>

@@ -154,7 +154,7 @@ const LineChart = ({ selectedTimeframe, customStart, customEnd }) => {
   const getMaxYValue = () => {
     // For "Last 7 Days" and "Last 30 Days", set max Y value to 400k
     if (selectedTimeframe === 'Last 7 Days' || selectedTimeframe === 'Last 30 Days') {
-      return 400000;
+      return 300000;
     }
 
     // For other timeframes, calculate the max dynamically based on data

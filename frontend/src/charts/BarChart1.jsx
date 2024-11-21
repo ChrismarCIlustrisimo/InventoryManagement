@@ -124,7 +124,7 @@ const BarChart1 = () => {
         beginAtZero: true,
         max: 50, // Set the maximum value to 80
         ticks: {
-          color: darkMode ? '#000' : '#fff',
+          color: darkMode ? '#000000' : '#ffffff',
           stepSize: 10, // Display ticks at every 10 units
           font: {
             size: 14,

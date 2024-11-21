@@ -32,7 +32,7 @@ const Transaction = () => {
 useEffect(() => {
   if (paymentMethod !== 'Cash' && paymentMethod !== '') {
     // Only set the payment amount if the method is valid (non-Cash)
-    setPaymentAmount((transaction.vat + transaction.total_price) - discountValue);
+    setPaymentAmount((transaction.total_price) - discountValue);
   } else {
     // If payment method is 'Cash', leave the payment amount unchanged or reset it
     setPaymentAmount(0);  // or set it to any default value you'd prefer
@@ -112,7 +112,7 @@ const handlePayButton = () => {
 
   const total = (transaction.total_price - discountValue);
   if (paymentAmount < total) {
-    toast.warning(`Payment amount is less than the total amount. ${transaction.total_price} - ${discountValue}`);
+    toast.warning(`Payment amount is less than the total amount.`);
     return; 
   }
 
@@ -121,7 +121,10 @@ const handlePayButton = () => {
 };
 
 const handlePayment = () => {
-  setShowPaymentSummary(true); //
+  setShowPaymentSummary(true);
+  setDiscountValue('')
+  setPaymentAmount(0);
+  setPaymentMethod('')
 };
 
 

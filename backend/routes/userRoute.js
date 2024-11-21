@@ -322,7 +322,9 @@ router.post('/send-verification-code', async (req, res) => {
         console.error('Error sending verification code:', error);
         return res.status(500).json({ message: 'Failed to send verification code' });
     }
-});router.post('/verify-code', async (req, res) => { 
+});
+
+router.post('/verify-code', async (req, res) => { 
     const { email, code } = req.body;
 
     if (!email || !code) {

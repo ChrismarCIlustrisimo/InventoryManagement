@@ -9,6 +9,8 @@ import ProductModal from '../components/ProductModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
+
 
 const AddProduct = () => {
   const handleCloseModal = () => setOpenModal(false);
@@ -41,6 +43,7 @@ const AddProduct = () => {
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [loading, setLoading] = useState(false); // Add loading state to control spinner visibility
   const baseURL = API_DOMAIN;
+  const { user } = useAuthContext();
 
   
 
@@ -236,6 +239,7 @@ const upload = () => {
   formData.append('selling_price', sellingPrice);
   formData.append('warranty', selectedValue);
   formData.append('isApproved', true);
+  formData.append('process_by', user.name);
 
   const units = serialNumbers.map((sn, index) => {
       const imageFile = serialNumberImages[index];

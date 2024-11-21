@@ -15,6 +15,7 @@ const ProductSchema = new mongoose.Schema(
     image: { type: String },
     description: { type: [String] },
     warranty: { type: String },
+    process_by: { type: String},
     sub_category: { type: String },
     model: { type: String },
     low_stock_threshold: { type: Number, default: 0 },

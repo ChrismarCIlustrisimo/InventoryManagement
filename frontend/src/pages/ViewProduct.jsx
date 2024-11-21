@@ -177,10 +177,12 @@ const getStatusStyles = (status) => {
               <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
                 <p>DATE ADDED</p>
                 <p>DATE UPDATED</p>
+                <p>CREATED BY</p>
               </div>
               <div className='w-[60%] flex flex-col justify-between h-full gap-4 font-semibold'>
                 <p>{formatDate(product.createdAt)}</p>
                 <p>{formatDate(product.updatedAt)}</p>
+                <p>{product.process_by || 'N/A'}</p>
               </div>
             </div>
           </div>
@@ -210,17 +212,17 @@ const getStatusStyles = (status) => {
           </div>
 
           {/* Right Section: Purchase Info and STOCK LEVEL */}
-          <div className="col-span-1 space-y-16">
+          <div className="col-span-1 space-y-14">
             {/* Purchase Information */}
-            <div className={`rounded-lg shadow-md p-6 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+            <div className={`rounded-lg shadow-md p-6 ${darkMode ? 'bg-light-container' : 'bg-dark-container'} min-h-[200px]`}>
               <h2 className="text-xl font-bold mb-4">PURCHASE INFORMATION</h2>
               <div className='mt-4 text-md p-4 font-medium flex py-4'>
-              <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+                <div className={`w-[40%] flex flex-col justify-between h-full gap-10 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                   <div className="text-gray-500">BUYING PRICE</div>
                   <div className="text-gray-500">SELLING PRICE</div>
                   <div className="text-gray-500">SUPPLIER</div>
                 </div>
-                <div className='w-[60%] flex flex-col justify-between h-full gap-4'>
+                <div className='w-[60%] flex flex-col justify-between h-full gap-10'>
                   <div className="font-bold">₱ {product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <div className="font-bold">₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <div className="font-bold">{product.supplier || 'N/A'}</div>
@@ -229,10 +231,10 @@ const getStatusStyles = (status) => {
             </div>
 
             {/* STOCK LEVEL */}
-            <div className={`rounded-lg shadow-md p-6 w-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+            <div className={`rounded-lg shadow-md p-6 w-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'} min-h-[150px]`}>
               <h2 className="text-xl font-bold mb-4">STOCK LEVEL</h2>
-              <div className='mt-4 text-md p-4 font-medium flex py-4 '>
-              <div className={`w-[50%] flex flex-col justify-between h-full gap-4  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+              <div className='mt-4 text-md p-4 font-medium flex py-4'>
+                <div className={`w-[50%] flex flex-col justify-between h-full gap-4  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                   <div className="text-gray-500">LOW STOCK</div>
                 </div>
                 <div className='w-[50%] flex flex-col justify-between h-full gap-4 font-bold'>
@@ -241,6 +243,7 @@ const getStatusStyles = (status) => {
               </div>
             </div>
           </div>
+
         </div>          
         <div className={`rounded-lg shadow-md p-4 flex flex-col items-center justify-center py-2 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
         <h2 className="text-xl w-full text-left font-bold mb-4">PRODUCT SPECIFICATION</h2>

@@ -9,9 +9,11 @@ import ProductModal from '../components/ProductModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const AdminAddProduct = () => {
   const handleCloseModal = () => setOpenModal(false);
+  const { user } = useAuthContext();
   const [file, setFile] = useState(null);
   const [name, setName] = useState('');
   const [category, setCategory] = useState('');
@@ -235,6 +237,7 @@ const upload = () => {
   formData.append('selling_price', sellingPrice);
   formData.append('warranty', selectedValue);
   formData.append('isApproved', false);
+  formData.append('process_by', user.name);
 
   const units = serialNumbers.map((sn, index) => {
       const imageFile = serialNumberImages[index];

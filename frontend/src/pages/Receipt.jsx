@@ -178,10 +178,12 @@ const Receipt = () => {
                       <td className='p-2 flex flex-col gap-2 text-left'>
                         <p>{product.name || ''}</p>
                         <p>{serialNumbers || ''}</p>
-                      </td>
-                      <td className='p-2 text-center'>₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
+                      </td> 
+                        <td
+                          className={`p-2 text-center ${ product.selling_price >= 1000 ? 'text-sm' : 'text-base'}`} > ₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}
+                        </td>
                       <td className='p-2 text-center'>{product.quantity || ''}</td>
-                      <td className='p-2 text-center'>₱ {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
+                      <td className={`p-2 text-center ${ amount >= 1000 ? 'text-sm' : 'text-base'}`} > ₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
                     </tr>
                   );
                 }) : (
@@ -215,7 +217,7 @@ const Receipt = () => {
           </div>
 
           <div className='w-full flex items-center justify-start pt-12'>
-            <div className='w-[40%] h-[120px] flex flex-col'>
+            <div className='w-[80%] h-[120px] flex flex-col'>
                 <span className='text-xl font-semibold'>Payment method:</span>
                 <div className='flex flex-col justify-between py-2'>
                     <div className='flex items-center justify-start gap-4'>

@@ -39,7 +39,8 @@ router.post('/', upload.fields([
       sub_category, 
       warranty,
       units,
-      isApproved
+      isApproved,
+      process_by
     } = req.body;
 
     // Check for required fields
@@ -112,6 +113,7 @@ router.post('/', upload.fields([
       product_id: await Product.generateProductId(),
       units: processedUnits,
       isApproved: isApproved || false,
+      process_by,
     });
 
     await product.save();

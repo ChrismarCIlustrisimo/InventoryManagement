@@ -189,15 +189,15 @@ const getStatusStyles = (status) => {
           {/* Right Section: Purchase Info and STOCK LEVEL */}
           <div className="col-span-1 space-y-16">
             {/* Purchase Information */}
-            <div className={`rounded-lg shadow-md p-6 ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
+            <div className={`rounded-lg shadow-md p-6 ${darkMode ? 'bg-light-container' : 'bg-dark-container'} min-h-[200px]`}>
               <h2 className="text-xl font-bold mb-4">PURCHASE INFORMATION</h2>
               <div className='mt-4 text-md p-4 font-medium flex py-4'>
-              <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+                <div className={`w-[40%] flex flex-col justify-between h-full gap-10 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                   <div className="text-gray-500">BUYING PRICE</div>
                   <div className="text-gray-500">SELLING PRICE</div>
                   <div className="text-gray-500">SUPPLIER</div>
                 </div>
-                <div className='w-[60%] flex flex-col justify-between h-full gap-4'>
+                <div className='w-[60%] flex flex-col justify-between h-full gap-10'>
                   <div className="font-bold">₱ {product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <div className="font-bold">₱ {product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                   <div className="font-bold">{product.supplier || 'N/A'}</div>

@@ -39,6 +39,31 @@ const AdminProfile = () => {
     const [userToArchive, setUserToArchive] = useState(null);
     const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [profile, setProfile] = useState();
+
+    console.log(profile);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+          try {
+            const response = await axios.get(`${baseURL}/user`);
+            // Assume the API returns a list of all users
+            
+            // Filter users by 'admin' role after fetching the data
+            const adminUsers = response.data.filter(user => user.role === 'super-admin');
+            setUsers(adminUsers);
+    
+            // If you want to set the first admin user or any specific user to the profile state
+            if (adminUsers.length > 0) {
+              setProfile(adminUsers[0]); // Set the profile to the first admin user (or any user you want)
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          }
+        };
+    
+        fetchUserData();
+      }, [name, contact]);
 
     const handleLogoutClick = () => {
       setShowModal(true);  // Show the confirmation modal when logout is clicked
@@ -52,6 +77,7 @@ const AdminProfile = () => {
     const handleCancel = () => {
       setShowModal(false); // Close the modal without logging out
     };
+
     const resetToUserData = () => {
         setName(user.name);
         setUsername(user.username);
@@ -400,7 +426,8 @@ useEffect(() => {
                                             users
                                                 .filter((user) => !user.archived) // Exclude archived users
                                                 .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
-                                                .reverse() // Reverse the order to display new users at the top
+                                                .filter((user) => user.role !== 'super-admin') // Exclude super-admin users
+                                                .reverse() // Reverse the order to display new users at the topeverse the order to display new users at the top
                                                 .map((user, index) => {
                                                 return (
                                                     <tr

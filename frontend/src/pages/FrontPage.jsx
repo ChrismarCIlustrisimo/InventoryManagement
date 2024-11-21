@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaUserShield, FaUserTie, FaCashRegister } from 'react-icons/fa'; // Importing icons
 import loginLogo from '../assets/iControlLight.png';
+import { LiaUserTieSolid } from "react-icons/lia";
 
 const FrontPage = () => {
     const navigate = useNavigate();

@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaUser } from "react-icons/fa";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { LiaUserTieSolid } from "react-icons/lia";
 
 const AdminLogin = () => {
     const [email, setEmail] = useState('');
@@ -199,16 +200,19 @@ const AdminLogin = () => {
                     </div>
                 ) : (
                     <div className="space-y-6 text-black">
-                        <div>
-                            <label htmlFor="username" className="block text-gray-700">Username</label>
-                            <input
+                        <div className="mb-4 flex flex-col items-start">
+                           <label htmlFor="username" className="block text-gray-700 mb-2">Username</label>
+                            <div className="flex items-center border border-gray-300 rounded-lg w-full px-4">
+                                <LiaUserTieSolid className="text-gray-500 text-2xl" />
+                                <input
                                 id="username"
                                 type="text"
                                 placeholder="Enter Username"
-                                className="w-full border border-gray-300 rounded-lg p-2"
+                                className="w-full p-2 rounded-lg border-0 focus:outline-none"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                            />
+                                />
+                            </div>
                         </div>
                         <div>
                             <label htmlFor="password" className="block text-gray-700">Password</label>

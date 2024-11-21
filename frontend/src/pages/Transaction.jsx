@@ -31,13 +31,18 @@ const Transaction = () => {
 
 useEffect(() => {
   if (paymentMethod !== 'Cash' && paymentMethod !== '') {
-    // Only set the payment amount if the method is valid (non-Cash)
-    setPaymentAmount((transaction.total_price) - discountValue);
+    const totalPrice = parseFloat(transaction.total_price);
+    const discount = parseFloat(discountValue);
+    if (!isNaN(totalPrice) && !isNaN(discount)) {
+      setPaymentAmount(totalPrice - discount);
+    } else {
+      setPaymentAmount(0);  // If either value is invalid, set paymentAmount to 0
+    }
   } else {
-    // If payment method is 'Cash', leave the payment amount unchanged or reset it
-    setPaymentAmount(0);  // or set it to any default value you'd prefer
+    setPaymentAmount(0);
   }
-}, [paymentMethod, discountValue, total_price]);
+}, [paymentMethod, discountValue, transaction.total_price]);
+
 
 
 
@@ -122,17 +127,14 @@ const handlePayButton = () => {
 
 const handlePayment = () => {
   setShowPaymentSummary(true);
-  setDiscountValue('')
+  setDiscountValue(0)
   setPaymentAmount(0);
   setPaymentMethod('')
 };
 
 
 
-const processPayment = async () => { 
-
-
-
+const processPayment = async () => {
   try {
     // Prepare the payload
     const payload = {
@@ -146,26 +148,35 @@ const processPayment = async () => {
       transaction_date: new Date().toISOString(),
     };
 
+    // Log the payload for debugging
+    console.log('Payload:', payload);
+
     // Add reference number only if the payment method is not 'Cash'
     if (paymentMethod !== 'Cash') {
       payload.reference_number = referenceNumber;
     }
 
+    // Log reference number
+    console.log('Reference Number:', referenceNumber);
+
     // Update the transaction with payment details
-    await axios.put(`${baseURL}/transaction/${id}`, payload, {
+    const response = await axios.put(`${baseURL}/transaction/${id}`, payload, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
     });
+
+    // Log the response from the PUT request
+    console.log('Response from PUT:', response);
 
     // Fetch the updated transaction
-    const response = await axios.get(`${baseURL}/transaction/${id}`, {
+    const updatedResponse = await axios.get(`${baseURL}/transaction/${id}`, {
       headers: {
         Authorization: `Bearer ${user.token}`,
       },
     });
 
-    const updatedTransaction = response.data;
+    const updatedTransaction = updatedResponse.data;
     toast.success('Payment processed successfully.');
 
     setTimeout(() => {
@@ -182,10 +193,11 @@ const processPayment = async () => {
     }, 2000);
     
   } catch (error) {
-    console.error('Error processing payment:', error);
+    console.error('Error processing payment:', error.response ? error.response.data : error);
     toast.error('Failed to process payment. Please try again.');
   }
 };
+
 
 
 
@@ -361,7 +373,8 @@ const processPayment = async () => {
                                       } else {
                                         setDiscountValue(transaction.total_price); // Optional: Set to max if exceeded
                                       }
-                                    }}                                    placeholder="₱ 0"
+                                    }}                                    
+                                    placeholder="₱ 0"
                                     max={transaction.total_price} // Adds a visual cue for max value
                                     className={`p-2 border w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
                                   />

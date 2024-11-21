@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PiCashRegister } from "react-icons/pi";
 
 const CashierLogin = () => {
     const [email, setEmail] = useState('');
@@ -197,16 +198,19 @@ const CashierLogin = () => {
                     </form>
                 ) : (
                     <form onSubmit={handleLogin} className="space-y-6 text-black">
-                        <div>
-                            <label htmlFor="username" className="block text-gray-700">Username</label>
-                            <input
+                        <div className="mb-4 flex flex-col items-start">
+                           <label htmlFor="username" className="block text-gray-700 mb-2">Username</label>
+                            <div className="flex items-center border border-gray-300 rounded-lg w-full px-4">
+                                <PiCashRegister className="text-gray-500 text-2xl" />
+                                <input
                                 id="username"
                                 type="text"
                                 placeholder="Enter Username"
-                                className="w-full border border-gray-300 rounded-lg p-2"
+                                className="w-full p-2 rounded-lg border-0 focus:outline-none"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                            />
+                                />
+                            </div>
                         </div>
                         <div>
                             <label htmlFor="password" className="block text-gray-700">Password</label>

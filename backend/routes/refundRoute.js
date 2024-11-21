@@ -24,6 +24,7 @@ router.post('/', async (req, res) => {
       reason,
       unit_price,
       cashier,
+      reference_number
     } = req.body;
 
     // Generate a unique refund_id
@@ -41,6 +42,7 @@ router.post('/', async (req, res) => {
       reason,
       unit_price,
       cashier,
+      reference_number
     });
 
     // Save the refund

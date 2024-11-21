@@ -18,7 +18,8 @@ const ProcessRefund = ({ rma, onClose }) => {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [refundData, setRefundData] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  
+  const [referenceNumber, setReferenceNumber] = useState(""); // New state for reference number
+
   const baseURL = API_DOMAIN;
 
   const formatDate = (dateString) => {
@@ -52,6 +53,7 @@ const ProcessRefund = ({ rma, onClose }) => {
       serial_number: rma.serial_number,
       refund_amount: totalRefundAmount,
       refund_method: paymentMethod,
+      reference_number: paymentMethod !== 'Cash' ? referenceNumber : '', // Include reference number if payment method isn't cash
       reason: rma.reason,
       unit_price: rma.product_price,
       cashier: rma.cashier,
@@ -155,7 +157,7 @@ const ProcessRefund = ({ rma, onClose }) => {
                   id='paymentMethod'
                   value={paymentMethod}
                   onChange={handlePaymentMethodChange}
-                  className={`border rounded p-2 w-[240px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
+                  className={`border rounded p-2 w-[285px] ${darkMode ? 'border-light-border' : 'dark:border-dark-border'}`}
                 >
                   <option value=''>Select Option</option>
                   <option value='Cash'>Cash</option>
@@ -165,6 +167,20 @@ const ProcessRefund = ({ rma, onClose }) => {
                   <option value='Credit Card - Online'>Credit Card - Online</option>
                 </select>
               </div>
+
+              {paymentMethod !== 'Cash' && paymentMethod !== '' && (
+                <div className="flex">
+                  <label className={`font-medium w-[40%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>REFERENCE NUMBER</label>
+                  <input
+                    type="text"
+                    name="referenceNumber"
+                    value={referenceNumber}
+                    onChange={(e) => setReferenceNumber(e.target.value)}
+                    className="border border-gray-300 rounded w-[40%] p-2"
+                    placeholder="Enter Reference Number"
+                  />
+                </div>
+              )}
             </div>
             <div className="flex items-center justify-start gap-4 mt-12 pb-6 pr-12">
               <button

@@ -9,6 +9,7 @@ const RefundSchema = new mongoose.Schema(
     sales_date: { type: Date, default: Date.now },
     cashier: { type: String, required: true },
     refund_amount: { type: Number, required: true, min: 0 },
+    reference_number: { type: String },
     refund_method: {
       type: String,
       required: true,

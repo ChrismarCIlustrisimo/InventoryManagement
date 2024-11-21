@@ -348,7 +348,7 @@ const DashboardTransaction = () => {
                 ) : (
                   <div className="w-[80%] h-[77vh]">
                     <div className="overflow-x-auto max-h-screen h-[78vh] rounded-2xl">
-                      <table
+                    <table
                         className={`w-full table-auto ${
                           darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'
                         }`}
@@ -364,8 +364,7 @@ const DashboardTransaction = () => {
                             <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Sales Date</th>
                             <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Customer Name</th>
                             <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Cashier Name</th>
-                            <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
-                            <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Qty. Sold</th>
+                            <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Products</th>
                             <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Total Amount</th>
                             <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Status</th>
                             <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Action</th>
@@ -374,87 +373,84 @@ const DashboardTransaction = () => {
                         <tbody>
                           {salesOrder.length === 0 ? (
                             <tr>
-                              <td colSpan="9" className="text-center p-4">
+                              <td colSpan="8" className="text-center p-4">
                                 <p
                                   className={`mt-[250px] text-2xl font-semibold ${
-                                    darkMode
-                                      ? 'dark:text-light-textPrimary'
-                                      : 'text-dark-textPrimary'
+                                    darkMode ? 'dark:text-light-textPrimary' : 'text-dark-textPrimary'
                                   }`}
                                 >
                                   No transactions match the criteria.
-                                  </p>
+                                </p>
                               </td>
                             </tr>
                           ) : (
                             salesOrder
                               .sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
-                              .flatMap((transaction) =>
-                                transaction.products.map((item, idx) => (
-                                  <tr
-                                    key={`${transaction._id}-${idx}`}
-                                    className={`border-b ${
-                                      darkMode
-                                        ? 'border-light-primary'
-                                        : 'dark:border-dark-primary'
-                                    }`}
+                              .map((transaction) => (
+                                <tr
+                                  key={transaction._id}
+                                  className={`border-b ${
+                                    darkMode ? 'border-light-primary' : 'dark:border-dark-primary'
+                                  }`}
+                                >
+                                  {/* Transaction Details */}
+                                  <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                    {transaction.transaction_id || 'N/A'}
+                                  </td>
+                                  <td className={`py-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                    {formatDate(transaction.transaction_date)}
+                                  </td>
+                                  <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                    {transaction.customer?.name || 'None'}
+                                  </td>
+                                  <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                    {transaction.cashier || 'None'}
+                                  </td>
+                                  <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                    {transaction.products.map((item) => (
+                                      <div key={item._id}>
+                                        <span className="block">{shortenString(item.product?.name) || 'Unknown Product'}</span>
+                                        <span className="block text-sm">Qty: {item.quantity || 'N/A'}</span>
+                                      </div>
+                                    ))}
+                                  </td>
+                                  <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                    {transaction.total_price
+                                      ? transaction.total_price.toLocaleString('en-US', {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                        })
+                                      : 'N/A'}
+                                  </td>
+                                  <td
+                                    className={`p-4 text-sm font-semibold ${
+                                      getStatusStyles(transaction.status).textClass
+                                    } text-center`}
                                   >
-                                    {/* Table Data */}
-                                    <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      {transaction.transaction_id || 'N/A'}
-                                    </td>
-                                    <td className={`py-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      {formatDate(transaction.transaction_date)}
-                                    </td>
-                                    <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      {transaction.customer?.name || 'None'}
-                                    </td>
-                                    <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      {transaction.cashier || 'None'}
-                                    </td>
-                                    <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      {shortenString(item.product?.name) || 'Unknown Product'}
-                                    </td>
-                                    <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      {item.quantity || 'N/A'}
-                                    </td>
-                                    <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      {transaction.total_price
-                                        ? transaction.total_price.toLocaleString('en-US', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                          })
-                                        : 'N/A'}
-                                    </td>
-                                    <td
-                                      className={`p-4 text-sm font-semibold ${
-                                        getStatusStyles(transaction.status).textClass
-                                      } text-center`}
+                                    <span
+                                      className={`px-4 py-2 rounded ${
+                                        getStatusStyles(transaction.status).bgClass
+                                      }`}
                                     >
-                                      <span
-                                        className={`px-4 py-2 rounded ${
-                                          getStatusStyles(transaction.status).bgClass
-                                        }`}
-                                      >
-                                        {transaction.status || 'N/A'}
-                                      </span>
-                                    </td>
-                                    <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
-                                      <button
-                                        className={`text-white px-4 py-2 rounded-md ${
-                                          darkMode ? 'bg-light-button' : 'bg-light-button'
-                                        }`}
-                                        onClick={() => handleViewTransaction(transaction, item)}
-                                      >
-                                        View
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))
-                              )
+                                      {transaction.status || 'N/A'}
+                                    </span>
+                                  </td>
+                                  <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                                    <button
+                                      className={`text-white px-4 py-2 rounded-md ${
+                                        darkMode ? 'bg-light-button' : 'bg-light-button'
+                                      }`}
+                                      onClick={() => handleViewTransaction(transaction)}
+                                    >
+                                      View
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
                           )}
                         </tbody>
                       </table>
+
                     </div>
                   </div>
                 )}

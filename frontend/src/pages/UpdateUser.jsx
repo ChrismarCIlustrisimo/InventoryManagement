@@ -189,28 +189,66 @@ const UpdateUser = () => {
                             </>
                         ) : (
                             <>
+                                <div className="w-full">
+                                <label
+                                    htmlFor="username"
+                                    className={`block mb-2 text-sm font-medium ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                                >
+                                    Username
+                                </label>
                                 <input
+                                    id="username"
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     placeholder="Username"
                                     className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                 />
+                                </div>
+
+                                <div className="w-full">
+                                <label
+                                    htmlFor="name"
+                                    className={`block mb-2 text-sm font-medium ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                                >
+                                    Name
+                                </label>
                                 <input
+                                    id="name"
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="Name"
                                     className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                 />
+                                </div>
+
+                                <div className="w-full">
+                                <label
+                                    htmlFor="contact"
+                                    className={`block mb-2 text-sm font-medium ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                                >
+                                    Contact
+                                </label>
                                 <input
+                                    id="contact"
                                     type="text"
                                     value={contact}
                                     onChange={(e) => setContact(e.target.value)}
                                     placeholder="Contact"
                                     className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                                 />
+                                </div>
+
+                                <div className="w-full">
+                                <label
+                                    htmlFor="role"
+                                    className={`block mb-2 text-sm font-medium ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}
+                                >
+                                    Role
+                                </label>
                                 <select
+                                    id="role"
                                     value={role}
                                     onChange={(e) => setRole(e.target.value)}
                                     className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
@@ -218,6 +256,8 @@ const UpdateUser = () => {
                                     <option value="cashier">Cashier</option>
                                     <option value="admin">Admin</option>
                                 </select>
+                                </div>
+
                                 <button
                                     onClick={togglePasswordForm}
                                     className={`px-4 py-2 mt-4 rounded ${darkMode ? 'text-dark-textPrimary bg-light-primary' : 'text-light-textPrimary bg-dark-primary'}`}

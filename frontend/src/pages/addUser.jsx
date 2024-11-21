@@ -70,62 +70,78 @@ const AddUser = () => {
             <div className={`pt-[70px] h-full w-full flex flex-col items-center justify-between`}>
                 <div className='w-full h-[88%] flex flex-col items-center justify-center gap-4'>
                     <h3 className='text-2xl font-semibold'>ADD USER</h3>
-                    <div className={`px-4 py-8 rounded-lg shadow-lg w-[30%] flex flex-col gap-4 items-center justify-center ${darkMode ? 'bg-light-CARD text-light-textPrimary' : 'bg-dark-CARD text-dark-textPrimary'}`}>
-                        <input
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Username"
-                            className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
-                        />
-                        <div className="relative w-full">
+                    <div className={`px-4 py-8 rounded-lg shadow-lg w-[30%] flex flex-col gap-2 items-center justify-center ${darkMode ? 'bg-light-CARD text-light-textPrimary' : 'bg-dark-CARD text-dark-textPrimary'}`}>
+                    <label className="block w-full">
+                            Username
                             <input
-                                type={isShowPassword ? 'text' : 'password'}
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Password"
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Username"
                                 className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
                             />
-                            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={toggleShowPassword}>
-                                {isShowPassword ? (
-                                    <FaRegEyeSlash size={22} className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`} />
-                                ) : (
-                                    <FaRegEye size={22} className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`} />
-                                )}
+                        </label>
+                        <label className="block w-full">
+                            Password
+                            <div className="relative w-full">
+                                <input
+                                    type={isShowPassword ? 'text' : 'password'}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Password"
+                                    className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                                />
+                                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer" onClick={toggleShowPassword}>
+                                    {isShowPassword ? (
+                                        <FaRegEyeSlash size={22} className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`} />
+                                    ) : (
+                                        <FaRegEye size={22} className={`${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`} />
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="Name"
-                            className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
-                        />
-                        <input
-                            type="text"
-                            value={contact}
-                            onChange={(e) => setContact(e.target.value)}
-                            placeholder="Contact"
-                            className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
-                        />
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)} // Email field
-                            placeholder="Email"
-                            className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
-                        />
-                        <select
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            className={`w-full border rounded-md p-2 bg-transparent 
-                                ${darkMode ? 'bg-light-bg text-light-textPrimary border-light-primary' : 'dark:bg-dark-bg dark:text-dark-textPrimary dark:border-dark-primary'}`}
-                        >
-                            <option value="cashier">Cashier</option>
-                            <option value="admin">Admin</option>
-                        </select>
-
-                        {error && <p className='mt-2 text-red-500'>{error}</p>}
+                        </label>
+                        <label className="block w-full">
+                            Name
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Name"
+                                className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                            />
+                        </label>
+                        <label className="block w-full">
+                            Contact
+                            <input
+                                type="text"
+                                value={contact}
+                                onChange={(e) => setContact(e.target.value)}
+                                placeholder="Contact"
+                                className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                            />
+                        </label>
+                        <label className="block w-full">
+                            Email
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Email"
+                                className={`w-full border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                            />
+                        </label>
+                        <label className="block w-full">
+                            Role
+                            <select
+                                value={role}
+                                onChange={(e) => setRole(e.target.value)}
+                                className={`w-full border rounded-md p-2 bg-transparent 
+                                    ${darkMode ? 'bg-light-bg text-light-textPrimary border-light-primary' : 'dark:bg-dark-bg dark:text-dark-textPrimary dark:border-dark-primary'}`}
+                            >
+                                <option value="cashier">Cashier</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </label>
                     </div>
                 </div>
                 <div className={`px-4 py-6 border-t w-full flex items-center justify-end h-[12%] ${darkMode ? 'bg-light-CARD border-light-primary' : 'bg-dark-CARD border-dark-primary'}`}>

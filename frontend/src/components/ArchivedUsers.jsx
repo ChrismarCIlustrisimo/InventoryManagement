@@ -88,10 +88,10 @@ const ArchivedUsers = () => {
                     <table className='w-full border-collapse'>
                         <thead className={`sticky top-0 rounded-lg py-6 border-b ${darkMode ? 'border-light-primary bg-light-container text-light-textPrimary' : 'border-dark-primary bg-dark-container text-dark-textPrimary'}`}>
                             <tr>
-                                <th style={{ width: '40%' }} className={`p-2 py-4 text-left`}>NAME</th>
-                                <th style={{ width: '30%' }} className={`p-2 py-4 text-center`}>ROLE</th>
-                                <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>CONTACT</th>
-                                <th style={{ width: '20%' }} className={`p-2 py-4 text-center`}>ACTION</th>
+                                <th style={{ width: '30%' }} className="p-2 py-4 text-left">NAME</th>
+                                <th style={{ width: '25%' }} className="p-2 py-4 text-center">ROLE</th>
+                                <th style={{ width: '25%' }} className="p-2 py-4 text-center">CONTACT</th>
+                                <th style={{ width: '20%' }} className="p-2 py-4 text-center">ACTION</th>
                             </tr>
                         </thead>
                         <tbody className="h-full">
@@ -107,39 +107,32 @@ const ArchivedUsers = () => {
                         darkMode ? 'border-light-primary' : 'border-dark-primary'
                     }`}
                 >
-                    <td
-                        style={{ width: '40%' }}
-                        className={`p-2 py-4 flex gap-4 items-center text-left ${
-                            darkMode
-                                ? 'text-light-textPrimary'
-                                : 'text-dark-textPrimary'
-                        }`}
-                    >
-                        <BsPersonCircle
-                            className={`w-10 h-10 ${getIconColor(user.role)}`}
-                        />
-                        <p>{user.name}</p>
-                    </td>
-                    <td
-                        style={{ width: '30%' }}
-                        className={`p-2 py-4 text-center ${
-                            darkMode
-                                ? 'text-light-textPrimary'
-                                : 'text-dark-textPrimary'
-                        }`}
-                    >
-                        {user.role}
-                    </td>
-                    <td
-                        style={{ width: '20%' }}
-                        className={`p-2 py-4 text-center ${
-                            darkMode
-                                ? 'text-light-textPrimary'
-                                : 'text-dark-textPrimary'
-                        }`}
-                    >
-                        {user.contact}
-                    </td>
+                                <td
+                                  style={{ width: '100%' }}
+                                  className={`p-2 py-4 flex gap-4 items-center text-left ${
+                                  darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
+                                  }`}
+                                 >
+                                 <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
+                                <p>{user.name}</p>
+                                </td>
+
+                                    <td
+                                        style={{ width: '25%' }}
+                                     className={`p-2 py-4 text-center ${
+                                     darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
+                                  }`}
+                                  >
+                                 {user.role}
+                                </td>
+                                     <td
+                                     style={{ width: '25%' }}
+                                     className={`p-2 py-4 text-center ${
+                                     darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
+                                    }`}
+                                    >
+                            {user.contact}
+                      </td>
                     <td
                         style={{ width: '20%' }}
                         className="text-center gap-4"

@@ -67,7 +67,7 @@ const AdminHome = () => {
 
   const fetchRefunds = async () => {
     try {
-      const response = await axios.get('http://localhost:5555/refund', {
+      const response = await axios.get(`${API_DOMAIN}/refund`, {
         headers: {
           'Authorization': `Bearer ${user.token}`, // Include authorization token if needed
         },

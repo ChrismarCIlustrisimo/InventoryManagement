@@ -76,7 +76,7 @@ const ReservationReceipt = () => {
           <ReactToPrint
             trigger={() => (
               <button className={`py-2 px-4 rounded-md ${darkMode ? 'bg-light-primary text-dark-textPrimary' : 'bg-light-primary text-dark-textPrimary'}`}>
-                Print ReservationReceipt
+                Print Receipt
               </button>
             )}
             content={() => componentRef.current}
@@ -147,10 +147,10 @@ const ReservationReceipt = () => {
             <table className='w-full text-left mb-6'>
               <thead>
                 <tr className={`${darkMode ? 'bg-dark-header' : 'bg-light-header'}`}>
-                  <th className='p-2 text-left' style={{ width: '60%' }}>Product</th>
-                  <th className='p-2 text-center' style={{ width: '15%' }}>Price</th>
+                  <th className='p-2 text-left' style={{ width: '50%' }}>Product</th>
+                  <th className='p-2 text-center' style={{ width: '20%' }}>Price</th>
                   <th className='p-2 text-center' style={{ width: '10%' }}>Quantity</th>
-                  <th className='p-2 text-center' style={{ width: '15%' }}>Amount</th>
+                  <th className='p-2 text-center' style={{ width: '20%' }}>Amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -160,12 +160,12 @@ const ReservationReceipt = () => {
                     return (
                         <tr key={product._id} className={`border-b-2 border-black ${index % 2 === 0 ? (darkMode ? 'bg-dark-row' : 'bg-light-row') : (darkMode ? 'bg-light-row' : 'bg-dark-row')}`}>
                             <td className='p-2 flex flex-col gap-2 text-left'>
-                                <p>{product.product_name || ''}</p>
-                                <p>{serialNumbers || ''}</p>
+                                <p className='text-xl'>{product.product_name || ''}</p>
+                                <p className='text-md'>SN: {serialNumbers || ''}</p>
                             </td>
-                            <td className='p-2 text-center'>₱ {product.product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
+                            <td className={`p-2 text-center ${ product.product.selling_price >= 1000 ? 'text-sm' : 'text-base'} `}>₱ {product.product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
                             <td className='p-2 text-center'>{product.quantity || ''}</td>
-                            <td className='p-2 text-center'>₱ {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
+                            <td className={`p-2 text-center ${ amount >= 1000 ? 'text-sm' : 'text-base'}`}>₱ {amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || ''}</td>
                         </tr>
                     );
                 }) : (
@@ -199,7 +199,7 @@ const ReservationReceipt = () => {
           </div>
 
           <div className='w-full flex items-center justify-start pt-12'>
-            <div className='w-[40%] h-[120px] flex flex-col'>
+            <div className='w-[90%] h-[120px] flex flex-col'>
                 <span className='text-xl font-semibold'>Payment method:</span>
                 <div className='flex flex-col justify-between py-2'>
                     <div className='flex items-center justify-start gap-4'>

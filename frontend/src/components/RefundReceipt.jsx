@@ -16,13 +16,16 @@ const RefundReceipt = ({ onClose, refundData, rma }) => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    return date.toLocaleString('en-US', {
+      month: 'short', // Abbreviated month (e.g., Nov)
+      day: 'numeric', // Day (e.g., 18)
+      year: 'numeric', // Full year (e.g., 2024)
+      hour: '2-digit', // Hour in 12-hour format (e.g., 09)
+      minute: '2-digit', // Minute (e.g., 41)
+      hour12: true, // Use 12-hour time format with AM/PM
+    }).replace(/, /g, ' '); // Remove the comma and space after month, day, and year
   };
-
+  
   useEffect(() => {
     const fetchCustomer = async () => {
       try {
@@ -130,36 +133,45 @@ const RefundReceipt = ({ onClose, refundData, rma }) => {
 
                 <div className={`w-full flex flex-col border-b-2 border-black pb-4 gap-1`}>
                  <div className='flex w-[60%]'>
-                     <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction ID:</p>
+                     <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction ID:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>{refundData?.transaction_id}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction Date:</p>
+                    <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Transaction Date:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>{formatDate(rma.transaction_date)}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Product:</p>
-                    <p className='print-value font-semibold text-start w-[70%]'>{refundData?.product_name}</p>
+                    <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Product:</p>
+                    <p className='print-value font-semibold text-start w-[60%]'>{refundData?.product_name}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Amount:</p>
+                    <p className={`print-label font-bold w-[24%]  ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Amount:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>₱ {refundData?.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                   <div className='flex w-[60%]'>
-                    <p className={`print-label font-bold w-[20%] ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Method:</p>
+                    <p className={`print-label font-bold w-[24%] ${darkMode ? 'text-light-texPrimary' : 'text-dark-texPrimary'}`}>Refund Method:</p>
                     <p className='print-value font-semibold text-start w-[60%]'>{refundData?.refund_method}</p>
                   </div>
                 </div>
 
-                <div className='w-full flex items-center justify-start pt-4'>
-                  <div className='w-[40%] h-[120px] flex flex-col'>
-                    <span className='text-xl font-semibold'>Payment method:</span>
-                    <div className='flex flex-col justify-between py-2'>
-                      <div className='flex items-center justify-start gap-4'>
-                        <p>{refundData?.refund_method}</p>
-                        <p className='bg-[#EBFFEE] text-[#14AE5C] py-2 px-4 rounded-md italic'>Paid</p>
+
+
+                <div className='w-full flex items-center justify-start pt-12'>
+                  <div className='w-[80%] h-[120px] flex flex-col'>
+                      <span className='text-xl font-semibold'>Payment method:</span>
+                      <div className='flex flex-col justify-between py-2'>
+                          <div className='flex items-center justify-start gap-4'>
+                              <p className='text-light-textSecondary mr-4'>PAYMENT METHOD</p>
+                              <p className='uppercase font-semibold'>{refundData?.refund_method}</p>
+                              <p className='bg-[#EBFFEE] p-1 rounded-md text-[#14AE5C] italic px-4 font-semibold'>Paid</p>
+                          </div>
+                          {refundData?.payment_method !== 'Cash' ? (
+                              <div className='flex items-center justify-start gap-4'>
+                                  <p className='text-light-textSecondary mr-4'>REFERENCE NUMBER</p>
+                                  <p className='uppercase font-semibold'>{refundData?.reference_number}</p>
+                              </div>
+                          ) : ''}
                       </div>
-                    </div>
                   </div>
                 </div>
 

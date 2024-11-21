@@ -39,6 +39,31 @@ const AdminProfile = () => {
     const [userToArchive, setUserToArchive] = useState(null);
     const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [profile, setProfile] = useState();
+
+    console.log(profile);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+          try {
+            const response = await axios.get(`${baseURL}/user`);
+            // Assume the API returns a list of all users
+            
+            // Filter users by 'admin' role after fetching the data
+            const adminUsers = response.data.filter(user => user.role === 'super-admin');
+            setUsers(adminUsers);
+    
+            // If you want to set the first admin user or any specific user to the profile state
+            if (adminUsers.length > 0) {
+              setProfile(adminUsers[0]); // Set the profile to the first admin user (or any user you want)
+            }
+          } catch (error) {
+            console.error('Error fetching user data:', error);
+          }
+        };
+    
+        fetchUserData();
+      }, [name, contact]);
 
     const handleLogoutClick = () => {
       setShowModal(true);  // Show the confirmation modal when logout is clicked
@@ -52,6 +77,7 @@ const AdminProfile = () => {
     const handleCancel = () => {
       setShowModal(false); // Close the modal without logging out
     };
+
     const resetToUserData = () => {
         setName(user.name);
         setUsername(user.username);
@@ -389,86 +415,89 @@ useEffect(() => {
                                             }`}
                                         >
                                             <tr>
-                                            <th style={{ width: '40%' }} className="p-2 py-4 text-left">NAME</th>
-                                            <th style={{ width: '10%' }} className="p-2 py-4 text-center">ROLE</th>
-                                            <th style={{ width: '20%' }} className="p-2 py-4 text-center">CONTACT</th>
+                                            <th style={{ width: '30%' }} className="p-2 py-4 text-left">NAME</th>
+                                            <th style={{ width: '25%' }} className="p-2 py-4 text-center">ROLE</th>
+                                            <th style={{ width: '25%' }} className="p-2 py-4 text-center">CONTACT</th>
                                             <th style={{ width: '20%' }} className="p-2 py-4 text-center">ACTION</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {Array.isArray(users) && users.length > 0 ? (
-                                                users
-                                                    .filter((user) => !user.archived) // Exclude archived users
-                                                    .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
-                                                    .reverse() // Reverse the order to display new users at the top
-                                                    .map((user, index) => {
-                                                        return (
-                                                            <tr
-                                                                key={user._id}
-                                                                className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
-                                                            >
-                                                                <td
-                                                                    style={{ width: '40%' }}
-                                                                    className={`p-2 py-4 flex gap-4 items-center text-left ${
-                                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
-                                                                    }`}
-                                                                >
-                                                                    <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
-                                                                    <p>{user.name}</p>
-                                                                </td>
-                                                                <td
-                                                                    style={{ width: '10%' }}
-                                                                    className={`p-2 py-4 text-center ${
-                                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
-                                                                    }`}
-                                                                >
-                                                                    {user.role}
-                                                                </td>
-                                                                <td
-                                                                    style={{ width: '20%' }}
-                                                                    className={`p-2 py-4 text-center ${
-                                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
-                                                                    }`}
-                                                                >
-                                                                    {user.contact}
-                                                                </td>
-                                                                <td style={{ width: '20%' }} className="text-center gap-4">
-                                                                    <button
-                                                                        className={`w-[46%] py-2 bg-transparent mr-2 border rounded-md transition-transform duration-200 transform hover:scale-110 ${
-                                                                            darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'
-                                                                        }`}
-                                                                        onClick={() => handleViewUserClick(user._id)}
-                                                                        disabled={user.archived} // Disable edit for archived users
-                                                                    >
-                                                                        Edit
-                                                                    </button>
-                                                                    <button
-                                                                        className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 text-white ${
-                                                                            darkMode ? 'bg-light-primary hover:bg-light-primary' : 'bg-dark-primary hover:bg-dark-primary'
-                                                                        }`}
-                                                                        onClick={() => handleArchiveUserClick(user._id)}
-                                                                        disabled={user.archived} // Disable archive button if already archived
-                                                                    >
-                                                                        Archive
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })
-                                            ) : (
-                                                <tr>
+                                            users
+                                                .filter((user) => !user.archived) // Exclude archived users
+                                                .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
+                                                .filter((user) => user.role !== 'super-admin') // Exclude super-admin users
+                                                .reverse() // Reverse the order to display new users at the topeverse the order to display new users at the top
+                                                .map((user, index) => {
+                                                return (
+                                                    <tr
+                                                    key={user._id}
+                                                    className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                                                    >
                                                     <td
-                                                        colSpan={4}
-                                                        className={`p-4 text-center ${
-                                                            darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'
+                                                        style={{ width: '100%' }}
+                                                        className={`p-2 py-4 flex gap-4 items-center text-left ${
+                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
                                                         }`}
                                                     >
-                                                        {users && users.length === 0 ? 'No users found.' : 'Loading or invalid data.'}
+                                                        <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
+                                                        <p>{user.name}</p>
                                                     </td>
-                                                </tr>
+
+                                                    <td
+                                                        style={{ width: '25%' }}
+                                                        className={`p-2 py-4 text-center ${
+                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
+                                                        }`}
+                                                    >
+                                                        {user.role}
+                                                    </td>
+                                                    <td
+                                                        style={{ width: '25%' }}
+                                                        className={`p-2 py-4 text-center ${
+                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
+                                                        }`}
+                                                    >
+                                                        {user.contact}
+                                                    </td>
+                                                    <td style={{ width: '20%' }} className="text-center gap-4">
+                                                        <button
+                                                        className={`w-[46%] py-2 bg-transparent mr-2 border rounded-md transition-transform duration-200 transform hover:scale-110 ${
+                                                            darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'
+                                                        }`}
+                                                        onClick={() => handleViewUserClick(user._id)}
+                                                        disabled={user.archived} // Disable edit for archived users
+                                                        >
+                                                        Edit
+                                                        </button>
+                                                        <button
+                                                        className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 text-white ${
+                                                            darkMode ? 'bg-light-primary hover:bg-light-primary' : 'bg-dark-primary hover:bg-dark-primary'
+                                                        }`}
+                                                        onClick={() => handleArchiveUserClick(user._id)}
+                                                        disabled={user.archived} // Disable archive button if already archived
+                                                        >
+                                                        Archive
+                                                        </button>
+                                                    </td>
+                                                    </tr>
+                                                );
+                                                })
+                                            ) : (
+                                            <tr>
+                                                <td
+                                                colSpan={4}
+                                                className={`p-4 text-center ${
+                                                    darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'
+                                                }`}
+                                                >
+                                                {users && users.length === 0 ? 'No users found.' : 'Loading or invalid data.'}
+                                                </td>
+                                            </tr>
                                             )}
                                         </tbody>
                                         </table>
+
 
                                     </div>
                                 </div>

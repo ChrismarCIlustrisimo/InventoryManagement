@@ -198,7 +198,10 @@ const handleSerialNumberImageChange = (index, file) => {
 const handleDescriptionChange = (e) => {
   const text = e.target.value;
   setDescription(text);
-  setDescriptionArray(text.split("\n").filter(line => line.trim() !== ""));
+
+  // Split by new lines and remove empty lines
+  const array = text.split("\n").filter((line) => line.trim() !== "");
+  setDescriptionArray(array);
 };
 
 

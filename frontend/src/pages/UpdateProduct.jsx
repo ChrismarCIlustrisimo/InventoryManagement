@@ -91,23 +91,22 @@ const UpdateProduct = () => {
   }, [description]);
 
   const parseDescription = () => {
-    try {
-      const descriptionArray = JSON.parse(description);
-      if (Array.isArray(descriptionArray)) {
-        return descriptionArray
-          .map((item) => {
-            const parts = item.split(':');
-            return parts.length > 1
-              ? `${parts[0]}: ${parts.slice(1).join(':')}`
-              : item;
-          })
-          .join('\n'); // Use line breaks to separate items
-      }
-      return description || 'N/A';
-    } catch (e) {
-      return description || 'N/A';
+    if (Array.isArray(description)) {
+      return description.join("\n"); // Convert array to string with line breaks
     }
+    return description || ""; // Fallback
   };
+  
+  // On change in textarea
+  const handleDescriptionChange = (e) => {
+    const text = e.target.value;
+    setDescription(text);
+  
+    // Split back into an array
+    const descriptionArray = text.split("\n").filter((line) => line.trim() !== "");
+    setDescription(descriptionArray);
+  };
+  
 
   useEffect(() => {
     axios.get(`${baseURL}/product/${productId}`)
@@ -470,13 +469,14 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
           >
           <h2 className="text-xl w-full text-left font-bold mb-4">PRODUCT SPECIFICATION<span className="text-red-500">*</span></h2>
           <textarea
-              className="w-full overflow-y-auto p-2 border "
-              style={{ maxHeight: '250px' }}
+              className="w-full overflow-y-auto p-2 border"
+              style={{ maxHeight: "250px" }}
               rows={rows}
               placeholder="Description"
-              value={parseDescription()}
-              onChange={(e) => setDescription(e.target.value)}
+              value={parseDescription()} // Convert array to string for editing
+              onChange={handleDescriptionChange}
             />
+
           </div>
         </div>
       </div>

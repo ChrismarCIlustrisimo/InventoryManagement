@@ -89,17 +89,29 @@ const ProductModal = ({
                     <div className='flex items-center justify-center gap-2'>
                         <p htmlFor="quantity">Units:</p>
                         <div className={`flex items-center border rounded-md overflow-hidden px-2 ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
-                            <button onClick={() => handleQuantityChange(quantity - 1)} className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}>-</button>
-                            <input
-                                type="number"
-                                placeholder="0"
-                                id="quantity"
-                                className={`bg-transparent p-2 text-center w-16 outline-none ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
-                                value={quantity}
-                                onChange={(e) => handleQuantityChange(Math.min(Number(e.target.value), 50))}
-                                max={50}
-                            />
-                            <button onClick={() => handleQuantityChange(quantity + 1)} className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}>+</button>
+                                <button
+                                    onClick={() => handleQuantityChange(quantity - 1)}
+                                    disabled={quantity <= 0}
+                                    className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}
+                                >
+                                    -
+                                </button>
+                                <input
+                                    type="number"
+                                    placeholder="0"
+                                    id="quantity"
+                                    className={`bg-transparent p-2 text-center w-16 outline-none ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
+                                    value={quantity}
+                                    onChange={(e) => handleQuantityChange(Math.min(Number(e.target.value), 50))}
+                                    max={50}
+                                />
+                                <button
+                                    onClick={() => handleQuantityChange(quantity + 1)}
+                                    disabled={quantity >= 50}
+                                    className={`px-2 py-1 ${darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-dark-activeLink text-dark-primary'}`}
+                                >
+                                    +
+                                </button>
                         </div>
                     </div>
                 </div>

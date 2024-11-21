@@ -18,25 +18,6 @@ const ViewProduct = () => {
   const { productId } = useParams();
   const baseURL = API_DOMAIN;
 
-  const parseDescriptionArray = (description) => {
-    try {
-      const descriptionArray = JSON.parse(description);
-      if (Array.isArray(descriptionArray)) {
-        return descriptionArray.map((item) => {
-          const parts = item.split(':');
-          return parts.length > 1
-            ? { label: parts[0], value: parts.slice(1).join(':') }
-            : { label: null, value: item };
-        });
-      }
-    } catch (e) {
-      // If not JSON or fails to parse, return description as plain text
-      return [{ label: null, value: description || 'N/A' }];
-    }
-    return [{ label: null, value: description || 'N/A' }];
-  };
-  
-
   useEffect(() => {
     axios.get(`${baseURL}/product/${productId}`)
       .then(res => {

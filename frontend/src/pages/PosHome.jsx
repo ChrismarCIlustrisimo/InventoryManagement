@@ -358,7 +358,7 @@ const PosHome = () => {
                   <tr key={idx} className='border-b-2 border-textPrimary gap-2 text-xs'>
                     <td className='flex gap-2 items-center justify-center p-2'>
                       <img
-                        src={`${baseURL}/${item.product.image}`}
+                        src={item.product.image}
                         className='w-16 h-16 object-cover rounded-lg'
                       />
                       <p className='w-full font-medium'>{item.product.name}</p>

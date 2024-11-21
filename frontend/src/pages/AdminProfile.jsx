@@ -389,86 +389,88 @@ useEffect(() => {
                                             }`}
                                         >
                                             <tr>
-                                            <th style={{ width: '40%' }} className="p-2 py-4 text-left">NAME</th>
-                                            <th style={{ width: '10%' }} className="p-2 py-4 text-center">ROLE</th>
-                                            <th style={{ width: '20%' }} className="p-2 py-4 text-center">CONTACT</th>
+                                            <th style={{ width: '30%' }} className="p-2 py-4 text-left">NAME</th>
+                                            <th style={{ width: '25%' }} className="p-2 py-4 text-center">ROLE</th>
+                                            <th style={{ width: '25%' }} className="p-2 py-4 text-center">CONTACT</th>
                                             <th style={{ width: '20%' }} className="p-2 py-4 text-center">ACTION</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {Array.isArray(users) && users.length > 0 ? (
-                                                users
-                                                    .filter((user) => !user.archived) // Exclude archived users
-                                                    .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
-                                                    .reverse() // Reverse the order to display new users at the top
-                                                    .map((user, index) => {
-                                                        return (
-                                                            <tr
-                                                                key={user._id}
-                                                                className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
-                                                            >
-                                                                <td
-                                                                    style={{ width: '40%' }}
-                                                                    className={`p-2 py-4 flex gap-4 items-center text-left ${
-                                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
-                                                                    }`}
-                                                                >
-                                                                    <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
-                                                                    <p>{user.name}</p>
-                                                                </td>
-                                                                <td
-                                                                    style={{ width: '10%' }}
-                                                                    className={`p-2 py-4 text-center ${
-                                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
-                                                                    }`}
-                                                                >
-                                                                    {user.role}
-                                                                </td>
-                                                                <td
-                                                                    style={{ width: '20%' }}
-                                                                    className={`p-2 py-4 text-center ${
-                                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
-                                                                    }`}
-                                                                >
-                                                                    {user.contact}
-                                                                </td>
-                                                                <td style={{ width: '20%' }} className="text-center gap-4">
-                                                                    <button
-                                                                        className={`w-[46%] py-2 bg-transparent mr-2 border rounded-md transition-transform duration-200 transform hover:scale-110 ${
-                                                                            darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'
-                                                                        }`}
-                                                                        onClick={() => handleViewUserClick(user._id)}
-                                                                        disabled={user.archived} // Disable edit for archived users
-                                                                    >
-                                                                        Edit
-                                                                    </button>
-                                                                    <button
-                                                                        className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 text-white ${
-                                                                            darkMode ? 'bg-light-primary hover:bg-light-primary' : 'bg-dark-primary hover:bg-dark-primary'
-                                                                        }`}
-                                                                        onClick={() => handleArchiveUserClick(user._id)}
-                                                                        disabled={user.archived} // Disable archive button if already archived
-                                                                    >
-                                                                        Archive
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    })
-                                            ) : (
-                                                <tr>
+                                            users
+                                                .filter((user) => !user.archived) // Exclude archived users
+                                                .filter((user) => user.name.toLowerCase().includes(searchQuery.toLowerCase())) // Apply search filter
+                                                .reverse() // Reverse the order to display new users at the top
+                                                .map((user, index) => {
+                                                return (
+                                                    <tr
+                                                    key={user._id}
+                                                    className={`border-b ${darkMode ? 'border-light-primary' : 'border-dark-primary'}`}
+                                                    >
                                                     <td
-                                                        colSpan={4}
-                                                        className={`p-4 text-center ${
-                                                            darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'
+                                                        style={{ width: '100%' }}
+                                                        className={`p-2 py-4 flex gap-4 items-center text-left ${
+                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
                                                         }`}
                                                     >
-                                                        {users && users.length === 0 ? 'No users found.' : 'Loading or invalid data.'}
+                                                        <BsPersonCircle className={`w-10 h-10 ${getIconColor(user.role)}`} />
+                                                        <p>{user.name}</p>
                                                     </td>
-                                                </tr>
+
+                                                    <td
+                                                        style={{ width: '25%' }}
+                                                        className={`p-2 py-4 text-center ${
+                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
+                                                        }`}
+                                                    >
+                                                        {user.role}
+                                                    </td>
+                                                    <td
+                                                        style={{ width: '25%' }}
+                                                        className={`p-2 py-4 text-center ${
+                                                        darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'
+                                                        }`}
+                                                    >
+                                                        {user.contact}
+                                                    </td>
+                                                    <td style={{ width: '20%' }} className="text-center gap-4">
+                                                        <button
+                                                        className={`w-[46%] py-2 bg-transparent mr-2 border rounded-md transition-transform duration-200 transform hover:scale-110 ${
+                                                            darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'
+                                                        }`}
+                                                        onClick={() => handleViewUserClick(user._id)}
+                                                        disabled={user.archived} // Disable edit for archived users
+                                                        >
+                                                        Edit
+                                                        </button>
+                                                        <button
+                                                        className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-110 text-white ${
+                                                            darkMode ? 'bg-light-primary hover:bg-light-primary' : 'bg-dark-primary hover:bg-dark-primary'
+                                                        }`}
+                                                        onClick={() => handleArchiveUserClick(user._id)}
+                                                        disabled={user.archived} // Disable archive button if already archived
+                                                        >
+                                                        Archive
+                                                        </button>
+                                                    </td>
+                                                    </tr>
+                                                );
+                                                })
+                                            ) : (
+                                            <tr>
+                                                <td
+                                                colSpan={4}
+                                                className={`p-4 text-center ${
+                                                    darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'
+                                                }`}
+                                                >
+                                                {users && users.length === 0 ? 'No users found.' : 'Loading or invalid data.'}
+                                                </td>
+                                            </tr>
                                             )}
                                         </tbody>
                                         </table>
+
 
                                     </div>
                                 </div>

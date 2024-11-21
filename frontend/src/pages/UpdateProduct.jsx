@@ -44,6 +44,7 @@ const UpdateProduct = () => {
       // Pluralize unit if number > 1
       const formattedWarranty = `${number} ${unit}${number > 1 ? 's' : ''}`.trim();
       setSelectedValue(formattedWarranty);
+      console.log("SADAS",warranty)
     }
   };
 
@@ -153,10 +154,7 @@ const UpdateProduct = () => {
 
   const updateProduct = () => {
     // Validate required fields
-    if (!name || !category || !buyingPrice || !sellingPrice || !subCategory || !model || !warranty  || !description) {
-      toast.error('Please fill in all required fields.');
-      return;
-    }
+
   
     const formData = new FormData();
     if (file) formData.append('file', file);
@@ -168,7 +166,7 @@ const UpdateProduct = () => {
     formData.append('product_id', productID);
     formData.append('sub_category', subCategory);
     formData.append('model', model);
-    formData.append('warranty', selectedValue); // Ensure warranty is included
+    formData.append('warranty', selectedValue);
     formData.append('description', description);
   
     axios.put(`${baseURL}/product/${productId}`, formData)

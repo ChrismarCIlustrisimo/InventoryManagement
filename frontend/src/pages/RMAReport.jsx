@@ -289,7 +289,7 @@ const RMAReport = () => {
                   </button>
               </div>
           </div>
-          <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary'}`}>
+          <div className={`h-[78vh] w-[77%] p-4 overflow-auto rounded-2xl ${darkMode ? 'bg-light-container text-light-textPrimary' : 'dark:bg-dark-container text-dark-textPrimary'}`}>
             <div ref={componentRef}>
                 <div className="print-header flex items-center justify-center flex-col">
                   <img src={reportLogo} alt="Report Logo" className="report-logo" />

@@ -7,8 +7,11 @@ const SalesByCategory = ({ salesData }) => {
     // Aggregate data by category
     const aggregatedData = salesData.reduce((acc, transaction) => {
         transaction.products.forEach((item) => {
-            const category = item.product?.category || 'N/A';
-            const unitsSold = item.product?.sales || 0;
+            // Skip items without a category
+            if (!item.product?.category) return;
+
+            const category = item.product.category;
+            const unitsSold = item.quantity || 0; // Use quantity sold in the transaction
             const grossSales = (transaction.total_price + transaction.discount) || 0;
             const discount = transaction.discount || 0;
             const vat = transaction.vat || 0;
@@ -25,7 +28,7 @@ const SalesByCategory = ({ salesData }) => {
             }
 
             // Aggregate sales values
-            acc[category].unitsSold += unitsSold;
+            acc[category].unitsSold += unitsSold; // Use item.quantity here
             acc[category].grossSales += grossSales;
             acc[category].discount += discount;
             acc[category].vat += vat;
@@ -42,9 +45,9 @@ const SalesByCategory = ({ salesData }) => {
         <div className='border-b-2 border-black w-full pb-12'>
             <div className='flex flex-col w-[90%] '>
                 <p className='text-2xl font-bold py-2'>Sales by Category</p>
-                <table className={`min-w-full table-auto  text-xs`}>
-                <thead className={`sticky top-[-10px] bg-gray-400`}>
-                       <tr className='border-b'>
+                <table className={`min-w-full table-auto text-xs`}>
+                    <thead className={`sticky top-[-10px] bg-gray-400`}>
+                        <tr className='border-b'>
                             <th className='text-center p-2'>Category</th>
                             <th className='text-center p-2'>Units Sold</th>
                             <th className='text-center p-2'>Gross Sales</th>

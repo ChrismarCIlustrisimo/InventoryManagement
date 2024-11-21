@@ -254,10 +254,10 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', upload.single('file'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, category, supplier, buying_price, selling_price, sub_category, warranty } = req.body;
+    const { name, category, supplier, buying_price, selling_price, sub_category, warranty ,description } = req.body;
     const file = req.file;
 
-    const updates = { name, category, supplier, buying_price, selling_price, sub_category, warranty };
+    const updates = { name, category, supplier, buying_price, selling_price, sub_category, warranty, description };
 
     if (file) {
       const uploadResult = await uploadImageToCloudinary(file.buffer);
@@ -607,6 +607,22 @@ router.patch('/archive/:id', async (req, res) => {
   }
 });
 
+
+router.get('/filtered', async (req, res) => {
+  try {
+    // Filter products by isArchived and isApproved
+    const filteredProducts = await Product.find({
+      isArchived: false,
+      isApproved: true
+    });
+
+    // Send the filtered products back in the response
+    res.json(filteredProducts);
+  } catch (error) {
+    console.error('Error fetching filtered products:', error);
+    res.status(500).json({ error: 'Failed to fetch filtered products' });
+  }
+});
 
 
 

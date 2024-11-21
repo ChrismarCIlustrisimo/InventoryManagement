@@ -12,7 +12,7 @@ import io from 'socket.io-client';
 import { useLocation } from 'react-router-dom';
 import { GrView } from "react-icons/gr";
 import ConfirmationDialog from '../components/ConfirmationDialog';
-import { MdDelete } from "react-icons/md";
+import { AiOutlineDelete } from "react-icons/ai";
 import { LuArchiveRestore } from "react-icons/lu";
 import { toast,ToastContainer } from 'react-toastify'; // Import toastify
 import 'react-toastify/dist/ReactToastify.css';
@@ -548,7 +548,7 @@ const handlePriceRange = (e) => {
                                     onClick={() => handleDeleteClick(product._id)} 
                                     className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                   >
-                                    <MdDelete size={30} />
+                                    <AiOutlineDelete size={25} />
                                   </button>
                                   <span
                                     className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${

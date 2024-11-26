@@ -1,34 +1,30 @@
 import express from 'express';
 import Supplier from '../models/supplierModel.js';
 import mongoose from 'mongoose';
-import multer from 'multer';
-import path from 'path';
 
 const router = express.Router();
 
-// Multer configuration for file upload
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/images'); // Ensure this folder exists or create it
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-
-const upload = multer({ storage });
-
 // Create a new supplier
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const { name, contact_number, email } = req.body;
-    const image = req.file ? req.file.path : '';
+    const { company_name, contact_person, phone_number, products_and_services, account_status } = req.body;
 
-    if (!name || !contact_number || !email) {
+    if (!company_name || !contact_person || !phone_number || !products_and_services || !account_status) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const newSupplier = new Supplier({ name, contact_number, email, image });
+    // Generate a unique supplier ID
+    const supplier_id = await Supplier.generateSupplierId();
+
+    const newSupplier = new Supplier({
+      supplier_id,
+      company_name,
+      contact_person,
+      phone_number,
+      products_and_services,
+      account_status,
+    });
+
     const savedSupplier = await newSupplier.save();
     return res.status(201).json(savedSupplier);
   } catch (error) {
@@ -43,7 +39,7 @@ router.get('/', async (req, res) => {
     const suppliers = await Supplier.find();
     return res.status(200).json({
       count: suppliers.length,
-      data: suppliers
+      data: suppliers,
     });
   } catch (error) {
     console.error('Error fetching suppliers:', error.message);
@@ -70,15 +66,15 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, contact_number, email } = req.body;
+    const { company_name, contact_person, phone_number, products_and_services, account_status } = req.body;
 
-    if (!name || !contact_number || !email) {
+    if (!company_name || !contact_person || !phone_number || !products_and_services || !account_status) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
     const updatedSupplier = await Supplier.findByIdAndUpdate(
       id,
-      { name, contact_number, email },
+      { company_name, contact_person, phone_number, products_and_services, account_status },
       { new: true, runValidators: true }
     );
 

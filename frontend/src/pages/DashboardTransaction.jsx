@@ -353,7 +353,7 @@ const DashboardTransaction = () => {
                           darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'
                         }`}
                       >
-                        <thead className="sticky top-0 z-10">
+                        <thead className="sticky top-0 z-5">
                           <tr
                             className={`border-b-2 ${
                               darkMode ? 'border-light-primary' : 'dark:border-dark-primary'

@@ -42,6 +42,8 @@ const PendingRMARequests = ({ rmaRequests }) => {
     return text.substring(0, maxLength) + '...'; // Shorten the text and add ellipsis
   }
 
+
+  
   return (
     <div className="w-[35%] h-full flex gap-4">
       <div
@@ -63,14 +65,14 @@ const PendingRMARequests = ({ rmaRequests }) => {
             <thead>
               <tr>
                 <th
-                  className={`text-center border-b-2 ${
+                  className={`text-left border-b-2 ${
                     darkMode ? 'border-light-border' : 'border-dark-border'
                   } py-2`}
                 >
                   Product Name
                 </th>
                 <th
-                  className={`text-center border-b-2 ${
+                  className={`text-left border-b-2 ${
                     darkMode ? 'border-light-border' : 'border-dark-border'
                   } py-2`}
                 >
@@ -90,18 +92,18 @@ const PendingRMARequests = ({ rmaRequests }) => {
                 filteredRMARequests.map((item, index) => (
                   <tr key={index}>
                     <td
-                      className={`text-center border-b ${
+                      className={`text-left border-b ${
                         darkMode ? 'border-light-border' : 'border-dark-border'
                       }`}
                     >
                       {shortenText(item.product, 20)} {/* Shorten product name */}
                     </td>
                     <td
-                      className={`text-center border-b-2 ${
+                      className={`text-left border-b-2 ${
                         darkMode ? 'border-light-border' : 'border-dark-border'
                       } py-2`}
                     >
-                      {shortenText(item.customer_name, 20)} {/* Shorten customer name */}
+                      {shortenText(item.customer_name, 10)} {/* Shorten customer name */}
                     </td>
                     <td
                       className={`text-center border-b-2 ${
@@ -120,7 +122,7 @@ const PendingRMARequests = ({ rmaRequests }) => {
                 <tr>
                   <td
                     colSpan="3"
-                    className={`py-4 ${filteredRMARequests.length === 1 ? 'text-left' : 'text-center'}`}
+                    className={`py-4 ${filteredRMARequests.length === 1 ? 'text-left' : 'text-left'}`}
                   >
                     No Pending or In Progress RMA Requests.
                   </td>

@@ -6,28 +6,27 @@ import { IoCaretBackOutline } from "react-icons/io5";
 import { API_DOMAIN } from '../utils/constants';
 
 const AddSupplier = () => {
-  const [file, setFile] = useState(null);
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [email, setEmail] = useState('');
+  const [productsAndServices, setProductsAndServices] = useState('');
+  const [accountStatus, setAccountStatus] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { darkMode } = useAdminTheme();
 
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
   const upload = async () => {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('name', name);
-      formData.append('contact_number', contact);
-      formData.append('email', email);
+      const supplierData = {
+        company_name: name,
+        contact_person: contact,
+        phone_number: contact,
+        products_and_services: productsAndServices,
+        account_status: accountStatus,
+        email,
+      };
 
-      const response = await axios.post(`${API_DOMAIN}/supplier`, formData);
-      console.log('Supplier added:', response.data);
+      const response = await axios.post(`${API_DOMAIN}/supplier`, supplierData);
       navigate('/inventory/supplier');
     } catch (err) {
       console.error('Error:', err.response ? err.response.data : err.message);
@@ -85,15 +84,26 @@ const AddSupplier = () => {
               />
             </div>
 
-            <div className='w-full flex flex-col gap-2'>
-              <label htmlFor="file">Supplier Image</label>
-              <div className={`w-full border rounded-md p-2 flex items-center ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}>
-                <input
-                  className="bg-transparent w-auto"
-                  type='file'
-                  onChange={handleFileChange}
-                />
-              </div>
+            <div className='flex flex-col w-full gap-2'>
+              <label htmlFor="productsAndServices">Products and Services</label>
+              <input
+                type='text'
+                placeholder='Products and Services'
+                className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                value={productsAndServices}
+                onChange={(e) => setProductsAndServices(e.target.value)}
+              />
+            </div>
+
+            <div className='flex flex-col w-full gap-2'>
+              <label htmlFor="accountStatus">Account Status</label>
+              <input
+                type='text'
+                placeholder='Account Status'
+                className={`border bg-transparent rounded-md p-2 ${darkMode ? 'border-light-ACCENT' : 'border-dark-ACCENT'}`}
+                value={accountStatus}
+                onChange={(e) => setAccountStatus(e.target.value)}
+              />
             </div>
 
             {error && <p className={`text-red-500 ${darkMode ? 'text-red-300' : 'text-red-600'}`}>{error}</p>}

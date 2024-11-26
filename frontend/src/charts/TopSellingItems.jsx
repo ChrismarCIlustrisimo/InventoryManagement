@@ -6,6 +6,18 @@ const TopSellingItems = ({topSellingItems}) => {
     const { darkMode } = useAdminTheme();
     const { user } = useAuthContext();
 
+    const shortenString = (str) => {
+
+      if (typeof str === 'string') {
+          const trimmedStr = str.trim(); 
+          if (trimmedStr.length > 24) {
+              return trimmedStr.slice(0, 20) + '...'; 
+          }
+          return trimmedStr; 
+      }
+      return 'N/A';
+  };
+
   return (
     <div className={`${user.role === "super-admin" ? 'w-[40%]' : 'w-[60%]'} h-full flex gap-4`}>
       <div className={`border ${darkMode ? 'border-light-border' : 'border-dark-border'} rounded-lg shadow-lg w-full h-full ${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>
@@ -16,17 +28,17 @@ const TopSellingItems = ({topSellingItems}) => {
           <table className='h-[100%] w-[100%]'>
             <thead>
               <tr>
-                <th className={`text-center border-b-2 ${darkMode ? 'border-light-border' : 'border-dark-border'} py-2`}>RANK</th>
-                <th className={`text-center border-b-2 ${darkMode ? 'border-light-border' : 'border-dark-border'} py-2`}>Product Name</th>
+                <th className={`text-center border-b-2 px-2 ${darkMode ? 'border-light-border' : 'border-dark-border'} py-2`}>RANK</th>
+                <th className={`text-left border-b-2 ${darkMode ? 'border-light-border' : 'border-dark-border'} py-2`}>Product Name</th>
                 <th className={`text-center border-b-2 ${darkMode ? 'border-light-border' : 'border-dark-border'} py-2`}>Qty. Sold</th>
-                <th className={`text-center border-b-2 ${darkMode ? 'border-light-border' : 'border-dark-border'} py-2`}>Revenue Generated</th>
+                <th className={`text-center border-b-2 ${darkMode ? 'border-light-border' : 'border-dark-border'} py-2`}>Total Sales</th>
               </tr>
             </thead>
             <tbody>
               {topSellingItems.map((item, index) => (
                 <tr key={index}>
-                  <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{index + 1}</td>
-                  <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{item.name}</td>
+                  <td className={`text-center border-b px-2 ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{index + 1}</td>
+                  <td className={`text-left border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{shortenString(item.name)}</td>
                   <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{item.sales}</td>
                   <td className={`text-center border-b ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>{`₱ ${(item.sales * item.selling_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</td>
                 </tr>

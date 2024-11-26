@@ -19,14 +19,10 @@
                 <table className={`min-w-full table-auto  text-xs`}>
                 <thead className={`sticky top-[-10px] bg-gray-400`}>
                       <tr className='border-b'>
-                            <th className='text-center p-2'>Transaction ID</th>
-                            <th className='text-center p-2'>Sales Date</th>
-                            <th className='text-center p-2'>Customer Name</th>
-                            <th className='text-center p-2'>Product Name</th>
+                            <th className='text-left p-2'>Product Name</th>
                             <th className='text-center p-2'>Qty. Sold</th>
                             <th className='text-center p-2'>Original Amount</th>
-                            <th className='text-center p-2'>Discount</th>
-                            <th className='text-center p-2'>Total After Discount</th>
+                         {/*<th className='text-center p-2'>Total After Discount</th>*/}
                             <th className='text-center p-2'>VATable Sales (12%)</th>
                             <th className='text-center p-2'>Total Sales (VAT Incl.)</th>
                         </tr>
@@ -44,14 +40,10 @@
 
                                 return (
                                     <tr key={`${transaction.transaction_id}-${idx}`} className={`border-b`}>
-                                        <td className={`p-2 text-center`}>{transaction.transaction_id || 'N/A'}</td>
-                                        <td className={`p-2 text-center`}>{formatDate(transaction.transaction_date) || 'N/A'}</td>
-                                        <td className={`p-2 text-center`}>{transaction.customer?.name || 'None'}</td>
-                                        <td className={`p-2 text-center`}>{item.product?.name || 'Unknown Product'}</td>
+                                        <td className={`p-2 text-left`}>{item.product?.name || 'Unknown Product'}</td>
                                         <td className={`p-2 text-center`}>{itemQuantity}</td>
                                         <td className={`p-2 text-center`}>₱ {originalAmountInclVAT.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                        <td className={`p-2 text-center`}>₱ {transactionDiscount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                        <td className={`p-2 text-center`}>₱ {totalAfterDiscount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                                    {/*<td className={`p-2 text-center`}>₱ {totalAfterDiscount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>*/}
                                         <td className={`p-2 text-center`}>₱ {vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                         <td className={`p-2 text-center`}>₱ {(totalAmountExclVAT + vat).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                     </tr>

@@ -21,6 +21,7 @@ const Erceipt = () => {
     email,
     phone,
     fullAddress,
+    items
   } = location.state || {};
 
   const formatDate = (date) => {
@@ -145,8 +146,14 @@ const Erceipt = () => {
                 </span>
               </div>
               <div className="flex flex-row justify-between mt-2 pt-2">
+                <span className="text-sm">PRODUCT PRICE</span>
+                {items?.map((item, index) => (
+                  <span key={index} className="font-semibold text-base">₱ {item.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                ))}
+              </div>
+              <div className="flex flex-row justify-between mt-2 pt-2">
                 <span className="text-sm">QUANTITY</span>
-                <span className="font-semibold text-base">{item.quantity}</span> 
+                <span className="font-semibold text-base">{item.quantity}</span>
               </div>
             </div>
           ))}

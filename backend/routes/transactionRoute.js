@@ -182,7 +182,7 @@ router.post('/', async (req, res) => {
 
       // Send a confirmation email after the transaction is successfully saved
       const emailSubject = `Transaction Confirmation - ID: ${transaction_id}`;
-      const emailText = `Hello ${customer.name},\n\nThank you for your purchase. Here are your transaction details:\n\nTransaction ID: ${transaction_id}\nTotal Price: ₱${total_price.toFixed(2)}\nDate: ${transaction_date}\nPayment Status: ${payment_status}\n\nThank you for shopping with us!`;
+      const emailText = `Hello ${customer.name},\n\nThank you for your purchase. Here are your transaction details:\n\nTransaction ID: ${transaction_id}\nTotal Price: ₱${total_price.toFixed(2)}\nDate: ${transaction_date}\nThank you for shopping with us!`;
 
       sendEmail(customer.email, emailSubject, emailText);
 
@@ -192,7 +192,6 @@ router.post('/', async (req, res) => {
       return res.status(500).send({ message: error.message });
   }
 });
-
 
 
 
@@ -212,7 +211,6 @@ router.post('/online-reservation', async (req, res) => {
       payment_method,
       status,
       reference_number
-
     } = req.body;
 
     // Validate required fields
@@ -220,7 +218,33 @@ router.post('/online-reservation', async (req, res) => {
       return res.status(400).json({
         message: 'Products, customer, total_price, transaction_date, and payment_status are required.',
       });
+
+      
     }
+
+    const formatDate = (date) => {
+      const options = {
+        year: 'numeric',
+        month: 'short', // Abbreviated month names (e.g., Nov)
+        day: 'numeric',
+      };
+
+      const formattedDate = new Date(date).toLocaleDateString('en-US', options);
+
+      const formattedTime = new Date(date).toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true, // Ensures AM/PM format
+      });
+
+      return `${formattedDate} ${formattedTime}`;
+    };
+
+        // Format the transaction and expiry dates
+    const formattedTransactionDate = formatDate(transaction_date);
+    const expiryDate = new Date(transaction_date);
+    expiryDate.setHours(expiryDate.getHours() + 24);
+    const formattedExpiryDate = formatDate(expiryDate);
 
     // Process each product item with serial numbers and include product_name
     const productItems = await Promise.all(
@@ -277,12 +301,9 @@ router.post('/online-reservation', async (req, res) => {
 
     // Generate transaction ID and set due date
     const transaction_id = await generateTransactionId();
-    //const dueDate = new Date(transaction_date);
-    //dueDate.setSeconds(dueDate.getSeconds() + 20); // Set due date to 1 minute later
-    
     const dueDate = new Date(transaction_date);
     dueDate.setHours(dueDate.getHours() + 24); // Set due date to 24 hours later
-    
+
     // Create and save the new transaction
     const newTransaction = new Transaction({
       transaction_id,
@@ -316,25 +337,34 @@ router.post('/online-reservation', async (req, res) => {
       return res.status(404).json({ message: "Customer not found or email is missing." });
     }
 
-    // Prepare email content
+    // Prepare email content with peso sign
     const emailText = `
       Dear ${customer.name},
       
-      Thank you for your reservation! Here are your transaction details:
-      
-      Transaction ID: ${transaction_id}
-      Total Price: ${total_price}
-      Payment Status: ${payment_status}
-      Transaction Date: ${transaction_date}
-      
+      Thank you for your reservation! Here are your transaction details
+  
+      ORDER ID: ${transaction_id}
+      TRANSACTION DATE: ${formattedTransactionDate}
+      EXPIRY DATE: ${formattedExpiryDate}
+
       Products:
-      ${productItems.map(item => `${item.product_name} (Serial: ${item.serial_number.join(', ')}) - Price: ${item.price}`).join('\n')}
-      
-      We appreciate your business!
+      ${productItems
+        .map(item => {
+          const serialNumbers = item.serial_number.join(', ');
+          return `${item.product_name} - Serial Number: ${serialNumbers} - Price: ₱ ${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        })
+        .join('\n')}
+
+      Total Price: ₱${total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+      We look forward to serving you again soon!
+
+      Best regards,
+      iRIG Computers
     `;
 
     // Send the confirmation email
-    sendEmail(customer.email, 'Reservation Confirmation', emailText);
+    sendEmail(customer.email, 'Reservation Confirmed', emailText);
 
     return res.status(201).json(transaction);
   } catch (error) {
@@ -342,6 +372,7 @@ router.post('/online-reservation', async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 });
+
 
 
 

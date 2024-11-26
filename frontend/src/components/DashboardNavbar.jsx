@@ -186,6 +186,11 @@ const DashboardNavbar = () => {
                 Archived Products
               </div>
             </Link>
+            <Link to="/inventory/supplier">
+              <div className={`text-sm p-2 z-100 text-center  ${selected === 'Transaction' ? `border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary ' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
+                Supplier List
+              </div>
+            </Link>
           </div>
         )}
       </div>

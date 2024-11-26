@@ -336,10 +336,6 @@ const totalVat = items.reduce((acc, item) => {
                         </tbody>
                     </table>
 
-                    <div className="flex justify-between mb-2 text-sm sm:text-base">
-                        <p>Subtotal ({items.length} item{items.length > 1 ? 's' : ''})</p>
-                        <p>₱{total.toLocaleString()}</p>
-                    </div>
 
                     <div className="flex justify-between text-red-500 font-bold text-lg sm:text-xl mb-4">
                         <p>Total</p>

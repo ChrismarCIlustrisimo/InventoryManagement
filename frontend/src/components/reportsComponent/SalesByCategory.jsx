@@ -51,7 +51,6 @@ const SalesByCategory = ({ salesData }) => {
                             <th className='text-center p-2'>Category</th>
                             <th className='text-center p-2'>Units Sold</th>
                             <th className='text-center p-2'>Gross Sales</th>
-                            <th className='text-center p-2'>Discounts Applied</th>
                             <th className='text-center p-2'>VAT</th>
                             <th className='text-center p-2'>Net Sales</th>
                         </tr>
@@ -62,7 +61,6 @@ const SalesByCategory = ({ salesData }) => {
                                 <td className='p-2 text-center'>{item.category}</td>
                                 <td className='p-2 text-center'>{item.unitsSold}</td>
                                 <td className='p-2 text-center'>₱{item.grossSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                                <td className='p-2 text-center'>₱{item.discount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 <td className='p-2 text-center'>₱{item.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 <td className='p-2 text-center'>₱{item.netSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                             </tr>

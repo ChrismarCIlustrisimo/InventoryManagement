@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import DashboardNavbar from '../components/DashboardNavbar';
+import AdminNavbar from '../components/AdminNavbar';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { useAuthContext } from '../hooks/useAuthContext';
 import AdminSearchBar from '../components/adminSearchBar';
@@ -15,7 +15,7 @@ import EditSupplier from './EditSupplier';
 import { GrView } from "react-icons/gr";
 import { BiEdit } from "react-icons/bi";
 
-const DashboardSupplier = () => {
+const adminSupplier = () => {
     const { darkMode } = useAdminTheme();
     const baseURL = API_DOMAIN;
     const { user } = useAuthContext();
@@ -105,7 +105,7 @@ const sortedSuppliers = filteredSuppliers.sort((a, b) => {
 
     return (    
         <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
-            <DashboardNavbar />
+            <AdminNavbar />
             <div className='pt-[70px] px-6 py-4 w-full h-full'>
                 <div className='flex items-center justify-center py-5'>
                     <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Supplier</h1>
@@ -224,7 +224,7 @@ const sortedSuppliers = filteredSuppliers.sort((a, b) => {
                                             <td className="py-3 px-4">{supplier.contact_person}</td>
                                             <td className="py-3 px-4">{supplier.phone_number}</td>
                                             <td className="py-3 px-4">
-                                                {supplier.categories && Array.isArray(supplier.categories) ? supplier.categories[0] : supplier.categories}
+                                            {supplier.categories && Array.isArray(supplier.categories) ? supplier.categories[0] : supplier.categories}
                                             </td>
                                             <td className="py-3 px-4">
                                                 <div className="relative inline-block group">
@@ -272,4 +272,4 @@ const sortedSuppliers = filteredSuppliers.sort((a, b) => {
     );
 };
 
-export default DashboardSupplier;
+export default adminSupplier;

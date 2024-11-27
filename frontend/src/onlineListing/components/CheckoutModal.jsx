@@ -197,6 +197,7 @@ const totalVat = items.reduce((acc, item) => {
                     email,
                     phone,
                     fullAddress,
+                    items
                 }
             });
         onRequestClose();

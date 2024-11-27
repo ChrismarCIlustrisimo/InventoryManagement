@@ -40,6 +40,12 @@ const AdminNavbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // State for Reports dropdown visibility
   const [rmaDropdownOpen, setRmaDropdownOpen] = useState(false); // State for RMA dropdown visibility
   const [refundDropDownOpen, setRefundDropDownOpen] = useState(false); // State for Refund dropdown visibility
+  const [inventoryDropdownOpen, setInventoryDropdownOpen] = useState(false);
+
+  const toggleInventoryDropdown = () => {
+    setInventoryDropdownOpen(!inventoryDropdownOpen);
+  };
+
 
   useEffect(() => {
     const path = location.pathname;
@@ -139,20 +145,35 @@ const AdminNavbar = () => {
         </Link>
 
         {/* Inventory Link */}
-        <Link to="/admin-inventory" className="flex-1 relative">
-          <button
-            className={`text-sm p-2 ${selected === 'Inventory' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}` } rounded-[24px] w-full flex items-center justify-center gap-2 border`}
-            onClick={() => setSelected('Inventory')}
-          >
-            <PiCubeBold className='text-lg' />
-            <span>Inventory</span>
-            <div className="flex gap-6 absolute top-0 right-2">
+        <div className="relative flex-1 ">
+        <button
+          className={`text-sm p-2 ${selected === 'Inventory' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `bg-transparent ${darkMode ? 'border-light-border text-light-textSecondary' : 'border-dark-border text-dark-textSecondary'}`} rounded-[24px] w-full flex items-center justify-center gap-2 border`}
+          onClick={toggleInventoryDropdown}
+        >
+          <PiCubeBold className='text-lg' />
+          <span>Inventory</span>
+          <div className="flex gap-6 absolute top-0 right-2">
               {lowStockCount > 0 && (
                 <LowStockBadge badgeContent={lowStockCount} color="error" />
               )}
             </div>
-          </button>
-        </Link>
+          <GoTriangleDown className={`text-lg transition-transform duration-200 ${inventoryDropdownOpen ? 'rotate-180' : 'rotate-0'}`} />
+        </button>
+        {inventoryDropdownOpen && (
+          <div className={`absolute z-100 bg-white rounded-md shadow-lg mt-1 w-full  ${darkMode ? 'bg-dark-bg' : 'bg-white'}`}>
+            <Link to="/admin-inventory">
+              <div className={`text-sm text-center p-2 z-100  ${selected === 'Transaction' ? `border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary ' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
+                Inventory Overview
+              </div>
+            </Link>
+            <Link to="/admin-supplier">
+              <div className={`text-sm p-2 z-100 text-center  ${selected === 'Transaction' ? `border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary ' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
+                Supplier List
+              </div>
+            </Link>
+          </div>
+        )}
+      </div>
 
         {/* Transaction Dropdown */}
         <div className="relative flex-1">

@@ -7,10 +7,11 @@ const router = express.Router();
 // Create a new supplier
 router.post('/', async (req, res) => {
   try {
-    const { company_name, contact_person, phone_number, products_and_services, account_status } = req.body;
+    const { supplier_name, contact_person, phone_number, categories, remarks, email } = req.body;
 
-    if (!company_name || !contact_person || !phone_number || !products_and_services || !account_status) {
-      return res.status(400).json({ message: 'All fields are required' });
+    // Ensure supplier_name is provided
+    if (!supplier_name) {
+      return res.status(400).json({ message: 'Supplier name is required' });
     }
 
     // Generate a unique supplier ID
@@ -18,11 +19,12 @@ router.post('/', async (req, res) => {
 
     const newSupplier = new Supplier({
       supplier_id,
-      company_name,
+      supplier_name,
       contact_person,
       phone_number,
-      products_and_services,
-      account_status,
+      email,
+      categories,
+      remarks,
     });
 
     const savedSupplier = await newSupplier.save();
@@ -47,18 +49,24 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get a single supplier by ID
+// Route to get a single supplier by ID
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+
+    // Ensure the ID is valid
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid Supplier ID' });
+    }
+
     const supplier = await Supplier.findById(id);
     if (!supplier) {
       return res.status(404).json({ message: 'Supplier not found' });
     }
-    return res.status(200).json(supplier);
+    res.status(200).json(supplier);
   } catch (error) {
     console.error('Error fetching supplier by ID:', error.message);
-    return res.status(500).json({ message: 'Server Error' });
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
@@ -66,18 +74,26 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { company_name, contact_person, phone_number, products_and_services, account_status } = req.body;
+    const { supplier_name, contact_person, phone_number, categories, remarks, email } = req.body;
 
-    if (!company_name || !contact_person || !phone_number || !products_and_services || !account_status) {
+    // Validate required fields
+    if (!supplier_name || !contact_person || !phone_number || !categories || !remarks || !email) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
     const updatedSupplier = await Supplier.findByIdAndUpdate(
       id,
-      { company_name, contact_person, phone_number, products_and_services, account_status },
+      { 
+          supplier_name, 
+          contact_person, 
+          phone_number, 
+          categories: categories || [], 
+          remarks: remarks || '', 
+          email 
+      },
       { new: true, runValidators: true }
-    );
-
+  );
+  
     if (!updatedSupplier) {
       return res.status(404).json({ message: 'Supplier not found' });
     }
@@ -103,5 +119,6 @@ router.delete('/:id', async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
 
 export default router;

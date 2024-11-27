@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { IoCaretBackOutline } from "react-icons/io5";
@@ -42,7 +42,26 @@ const AdminAddProduct = () => {
   const [descriptionArray, setDescriptionArray] = useState([]);
   const [openDescriptionModal, setOpenDescriptionModal] = useState(false);
   const [loading, setLoading] = useState(false); // Add loading state to control spinner visibility
+  const [suppliers, setSuppliers] = useState([]);
+  const baseURL = API_DOMAIN;
 
+  // Fetch suppliers on component load
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/supplier`);
+        const supplierNames = response.data.data.map(supplier => supplier.supplier_name);
+        
+        setSuppliers(supplierNames);  
+      } catch (err) {
+        setError('Error fetching suppliers.');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchSuppliers();
+  }, []);
   
 
   const categories = [
@@ -292,7 +311,6 @@ const upload = () => {
                     <BiImages className="w-64 h-64 text-gray-500" />
                   )}
                 </div>
-                {error && <div className="text-red-500 text-sm">{error}</div>}
                 <input type='file' id="file" ref={fileInputRef} className={`hidden`} onChange={handleFileChange}/>
                 <button className="bg-blue-500 text-white rounded-md p-2 px-6 flex items-center justify-start gap-2" onClick={handleButtonClick}>
                   <AiOutlineUpload className='text-2xl'/>
@@ -419,14 +437,39 @@ const upload = () => {
                     />
                   </div>
 
-                  <div className='flex w-full gap-2 items-center justify-between'>
-                    <label htmlFor="supplier" className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER</label>
-                    <input type='text' placeholder='Supplier Name' id="supplier"
-                      className={`border bg-transparent rounded-md p-2 w-[58%] ${darkMode ? 'border-light-border' : 'border-dark-border'}`}
-                      value={supplier}
-                      onChange={(e) => setSupplier(e.target.value)}
-                    />
-                  </div>
+
+                  <div className="flex w-full gap-2 items-center justify-between">
+                          <label
+                            htmlFor="supplier"
+                            className={`flex items-center ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}
+                          >
+                            SUPPLIER
+                          </label>
+                          <select
+                            id="supplier"
+                            className={`border rounded p-2 my-1 font-semibold w-[58%] ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} ${category ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : (darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary')}`}                             value={supplier}
+                            onChange={(e) => setSupplier(e.target.value)}
+                            style={{ maxHeight: '200px', overflowY: 'auto' }} // Makes the dropdown scrollable
+                          >
+                            <option value="" disabled>
+                              Select Supplier
+                            </option>
+                            {suppliers.length > 0 ? (
+                              // Sort suppliers alphabetically before mapping
+                              suppliers
+                                .sort((a, b) => a.localeCompare(b)) // Alphabetically sort suppliers
+                                .map((supplierName, index) => (
+                                  <option key={index} value={supplierName}>
+                                    {supplierName}
+                                  </option>
+                                ))
+                            ) : (
+                              <option value=" " disabled>
+                                No Suppliers Available
+                              </option>
+                            )}
+                          </select>
+                        </div>
                 </div>
 
                 <div className='flex flex-col p-4 gap-4 bg-container bg-white rounded-[10px]'>
@@ -463,8 +506,7 @@ const upload = () => {
       
 
           </div>
-          {error && <p className='text-red-500 text-xl text-center'>{error}</p>}
-                {/* Description Modal */}
+          {/* Description Modal */}
           {openDescriptionModal && (
             <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
                 <div className={`p-4 rounded-lg w-1/2 h-[50%] flex flex-col ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>

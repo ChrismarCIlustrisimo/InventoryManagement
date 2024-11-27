@@ -40,6 +40,7 @@ const PendingProducts = () => {
   const [actionType, setActionType] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);  // Store filtered products
   const [sortBy, setSortBy] = useState('');
+  const [productID, setProductID] = useState(null);
 
 
   const handleSortByChange = (e) => {
@@ -225,36 +226,64 @@ const handlePriceRange = (e) => {
       setIsDialogOpen(true);
     };
 
-
     const deleteProduct = async () => {
-      if (!productId) return;
+      if (!productId) return; // Ensure productId is valid
     
       try {
         await axios.delete(`${baseURL}/product/${productId}`);
+    
+        // Create the audit log after deleting the product
+        const auditData = {
+          user: user.name,            // Assuming you have the current user information
+          action: 'Delete',           // Action type (in this case, deleting the product)
+          module: 'Product',          // The module name (Product in this case)
+          event: `Deleted the product ${productID}`,  // Event description (Deleting product)
+          previousValue: 'Active',    // Previous value of the product status (before deletion)
+          updatedValue: 'Deleted',    // New value of the product status (after deletion)
+        };
+    
+        // Send audit log data to the server
+        await axios.post(`${baseURL}/audit`, auditData);
+    
         toast.success('Product deleted successfully'); // Toast notification for success
         fetchProducts(); // Assuming this function reloads the products
       } catch (error) {
         toast.error(`Error deleting product: ${error.response ? error.response.data : error.message}`); // Toast notification for error
       } finally {
-        setIsDialogOpen(false);
-        setProductId(null);
+        setIsDialogOpen(false); // Close the dialog
+        setProductId(null); // Reset the productId
       }
     };
     
     const approveProduct = async () => {
-      if (!productId) return;
+      if (!productId) return; // Ensure productId is valid
     
       try {
         await axios.patch(`${baseURL}/product/approve/${productId}`);
+    
+        // Create the audit log after approving the product
+        const auditData = {
+          user: user.name,            // Assuming you have the current user information
+          action: 'Approve',          // Action type (in this case, approving the product)
+          module: 'Product',          // The module name (Product in this case)
+          event: `Approved the product ${productID}`, // Event description (Approving product)
+          previousValue: 'Pending',   // Previous value of the product status (before approval)
+          updatedValue: 'Approved',   // New value of the product status (after approval)
+        };
+    
+        // Send audit log data to the server
+        await axios.post(`${baseURL}/audit`, auditData);
+    
         toast.success('Product approved successfully'); // Toast notification for success
         fetchProducts(); // Assuming this function reloads the products
       } catch (error) {
         toast.error(`Error approving product: ${error.message}`); // Toast notification for error
       } finally {
-        setIsDialogOpen(false);
-        setProductId(null);
+        setIsDialogOpen(false); // Close the dialog
+        setProductId(null); // Reset the productId
       }
     };
+    
 
 
   const handleViewProduct = (productId) => {
@@ -496,7 +525,7 @@ const handlePriceRange = (e) => {
                           <td className="text-center">
                               <div className="relative inline-block group">
                                 <button
-                                  onClick={() => handleViewProduct(product._id)}
+                                  onClick={() => {handleViewProduct(product._id)}}
                                   className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                 >
                                   <GrView size={25} />
@@ -512,7 +541,10 @@ const handlePriceRange = (e) => {
 
                               <div className="relative inline-block group">
                                 <button
-                                  onClick={() => handleApproveClick(product._id)}
+                                  onClick={() => {
+                                    setProductID(product.product_id)
+                                    handleApproveClick(product._id)
+                                  }}
                                   className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                 >
                                   <IoCheckmarkCircleOutline size={25} />
@@ -529,7 +561,10 @@ const handlePriceRange = (e) => {
                               {product.canDelete && product.sales === 0 && (
                                 <div className="relative inline-block group">
                                   <button
-                                    onClick={() => handleDeleteClick(product._id)}
+                                    onClick={() => {
+                                      setProductID(product.product_id)
+                                      handleDeleteClick(product._id)
+                                    }}
                                     className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                   >
                                     <AiOutlineDelete size={25} />

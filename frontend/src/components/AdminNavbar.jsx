@@ -57,7 +57,7 @@ const AdminNavbar = () => {
       setSelected('Orders');
     } else if (path === '/admin-dashboard') {
       setSelected('Dashboard');
-    } else if (path === '/admin-inventory') {
+    } else if (path === '/admin-inventory' || path === '/admin-supplier') {
       setSelected('Inventory');
     } else if (path === '/admin-sales-report' || path === '/admin-inventory-report') {
       setSelected('Reports');

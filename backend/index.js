@@ -20,6 +20,9 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
 import User from './models/userModel.js'; // Ensure this path is correct
+import AuditLogModel from './models/AuditLogModel.js';
+import AuditLogRoute from './routes/AuditLogRoute.js';
+
 // Load environment variables
 dotenv.config();
 // Create a Nodemailer transporter
@@ -119,6 +122,8 @@ app.use('/user', userRoute);
 app.use('/supplier', SupplierRoute);
 app.use('/rma', RMARoute);
 app.use('/refund', refundRoute);
+app.use('/audit', AuditLogRoute);
+
 // WebSocket connection
 io.on('connection', (socket) => {
   console.log('A user connected');

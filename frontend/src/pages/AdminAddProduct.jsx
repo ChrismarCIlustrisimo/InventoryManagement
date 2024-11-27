@@ -270,19 +270,43 @@ const upload = () => {
 
   formData.append('units', JSON.stringify(units));
 
-  axios.post(`${API_DOMAIN}/product`, formData)
-      .then(res => {
-          setLoading(false); // Set loading to false after successful upload
-          toast.success('Product added successfully!');
-          handleBackClick();
-      })
-      .catch(err => {
-          setLoading(false); // Set loading to false if there's an error
-          const errorMessage = err.response?.data.message || 'An unknown error occurred';
-          console.error('Error:', errorMessage);
-          setError(errorMessage);
-      });
+  axios.post(`${baseURL}/product`, formData)
+    .then(res => {
+        setLoading(false); // Set loading to false after successful upload
+        toast.success('Product added successfully!');
+
+        // Create an audit log entry for this action
+        const auditData = {
+            user: user.name, 
+            action: 'Create', 
+            module: 'Product',
+            event: 'Product added, awaiting approval',
+            previousValue: 'N/A',
+            updatedValue: res.data.product_id,
+        };
+
+        // Send the audit log data to the server
+        axios.post(`${baseURL}/audit`, auditData)
+            .then(auditRes => {
+                console.log('Audit log entry created:', auditRes.data);
+            })
+            .catch(auditErr => {
+                console.error('Error creating audit log entry:', auditErr);
+            });
+
+        // Delay the back navigation by 2 seconds (2000 milliseconds)
+        setTimeout(() => {
+            handleBackClick(); // Trigger handleBackClick after 2 seconds
+        }, 2000);
+    })
+    .catch(err => {
+        setLoading(false); // Set loading to false if there's an error
+        const errorMessage = err.response?.data.message || 'An unknown error occurred';
+        console.error('Error:', errorMessage);
+        setError(errorMessage);
+    });
 };
+
 
   const handleBackClick = () => {
     navigate(-1);

@@ -18,8 +18,8 @@ const LowStockAlert = ({ inventoryData }) => {
             <thead className={`sticky top-[-10px] bg-gray-400`}>
                         <tr className='border-b'>
                             <th className='text-left p-2' style={{ width: '60%' }}>Name</th>
-                            <th className='text-center p-2' style={{ width: '20%' }}>Current Stock</th>
-                            <th className='text-center p-2' style={{ width: '20%' }}>Status</th>
+                            <th className='text-left p-2' style={{ width: '20%' }}>Current Stock</th>
+                            <th className='text-left p-2' style={{ width: '20%' }}>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -29,14 +29,14 @@ const LowStockAlert = ({ inventoryData }) => {
                                 return (
                                     <tr key={product.product_id}>
                                         <td className='text-left p-2' style={{ width: '60%' }}>{product.name}</td>
-                                        <td className='text-center p-2' style={{ width: '20%' }}>{inStockUnits} {inStockUnits > 1 ? 'units' : 'unit'}</td>
-                                        <td className='text-center p-2' style={{ width: '20%' }}>{product.current_stock_status}</td>
+                                        <td className='text-left p-2' style={{ width: '20%' }}>{inStockUnits} {inStockUnits > 1 ? 'units' : 'unit'}</td>
+                                        <td className='text-left p-2' style={{ width: '20%' }}>{product.current_stock_status}</td>
                                     </tr>
                                 );
                             })
                         ) : (
                             <tr>
-                                <td colSpan={3} className='text-center p-2'>No low stock items</td>
+                                <td colSpan={3} className='text-left p-2'>No low stock items</td>
                             </tr>
                         )}
                     </tbody>

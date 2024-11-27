@@ -224,7 +224,7 @@ const RefundedOrReplaced = () => {
       <div className='pt-[70px] px-6 py-4 w-full h-full'>
         <div className='flex items-center justify-center py-5'>
           <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Refunded and Replaced Units</h1>
-          <div className='w-full flex justify-end gap-2'>
+          <div className='w-full flex justify-end gap-2 text-left'>
             <AdminSearchBar
               query={searchQuery}
               onQueryChange={setSearchQuery}
@@ -300,7 +300,7 @@ const RefundedOrReplaced = () => {
               </div>
             </div>
 
-            <div className='flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 text-left'>
                   <button
                       className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
                       ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
@@ -313,91 +313,53 @@ const RefundedOrReplaced = () => {
           <div className='flex-grow'>
             
           <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
-              <thead>
-                <tr>
-                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
-                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Reason</th>
-                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Condition</th>
-                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Serial Numbers</th>
-                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Status</th>
-                  <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRmas.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" rowSpan="10" className="text-center p-4 text-2xl text-gray-500">
-                      No data available
-                    </td>
-                  </tr>
-                ) : (
-                  filteredRmas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rma) => (
-                    <tr key={rma.rma_id} className={`${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
-                      <td className='p-2'>{rma.product}</td>
-                      <td className='p-2'>{rma.reason}</td>
-                      <td className='p-2'>{rma.condition}</td>
-                      <td className='p-2'>
-                        <ul>
-                          {rma.units.map((unit) => (
-                            <li key={unit.serial_number}>{unit.serial_number}</li>
-                          ))}
-                        </ul>
-                      </td>
-                      <td className={`p-2 text-center`}>
-                        <div className={`rounded-md py-2 px-4 font-semibold ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
-                          {rma.units.length > 0 
-                            ? rma.units[0].status === 'replaced' 
-                              ? 'Replaced' 
-                              : rma.units[0].status === 'refunded' 
-                                ? 'Refunded' 
-                                : rma.units[0].status 
-                            : 'N/A'}
-                        </div>
-                      </td>
-                      <td className='p-2'>
-                        {rma.units.map((unit) => (
-                          <div key={unit.serial_number} className="flex">
-                            {/* In Stock Button with Tooltip */}
-                            <div className="relative inline-block group">
-                              <button 
-                                onClick={() => handleUpdateUnit(rma.product_id, unit._id, 'in_stock')} 
-                                className={`rounded px-2 py-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
-                              >
-                                <AiOutlineCheckCircle size={30} />
-                              </button>
-                              <span
-                                className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                                  darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
-                                }`}
-                              >
-                                Return
-                              </span>
-                            </div>
+  <thead>
+    <tr>
+      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Product Name</th>
+      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Reason</th>
+      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Condition</th>
+      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Serial Numbers</th>
+      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Status</th>
+      {/* <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Actions</th> */}
+    </tr>
+  </thead>
+  <tbody>
+    {filteredRmas.length === 0 ? (
+      <tr>
+        <td colSpan="6" rowSpan="10" className="text-center p-4 text-2xl text-gray-500">
+          No data available
+        </td>
+      </tr>
+    ) : (
+      filteredRmas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rma) => (
+        <tr key={rma.rma_id} className={`${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
+          <td className='p-2 text-left'>{rma.product}</td>
+          <td className='p-2 text-left'>{rma.reason}</td>
+          <td className='p-2 text-left'>{rma.condition}</td>
+          <td className='p-2 text-left'>
+            <ul>
+              {rma.units.map((unit) => (
+                <li key={unit.serial_number}>{unit.serial_number}</li>
+              ))}
+            </ul>
+          </td>
+          <td className={`p-2 text-center`}>
+            <div className={`rounded-md py-2 px-4 font-semibold ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
+              {rma.units.length > 0 
+                ? rma.units[0].status === 'replaced' 
+                  ? 'Replaced' 
+                  : rma.units[0].status === 'refunded' 
+                    ? 'Refunded' 
+                    : rma.units[0].status 
+                : 'N/A'}
+            </div>
+          </td>
+        </tr>
+      ))
+    )}
+  </tbody>
+</table>
 
-                            {/* Delete Button with Tooltip */}
-                            <div className="relative inline-block group">
-                              <button 
-                                onClick={() => handleDeleteUnit(rma.product_id, unit._id)} 
-                                className="rounded px-2 py-1"
-                              >
-                                <AiOutlineCloseCircle size={30} />
-                              </button>
-                              <span
-                                className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
-                                  darkMode ? 'bg-gray-200 text-black' : 'bg-black text-white'
-                                }`}
-                              >
-                                Delete
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
 
           </div>
         </div>

@@ -7,8 +7,10 @@ import { AiOutlineUpload } from "react-icons/ai";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const UpdateProduct = () => {
+  const { user } = useAuthContext();
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('Upload Product Photo');
   const [name, setName] = useState('');
@@ -36,6 +38,29 @@ const UpdateProduct = () => {
   const [selectedValue, setSelectedValue] = useState('');
   const [selectedNumber, setSelectedNumber] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
+  const [currentProduct, setCurrentProduct] = useState(null);
+  const [suppliers, setSuppliers] = useState([]);
+  const [productid, setProductid] = useState(null);
+
+  // Fetch suppliers on component load
+  useEffect(() => {
+    const fetchSuppliers = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/supplier`);
+        
+        // Extract only the supplier_name from the response data
+        const supplierNames = response.data.data.map(supplier => supplier.supplier_name);
+        
+        setSuppliers(supplierNames);  // Set the state to the list of supplier names
+      } catch (err) {
+        setError('Error fetching suppliers.');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchSuppliers();
+  }, []);
 
   const handleChange = (number, unit) => {
     if (!number || !unit) {
@@ -112,6 +137,7 @@ const UpdateProduct = () => {
     axios.get(`${baseURL}/product/${productId}`)
       .then(res => {
         const { data } = res;
+        setCurrentProduct(res.data)
   
         // Existing state updates...
         setName(data.name);
@@ -128,7 +154,7 @@ const UpdateProduct = () => {
         setModel(data.model); 
         setDescription(data.description); 
         setWarranty(data.warranty);
-
+        setProductid(data.product_id)
         // Parse warranty into number and unit
         const warrantyParts = data.warranty?.split(" ") || [];
         setSelectedNumber(warrantyParts[0] || ''); // e.g., "2"
@@ -152,9 +178,7 @@ const UpdateProduct = () => {
   
 
   const updateProduct = () => {
-    // Validate required fields
-
-  
+    // Validate required fields (you can add your validation logic here)
     const formData = new FormData();
     if (file) formData.append('file', file);
     formData.append('name', name);
@@ -168,20 +192,93 @@ const UpdateProduct = () => {
     formData.append('warranty', selectedValue);
     formData.append('description', description);
   
+    // Store the previous product data (before updating)
+    const previousProductData = {
+      name: currentProduct.name,
+      category: currentProduct.category,
+      supplier: currentProduct.supplier,
+      buying_price: currentProduct.buying_price,
+      selling_price: currentProduct.selling_price,
+      sub_category: currentProduct.sub_category,
+      model: currentProduct.model,
+      warranty: currentProduct.warranty,
+      description: currentProduct.description,
+    };
+  
+    // Compare previous and updated values to capture only the changed fields
+    const updatedProductData = {
+      name: name !== currentProduct.name ? { previous: currentProduct.name, updated: name } : null,
+      category: category !== currentProduct.category ? { previous: currentProduct.category, updated: category } : null,
+      supplier: supplier !== currentProduct.supplier ? { previous: currentProduct.supplier, updated: supplier } : null,
+      buying_price: buyingPrice !== currentProduct.buying_price ? { previous: currentProduct.buying_price, updated: buyingPrice } : null,
+      selling_price: sellingPrice !== currentProduct.selling_price ? { previous: currentProduct.selling_price, updated: sellingPrice } : null,
+      sub_category: subCategory !== currentProduct.sub_category ? { previous: currentProduct.sub_category, updated: subCategory } : null,
+      model: model !== currentProduct.model ? { previous: currentProduct.model, updated: model } : null,
+      warranty: selectedValue !== currentProduct.warranty ? { previous: currentProduct.warranty, updated: selectedValue } : null,
+      description: description !== currentProduct.description ? { previous: currentProduct.description, updated: description } : null,
+    };
+  
+    // Remove null values from the updatedProductData object
+    const changes = Object.fromEntries(Object.entries(updatedProductData).filter(([_, value]) => value !== null));
+  
+    // Create the event string based on the changed fields
+    const events = Object.keys(changes).map(field => {
+      const fieldName = field.charAt(0).toUpperCase() + field.slice(1).replace('_', ' ');
+      return `Update the ${fieldName} of product ${productid}  `;
+    }).join(', ');
+  
+    // Set the audit log entry
+// Set the audit log entry
+const auditData = {
+  user: user.name,
+  action: 'Update',
+  module: 'Product',
+  event: events || 'Update product info', // Default if no field is updated
+  previousValue: Object.fromEntries(
+    Object.entries(changes).map(([key, value]) => [
+      key,
+      { previous: value?.previous }, // Only store the previous value
+    ])
+  ),
+  updatedValue: Object.fromEntries(
+    Object.entries(changes).map(([key, value]) => [
+      key,
+      { updated: value?.updated }, // Only store the updated value
+    ])
+  ),
+};
+
+  
+    // Send the audit log data to the server
     axios.put(`${baseURL}/product/${productId}`, formData)
-    .then(res => {
-      toast.success('Product updated successfully!');
-      
-      // Delay the handleBackClick by 2 seconds (2000ms)
-      setTimeout(() => {
-        handleBackClick(); // Trigger handleBackClick after the delay
-      }, 1000);
-    })
-    .catch(err => {
-      console.error('Error updating product:', err);
-      toast.error('Failed to update product.');
-    });
+      .then(res => {
+        toast.success('Product updated successfully!');
+  
+        axios.post(`${baseURL}/audit`, auditData)
+          .then(auditRes => {
+            console.log('Audit logged successfully:', auditRes.data);
+          })
+          .catch(auditErr => {
+            console.error('Audit log error:', auditErr);
+          });
+  
+        setTimeout(() => {
+          handleBackClick(); // Trigger handleBackClick after the delay
+        }, 1000);
+      })
+      .catch(err => {
+        console.error('Error updating product:', err);
+        toast.error('Failed to update product.');
+      });
   };
+  
+  
+  
+  
+  
+  
+  
+  
   
 
   const handleFileChange = (e) => {
@@ -403,7 +500,7 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
             <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
               <h2 className="text-xl font-bold mb-4">PURCHASE INFORMATION</h2>
               <div className="mt-4 text-md p-4 font-medium flex py-4">
-                <div className={`w-[40%] flex flex-col justify-between h-full gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
+                <div className={`w-[40%] flex flex-col justify-between h-full gap-4 py-2 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'} uppercase tracking-wider`}>
                   <div className="text-gray-500">BUYING PRICE<span className="text-red-500">*</span></div>
                   <div className="text-gray-500">SELLING PRICE<span className="text-red-500">*</span></div>
                   <div className="text-gray-500">SUPPLIER</div>
@@ -431,13 +528,35 @@ const statusStyles = getStatusStyles(currentStockStatus); // Get styles based on
                     />
                   </div>
 
-                  <input 
-                    type="text" 
-                    value={supplier} 
-                    onChange={(e) => setSupplier(e.target.value)} 
-                    placeholder="Supplier" 
-                    className="border rounded p-2"
-                  />
+                  <div className="flex w-full gap-2 items-center justify-between">
+                    <select
+                      id="supplier"
+                      className="border rounded p-2 pl-7"  // Add padding-left to make room for the peso sign
+                      value={supplier}  // Keep this one
+                      onChange={(e) => setSupplier(e.target.value)}
+                      style={{ maxHeight: '200px', overflowY: 'auto' }} // Makes the dropdown scrollable
+                    >
+                      <option value="" disabled>
+                        Select Supplier
+                      </option>
+
+                      {suppliers.length > 0 ? (
+                        // Sort suppliers alphabetically before mapping
+                        suppliers
+                          .sort((a, b) => a.localeCompare(b)) // Alphabetically sort suppliers
+                          .map((supplierName, index) => (
+                            <option key={index} value={supplierName}>
+                              {supplierName}
+                            </option>
+                          ))
+                      ) : (
+                        <option value="" disabled>
+                          No Suppliers Available
+                        </option>
+                      )}
+                    </select>
+                  </div>
+
                 </div>
 
               </div>

@@ -41,6 +41,7 @@ const ArchivedProducts = () => {
   const [actionType, setActionType] = useState(null);
   const [filteredProducts, setFilteredProducts] = useState(products);  // Store filtered products
   const [sortBy, setSortBy] = useState('');
+  const [productID, setProductID] = useState(null);
 
   const handleSortByChange = (e) => {
     setSortBy(e.target.value); // Update the sortBy state
@@ -51,16 +52,35 @@ const ArchivedProducts = () => {
     if (!productId) return;
   
     try {
+      // Send a PATCH request to restore the product
       await axios.patch(`${baseURL}/product/archive/${productId}`);
-      toast.success('Product restored successfully'); // Success toast notification
+  
+      // Audit log data
+      const auditData = {
+        user: user.name,            // Assuming you have the current user information
+        action: 'Restore',          // Action type
+        module: 'Product',          // Module name
+        event: `Restored the product ${productID}`, // Event description
+        previousValue: 'Archived',  // Previous status of the product
+        updatedValue: 'Active',     // Updated status of the product
+      };
+  
+      // Send the audit log to the server
+      await axios.post(`${baseURL}/audit`, auditData);
+  
+      // Show success notification and refresh the product list
+      toast.success('Product restored successfully');
       fetchProducts(); // Refetch products after restoration
     } catch (error) {
-      toast.error(`Error restoring product: ${error.response ? error.response.data : error.message}`); // Error toast notification
+      // Show error notification
+      toast.error(`Error restoring product: ${error.response ? error.response.data : error.message}`);
     } finally {
-      setIsDialogOpen(false); // Close the dialog
-      setProductId(null); // Reset the productId
+      // Close the dialog and reset the product ID
+      setIsDialogOpen(false);
+      setProductId(null);
     }
   };
+  
 
   useEffect(() => {
     if (user && user.token) {
@@ -253,6 +273,20 @@ const handlePriceRange = (e) => {
       
         try {
           await axios.delete(`${baseURL}/product/${productId}`);
+      
+          // Create the audit log after deleting the product
+          const auditData = {
+            user: user.name,            // Assuming you have the current user information
+            action: 'Delete',           // Action type (in this case, deleting the product)
+            module: 'Product',          // The module name (Product in this case)
+            event: `Deleted the product ${productID}`,  // Event description (Deleting product)
+            previousValue: 'Active',    // Previous value of the product status (before deletion)
+            updatedValue: 'Deleted',    // New value of the product status (after deletion)
+          };
+      
+          // Send audit log data to the server
+          await axios.post(`${baseURL}/audit`, auditData);
+      
           toast.success('Product deleted successfully'); // Success toast notification
           fetchProducts(); // Assuming this function reloads the products
         } catch (error) {
@@ -262,21 +296,36 @@ const handlePriceRange = (e) => {
           setProductId(null);
         }
       };
-
-  const approveProduct = async () => {
-    if (!productId) return;
-
-    try {
-      await axios.patch(`${baseURL}/product/approve/${productId}`);
-      console.log('Product approved:', productId);
-      fetchProducts(); // Assuming this function reloads the products
-    } catch (error) {
-      console.error('Error approving product:', error.message);
-    } finally {
-      setIsDialogOpen(false);
-      setProductId(null);
-    }
-  };
+      
+      const approveProduct = async () => {
+        if (!productId) return;
+      
+        try {
+          await axios.patch(`${baseURL}/product/approve/${productId}`);
+      
+          // Create the audit log after approving the product
+          const auditData = {
+            user: user.name,            // Assuming you have the current user information
+            action: 'Restore',          // Action type (in this case, approving the product)
+            module: 'Product',          // The module name (Product in this case)
+            event: `Restore the product ${productID}`, // Event description (Approving product)
+            previousValue: 'Archived',   // Previous value of the product status (before approval)
+            updatedValue: 'Active',   // New value of the product status (after approval)
+          };
+      
+          // Send audit log data to the server
+          await axios.post(`${baseURL}/audit`, auditData);
+      
+          console.log('Product approved:', productId);
+          fetchProducts(); // Assuming this function reloads the products
+        } catch (error) {
+          console.error('Error approving product:', error.message);
+        } finally {
+          setIsDialogOpen(false);
+          setProductId(null);
+        }
+      };
+      
 
 
   const handleViewProduct = (productId) => {
@@ -527,7 +576,10 @@ const handlePriceRange = (e) => {
                               {/* Restore Button with Tooltip */}
                               <div className="relative inline-block group">
                                 <button 
-                                  onClick={() => handleRestoreClick(product._id)} 
+                                  onClick={() => {
+                                    setProductID(product.product_id)
+                                    handleRestoreClick(product._id)
+                                  }} 
                                   className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                 >
                                   <LuArchiveRestore size={25} />
@@ -545,7 +597,10 @@ const handlePriceRange = (e) => {
                               {product.canDelete && product.sales === 0 && (
                                 <div className="relative inline-block group">
                                   <button 
-                                    onClick={() => handleDeleteClick(product._id)} 
+                                    onClick={() => {
+                                      setProductID(product.product_id)
+                                      handleDeleteClick(product._id)
+                                    }} 
                                     className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                   >
                                     <AiOutlineDelete size={25} />

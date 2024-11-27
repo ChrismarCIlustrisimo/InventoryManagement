@@ -6,6 +6,7 @@ import { toast,ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';  // If you haven't imported the styles
 import { useAdminTheme } from '../context/AdminThemeContext';
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const EditSupplier = ({ supplier, onClose }) => {
     const [supplierName, setSupplierName] = useState(supplier.supplier_name || '');
@@ -17,6 +18,7 @@ const EditSupplier = ({ supplier, onClose }) => {
     const { darkMode } = useAdminTheme();
     const [email, setEmail] = useState(supplier.email || '');
     const [remarks, setRemarks] = useState(supplier.remarks || 'No remarks provided');
+    const { user } = useAuthContext();
 
     const categoryOptions = [
         "Components", "Peripherals", "Accessories", "PC Furniture", "OS & Software", "Laptops", "Desktops"
@@ -39,30 +41,70 @@ const EditSupplier = ({ supplier, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+      
         setIsUploading(true); // Disable button during upload
-
+      
         const updatedSupplier = {
-            supplier_name: supplierName,
-            contact_person: contactPerson,
-            phone_number: phoneNumber,
-            email: email,
-            categories: category,
-            remarks: remarks, // Add this if it is missing
+          supplier_name: supplierName,
+          contact_person: contactPerson,
+          phone_number: phoneNumber,
+          email: email,
+          categories: category,
+          remarks: remarks,
         };
-        
+      
+        // Compare previous and updated values to capture only the changed fields
+        const changes = {
+          supplier_name: supplierName !== supplier.supplier_name ? { previous: supplier.supplier_name, updated: supplierName } : null,
+          contact_person: contactPerson !== supplier.contact_person ? { previous: supplier.contact_person, updated: contactPerson } : null,
+          phone_number: phoneNumber !== supplier.phone_number ? { previous: supplier.phone_number, updated: phoneNumber } : null,
+          email: email !== supplier.email ? { previous: supplier.email, updated: email } : null,
+          categories: JSON.stringify(category) !== JSON.stringify(supplier.categories) ? { previous: supplier.categories, updated: category } : null,
+          remarks: remarks !== supplier.remarks ? { previous: supplier.remarks, updated: remarks } : null,
+        };
+      
+        // Remove null values from the changes object
+        const filteredChanges = Object.fromEntries(Object.entries(changes).filter(([_, value]) => value !== null));
+      
+        // Create the event string based on the changed fields
+        const events = Object.keys(filteredChanges)
+          .map((field) => `Updated ${field.replace('_', ' ')} of supplier ${supplier.supplier_id}`)
+          .join(', ');
+      
+        // Set the audit log entry
+        const auditData = {
+          user: user.name, // Assuming you have the current user information
+          action: 'Update',
+          module: 'Supplier',
+          event: events || 'Updated supplier info', // Default if no field is updated
+          previousValue: Object.fromEntries(
+            Object.entries(filteredChanges).map(([key, value]) => [key, { previous: value.previous }])
+          ),
+          updatedValue: Object.fromEntries(
+            Object.entries(filteredChanges).map(([key, value]) => [key, { updated: value.updated }])
+          ),
+        };
+      
         try {
-            await axios.put(`${API_DOMAIN}/supplier/${supplier._id}`, updatedSupplier);
-            toast.success('Supplier updated successfully');
-            setTimeout(() => {
-                onClose(); // Close the popup after successful update
-                setIsUploading(false); // Re-enable button after closing
-            }, 2000);
+          // Update supplier data
+          await axios.put(`${API_DOMAIN}/supplier/${supplier._id}`, updatedSupplier);
+          toast.success('Supplier updated successfully');
+      
+          // Log the audit data
+          await axios.post(`${API_DOMAIN}/audit`, auditData);
+      
+          // Close the modal after a delay
+          setTimeout(() => {
+            onClose();
+            setIsUploading(false); // Re-enable button after closing
+          }, 2000);
         } catch (err) {
-            toast.error('Error updating supplier');
-            setIsUploading(false); // Re-enable button if there's an error
+          toast.error('Error updating supplier');
+          setIsUploading(false); // Re-enable button if there's an error
         }
-    };
+      };
+      
+      
 
     return (
         <div className={`h-full w-full flex flex-col justify-between ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-dark-bg'}`}>

@@ -74,8 +74,9 @@ const DashboardProductList = () => {
   const { stockAlerts, setStockAlerts } = useStockAlerts();
   const [actionType, setActionType] = useState(null); // State to track the action type
   const [filteredProducts, setFilteredProducts] = useState(products);  // Store filtered products
+  const [productID, setProductID] = useState(null);
 
-
+  
   const handleStockAlertChange = (e) => {
     setStockAlerts(prev => ({
       ...prev,
@@ -284,6 +285,20 @@ useEffect(() => {
   
     try {
       await axios.delete(`${baseURL}/product/${productId}`);
+  
+      // Create the audit log after deleting the product
+      const auditData = {
+        user: user.name,            // Assuming you have the current user information
+        action: 'Delete',           // Action type (in this case, deleting the product)
+        module: 'Product',          // The module name (Product in this case)
+        event: `Deleted the product ${productId}`,  // Event description (Deleting product)
+        previousValue: 'Active',    // Previous value of the product status (before deletion)
+        updatedValue: 'Deleted',    // New value of the product status (after deletion)
+      };
+  
+      // Send audit log data to the server
+      await axios.post(`${baseURL}/audit`, auditData);
+  
       toast.success('Product deleted successfully'); // Toast notification for success
       fetchProducts(); // Refetch products after deletion
     } catch (error) {
@@ -294,11 +309,27 @@ useEffect(() => {
     }
   };
   
+  
   const archiveProduct = async () => {
-    if (!productId) return;
+    if (!productId || !productID) return;  // Ensure both productId and productID are present
   
     try {
+      // Archive the product
       await axios.patch(`${baseURL}/product/archive/${productId}`);
+  
+      // Create the audit log after archiving the product
+      const auditData = {
+        user: user.name,            // Assuming you have the current user information
+        action: 'Archive',           // Action type (in this case, updating the product's status)
+        module: 'Product',          // The module name (Product in this case)
+        event: `Archived the product ${productID}` ,  // Event description (Archiving product)
+        previousValue: 'Active',    // Previous value of the product status
+        updatedValue: 'Archived',   // New value of the product status (after archiving)
+      };
+  
+      // Send audit log data to the server
+      await axios.post(`${baseURL}/audit`, auditData);
+  
       toast.success('Product archived successfully'); // Toast notification for success
       fetchProducts(); // Refetch products after archiving
     } catch (error) {
@@ -308,6 +339,7 @@ useEffect(() => {
       setProductId(null); // Reset the productId
     }
   };
+  
   
 
   const handleEditProduct = (productId) => {
@@ -614,7 +646,8 @@ useEffect(() => {
                                 <button
                                   className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
                                   onClick={() => { 
-                                    setProductId(product._id); 
+                                    setProductId(product._id);
+                                    setProductID(product.product_id); // Set the productID to the product.productID (or whichever value you need) 
                                     setActionType('archive'); // Set the action type to archive
                                     setIsDialogOpen(true); 
                                   }}

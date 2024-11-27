@@ -74,6 +74,9 @@ import AdminViewProduct from './pages/AdminViewProduct.jsx';
 import ReservationReceipt from './pages/ReservationReceipt.jsx';
 import FrontPage from './pages/FrontPage.jsx';
 import AdminSupplier from './pages/adminSupplier.jsx';
+import AuditLog from './pages/AuditLog.jsx';
+
+
 const App = () => {
     const { user } = useAuthContext();
 
@@ -152,6 +155,7 @@ const App = () => {
                                         <Route path="/refund-list" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><AdminRefund /></PrivateRoute>} />
                                         <Route path="/inventory/not-approved" element={<PrivateRoute allowedRoles={['super-admin']}><PendingProducts /></PrivateRoute>} />
                                         <Route path="/inventory/archive" element={<PrivateRoute allowedRoles={['super-admin']}><ArchivedProducts /></PrivateRoute>} />
+                                        <Route path="/audit-trail" element={<PrivateRoute allowedRoles={['super-admin']}><AuditLog /></PrivateRoute>} />
 
                                         
 

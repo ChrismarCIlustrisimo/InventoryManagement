@@ -282,7 +282,26 @@ const upload = () => {
   .then(res => {
       setLoading(false); // Set loading to false after successful upload
       toast.success('Product added successfully!');
-      
+
+      // Create an audit log entry for this action
+      const auditData = {
+          user: user.name,
+          action: 'Create',
+          module: 'Product',
+          event: 'Added new product',
+          previousValue: 'N/A', 
+          updatedValue: res.data.product_id, 
+      };
+
+      // Send audit log data to the server
+      axios.post(`${baseURL}/audit`, auditData)
+          .then(auditRes => {
+              console.log('Audit logged successfully:', auditRes.data);
+          })
+          .catch(auditErr => {
+              console.error('Audit log error:', auditErr);
+          });
+
       // Delay the back navigation by 3 seconds (3000 milliseconds)
       setTimeout(() => {
           handleBackClick(); // Trigger handleBackClick after 3 seconds
@@ -295,6 +314,7 @@ const upload = () => {
       setError(errorMessage);
   });
 };
+
 
   const handleBackClick = () => {
     navigate(-1);
@@ -463,8 +483,10 @@ const upload = () => {
                             style={{ maxHeight: '200px', overflowY: 'auto' }} // Makes the dropdown scrollable
                           >
                             <option value="" disabled>
+
                               Select Supplier
                             </option>
+
                             {suppliers.length > 0 ? (
                               // Sort suppliers alphabetically before mapping
                               suppliers

@@ -8,6 +8,7 @@ import { API_DOMAIN } from '../utils/constants';
 import { AiOutlinePlus } from "react-icons/ai";
 import { toast, ToastContainer } from 'react-toastify'; // Import toastify
 import 'react-toastify/dist/ReactToastify.css';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const AddSupplier = ({ onClose }) => {
   const [supplierName, setSupplierName] = useState('');
@@ -19,6 +20,7 @@ const AddSupplier = ({ onClose }) => {
   const [isUploading, setIsUploading] = useState(false); // Add state for button disabling
   const navigate = useNavigate();
   const { darkMode } = useAdminTheme();
+  const { user } = useAuthContext();
 
   const categoryOptions = [
     "Components", "Peripherals", "Accessories", "PC Furniture", "OS & Software", "Laptops", "Desktops"
@@ -66,13 +68,14 @@ const AddSupplier = ({ onClose }) => {
 
   const upload = async () => {
     if (!validateForm()) return;
-
+  
     // Log the data to verify it's correct before sending
     console.log({ supplierName, contactPerson, contactNumber, email, categories, remarks });
-
+  
     try {
       setIsUploading(true); // Disable button on upload start
-
+  
+      // Supplier data to send
       const supplierData = {
         supplier_name: supplierName,
         contact_person: contactPerson,
@@ -81,22 +84,39 @@ const AddSupplier = ({ onClose }) => {
         categories,
         remarks,
       };
-
+  
+      // Send the supplier data to the backend
       const response = await axios.post(`${API_DOMAIN}/supplier`, supplierData);
+      const createdSupplierId = response.data.supplier_id; // Assuming the response includes the created supplier's ID
       toast.success('Supplier added successfully!');
-
+  
+      // Prepare the audit log data
+      const auditData = {
+        user: user.name,          // Assuming you have the current user information
+        action: 'Create',         // Action type
+        module: 'Supplier',       // Module name
+        event: `Added new supplier`, // Event description
+        previousValue: 'N/A',     // No previous value since it's a new entry
+        updatedValue: createdSupplierId, // ID of the new supplier
+      };
+  
+      // Send the audit log data to the server
+      await axios.post(`${API_DOMAIN}/audit`, auditData);
+  
       // Introduce a 2-second delay before closing the modal
       setTimeout(() => {
         onClose();
         setIsUploading(false); // Re-enable button after closing
       }, 2000);
-
+  
     } catch (err) {
       console.error(err);
       toast.error('Error adding supplier. Please try again.');
       setIsUploading(false); // Re-enable button if there's an error
     }
   };
+  
+  
 
   return (
     <div className={`h-full w-full flex flex-col justify-between ${darkMode ? 'text-light-textPrimary bg-light-bg' : 'text-dark-textPrimary bg-dark-bg'}`}>

@@ -53,7 +53,7 @@ const DashboardNavbar = () => {
       setSelected('Orders');
     } else if (path === '/dashboard' || path === '/super-admin-dashboard') {
       setSelected('Dashboard');
-    } else if (path === '/inventory' || path === '/inventory/not-approved' || path === '/inventory/archive') {  // Matches all inventory-related routes
+    } else if (path === '/inventory' || path === '/inventory/not-approved' || path === '/inventory/archive' || path === '/inventory/supplier') {  // Matches all inventory-related routes
       setSelected('Inventory');
     } else if (path === '/rma' || path === '/refund-replace-units') {
       setSelected('RMA');
@@ -275,6 +275,11 @@ const DashboardNavbar = () => {
               <Link to="/rma-report">
                 <div className={`text-sm p-2 z-100 ${selected === 'rma-report' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
                   RMA Report
+                </div>
+              </Link>
+              <Link to="/audit-trail">
+                <div className={`text-sm p-2 z-100 ${selected === 'rma-report' ? `bg-light-activeLink border-none ${darkMode ? 'text-light-primary' : 'text-dark-primary'}` : `${darkMode ? 'border-light-border text-light-textSecondary bg-light-container' : 'border-dark-border text-dark-textSecondary bg-dark-container'} ` } w-full flex items-center justify-center gap-2 border ${darkMode ? 'hover:bg-light-primary hover:text-dark-textPrimary' : 'hover:bg-dark-primary hover:text-dark-textPrimary'}`}>
+                  Audit Trail
                 </div>
               </Link>
             </div>

@@ -216,15 +216,10 @@ const Rma = () => {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className={`border rounded p-2  
-                                    ${statusFilter === '' 
-                                      ? (darkMode 
-                                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
-                                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
-                                    : (darkMode 
-                                        ? 'bg-light-activeLink text-light-primary' 
-                                        : 'bg-dark-activeLink text-dark-primary')} 
-                                    outline-none font-semibold`}
+                                className={`border rounded p-2 ${statusFilter === '' 
+                                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                                  outline-none font-semibold`}
                                 >
                             <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>All</option>
                             <option value='Pending' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Pending</option>

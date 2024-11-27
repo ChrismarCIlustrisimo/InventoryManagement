@@ -400,15 +400,10 @@ useEffect(() => {
                   id="sortBy"
                   value={sortBy}
                   onChange={handleSortByChange}
-                  className={`border rounded p-2 my-1 outline-none font-semibold ${
-                    sortBy === ''
-                      ? (darkMode 
-                          ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
-                          : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
-                      : (darkMode 
-                          ? 'bg-dark-activeLink text-light-primary border-light-primary' 
-                          : 'bg-light-activeLink text-dark-primary border-dark-primary')
-                  }`}
+                  className={`border rounded p-2 ${sortBy === '' 
+                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                  outline-none font-semibold`}
                 >
                   <option value="" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
                   <option value="price_asc" className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Price Lowest to Highest</option>
@@ -447,16 +442,10 @@ useEffect(() => {
                   id='price_range'
                   value={priceRange}
                   onChange={handlePriceRange}
-                  className={`border rounded p-2 my-1 
-                    ${priceRange === '' 
-                      ? (darkMode 
-                        ? 'bg-transparent text-black border-[#a1a1aa] placeholder-gray-400' 
-                        : 'bg-transparent text-white border-gray-400 placeholder-gray-500')
-                    : (darkMode 
-                        ? 'bg-dark-activeLink text-light-primary border-light-primary' 
-                        : 'bg-light-activeLink text-dark-primary border-dark-primary')
-                      } 
-                    outline-none font-semibold`}
+                  className={`border rounded p-2 ${priceRange === '' 
+                    ? (darkMode ? 'bg-transparent text-black border-black' : 'bg-transparent') 
+                    : (darkMode ? 'bg-light-activeLink text-light-primary' : 'bg-light-activeLink text-light-primary')} 
+                  outline-none font-semibold`}
                 >
                   <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Select Option</option>
                   <option value='1K-5K' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>₱1K - 5K</option>

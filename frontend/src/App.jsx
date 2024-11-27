@@ -18,8 +18,6 @@ import Unauthorized from './pages/Unauthorized';
 import DashboardProductList from './pages/dashboardProductList';
 import UpdateProduct from './pages/UpdateProduct';
 import Supplier from './pages/dashboardSupplier';
-import AddSupplier from './pages/AddSupplier';
-import UpdateSupplier from './pages/UpdateSupplier';
 import DashboardTransaction from './pages/DashboardTransaction';
 import AdminProfile from './pages/AdminProfile';
 import Customer from './pages/dashboardCustomer';
@@ -75,7 +73,7 @@ import ArchivedProducts from './pages/ArchivedProducts.jsx';
 import AdminViewProduct from './pages/AdminViewProduct.jsx';
 import ReservationReceipt from './pages/ReservationReceipt.jsx';
 import FrontPage from './pages/FrontPage.jsx';
-
+import AdminSupplier from './pages/adminSupplier.jsx';
 const App = () => {
     const { user } = useAuthContext();
 
@@ -117,6 +115,7 @@ const App = () => {
                                         <Route path="/admin-inventory-report" element={<PrivateRoute allowedRoles={['admin']}><AdminInventoryReport /></PrivateRoute>} />
                                         <Route path="/admin-add-product" element={<PrivateRoute allowedRoles={['admin']}><AdminAddProduct /></PrivateRoute>} />
                                         <Route path="/admin-view-product/:productId" element={<PrivateRoute allowedRoles={['admin']}><AdminViewProduct /></PrivateRoute>} />
+                                        <Route path="/admin-supplier" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><AdminSupplier /></PrivateRoute>} />
 
                                         
                                         {/* Additional routes */}
@@ -132,8 +131,6 @@ const App = () => {
                                         <Route path="/addproduct" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><AddProduct /></PrivateRoute>} />
                                         <Route path="/update-product/:productId" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><UpdateProduct /></PrivateRoute>} />
                                         <Route path="/inventory/supplier" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><Supplier /></PrivateRoute>} />
-                                        <Route path="/add-supplier" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><AddSupplier /></PrivateRoute>} />
-                                        <Route path="/update-supplier/:supplierId" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><UpdateSupplier /></PrivateRoute>} />
                                         <Route path="/products" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><Product /></PrivateRoute>} />
                                         <Route path="/inventory/product" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><DashboardProductList /></PrivateRoute>} />
                                         <Route path="/transactions" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><DashboardTransaction /></PrivateRoute>} />

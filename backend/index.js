@@ -80,6 +80,7 @@ const app = express();
 const server = http.createServer(app);
 const allowedOrigins = [
   'http://localhost:5173',
+  'http://localhost:5174',
   'http://localhost:5175',
   'https://irig-computers.vercel.app',
   'https://irig-computers-api.vercel.app',

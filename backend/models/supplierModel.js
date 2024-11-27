@@ -4,12 +4,12 @@ import Counter from './counterModel.js'; // Ensure you have a Counter model for 
 const SupplierSchema = new mongoose.Schema(
   {
     supplier_id: { type: String, required: true, unique: true },
-    company_name: { type: String, required: true, unique: true },
+    supplier_name: { type: String, required: true, unique: true },
     contact_person: { type: String, required: true },
+    email: { type: String, required: true },
     phone_number: { type: String, required: true, unique: true },
-    products_and_services: { type: String, required: true },
-    account_status: { type: String, required: true },
-  },
+    remarks: { type: String, required: true },
+    categories: [{type: String, required: true}],},
   {
     timestamps: true,
   }
@@ -28,7 +28,7 @@ SupplierSchema.statics.generateSupplierId = async function () {
       throw new Error('Failed to generate supplier_id');
     }
 
-    return `SUP-${counter.seq.toString().padStart(4, '0')}`; // Example: SUP-0001
+    return `SUP-${counter.seq.toString().padStart(2, '0')}`; // Example: SUP-0001
   } catch (error) {
     throw new Error('Error generating supplier ID');
   }

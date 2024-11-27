@@ -169,7 +169,7 @@ const Rma = () => {
     return (
         <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
             <DashboardNavbar />
-            <div className='pt-[70px] px-6 py-4 w-full h-full'>
+            <div className='pt-[70px] px-6 p-2  w-full h-full'>
                 <div className='flex items-center justify-center py-5'>
                     <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                         RMA Management
@@ -297,14 +297,14 @@ const Rma = () => {
                             <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                                 <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                                     <tr>
-                                        <th className='p-2 text-center'>RMA ID</th>
-                                        <th className='p-2 text-center'>TRANSACTION ID</th>
-                                        <th className='p-2 text-center text-xs'>Date Initiated</th>
-                                        <th className='p-2 text-center text-xs'>Customer Name</th>
-                                        <th className='p-2 text-center text-xs'>Product Name</th>
-                                        <th className='p-2 text-center text-xs'>Serial Number</th>
+                                        <th className='p-2 text-left'>RMA ID</th>
+                                        <th className='p-2 text-left'>TRANSACTION ID</th>
+                                        <th className='p-2 text-left text-xs'>Date Initiated</th>
+                                        <th className='p-2 text-left text-xs'>Customer Name</th>
+                                        <th className='p-2 text-left text-xs'>Product Name</th>
+                                        <th className='p-2 text-left text-xs'>Serial Number</th>
                                         <th className='p-2 text-center text-xs'>Status</th>
-                                        {/*<th className='p-2 text-center text-xs'>Warranty Status</th>*/}
+                                        {/*<th className='p-2 text-left text-xs'>Warranty Status</th>*/}
                                         <th className='p-2 text-center text-xs'>Action</th>
                                     </tr>
                                 </thead>
@@ -314,24 +314,24 @@ const Rma = () => {
 
                                         return (
                                             <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.rma_id}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.transaction}</td>
-                                                <td className='text-center py-4 text-sm'>{formatDate(rmaRequest.date_initiated)}</td>
-                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.customer_name)}</td>
-                                                <td className='text-center py-4 text-sm'>{shortenString(rmaRequest.product)}</td>
-                                                <td className='text-center py-4 text-sm'>{rmaRequest.serial_number}</td>
-                                                <td className={`text-center py-4 rounded-md px-2 text-sm`}>
+                                                <td className='text-left p-2  text-sm'>{rmaRequest.rma_id}</td>
+                                                <td className='text-left p-2  text-sm'>{rmaRequest.transaction}</td>
+                                                <td className='text-left p-2  text-sm'>{formatDate(rmaRequest.date_initiated)}</td>
+                                                <td className='text-left p-2  text-sm'>{shortenString(rmaRequest.customer_name)}</td>
+                                                <td className='text-left p-2  text-sm'>{shortenString(rmaRequest.product)}</td>
+                                                <td className='text-left p-2  text-sm'>{rmaRequest.serial_number}</td>
+                                                <td className={`text-center p-2  rounded-md px-2 text-sm`}>
                                                     <p className={`${statusStyles.textClass} ${statusStyles.bgClass} p-2 rounded-md`}>
                                                         {rmaRequest.status}
                                                     </p>
                                                 </td>
-                                                {/*<td className={`text-center py-4 rounded-md px-4 text-sm`}>
+                                                {/*<td className={`text-center p-2  rounded-md px-4 text-sm`}>
                                                     <p className={`${warrantyStyles.textClass} ${warrantyStyles.bgClass} p-2 rounded-md`}>
                                                         {rmaRequest.warranty_status}
                                                     </p>
                                                 </td>*/}
                                          
-                                                <td className='text-center py-4 text-sm'>
+                                                <td className='text-center p-2  text-sm'>
                                                     <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleViewRMA(rmaRequest)}>
                                                         View
                                                     </button>

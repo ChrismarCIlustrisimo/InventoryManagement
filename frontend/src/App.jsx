@@ -149,7 +149,7 @@ const App = () => {
                                         <Route path="/inventory-report" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><InventoryReport /></PrivateRoute>} />
                                         <Route path="/rma-form" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><RMAForm /></PrivateRoute>} />
                                         <Route path="/refund-replace-units" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><RefundedOrReplaced /></PrivateRoute>} />
-                                        <Route path="/refund-list" element={<PrivateRoute allowedRoles={['super-admin']}><AdminRefund /></PrivateRoute>} />
+                                        <Route path="/refund-list" element={<PrivateRoute allowedRoles={['super-admin', 'admin']}><AdminRefund /></PrivateRoute>} />
                                         <Route path="/inventory/not-approved" element={<PrivateRoute allowedRoles={['super-admin']}><PendingProducts /></PrivateRoute>} />
                                         <Route path="/inventory/archive" element={<PrivateRoute allowedRoles={['super-admin']}><ArchivedProducts /></PrivateRoute>} />
 

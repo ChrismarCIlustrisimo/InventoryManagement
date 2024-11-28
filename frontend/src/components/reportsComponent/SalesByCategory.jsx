@@ -49,7 +49,7 @@ const SalesByCategory = ({ salesData }) => {
                     <thead className={`sticky top-[-10px] bg-gray-400`}>
                         <tr className='border-b'>
                             <th className='text-left p-2'>Category</th>
-                            <th className='text-left p-2'>Units Sold</th>
+                            <th className='text-center p-2'>Units Sold</th>
                             <th className='text-left p-2'>Gross Sales</th>
                             <th className='text-left p-2'>VAT</th>
                             <th className='text-left p-2'>Net Sales</th>
@@ -59,7 +59,7 @@ const SalesByCategory = ({ salesData }) => {
                         {aggregatedArray.map((item, idx) => (
                             <tr key={idx} className='border-b'>
                                 <td className='p-2 text-left'>{item.category}</td>
-                                <td className='p-2 text-left'>{item.unitsSold}</td>
+                                <td className='p-2 text-center'>{item.unitsSold}</td>
                                 <td className='p-2 text-left'>₱{item.grossSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 <td className='p-2 text-left'>₱{item.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                                 <td className='p-2 text-left'>₱{item.netSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>

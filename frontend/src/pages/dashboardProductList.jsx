@@ -553,15 +553,15 @@ useEffect(() => {
                 <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                   <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                     <tr>
-                      <th className='p-2 text-center' style={{ width: '350px' }}>Product Name</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '120px' }}>Category</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '40px' }}>Qty.</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Stock Status</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '200px' }}>Actions</th>
+                    <th className='p-2 text-left' style={{ width: '400px' }}>Product Name</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '60px' }}>Model</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '100px' }}>Category</th>
+                      <th className='p-2 text-center text-xs' style={{ width: '60px' }}>Qty.</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '100px' }}>Supplier</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '150px' }}>Buying Price</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '150px' }}>Selling Price</th>
+                      <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Status</th>
+                      <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -591,23 +591,28 @@ useEffect(() => {
 
                         return (
                           <tr key={index} className={`border-b font-medium ${darkMode ? 'border-light-border' : 'border-dark-border'}`}>
-                            <td className='flex items-center justify-left p-2'>
-                              <img src={product.image} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
-                              <p className='text-xs'>{product.name}</p>
-                            </td>
-                            <td className='text-center text-xs'>{product.model}</td>
-                            <td className='text-center text-xs'>{product.category}</td>
-                            <td className={`text-center text-xs font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
-                              {inStockUnits}
-                            </td>
-                            <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                            <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                            <td className={`text-sm text-center font-semibold`}>
-                              <span className={`${statusStyles.textClass} ${statusStyles.bgClass} py-2 w-[80%] inline-block rounded-md`}>
-                                {product.current_stock_status}
-                              </span>
-                            </td>
+                          <td className='flex items-center justify-left p-2'>
+                          {/*<img src={`${baseURL}/${product.image}`} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />*/}
+
+                            <img src={product.image} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
+                            <p className='text-xs'>{product.name}</p>
+                          </td>
+                          <td className="text-left text-xs p-2 max-w-[150px] truncate">
+                            {product.model}
+                          </td>
+
+                          <td className='text-left text-xs p-2'>{product.category}</td>
+                          <td className={`text-center text-xs p-2 font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
+                            {inStockUnits}
+                          </td>
+                          <td className='text-left text-xs p-2'>{product.supplier || 'N/A'}</td>
+                          <td className='text-left text-xs p-2'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-left text-xs p-2'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className={`text-sm text-center font-semibold p-2`}>
+                            <span className={`${statusStyles.textClass} ${statusStyles.bgClass} py-2 w-[80%] inline-block rounded-md`}>
+                              {product.current_stock_status}
+                            </span>
+                          </td>
                             <td className="text-center">
                               <div className="relative inline-block group">
                                 <button

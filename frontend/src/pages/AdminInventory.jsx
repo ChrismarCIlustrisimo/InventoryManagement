@@ -473,16 +473,16 @@ const filteredProducts = products
 
           <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
               {filteredProducts.length > 0 ? (
-                <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                <table className={`w-full flex-wrap  border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                   <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                     <tr>
-                      <th className='p-2 text-center' style={{ width: '450px' }}>Product Name</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '120px' }}>Category</th>
+                      <th className='p-2 text-left' style={{ width: '450px' }}>Product Name</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '100px' }}>Model</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '100px' }}>Category</th>
                       <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Qty.</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
-                      <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '100px' }}>Supplier</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '150px' }}>Buying Price</th>
+                      <th className='p-2 text-left text-xs' style={{ width: '150px' }}>Selling Price</th>
                       <th className='p-2 text-center text-xs' style={{ width: '180px' }}>Status</th>
                       <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Actions</th>
                     </tr>
@@ -519,21 +519,21 @@ const filteredProducts = products
                             <img src={product.image} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
                             <p className='text-xs'>{product.name}</p>
                           </td>
-                          <td className='text-center text-xs'>{product.model}</td>
-                          <td className='text-center text-xs'>{product.category}</td>
-                          <td className={`text-center text-xs font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
+                          <td className='text-left text-xs p-2'>{product.model}</td>
+                          <td className='text-left text-xs p-2'>{product.category}</td>
+                          <td className={`text-center text-xs p-2 font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
                             {inStockUnits}
                           </td>
-                          <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                          <td className={`text-sm text-center font-semibold`}>
+                          <td className='text-left text-xs p-2'>{product.supplier || 'N/A'}</td>
+                          <td className='text-left text-xs p-2'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-left text-xs p-2'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className={`text-sm text-center font-semibold p-2`}>
                             <span className={`${statusStyles.textClass} ${statusStyles.bgClass} py-2 w-[80%] inline-block rounded-md`}>
                               {product.current_stock_status}
                             </span>
                           </td>
 
-                          <td className='text-center'>
+                          <td className='text-center p-2'>
                             <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
                                   onClick={() => handleViewProduct(product._id)}>
                                   View

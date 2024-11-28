@@ -328,27 +328,27 @@ const formatDate = (dateString) => {
                 <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                     <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-primary bg-light-container' : 'border-dark-primary bg-dark-container'} border-b text-sm`}>
                       <tr>
-                        <th className='p-2 text-center'>Refund ID</th>
-                        <th className='p-2 text-center text-xs'>Sales Date</th>
-                        <th className='p-2 text-center text-xs'>Refund Amount</th>
-                        <th className='p-2 text-center text-xs'>Refund Method</th>
-                        <th className='p-2 text-center text-xs'>Product Name</th>
-                        <th className='p-2 text-center text-xs'>Serial Number</th>
-                        <th className='p-2 text-center text-xs'>Reason</th>
-                        <th className='p-2 text-center text-xs'>Action</th>
+                        <th className='p-4 text-left'>Refund ID</th>
+                        <th className='p-4 text-left text-xs'>Sales Date</th>
+                        <th className='p-4 text-left text-xs'>Refund Amount</th>
+                        <th className='p-4 text-left text-xs'>Refund Method</th>
+                        <th className='p-4 text-left text-xs'>Product Name</th>
+                        <th className='p-4 text-left text-xs'>Serial Number</th>
+                        <th className='p-4 text-left text-xs'>Reason</th>
+                        <th className='p-4 text-center text-xs'>Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredRefunds.length > 0 ? (
                         filteredRefunds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(refund => (
                             <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container border-light-primary' : 'bg-dark-container border-dark-primary'}`}>
-                              <td className='p-4 text-center'>{refund.refund_id}</td>
-                              <td className='p-4 text-center'>{formatDate(refund.sales_date)}</td>
-                              <td className='p-4 text-center'>{refund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                              <td className='p-4 text-center'>{refund.refund_method}</td>
-                              <td className='p-4 text-center'>{shortenString(refund.product_name)}</td>
-                              <td className='p-4 text-center'>{refund.serial_number}</td>
-                              <td className='p-4 text-center'>{refund.reason}</td>
+                              <td className='p-4 text-left'>{refund.refund_id}</td>
+                              <td className='p-4 text-left'>{formatDate(refund.sales_date)}</td>
+                              <td className='p-4 text-left'>{refund.refund_amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                              <td className='p-4 text-left'>{refund.refund_method}</td>
+                              <td className='p-4 text-left'>{shortenString(refund.product_name)}</td>
+                              <td className='p-4 text-left'>{refund.serial_number}</td>
+                              <td className='p-4 text-left'>{refund.reason}</td>
                               <td className='p-4 text-center'>
                                 <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleRowClick(refund)}>
                                   View
@@ -358,7 +358,7 @@ const formatDate = (dateString) => {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={7} className='p-2 text-center text-4xl h-[500px]'>No refunds available</td>
+                          <td colSpan={7} className='p-2 text-left text-4xl h-[500px]'>No refunds available</td>
                         </tr>
                       )}
                     </tbody>

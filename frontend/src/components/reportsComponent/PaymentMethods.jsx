@@ -34,7 +34,7 @@ const PaymentMethods = ({ salesData }) => {
       <thead className={`sticky top-[-10px] bg-gray-400`}>
       <tr className='border-b'>
             <th className='text-left p-2'>Payment Method</th>
-            <th className='text-left p-2'>No. of Transactions</th>
+            <th className='text-center p-2'>No. of Transactions</th>
             <th className='text-left p-2'>Total Amount</th>
           </tr>
         </thead>
@@ -42,7 +42,7 @@ const PaymentMethods = ({ salesData }) => {
           {aggregatedArray.map((method, index) => (
             <tr key={index} className='border-b'>
               <td className='p-2 text-left'>{method.method}</td>
-              <td className='p-2 text-left'>{method.transactionCount}</td>
+              <td className='p-2 text-center'>{method.transactionCount}</td>
               <td className='p-2 text-left'>₱{method.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             </tr>
           ))}

@@ -237,7 +237,7 @@ const RefundedOrReplaced = () => {
             <div className='flex flex-col gap-6 h-full'>
               <div className='flex flex-col gap-2 flex-grow'>
                 <div className='flex flex-col'>
-                  <label htmlFor='ProductName' className={`text-sm mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRODUCT NAME</label>
+                  <label htmlFor='ProductName' className={`text-xs mb-2 font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>PRODUCT NAME</label>
                   <input
                     type='text'
                     placeholder='Enter Product Name'
@@ -253,7 +253,7 @@ const RefundedOrReplaced = () => {
                   />
                 </div>
                 <div className='flex flex-col'>
-                <label htmlFor="reason" className={`text-sm  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REASON</label>
+                <label htmlFor="reason" className={`text-xs  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>REASON</label>
                   <select
                     id="reason"
                     name="reason"
@@ -276,7 +276,7 @@ const RefundedOrReplaced = () => {
                   </select>
                 </div>
                 <div className='flex flex-col'>
-                <label htmlFor="status" className={`text-sm  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STATUS</label>
+                <label htmlFor="status" className={`text-xs  font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>STATUS</label>
                   <select
                     id="status"
                     name="status"
@@ -310,58 +310,56 @@ const RefundedOrReplaced = () => {
                   </button>
               </div>
           </div>
-          <div className='flex-grow'>
             
-          <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
-  <thead>
-    <tr>
-      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Product Name</th>
-      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Reason</th>
-      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Condition</th>
-      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Serial Numbers</th>
-      <th className={`text-left p-2  text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Status</th>
-      {/* <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Actions</th> */}
-    </tr>
-  </thead>
-  <tbody>
-    {filteredRmas.length === 0 ? (
-      <tr>
-        <td colSpan="6" rowSpan="10" className="text-center p-4 text-2xl text-gray-500">
-          No data available
-        </td>
-      </tr>
-    ) : (
-      filteredRmas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rma) => (
-        <tr key={rma.rma_id} className={`${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
-          <td className='p-2 text-left'>{rma.product}</td>
-          <td className='p-2 text-left'>{rma.reason}</td>
-          <td className='p-2 text-left'>{rma.condition}</td>
-          <td className='p-2 text-left'>
-            <ul>
-              {rma.units.map((unit) => (
-                <li key={unit.serial_number}>{unit.serial_number}</li>
-              ))}
-            </ul>
-          </td>
-          <td className={`p-2 text-center`}>
-            <div className={`rounded-md py-2 px-4 font-semibold ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
-              {rma.units.length > 0 
-                ? rma.units[0].status === 'replaced' 
-                  ? 'Replaced' 
-                  : rma.units[0].status === 'refunded' 
-                    ? 'Refunded' 
-                    : rma.units[0].status 
-                : 'N/A'}
-            </div>
-          </td>
-        </tr>
-      ))
-    )}
-  </tbody>
-</table>
-
-
+          <div className={`h-[78vh] w-[77%] overflow-auto rounded-2xl ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
+            <table className={`w-full bg-white rounded-lg ${darkMode ? 'bg-dark-container' : 'bg-light-container'}`}>
+              <thead>
+                <tr>
+                  <th className={`text-left p-2 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} w-[50%]`}>Product Name</th>
+                  <th className={`text-left p-2 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} w-[20%]`}>Reason</th>
+                  <th className={`text-left p-2 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} w-[10%]`}>Condition</th>
+                  <th className={`text-left p-2 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} w-[30%]`}>Serial Numbers</th>
+                  <th className={`text-center p-2 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} w-[10%]`}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRmas.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" rowSpan="10" className="text-center p-4 text-2xl text-gray-500">
+                      No data available
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRmas.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map((rma) => (
+                    <tr key={rma.rma_id} className={`text-sm ${darkMode ? 'bg-light-container text-light-textPrimary' : 'bg-dark-container text-dark-textPrimary'}`}>
+                      <td className='p-2 text-left w-[50%]'>{rma.product}</td>
+                      <td className='p-2 text-left w-[20%]'>{rma.reason}</td>
+                      <td className='p-2 text-left w-[10%]'>{rma.condition}</td>
+                      <td className='p-2 text-left w-[30%]'>
+                        <ul>
+                          {rma.units.map((unit) => (
+                            <li key={unit.serial_number}>{unit.serial_number}</li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className={`p-2 text-center w-[10%]`}>
+                        <div className={`rounded-md py-2 px-4 font-semibold ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).bgClass} ${getStatusStyles(rma.units[0]?.status === 'replaced' ? 'Replaced' : rma.units[0]?.status === 'refunded' ? 'Returned' : rma.units[0]?.status).textClass}`}>
+                          {rma.units.length > 0 
+                            ? rma.units[0].status === 'replaced' 
+                              ? 'Replaced' 
+                              : rma.units[0].status === 'refunded' 
+                                ? 'Refunded' 
+                                : rma.units[0].status 
+                            : 'N/A'}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
+
         </div>
       </div>
       {isOpenConfirmDialog && (

@@ -508,13 +508,13 @@ const handlePriceRange = (e) => {
               <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
                 <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'} border-b text-sm`}>
                   <tr>
-                    <th className='p-2 text-center' style={{ width: '400px' }}>Product Name</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '100px' }}>Model</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '120px' }}>Category</th>
+                    <th className='p-2 text-left' style={{ width: '400px' }}>Product Name</th>
+                    <th className='p-2 text-left text-xs' style={{ width: '100px' }}>Model</th>
+                    <th className='p-2 text-left text-xs' style={{ width: '120px' }}>Category</th>
                     <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Qty.</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '80px' }}>Supplier</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Buying Price</th>
-                    <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Selling Price</th>
+                    <th className='p-2 text-left text-xs' style={{ width: '120px' }}>Supplier</th>
+                    <th className='p-2 text-left text-xs' style={{ width: '150px' }}>Buying Price</th>
+                    <th className='p-2 text-left text-xs' style={{ width: '150px' }}>Selling Price</th>
                     <th className='p-2 text-center text-xs' style={{ width: '150px' }}>Actions</th>
                   </tr>
                 </thead>
@@ -547,15 +547,15 @@ const handlePriceRange = (e) => {
                             <img src={product.image} alt={product.name} className='w-12 h-12 object-cover mr-[10px]' />
                             <p className='text-xs'>{product.name}</p>
                           </td>
-                          <td className='text-center text-xs'>{product.model}</td>
-                          <td className='text-center text-xs'>{product.category}</td>
-                          <td className={`text-center text-xs font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
+                          <td className='text-left text-xs p-2'>{product.model}</td>
+                          <td className='text-left text-xs p-2'>{product.category}</td>
+                          <td className={`text-center text-xs p-2 font-semibold ${inStockUnits > 0 ? (darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary') : 'text-red-500'}`}>
                             {inStockUnits}
                           </td>
-                          <td className='text-center text-xs'>{product.supplier || 'N/A'}</td>
-                          <td className='text-center text-xs'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                          <td className='text-center text-xs'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                          <td className='text-center'>
+                          <td className='text-left text-xs p-2'>{product.supplier || 'N/A'}</td>
+                          <td className='text-left text-xs p-2'>{product.buying_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-left text-xs p-2'>{product.selling_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          <td className='text-center p-2'>
                               {/* View Button with Tooltip */}
                               <div className="relative inline-block group">
                                 <button 

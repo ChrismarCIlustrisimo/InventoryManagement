@@ -370,7 +370,7 @@ const SalesOrder = () => {
                         <div className={`flex flex-col gap-1 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                           <p className='ml-auto'>{formatDate(transaction.transaction_date)}</p>
                           <p className='tracking-wider ml-auto'>{transaction.customer && transaction.customer.name !== "" ? transaction.customer.name : 'None'}</p>
-                          <p className='ml-auto'>₱ {(transaction.total_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          <p className='ml-auto'>₱ {(transaction.total_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 'N/A'}</p>
                         </div>
                       </div>
                     </div>

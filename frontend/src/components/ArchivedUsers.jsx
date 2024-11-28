@@ -7,6 +7,7 @@ import { useAdminTheme } from '../context/AdminThemeContext'; // Import context
 import { ToastContainer, toast } from 'react-toastify';  // Import ToastContainer and toast
 import 'react-toastify/dist/ReactToastify.css';  // Import the required CSS
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const ArchivedUsers = () => {
     const { darkMode } = useAdminTheme(); // Access darkMode from context
@@ -15,17 +16,18 @@ const ArchivedUsers = () => {
     const [isRestoreDialogOpen, setIsRestoreDialogOpen] = useState(false);
     const [userToRestore, setUserToRestore] = useState(null);
     const baseURL = API_DOMAIN;
+    const { user } = useAuthContext();
 
     const getIconColor = (role) => {
         switch (role) {
             case 'super admin':
-                return darkMode ? 'text-blue-600' : 'text-blue-400';  // Color for super admin
+                return darkMode ? 'text-blue-600' : 'text-blue-400';
             case 'admin':
-                return darkMode ? 'text-red-600' : 'text-red-400';  // Color for admin
+                return darkMode ? 'text-red-600' : 'text-red-400';
             case 'cashier':
-                return darkMode ? 'text-green-600' : 'text-green-400';  // Color for cashier
+                return darkMode ? 'text-green-600' : 'text-green-400';
             default:
-                return darkMode ? 'text-gray-600' : 'text-gray-400';  // Default color for other roles
+                return darkMode ? 'text-gray-600' : 'text-gray-400';
         }
     };
     
@@ -56,19 +58,44 @@ const ArchivedUsers = () => {
     const handleConfirmRestore = async () => {
         if (userToRestore) {
             try {
+                // Fetch the user data before restoring for audit purposes
+                const userToRestoreData = users.find(user => user._id === userToRestore);
+    
                 // Send PATCH request to restore the user
-                await axios.patch(`${baseURL}/user/${userToRestore}/restore`);
-                setUsers(users.filter(user => user._id !== userToRestore)); // Remove the restored user from the list
-                toast.success('User restored successfully!');  // Toast on success
-                console.log('Restored user', userToRestore);
+                const response = await axios.patch(`${baseURL}/user/${userToRestore}/restore`);
+    
+                // Ensure the request was successful
+                if (response.status === 200) {
+                    // Update the user list to reflect the restored status (removing from archived users)
+                    setUsers(users.filter(user => user._id !== userToRestore)); 
+    
+                    // Build the audit data for the restore event
+                    const auditData = {
+                        user: user.name, // Replace with actual logged-in user's name
+                        action: 'Restore',
+                        module: 'User',
+                        event: `Restored the user ${userToRestoreData.username}`,
+                        previousValue: 'Archived', // Assuming the user was archived before restore
+                        updatedValue: 'Active', // After restoring the user, their status becomes Active
+                    };
+    
+                    // Send the audit data to the backend
+                    await axios.post(`${baseURL}/audit`, auditData);
+    
+                    // Show success toast
+                    toast.success('User restored successfully!');
+                } else {
+                    toast.error('Error restoring user!');
+                    console.error('Error restoring user:', response.data);
+                }
             } catch (error) {
-                toast.error('Error restoring user!');  // Toast on error
-                console.error('Error restoring user:', error);
+                toast.error('Error restoring user!');
+                console.error('Error restoring user:', error.message);
             }
         }
         setIsRestoreDialogOpen(false); // Close the dialog after confirming
     };
-
+    
     // Cancel the restoration
     const handleCancelRestore = () => {
         setUserToRestore(null);

@@ -41,7 +41,6 @@ const AdminProfile = () => {
     const [showModal, setShowModal] = useState(false);
     const [profile, setProfile] = useState();
 
-    console.log(profile);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -188,33 +187,55 @@ useEffect(() => {
         navigate(`/update-user/${userId}`);
     };
 
-    const handleConfirmArchive = async () => { 
-        if (userToArchive) {
-            try {
-                const response = await fetch(`${API_DOMAIN}/user/${userToArchive}/archive`, {
-                    method: 'PATCH',
-                });
-    
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Failed to archive user');
-                }
-    
-                // Update user list to reflect archive status
-                setUsers((prevUsers) =>
-                    prevUsers.map((user) =>
-                        user._id === userToArchive ? { ...user, archived: true } : user
-                    )
-                );
-                setUserToArchive(null);
-                toast.success('User archived successfully!');
-            } catch (error) {
-                console.error('Error:', error.message);
+const handleConfirmArchive = async () => {
+    if (userToArchive) {
+        try {
+            // Fetch the user data before archiving for audit purposes
+            const userToArchiveData = users.find(user => user._id === userToArchive);
+
+            // Archive the user
+            const response = await fetch(`${API_DOMAIN}/user/${userToArchive}/archive`, {
+                method: 'PATCH',
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to archive user');
             }
+
+            // Update the user list to reflect the archive status
+            setUsers((prevUsers) =>
+                prevUsers.map((user) =>
+                    user._id === userToArchive ? { ...user, archived: true } : user
+                )
+            );
+
+            // Log audit event for archiving the user
+            const auditData = {
+                user: user.name, // Replace with actual logged-in user's name
+                action: 'Archive',
+                module: 'User',
+                event: `Archived user ${userToArchiveData.username}`,
+                previousValue: 'Active', 
+                updatedValue: 'Archived',
+            };
+
+            await axios.post(`${baseURL}/audit`, auditData);
+
+            // Clear the user to archive
+            setUserToArchive(null);
+
+            // Show success toast
+            toast.success('User archived successfully!');
+        } catch (error) {
+            console.error('Error:', error.message);
+            toast.error('Error archiving user.');
         }
-    
-        setIsArchiveDialogOpen(false); // Close the dialog after confirming
-    };
+    }
+
+    setIsArchiveDialogOpen(false); // Close the dialog after confirming
+};
+
     
     const handleArchiveUserClick = (userId) => {
         setUserToArchive(userId); // Set the user ID to archive

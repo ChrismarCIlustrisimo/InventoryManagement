@@ -207,65 +207,77 @@ const AuditLog = () => {
                             <p>No logs found.</p>
                         </div>
                         ) : (
-                            <table className="w-full text-left text-sm">
+                            <table className="w-full text-left text-xs table-fixed">
                             <thead>
-                                <tr className={`w-full text-sm font-semibold border-b-2 ${darkMode ? 'border-light-border bg-light-container' : 'border-dark-border bg-dark-container'}`}>
-                                <th className="py-2 px-4">Timestamp</th>
-                                <th className="py-2 px-4">User</th>
-                                <th className="py-2 px-4">Action</th>
-                                <th className="py-2 px-4">Module</th>
-                                <th className="py-2 px-4">Event</th>
-                                <th className="py-2 px-4">Previous Value</th>
-                                <th className="py-2 px-4">Updated Value</th>
+                                <tr
+                                    className={`w-full text-sm font-semibold border-b-2 ${
+                                        darkMode
+                                            ? 'border-light-border bg-light-container'
+                                            : 'border-dark-border bg-dark-container'
+                                    }`}
+                                >
+                                    <th className="py-2 px-4 w-[16%]">Timestamp</th>
+                                    <th className="py-2 px-4 w-[10%]">User</th>
+                                    <th className="py-2 px-4 w-[8%]">Action</th>
+                                    <th className="py-2 px-4 w-[8%]">Module</th>
+                                    <th className="py-2 px-4 w-[41%] truncate">Event</th>
+                                    <th className="py-2 px-4 w-[16%] truncate">Previous Value</th>
+                                    <th className="py-2 px-4 w-[16%] truncate">Updated Value</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {logs.map((log) => (
-                                <tr
-                                    key={log._id}
-                                    className={`border-b cursor-pointer ${darkMode ? 'bg-light-container1' : 'bg-dark-container1'}`}
-                                >
-                                    <td className="py-3 px-4">{formatDate(log.timestamp)}</td>
-                                    <td className="py-3 px-4">{log.user}</td>
-                                    <td className="py-3 px-4">{log.action}</td>
-                                    <td className="py-3 px-4">{log.module}</td>
-
-                                    {/* Render event with line breaks for multiple values */}
-                                    <td className="py-3 px-4">
-                                    {log.event.split(',').map((eventItem, index) => (
-                                        <div key={index}>{eventItem.trim()}</div> // Split the event string by commas and display each part on a new line
-                                    ))}
-                                    </td>
-
-                                    {/* Render previousValue */}
-                                    <td className="py-3 px-4">
-                                    {typeof log.previousValue === 'object' ? (
-                                        Object.entries(log.previousValue).map(([key, value]) => (
-                                        <div key={key}>
-                                            {value.previous && <span>{value.previous}</span>}
-                                        </div>
-                                        ))
-                                    ) : (
-                                        <span>{log.previousValue}</span> // Handle non-object case, e.g., "N/A"
-                                    )}
-                                    </td>
-
-                                    {/* Render updatedValue */}
-                                    <td className="py-3 px-4">
-                                    {typeof log.updatedValue === 'object' ? (
-                                        Object.entries(log.updatedValue).map(([key, value]) => (
-                                        <div key={key}>
-                                            {value.updated && <span>{value.updated}</span>}
-                                        </div>
-                                        ))
-                                    ) : (
-                                        <span>{log.updatedValue}</span> // Handle non-object case, e.g., a string like "PRD-221"
-                                    )}
-                                    </td>
-                                </tr>
+                                    <tr
+                                        key={log._id}
+                                        className={`border-b cursor-pointer ${
+                                            darkMode
+                                                ? 'bg-light-container1'
+                                                : 'bg-dark-container1'
+                                        }`}
+                                    >
+                                        <td className="py-3 px-4">{formatDate(log.timestamp)}</td>
+                                        <td className="py-3 px-4">{log.user}</td>
+                                        <td className="py-3 px-4">{log.action}</td>
+                                        <td className="py-3 px-4">{log.module}</td>
+                                        <td className="py-3 px-4 truncate">
+                                            {log.event.split(',').map((eventItem, index) => (
+                                                <div key={index}>{eventItem.trim()}</div>
+                                            ))}
+                                        </td>
+                                        <td className="py-3 px-4 truncate">
+                                            {typeof log.previousValue === 'object' ? (
+                                                Object.entries(log.previousValue).map(
+                                                    ([key, value]) => (
+                                                        <div key={key}>
+                                                            {value.previous && (
+                                                                <span>{value.previous}</span>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                )
+                                            ) : (
+                                                <span>{log.previousValue}</span>
+                                            )}
+                                        </td>
+                                        <td className="py-3 px-4 truncate">
+                                            {typeof log.updatedValue === 'object' ? (
+                                                Object.entries(log.updatedValue).map(
+                                                    ([key, value]) => (
+                                                        <div key={key}>
+                                                            {value.updated && (
+                                                                <span>{value.updated}</span>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                )
+                                            ) : (
+                                                <span>{log.updatedValue}</span>
+                                            )}
+                                        </td>
+                                    </tr>
                                 ))}
                             </tbody>
-                            </table>
+                        </table>
 
                         )}
 

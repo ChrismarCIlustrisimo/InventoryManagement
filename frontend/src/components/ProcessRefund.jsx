@@ -7,6 +7,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import RefundReceipt from "./RefundReceipt";
 import { API_DOMAIN } from "../utils/constants";
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const ProcessRefund = ({ rma, onClose }) => {
   const { darkMode } = useTheme();
@@ -19,6 +20,7 @@ const ProcessRefund = ({ rma, onClose }) => {
   const [refundData, setRefundData] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [referenceNumber, setReferenceNumber] = useState(""); // New state for reference number
+  const { user } = useAuthContext();
 
   const baseURL = API_DOMAIN;
 
@@ -59,15 +61,35 @@ const ProcessRefund = ({ rma, onClose }) => {
       cashier: rma.cashier,
       sales_date: rma.transaction_date,
     };
-
-    console.log("Sending refund data:", refundData);
-
+    
     axios.post(`${baseURL}/refund`, refundData)
       .then((response) => {
         const createdRefund = response.data.refund;
         setRefundData(createdRefund);
         setIsReceiptOpen(true);
         toast.success("Refund processed successfully!");
+  
+        // Log audit data for the refund process
+        const refundAuditData = {
+          user: user.name,  // User who is processing the refund
+          action: 'UPDATE',  // Action type
+          module: 'RMA',  // Module name
+          event: `Processed Refund for transaction ${rma.transaction}`,  // Event description with Transaction ID
+          previousValue: 'N/A', 
+          updatedValue: rma.transaction,
+        };
+  
+        // Send audit log data to the backend
+        axios.post(`${API_DOMAIN}/audit`, refundAuditData, {
+          headers: {
+            Authorization: `Bearer ${user.token}`,  // Assuming token-based authorization
+          },
+        })
+        .catch((error) => {
+          console.error("Error logging audit:", error);
+          toast.error("Failed to log audit.");
+        });
+  
       })
       .catch((error) => {
         console.error("Refund failed: ", error);
@@ -76,9 +98,10 @@ const ProcessRefund = ({ rma, onClose }) => {
         }
         toast.error("Failed to process refund.");
       });
-
+  
     setShowConfirmDialog(false); // Close the confirmation dialog
   };
+  
 
   const handleCancel = () => {
     setShowConfirmDialog(false); // Close the confirmation dialog without processing refund

@@ -7,6 +7,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify'; // Import toast
 import 'react-toastify/dist/ReactToastify.css'; // Import styles
 import { LiaUserShieldSolid } from "react-icons/lia";
+import axios from 'axios';
+import { useAuthContext } from '../hooks/useAuthContext';
+import { API_DOMAIN } from '../utils/constants';
 
 const SuperAdminLogin = () => {
     const [email, setEmail] = useState('');
@@ -20,6 +23,8 @@ const SuperAdminLogin = () => {
     const navigate = useNavigate();
     const [codeSent, setCodeSent] = useState(false);
     const [verificationCode, setVerificationCode] = useState('');
+    const { user } = useAuthContext();
+    const baseURL = API_DOMAIN;
 
     useEffect(() => {
         localStorage.removeItem('user');
@@ -76,10 +81,11 @@ const SuperAdminLogin = () => {
             toast.error('Please fill in all the fields');
             return;
         }
-        setLoading(true);
+        setLoading(true); // Start loading state
         try {
             const response = await resetPassword(email, newPassword);
-            setLoading(false);
+            setLoading(false); // End loading state
+    
             if (response) {
                 toast.success('Password reset successful!');
                 setForgotPassword(false);
@@ -87,15 +93,30 @@ const SuperAdminLogin = () => {
                 setEmail('');
                 setNewPassword('');
                 navigate('/super-admin-login');
+    
+                // Log audit data for password reset (Super Admin)
+                const auditData = {
+                    user: 'N/A', // Replace with the logged-in super admin's name
+                    action: 'Update',
+                    module: 'User',
+                    event: `Reset password for user with email\n ${email}`,
+                    previousValue: 'N/A', // We cannot log the previous password
+                    updatedValue: 'N/A', // We cannot log the new password
+                };
+    
+                // Send audit log data to the server
+                await axios.post(`${baseURL}/audit`, auditData);
+    
             } else {
                 toast.error(response?.message || 'Failed to reset password');
             }
         } catch (error) {
-            setLoading(false);
+            setLoading(false); // End loading state
             toast.error('An error occurred while resetting the password');
             console.error(error);
         }
     };
+    
 
     return (
         <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col text-black">

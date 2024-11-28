@@ -7,9 +7,12 @@ import ConfirmationDialog from '../components/ConfirmationDialog';
 import AddUnitModal  from '../components/AddUnitModal';
 import { IoArchiveOutline } from "react-icons/io5";
 import { API_DOMAIN } from '../utils/constants';
-
+import { toast,ToastContainer } from 'react-toastify'; // Import toastify
+import 'react-toastify/dist/ReactToastify.css';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const ViewProduct = () => {
+  const { user } = useAuthContext();
   const [product, setProduct] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,12 +20,15 @@ const ViewProduct = () => {
   const navigate = useNavigate();
   const { productId } = useParams();
   const baseURL = API_DOMAIN;
+  const [productID, setProductID] = useState(null);
 
   useEffect(() => {
     axios.get(`${baseURL}/product/${productId}`)
       .then(res => {
         const productData = res.data;
         setProduct(productData);
+        setProductID(productData.product_id);
+
       })
       .catch(err => {
         console.error('Error fetching product:', err);
@@ -30,19 +36,37 @@ const ViewProduct = () => {
   }, [productId]);
 
   const archiveProduct = async () => {
-    if (!productId) return;
+    if (!productId || !productID) return;  // Ensure both productId and productID are present
   
     try {
+      // Archive the product
       await axios.patch(`${baseURL}/product/archive/${productId}`);
+  
+      // Create the audit log after archiving the product
+      const auditData = {
+        user: user.name,            // Assuming you have the current user information
+        action: 'Archive',           // Action type (in this case, updating the product's status)
+        module: 'Product',          // The module name (Product in this case)
+        event: `Archived the product ${productID}` ,  // Event description (Archiving product)
+        previousValue: 'Active',    // Previous value of the product status
+        updatedValue: 'Archived',   // New value of the product status (after archiving)
+      };
+  
+      // Send audit log data to the server
+      await axios.post(`${baseURL}/audit`, auditData);
+  
       toast.success('Product archived successfully'); // Toast notification for success
-      fetchProducts(); // Refetch products after archiving
+      setTimeout(() => {
+        navigate(-1);
+      }, 2000); // 2000ms = 2 seconds
     } catch (error) {
       toast.error(`Error archiving product: ${error.response ? error.response.data : error.message}`); // Toast notification for error
     } finally {
       setIsDialogOpen(false); // Close the dialog
-      setProductId(null); // Reset the productId
+      setProductID(null); // Reset the productId
     }
   };
+  
 
   const handleBackClick = () => {
     navigate(-1);
@@ -283,6 +307,7 @@ const getStatusStyles = (status) => {
         onClose={() => setIsModalOpen(false)}
         onAddUnit={handleAddUnit}
         productId={productId}  // Make sure selectedProductId is a valid ID
+        productID={productID}
       />
 
         <ConfirmationDialog
@@ -292,7 +317,7 @@ const getStatusStyles = (status) => {
           title="Archive Product"
           message={`Are you sure you want to archive ${product.name}?`}
         />
-
+      <ToastContainer />
     </div>
   );
 };

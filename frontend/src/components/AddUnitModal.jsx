@@ -7,9 +7,11 @@ import { ToastContainer, toast } from 'react-toastify'; // Import Toastify compo
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 import { IoCameraOutline } from "react-icons/io5";
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 
-const AddUnitModal = ({ isOpen, onClose, productId }) => {
+const AddUnitModal = ({ isOpen, onClose, productId, productID }) => {
+  const { user } = useAuthContext();
   const [quantity, setQuantity] = useState('');  // Changed to an empty string
   const [serialNumbers, setSerialNumbers] = useState([]);
   const [serialNumberImages, setSerialNumberImages] = useState([]);
@@ -73,8 +75,8 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
     }
   
     for (let i = 0; i < localInputs.length; i++) {
-      if (!localInputs[i] || !serialNumberImages[i]) {
-        toast.warning(`Please fill in Serial Number ${i + 1} and upload its image.`);
+      if (!localInputs[i]) {
+        toast.warning(`Please fill in Serial Number ${i + 1}.`);
         return;
       }
     }
@@ -93,10 +95,28 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
       });
   
       if (response.status === 201) {
+        // Prepare audit data
+        const auditData = {
+          user: user.name, // Replace with the user's name from your context or state
+          action: 'Add',
+          module: 'Product Units',
+          event: `Added ${localInputs.length} unit(s) to product ${productID}`,
+          previousValue: 'N/A', // No previous value since these are new units
+          updatedValue: Object.fromEntries(
+            localInputs.map((serialNumber, index) => [
+              `serial_number_${index + 1}`, // Dynamic key for each serial number
+              { updated: serialNumber }, // Updated value contains only the serial number
+            ])
+          ),
+        };
+  
+        // Log the audit event
+        await axios.post(`${baseURL}/audit`, auditData);
+  
         toast.success("Units added successfully!");
         setTimeout(() => {
           onClose();
-        }, 1000); // 1000ms = 1 second
+        }, 2000); // 2000ms = 2 seconds
       }
     } catch (error) {
       console.error('Error adding units:', error);
@@ -105,6 +125,8 @@ const AddUnitModal = ({ isOpen, onClose, productId }) => {
       setLoading(false); // Set loading state to false after the request completes
     }
   };
+  
+  
   
   
   const handleBackClick = () => {

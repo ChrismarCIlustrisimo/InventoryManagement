@@ -147,35 +147,36 @@ const AdminTransaction = () => {
       
       
       const getStatusStyles = (status) => {
+        let statusStyles = {
+          textClass: 'text-[#8E8E93]', // Default text color
+          bgClass: 'bg-[#E5E5EA]', // Default background color
+        };
+      
         switch (status) {
           case 'Completed':
-            return {
+            statusStyles = {
               textClass: 'text-[#14AE5C]',
-              bgClass: 'bg-[#CFF7D3]', 
             };
+            break;
           case 'Refunded':
-            return {
-              textClass: 'text-[#EC221F]',
-              bgClass: 'bg-[#FEE9E7]',
+            statusStyles = {
+              textClass: 'text-[#EC221F]', // Red for Low Stock
             };
-            case 'RMA':
-              return {
-                textClass: 'text-[#BF6A02]',
-                bgClass: 'bg-[#FFF1C2]',
-              };
-              case 'Replaced':
-                return {
-                  textClass: 'text-[#007BFF]',
-                  bgClass: 'bg-[#C2D7FF]',
-                };
-          default:
-            return {
-              textClass: 'text-[#8E8E93]',
-              bgClass: 'bg-[#E5E5EA]',
+            break;
+          case 'Replaced':
+            statusStyles = {
+              textClass: 'text-[#007BFF]', // Gray for Out of Stock
             };
+            break;
+          case 'RMA':
+            statusStyles = {
+              textClass: 'text-[#BF6A02]', // Gray for Out of Stock
+            };
+            break;
         }
+      
+        return statusStyles;
       };
-
     
 
     return (
@@ -342,51 +343,51 @@ const AdminTransaction = () => {
               ) : (
                 <div className='w-[80%] h-[77vh]'>
                   <div className="overflow-x-auto max-h-screen h-[78vh] rounded-2xl">
-                    <table className={`w-full table-auto ${darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>
+                  <table className={`w-full table-auto ${darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>
                       <thead className="sticky top-0 z-5">
                         <tr className={`border-b-2 ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Transaction ID</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Sales Date</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Customer Name</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Cashier Name</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Product Name</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Qty. Sold</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}> Total Amount</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}> Status</th>
-                          <th className={`text-left p-4 text-sm ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'} text-center`}>Action</th>
+                          <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Transaction ID</th>
+                          <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Sales Date</th>
+                          <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Customer Name</th>
+                          <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Cashier Name</th>
+                          <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Product Name</th>
+                          <th className={`text-center p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Qty. Sold</th>
+                          <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Total Amount</th>
+                          <th className={`text-center p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Status</th>
+                          <th className={`text-center p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Action</th>
                         </tr>
                       </thead>
                       <tbody>
                         {salesOrder.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date)).flatMap((transaction) =>
                           transaction.products.map((item, idx) => (
                             <tr key={`${transaction._id}-${idx}`} className={`border-b ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {transaction.transaction_id || 'N/A'}
                               </td>
-                              <td className={`py-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`py-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {formatDate(transaction.transaction_date)}
                               </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {transaction.customer?.name || 'None'}
                               </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {transaction.cashier || 'None'}
                               </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {item.product?.name || 'Unknown Product'}
                               </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`p-4 text-xs text-center ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {item.quantity || 'N/A'}
                               </td>
-                              <td className={`p-4 text-xs ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 'N/A'}
                               </td>
-                              <td className={`p-4 text-sm font-semibold ${getStatusStyles(transaction.status).textClass} text-center`}>
+                              <td className={`p-4 text-sm font-semibold text-center ${getStatusStyles(transaction.status).textClass}`}>
                                 <span className={`px-4 py-2 rounded ${getStatusStyles(transaction.status).bgClass}`}>
                                   {transaction.status || 'N/A'}
                                 </span>
                               </td>
-                              <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'} text-center`}>
+                              <td className={`p-4 h-full flex items-center justify-center text-sm ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
                                   onClick={() => handleViewTransaction(transaction, item)}>
                                   View
@@ -397,6 +398,7 @@ const AdminTransaction = () => {
                         )}
                       </tbody>
                     </table>
+
                   </div>
 
                 </div>

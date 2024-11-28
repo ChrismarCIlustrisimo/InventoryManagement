@@ -210,35 +210,38 @@ const DashboardPos = () => {
   };
 
 
-  const getStatusStyles = (item_status) => {
+  const getStatusStyles = (status) => {
     let statusStyles = {
-      textClass: 'text-[#8E8E93]',  
-      bgClass: 'bg-[#E5E5EA]',      
+      textClass: 'text-[#8E8E93]', // Default text color
+      bgClass: 'bg-[#E5E5EA]', // Default background color
     };
   
-    switch (item_status) {
+    switch (status) {
       case 'Completed':
         statusStyles = {
-          textClass: 'text-[#14AE5C]',  
-          bgClass: 'bg-[#CFF7D3]',     
+          textClass: 'text-[#14AE5C]',
         };
         break;
       case 'Refunded':
         statusStyles = {
-          textClass: 'text-[#EC221F]',  
-          bgClass: 'bg-[#FEE9E7]',      // Red background for Refunded
+          textClass: 'text-[#EC221F]', // Red for Low Stock
+        };
+        break;
+      case 'Replaced':
+        statusStyles = {
+          textClass: 'text-[#007BFF]', // Gray for Out of Stock
         };
         break;
       case 'RMA':
-          statusStyles = {
-            textClass: 'text-[#BF6A02]',  
-            bgClass: 'bg-[#FFF1C2]',      // Red background for Refunded
-          };
-          break;
+        statusStyles = {
+          textClass: 'text-[#BF6A02]', // Gray for Out of Stock
+        };
+        break;
     }
   
     return statusStyles;
   };
+      
   
   const shortenString = (str) => {
     if (typeof str === 'string') {
@@ -405,69 +408,49 @@ const DashboardPos = () => {
         <div className="w-[80%] h-[78vh] overflow-y-auto scrollbar-custom">
           <table className="table-auto w-full border-collapse ">
           <thead className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'} sticky top-0`}>
-                <tr className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'} text-xs border-b border-black`}>
-                  <th className="p-2 text-center">Transaction ID</th>
-                  <th className="p-2 text-center">Sale Date</th>
-                  <th className="p-2 text-center">Customer Name</th>
-                  <th className="p-2 text-center">Product Name</th>
-                  <th className="p-2 text-center">Model</th>
-                  <th className="p-2 text-center">Serial Number</th>
-                  <th className="p-2 text-center">Qty. Sold</th>  
-                  <th className="p-2 text-center">Total Amount</th>
-                  <th className="p-2 text-center">Status</th>
-                  <th className="p-2 text-center">Actions</th>
-                </tr>
+                    <tr className={`border-b-2 ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
+                        <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Transaction ID</th>
+                        <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Sales Date</th>
+                        <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Customer Name</th>
+                        <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Cashier Name</th>
+                        <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Product Name</th>
+                        <th className={`text-center p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Qty. Sold</th>
+                        <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Total Amount</th>
+                        <th className={`text-center p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Status</th>
+                        <th className={`text-center p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Action</th>
+                  </tr>
               </thead>
               <tbody>
                     {salesOrder
                       .slice()  // Create a shallow copy to avoid mutating the original array
                       .reverse()  // Reverse the copied array
                       .map((transaction) => (
-                        <tr key={transaction._id} className={`${darkMode ? 'text-light-textPrimary bg-light-container ' : 'dark:text-dark-textPrimary bg-dark-container'} text-sm`}>
-                          <td className="p-2 text-center">{transaction.transaction_id || 'N/A'}</td>
-                          <td className="p-2 text-center">{formatDate(transaction.transaction_date)}</td>
-                          <td className="p-2 text-center">{transaction.customer ? shortenString(transaction.customer.name) : 'None'}</td>
-                          <td className="p-2 text-center">
+                        <tr key={transaction._id} className={`border-b ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
+                          <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{transaction.transaction_id || 'N/A'}</td>
+                          <td className={`py-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{formatDate(transaction.transaction_date)}</td>
+                          <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{transaction.customer.name || 'None'}</td>
+                          <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>{transaction.cashier || 'None'}</td>
+                          <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                             {transaction.products.length > 0
                               ? transaction.products.map((item, idx) => (
                                   <div key={idx}>
-                                    <p>{shortenString(item.product?.name || 'Unknown')}</p>
+                                    <p>{item.product?.name || 'Unknown'}</p>
                                   </div>
                                 ))
                               : 'N/A'}
                           </td>
-                          <td className="p-2 text-center">
-                            {transaction.products.length > 0
-                              ? transaction.products.map((item, idx) => (
-                                  <div key={idx}>
-                                    <p>{shortenString(item.product?.model || 'Unknown')}</p>
-                                  </div>
-                                ))
-                              : 'N/A'}
-                          </td>
-                          <td className="p-2 text-center">
-                            {transaction.products.length > 0 ? (
-                              transaction.products.map((item, idx) => (
-                                <div key={idx}>
-                                  <p>{item.serial_number.length > 0 ? shortenString(item.serial_number.join(', '), 20) : 'N/A'}</p>
-                                </div>
-                              ))
-                            ) : (
-                              'N/A'
-                            )}
-                          </td>
-                          <td className="p-2 text-center">
+                          <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                             {transaction.products.length > 0
                               ? transaction.products.reduce((acc, item) => acc + item.quantity, 0)
                               : '0'}
                           </td>
-                          <td className="p-2 text-center">₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
-                          <td className="p-2 text-center">
+                          <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>₱ {transaction.total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0.00'}</td>
+                          <td className="p-4 text-center">
                             {transaction.status ? (
                               (() => {
-                                const { textClass, bgClass } = getStatusStyles(transaction.status);
+                                const { textClass } = getStatusStyles(transaction.status);
                                 return (
-                                  <div className={`inline-block p-2 w-[90%] rounded ${textClass} ${bgClass}`}>
+                                  <div className={`inline-block p-2 w-[90%] rounded font-semibold ${textClass}`}>
                                     {transaction.status}
                                   </div>
                                 );
@@ -476,7 +459,7 @@ const DashboardPos = () => {
                               'Pending'
                             )}
                           </td>
-                          <td className="text-center py-4 text-sm">
+                          <td className="text-center p-4 text-sm">
                             <button
                               className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`}
                               onClick={() => handleViewTransaction(transaction)}

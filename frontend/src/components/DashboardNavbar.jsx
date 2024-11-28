@@ -57,7 +57,7 @@ const DashboardNavbar = () => {
       setSelected('Inventory');
     } else if (path === '/rma' || path === '/refund-replace-units') {
       setSelected('RMA');
-    } else if (path === '/sales-report' || path === '/inventory-report' || path === '/rma-report') {
+    } else if (path === '/sales-report' || path === '/inventory-report' || path === '/rma-report' || path === '/audit-trail') {
       setSelected('Reports');
     } else {
       setSelected('');

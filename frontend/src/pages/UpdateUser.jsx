@@ -6,12 +6,13 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 import { ToastContainer, toast } from 'react-toastify'; // Import toast
 import 'react-toastify/dist/ReactToastify.css'; // Import CSS for toast notifications
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const UpdateUser = () => {
     const { darkMode } = useAdminTheme();
     const navigate = useNavigate();
     const { userId } = useParams();
-    
+    const { user } = useAuthContext();
     const [username, setUsername] = useState('');
     const [name, setName] = useState('');
     const [contact, setContact] = useState('');
@@ -45,21 +46,85 @@ const UpdateUser = () => {
         navigate('/profile');
     };
 
-    const handleUpdateUser = () => {
-        axios.patch(`${baseURL}/user/${userId}`, { username, name, contact, role })
-            .then(() => {
-                toast.success('User updated successfully!'); // Success toast
-                setTimeout(() => {
-                    navigate(-1); // Delay navigation by 3 seconds
-                }, 3000); 
-            })
-            .catch(err => {
-                console.error('Error updating user:', err.response ? err.response.data : err.message);
-                toast.error('Error updating user.'); // Error toast
-            });
-    };
+    const handleUpdateUser = async () => {
+        setLoading(true); // Start loading
+        try {
+          // Fetch the original user data for audit purposes
+          const { data: originalUser } = await axios.get(`${baseURL}/user/${userId}`);
+      
+          // Send update request
+          const response = await axios.patch(`${baseURL}/user/${userId}`, { username, name, contact, role });
+      
+          if (response.status === 200) {
+            // Updated user data
+            const updatedUser = response.data.user;
+      
+            // Build a list of changes dynamically
+            const changes = {};
+            if (originalUser.username !== username) {
+              changes.username = {
+                previous: originalUser.username,
+                updated: username,
+              };
+            }
+            if (originalUser.name !== name) {
+              changes.name = {
+                previous: originalUser.name,
+                updated: name,
+              };
+            }
+            if (originalUser.contact !== contact) {
+              changes.contact = {
+                previous: originalUser.contact,
+                updated: contact,
+              };
+            }
+            if (originalUser.role !== role) {
+              changes.role = {
+                previous: originalUser.role,
+                updated: role,
+              };
+            }
+      
+            // Log audit event
+            const auditData = {
+              user: user.name, // Replace with actual logged-in user's name
+              action: 'Update',
+              module: 'User',
+              event: `Updated user ${originalUser.username}`,
+              previousValue: Object.keys(changes).reduce((acc, key) => {
+                acc[key] = { previous: changes[key].previous };
+                return acc;
+              }, {}),
+              updatedValue: Object.keys(changes).reduce((acc, key) => {
+                acc[key] = { updated: changes[key].updated };
+                return acc;
+              }, {}),
+            };
+      
+            await axios.post(`${baseURL}/audit`, auditData);
+      
+            // Show success toast
+            toast.success('User updated successfully!');
+      
+            // Navigate back after a delay
+            setTimeout(() => {
+              navigate(-1);
+            }, 3000);
+          } else {
+            console.error('Error updating user: Unexpected response code', response.status);
+            toast.error('Error updating user.');
+          }
+        } catch (err) {
+          console.error('Error updating user:', err.response ? err.response.data : err.message);
+          toast.error('Error updating user.');
+        } finally {
+          setLoading(false); // Stop loading
+        }
+      };
+      
 
-    const toggleChangePassword = async () => {
+      const toggleChangePassword = async () => {
         if (isChangingPassword) {
             // Check if fields are filled
             if (!currentPassword || !password || !confirmPassword) {
@@ -80,6 +145,19 @@ const UpdateUser = () => {
                     await saveChanges(`/user/${userId}/change-password`, { currentPassword, newPassword: password },
                         'Password changed successfully.', 
                         'Error changing password:');
+    
+                    // Log audit data for password change (since we can't log the actual password, we'll use "N/A")
+                    const auditData = {
+                        user: user.name, // Replace with the logged-in user's name
+                        action: 'Update',
+                        module: 'User',
+                        event: `Changed password for user ${name}`,
+                        previousValue: 'N/A', // We cannot log the actual previous password
+                        updatedValue: 'N/A', // We cannot log the actual new password
+                    };
+    
+                    await axios.post(`${baseURL}/audit`, auditData); // Send audit log data to the server
+    
                 } else {
                     toast.error('Current password is incorrect.'); // Show error toast
                 }
@@ -90,17 +168,16 @@ const UpdateUser = () => {
         setIsChangingPassword(prev => !prev);
     };
     
-
     const saveChanges = async (endpoint, data, successMessage, errorMessage) => {
         try {
             const response = await axios.patch(`${baseURL}${endpoint}`, data);
-            setMessage(successMessage);
             toast.success(successMessage); // Show success toast
+            navigate(-1)
         } catch (error) {
-            setMessage('');
             toast.error(errorMessage); // Show error toast
         }
     };
+    
     
     
 

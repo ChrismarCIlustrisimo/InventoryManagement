@@ -7,6 +7,9 @@ import { FaRegEye, FaRegEyeSlash } from 'react-icons/fa'; // Import icons
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Make sure to import the CSS for toastify
 import { ToastContainer } from 'react-toastify';
+import axios from 'axios';
+import { useAuthContext } from '../hooks/useAuthContext';
+import { API_DOMAIN } from '../utils/constants';
 
 const AddUser = () => {
     const { darkMode } = useAdminTheme();
@@ -21,45 +24,63 @@ const AddUser = () => {
     const { signup, loading } = useSignUp();
     const { setActiveButton } = useAppContext();  // Use context here
     const [isShowPassword, setIsShowPassword] = useState(false); // State for showing password
+    const { user } = useAuthContext();
+    const baseURL = API_DOMAIN;
 
     const handleBackClick = () => {
         navigate('/profile');
     };
 
     const handleAddUser = async () => {
-        // Reset error before processing
-        setError('');
+        setError(''); // Reset error before processing
       
         if (!username || !password || !name || !contact || !email) {
-            toast.error('All fields are required.');
-            return;
+          toast.error('All fields are required.');
+          return;
         }
-    
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/; // Email regex
+      
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
-            toast.error('Please enter a valid email address.');
-            return;
+          toast.error('Please enter a valid email address.');
+          return;
         }
-
+      
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(password)) {
-            toast.error('Password must be at least 8 characters long, include a capital letter, a number, and a symbol.');
-            return;
+          toast.error(
+            'Password must be at least 8 characters long, include a capital letter, a number, and a symbol.'
+          );
+          return;
         }
-    
+      
         try {
-            await signup({ username, password, name, contact, email, role }); // Pass email here
-            // Show success toast
-            toast.success('User successfully created!');
-            // Wait for 3 seconds before navigating
-            setTimeout(() => {
-                localStorage.setItem('nextView', 'users');
-                navigate('/profile');
-            }, 3000);
+          const newUser = { username, password, name, contact, email, role };
+          await signup(newUser); // Add the user via API
+          toast.success('User successfully created!');
+      
+          // Prepare audit data
+          const auditData = {
+            user: user.name, // Replace with actual logged-in user's name
+            action: 'Create',
+            module: 'User',
+            event: `Added user ${username}`,
+            previousValue: 'N/A', // No previous value for creation
+            updatedValue: name,
+          };
+      
+          // Log the audit event
+          await axios.post(`${baseURL}/audit`, auditData);
+      
+          setTimeout(() => {
+            localStorage.setItem('nextView', 'users');
+            navigate('/profile');
+          }, 2000);
         } catch (error) {
-            toast.error(error.message || 'Failed to add user');
+          console.error('Error adding user:', error.response ? error.response.data : error.message);
+          toast.error(error.message || 'Failed to add user');
         }
-    };
+      };
+      
 
     const toggleShowPassword = () => {
         setIsShowPassword(!isShowPassword);

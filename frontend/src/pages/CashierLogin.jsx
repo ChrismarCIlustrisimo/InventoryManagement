@@ -7,6 +7,9 @@ import { useTheme } from '../context/ThemeContext';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { PiCashRegister } from "react-icons/pi";
+import axios from 'axios';
+import { useAuthContext } from '../hooks/useAuthContext';
+import { API_DOMAIN } from '../utils/constants';
 
 const CashierLogin = () => {
     const [email, setEmail] = useState('');
@@ -21,6 +24,7 @@ const CashierLogin = () => {
     const { login, resetPassword, sendVerificationCode, verifyCode } = useLogin();
     const navigate = useNavigate();
     const { darkMode } = useTheme();
+    const baseURL = API_DOMAIN;
 
     useEffect(() => {
         localStorage.removeItem('user');
@@ -76,23 +80,47 @@ const CashierLogin = () => {
 
     const handleResetPassword = async (e) => {
         e.preventDefault();
+    
         if (!newPassword || !email) {
             toast.error('Please fill in all the fields');
             return;
         }
+    
         setLoading(true); // Start loading state
-        const response = await resetPassword(email, newPassword);
-        setLoading(false); // End loading state
-        if (response) {
-            toast.success('Password reset successful!');
-            setForgotPassword(false);
-            setEmail('');
-            setNewPassword('');
-            navigate('/cashier-login');
-        } else {
-            toast.error('Failed to reset password');
+    
+        try {
+            const response = await resetPassword(email, newPassword);
+            setLoading(false); // End loading state
+    
+            if (response) {
+                toast.success('Password reset successful!');
+                setForgotPassword(false);
+                setEmail('');
+                setNewPassword('');
+                navigate('/cashier-login');
+    
+                // Log audit data for password reset
+                const auditData = {
+                    user: 'N/A', // Replace with the logged-in user's name
+                    action: 'Update',
+                    module: 'User',
+                    event: `Reset password for user with email\n ${email}`,
+                    previousValue: 'N/A', // We cannot log the previous password
+                    updatedValue: 'N/A', // We cannot log the new password
+                };
+    
+                // Send audit log data to the server
+                await axios.post(`${baseURL}/audit`, auditData);
+    
+            } else {
+                toast.error('Failed to reset password');
+            }
+        } catch (error) {
+            setLoading(false); // End loading state
+            toast.error('Error resetting password: ' + (error.response ? error.response.data.error : error.message));
         }
     };
+    
 
     return (
         <div className="flex items-center justify-center w-full h-screen bg-gray-100 flex-col text-black">

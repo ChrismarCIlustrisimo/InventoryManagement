@@ -6,6 +6,8 @@ import { AiOutlineClose } from "react-icons/ai";
 import { toast,ToastContainer } from 'react-toastify'; // Import toastify
 import 'react-toastify/dist/ReactToastify.css'; // Import the toastify CSS
 import { API_DOMAIN } from "../utils/constants";
+import { useAuthContext } from '../hooks/useAuthContext';
+import ConfirmationDialog from './ConfirmationDialog';
 
 const ViewRMA = ({ rma, onClose, darkMode }) => {
     const baseURL = API_DOMAIN;
@@ -13,31 +15,119 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
     const [isAddNotesOpen, setIsAddNotesOpen] = useState(false);
     const [isConfirmCloseOpen, setConfirmCloseOpen] = useState(false);
     const [newStatus, setNewStatus] = useState(false);
-
+    const { user } = useAuthContext();
     const navigate = useNavigate();
 
     const toggleIsApproveRMA = () => setIsApproveRMA(!isApproveRMA);
     const toggleAddNotes = () => setIsAddNotesOpen(!isAddNotesOpen);
     const toggleConfirmClose = () => setConfirmCloseOpen(!isConfirmCloseOpen);
 
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [actionToConfirm, setActionToConfirm] = useState(null);
+    const [dialogMessage, setDialogMessage] = useState('');
+  
+    
+  
+    // Handle Reject button click
+    const handleRejectClick = () => {
+      setDialogMessage('Are you sure you want to reject this RMA?');
+      setActionToConfirm(() => () => {
+        handleStatusUpdate('None', 'Rejected');  // Proceed with rejection logic
+      });
+      setIsDialogOpen(true);  // Open the confirmation dialog
+    };
+  
+    // Handle confirmation
+    const handleConfirm = () => {
+      if (actionToConfirm) {
+        actionToConfirm();
+      }
+      setIsDialogOpen(false);  // Close the dialog
+    };
+  
+    // Handle cancel (close the dialog)
+    const handleCancel = () => {
+      setIsDialogOpen(false);  // Close the dialog without doing anything
+    };
     const handleStatusUpdate = async (newProcess, newStatus) => {
+    
         try {
+            // Prepare the data to update the RMA status
+            const updatedData = {
+                status: newStatus,
+                notes: rma.notes,
+                process: newProcess,
+            };
+    
+            // Make the API call to update the RMA status
             const response = await fetch(`${baseURL}/rma/${rma._id}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: newStatus, notes: rma.notes, process: newProcess }),
+                body: JSON.stringify(updatedData),
             });
-
+    
             if (!response.ok) throw new Error('Failed to update status');
             const updatedRMA = await response.json();
-
+    
+            // Find the previous RMA data
+            const previousRMA = { ...rma };
+    
+            // Build previous and updated values dynamically
+            const changes = {};
+            if (previousRMA.status !== updatedRMA.status) {
+                changes.status = {
+                    previous: previousRMA.status,
+                    updated: updatedRMA.status,
+                };
+            }
+            if (previousRMA.process !== updatedRMA.process) {
+                changes.process = {
+                    previous: previousRMA.process,
+                    updated: updatedRMA.process,
+                };
+            }
+            if (previousRMA.notes !== updatedRMA.notes) {
+                changes.notes = {
+                    previous: previousRMA.notes,
+                    updated: updatedRMA.notes,
+                };
+            }
+    
+            // Log audit event
+            const auditData = {
+                user: user.name, // Replace with actual user context
+                action: 'UPDATE',
+                module: 'RMA',
+                event: `Updated status for RMA ${rma.rma_id}`,
+                previousValue: Object.keys(changes).reduce((acc, key) => {
+                    acc[key] = { previous: changes[key].previous };
+                    return acc;
+                }, {}),
+                updatedValue: Object.keys(changes).reduce((acc, key) => {
+                    acc[key] = { updated: changes[key].updated };
+                    return acc;
+                }, {}),
+            };
+    
+            // Send the audit log to the backend
+            const auditResponse = await fetch(`${baseURL}/audit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(auditData),
+            });
+    
+            if (!auditResponse.ok) throw new Error('Failed to log audit data');
+    
+            // Close modal and handle success
             onClose();
             toggleIsApproveRMA();
+            toast.success("RMA status updated successfully!");
         } catch (error) {
-            console.error(error);
-            toast.error(error.message || 'Failed to update RMA status');
-        }
+            console.error("Error updating RMA status:", error.response ? error.response.data : error.message);
+            toast.error("Error updating RMA status.");
+        } 
     };
+    
 
     const handleCloseRMA = () => {
         onClose(); // Close the RMA view page
@@ -201,20 +291,21 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                         <div className="w-full flex flex-col space-y-2 py-4 gap-2">
                             <p className={`text-xl w-full flex items-center justify-start font-semibold py-2`}>RMA Actions</p>
                             <div className='flex gap-2'>
-                                <button 
-                                    className={`bg-[#14AE5C] text-white font-semibold py-2 px-4 rounded ${rma.status === 'Approved' || rma.status === 'Rejected' ? 'opacity-50 cursor-not-allowed' : ''}`} 
-                                    onClick={toggleIsApproveRMA} 
-                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected' || rma.product_warranty === 'Expired'}
-                                >
-                                    Approve
-                                </button>
-                                <button 
-                                    className={`bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${rma.status === 'Rejected' || rma.status === 'Approved' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    onClick={() => handleStatusUpdate('None', 'Rejected')}
-                                    disabled={rma.status === 'Approved' || rma.status === 'Rejected' || rma.product_warranty === 'Expired'}
-                                >
-                                    Reject
-                                </button>
+                            <button 
+                                className={`bg-[#14AE5C] text-white font-semibold py-2 px-4 rounded ${rma.status === 'Approved' || rma.status === 'Rejected' ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                                onClick={toggleIsApproveRMA}  // Open the dialog on click
+                                disabled={rma.status === 'Approved' || rma.status === 'Rejected' || rma.product_warranty === 'Expired'}
+                            >
+                                Approve
+                            </button>
+
+                            <button 
+                                className={`bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600 ${rma.status === 'Rejected' || rma.status === 'Approved' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={handleRejectClick}  // Open the dialog on click
+                                disabled={rma.status === 'Approved' || rma.status === 'Rejected' || rma.product_warranty === 'Expired'}
+                            >
+                                Reject
+                            </button>
                                 <button className='bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600' onClick={handleGenerateRMAForm}>
                                     Generate RMA Form
                                 </button>
@@ -243,6 +334,15 @@ const ViewRMA = ({ rma, onClose, darkMode }) => {
                         </div>
                     </div>
                 )}
+
+        {/* Confirmation Dialog */}
+        <ConfirmationDialog
+            isOpen={isDialogOpen}
+            onConfirm={handleConfirm}  // Action when confirmed
+            onCancel={handleCancel}    // Action when canceled
+            message={dialogMessage}    // Message to show in the dialog
+        />
+
             </div>
         </div>
     );

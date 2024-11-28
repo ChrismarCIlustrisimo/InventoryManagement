@@ -6,6 +6,7 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { API_DOMAIN } from '../utils/constants';
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const RMARequestForm = ({ onClose, transaction }) => {
   const { darkMode } = useTheme();
@@ -20,6 +21,8 @@ const RMARequestForm = ({ onClose, transaction }) => {
     });
   };
 
+
+  const { user } = useAuthContext();
 
   const [transactionId, setTransactionId] = useState(transaction.transaction_id);
   const [customer, setCustomer] = useState(transaction.customer?.name);
@@ -146,11 +149,12 @@ const handleProductChange = (event) => {
   };
 
   const handleSubmit = async () => {
-      // Validation checks
-      if (!customer || !selectedProduct || !selectedSerial || !reasonForReturn || !productCondition) {
-        toast.warn("Please fill in all required fields.");
-          return;
-        }
+    // Validation checks
+    if (!customer || !selectedProduct || !selectedSerial || !reasonForReturn || !productCondition) {
+      toast.warn("Please fill in all required fields.");
+      return;
+    }
+  
     const rmaData = {
       transaction: transactionId,
       product: selectedProduct,
@@ -167,27 +171,45 @@ const handleProductChange = (event) => {
       customerID: customerID,
     };
   
-  
     try {
+      // Send RMA data to the backend
       const response = await axios.post(`${API_DOMAIN}/rma`, rmaData, {
-          headers: {
-              "Content-Type": "application/json",
-          },
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
+  
       toast.success("RMA request submitted successfully!");
-
+  
+      // Log audit data for the RMA submission
+      const rmaAuditData = {
+        user: cashierName,  // User who is submitting the RMA
+        action: 'Create',  // Action type
+        module: 'RMA',  // Module name
+        event: `Added new RMA Request`,  // Event description with Transaction ID
+        previousValue: 'N/A',  // No previous value for RMA submission
+        updatedValue: transaction.transaction_id, 
+      };
+  
+      // Send audit log data to the backend
+      await axios.post(`${API_DOMAIN}/audit`, rmaAuditData, {
+        headers: {
+          Authorization: `Bearer ${user.token}`,  // Assuming token-based authorization
+        },
+      });
+  
       // Introduce a 3-second delay before navigating
       setTimeout(() => {
-        navigate(-1);
+        navigate(-1);  // Navigate back after 3 seconds
       }, 3000);
-  } catch (error) {
+    } catch (error) {
       console.error("Error submitting RMA request:", error);
       if (error.response) {
-          console.error("Server response:", error.response.data);
+        console.error("Server response:", error.response.data);
       }
-  }
-  
+    }
   };
+  
 
   const shortenString = (str) => {
 

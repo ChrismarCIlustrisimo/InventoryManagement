@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios'; // Import Axios
 import ReplacementReceipt from "./ReplacementReceipt";
 import { API_DOMAIN } from "../utils/constants";
+import { useAuthContext } from '../hooks/useAuthContext';
 
 const ProcessReplacement = ({ onClose, rma }) => {
     const { darkMode } = useTheme();
@@ -17,6 +18,7 @@ const ProcessReplacement = ({ onClose, rma }) => {
     const [showReceipt, setShowReceipt] = useState(false);
     const [newSerialNumber, setNewSerialNumber] = useState('');
     const baseURL = API_DOMAIN;
+    const { user } = useAuthContext();
 
     useEffect(() => {
         const fetchProductList = async () => {
@@ -83,9 +85,30 @@ const ProcessReplacement = ({ onClose, rma }) => {
                 setShowReceipt(true); // Show the receipt
                 console.log('Receipt should now be shown.'); // Add this line
                 toast.success("Units replaced successfully!");
-                navigate(-1)
-            }
-             else {
+                navigate(-1);
+    
+                // Log audit data for the unit replacement
+                const unitReplacementAuditData = {
+                    user: rma.cashier,  // User who is processing the replacement
+                    action: 'UPDATE',  // Action type
+                    module: 'RMA',  // Module name
+                    event: `Processed Replacement for transaction ${rma.transaction}`,  // Event description
+                    previousValue: 'N/A',  // The old serial number
+                    updatedValue: rma.transaction,  // The new serial number
+                };
+    
+                // Send audit log data to the backend
+                axios.post(`${API_DOMAIN}/audit`, unitReplacementAuditData, {
+                    headers: {
+                        Authorization: `Bearer ${user.token}`,  // Assuming token-based authorization
+                    },
+                })
+                .catch((error) => {
+                    console.error("Error logging audit:", error);
+                    toast.error("Failed to log audit.");
+                });
+    
+            } else {
                 toast.error(response.data.message || 'Failed to replace units');
             }
         } catch (error) {
@@ -93,6 +116,7 @@ const ProcessReplacement = ({ onClose, rma }) => {
             toast.error(error.response?.data?.message || 'Server error while processing replacement');
         }
     };
+    
     
     
     

@@ -118,7 +118,6 @@ const parseNumber = (value) => {
         return;
       }
     }
-
   
     try {
       // Step 1: Create or Find the Customer
@@ -135,6 +134,23 @@ const parseNumber = (value) => {
       });
   
       const customerId = customerResponse.data._id;
+  
+      // Log audit event for customer creation (without previousValue)
+      const customerAuditData = {
+        user: user.name,
+        action: 'Create',
+        module: 'Customer',
+        event: `Created customer with ID ${customerId}`,
+        previousValue: null,  // No previous value since it's a creation
+        updatedValue: {
+          name: customerName,
+          email: email,
+          phone: phoneNumber,
+          address: address,
+        }
+      };
+  
+      await axios.post(`${baseURL}/audit`, customerAuditData);
   
       // Check for serial numbers in the cart
       cart.forEach(item => {
@@ -162,19 +178,17 @@ const parseNumber = (value) => {
         reference_number: referenceNumber,
       };
   
-      // Validate and flatten serial numbers
-      const serialNumbersToUpdate = transactionData.products.flatMap(product => {
-        if (!Array.isArray(product.serial_number)) {
-          console.warn(`Expected serial_number to be an array for product ${product.product}, but got:`, product.serial_number);
-          return [];
-        }
-        return product.serial_number;
-      });
+      // Log audit event for transaction creation (without previousValue)
+      const transactionAuditData = {
+        user: user.name,
+        action: 'Create',
+        module: 'Transaction',
+        event: `Created transaction with total amount ${finalAmount} for customer ID ${customerId}`,
+        previousValue: null,  // No previous value since it's a creation
+        updatedValue: transactionData,
+      };
   
-      // Check for serial numbers to update
-      if (!Array.isArray(serialNumbersToUpdate) || serialNumbersToUpdate.length === 0) {
-        throw new Error('No serial numbers available for update.');
-      }
+      await axios.post(`${baseURL}/audit`, transactionAuditData);
   
       // Step 3: Create the Transaction
       const transactionResponse = await axios.post(`${baseURL}/transaction`, transactionData, {
@@ -198,6 +212,18 @@ const parseNumber = (value) => {
         },
       }));
   
+      // Log audit event for sales update (no previous value, only updated value)
+      const salesUpdateAuditData = {
+        user: user.name,
+        action: 'Create',
+        module: 'POS',
+        event: `Added new sale Transaction`,
+        previousValue: "N/A",  // No previous value
+        updatedValue: transactionId,
+      };
+  
+      await axios.post(`${baseURL}/audit`, salesUpdateAuditData);
+  
       // Send the updates to the bulk-update endpoint (if needed, modify accordingly)
       await axios.put(`${baseURL}/product/bulk-update`, updates, {
         headers: {
@@ -214,6 +240,7 @@ const parseNumber = (value) => {
       onPaymentError(); // Call the onPaymentError prop
     }
   };
+  
   
   
   const handleBackButtonClick = () => {

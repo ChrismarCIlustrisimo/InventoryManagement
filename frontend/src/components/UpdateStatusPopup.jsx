@@ -5,59 +5,104 @@ import 'react-toastify/dist/ReactToastify.css';  // Importing styles for the toa
 
 const UpdateStatusPopup = ({ onClose, onUpdate }) => {
     const [newProcess, setNewProcess] = useState('');  // Initialize as an empty string
+    const [isConfirmationDialogOpen, setIsConfirmationDialogOpen] = useState(false);  // Manage the dialog state
     const { darkMode } = useAdminTheme();
 
+    // Handle Submit: Open confirmation dialog
     const handleSubmit = () => {
-        // Check if a valid process is selected
         if (!newProcess) {
             toast.error("Please select a valid status.");  // Use toast instead of alert
             return;
         }
+        // Show the confirmation dialog before updating the status
+        setIsConfirmationDialogOpen(true);
+    };
 
-        onUpdate(newProcess, 'Approved');
+    // Handle status update after confirmation
+    const handleStatusUpdate = (updatedStatus) => {
+        onUpdate(newProcess, updatedStatus);  // Proceed with the status update
         toast.success("Status updated successfully!");  // Notify on successful update
-        onClose();
+        setIsConfirmationDialogOpen(false);  // Close the confirmation dialog
+        onClose();  // Close the UpdateStatusPopup
+    };
+
+    // Cancel the confirmation dialog
+    const handleCancelUpdate = () => {
+        setIsConfirmationDialogOpen(false);  // Close the confirmation dialog without doing anything
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className={`bg-white shadow-lg rounded-lg p-6 w-[30%] relative flex flex-col gap-4 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                <h2 className="text-2xl font-semibold mb-4">Approved Action</h2>
-                <div className='flex'>
-                    <div className={`flex items-center justify-between w-full flex-col font-medium gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
-                        <select
-                            id="process"
-                            value={newProcess}
-                            onChange={(e) => setNewProcess(e.target.value)}
-                            className="border rounded px-4 py-2 w-full"
+        <div>
+            {/* Main UpdateStatusPopup */}
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className={`bg-white shadow-lg rounded-lg p-6 w-[30%] relative flex flex-col gap-4 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                    <h2 className="text-2xl font-semibold mb-4">Approved Action</h2>
+                    <div className='flex'>
+                        <div className={`flex items-center justify-between w-full flex-col font-medium gap-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>
+                            <select
+                                id="process"
+                                value={newProcess}
+                                onChange={(e) => setNewProcess(e.target.value)}
+                                className="border rounded px-4 py-2 w-full"
+                            >
+                                <option value="">Select Status</option>
+                                <option value="Refund">Refund</option>
+                                <option value="Replacement">Replacement</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end gap-4 w-full">
+                        <button
+                            className={`text-white px-4 py-2 rounded-md w-full flex items-center justify-center gap-2 
+                            ${darkMode ? 'bg-light-primary' : 'bg-light-primary'} 
+                            hover:bg-opacity-80 active:bg-opacity-90`}
+                            onClick={handleSubmit}  // Show confirmation dialog when clicked
                         >
-                            <option value="">Select Status</option>
-                            <option value="Refund">Refund</option>
-                            <option value="Replacement">Replacement</option>
-                        </select>
+                            Confirm
+                        </button>
+                        <button
+                            className={`px-4 py-2 rounded-md flex w-full items-center justify-center gap-2 border 
+                            ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary'} 
+                            hover:bg-opacity-10 active:bg-opacity-20`}
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </button>
                     </div>
                 </div>
-
-                <div className="flex justify-end gap-4 w-full">
-                    <button
-                        className={`text-white px-4 py-2 rounded-md w-full flex items-center justify-center gap-2 
-                        ${darkMode ? 'bg-light-primary' : 'bg-light-primary'} 
-                        hover:bg-opacity-80 active:bg-opacity-90`}
-                        onClick={handleSubmit}
-                    >
-                        Confirm
-                    </button>
-                    <button
-                        className={`px-4 py-2 rounded-md flex w-full items-center justify-center gap-2 border 
-                        ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary'} 
-                        hover:bg-opacity-10 active:bg-opacity-20`}
-                        onClick={onClose}
-                    >
-                        Cancel
-                    </button>
-                </div>
+                <ToastContainer /> {/* Place the ToastContainer here */}
             </div>
-            <ToastContainer /> {/* Place the ToastContainer here */}
+
+            {/* Confirmation Dialog */}
+            {isConfirmationDialogOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className={`bg-white shadow-lg rounded-lg p-6 w-[30%] relative flex flex-col gap-4 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                        <h2 className="text-xl font-semibold mb-4">Confirm Update</h2>
+                        <p className="mb-4">Are you sure you want to update the status to <strong>{newProcess}</strong>?</p>
+
+                        <div className="flex justify-end gap-4 w-full">
+                        <button
+                                className={`text-white px-4 py-2 rounded-md w-full flex items-center justify-center gap-2 
+                                ${darkMode ? 'bg-light-primary' : 'bg-light-primary'} 
+                                transition-transform duration-200 transform hover:scale-105`}  // Changed hover to scale-110
+                                onClick={() => handleStatusUpdate('Approved')}  // Confirm the status update
+                            >
+                                Confirm
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded-md flex w-full items-center justify-center gap-2 border 
+                                ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-light-primary'} 
+                                transition-transform duration-200 transform hover:scale-105`}  // Changed hover to scale-110
+                                onClick={handleCancelUpdate}  // Cancel the update
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+                    </div>
+                </div>  
+            )}
         </div>
     );
 };

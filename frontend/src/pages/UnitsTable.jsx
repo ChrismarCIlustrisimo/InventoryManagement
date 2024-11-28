@@ -8,8 +8,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { API_DOMAIN } from '../utils/constants';
 import SearchBar from '../components/adminSearchBar';
-import { AiOutlineCamera } from 'react-icons/ai'; // Import the camera icon
-
 
 const UnitsTable = () => {
   const { productId } = useParams();
@@ -31,7 +29,8 @@ const UnitsTable = () => {
   const { user } = useAuthContext();
   const [filteredUnits, setFilteredUnits] = useState([]); // New state for filtered units
   const [searchTerm, setSearchTerm] = useState(""); // State to hold search term
-  
+  const [productID, setProductID] = useState(null);
+
   const handleSearchChange = (newQuery) => {
     setSearchTerm(newQuery);
   };
@@ -60,6 +59,7 @@ const UnitsTable = () => {
         const inStockUnits = response.data.units.filter(unit => unit.status === 'in_stock');
         setUnits(response.data.units);
         setProductName(response.data.name);
+        setProductID(response.data.product_id);
       } catch (error) {
         console.error("Error fetching product units:", error.message);
       }
@@ -92,10 +92,31 @@ const UnitsTable = () => {
 
   const confirmDeleteUnit = async () => {
     try {
+      // Find the unit being deleted
+      const deletedUnit = units.find(unit => unit._id === unitToDelete);
+  
+      // Proceed with the delete request
       const response = await axios.delete(`${baseURL}/product/${productId}/unit/${unitToDelete}`);
       if (response.status === 200) {
+        // Remove the deleted unit from the state
         setUnits(units.filter(unit => unit._id !== unitToDelete));
         toast.success("Unit deleted successfully!");
+  
+        // Log the audit event
+        const auditData = {
+          user: user.name, // Replace `user.name` with the actual user context if necessary
+          action: 'Delete',
+          module: 'Product Units',
+          event: `Deleted unit from product ${productId}`,
+          previousValue: {
+            serial_number: {
+              previous: deletedUnit.serial_number,
+            },
+          },
+          updatedValue: null, // No updated value for deletion
+        };
+  
+        await axios.post(`${baseURL}/audit`, auditData);
       } else {
         console.error('Error deleting unit: Unexpected response code', response.status);
         toast.error("Error deleting unit.");
@@ -108,14 +129,15 @@ const UnitsTable = () => {
       setUnitToDelete(null);
     }
   };
+  
 
   const cancelDeleteUnit = () => {
     setConfirmDelete(false);
     setUnitToDelete(null);
   };
-
-  const handleUpdateUnit = async (unitId) => { 
-    setLoading(true);  // Start loading when the update begins
+  
+  const handleUpdateUnit = async (unitId) => {
+    setLoading(true); // Start loading when the update begins
     const formData = new FormData();
     formData.append("serial_number", editSerialNumber);
     formData.append("status", editStatus);
@@ -133,13 +155,57 @@ const UnitsTable = () => {
   
       if (response.status === 200) {
         const updatedUnit = response.data.unit;
+  
+        // Find the previous unit data
+        const previousUnit = units.find(unit => unit._id === unitId);
+  
+        // Build previous and updated values dynamically
+        const changes = {};
+        if (previousUnit.serial_number !== updatedUnit.serial_number) {
+          changes.serial_number = {
+            previous: previousUnit.serial_number,
+            updated: updatedUnit.serial_number,
+          };
+        }
+        if (previousUnit.status !== updatedUnit.status) {
+          changes.status = {
+            previous: previousUnit.status,
+            updated: updatedUnit.status,
+          };
+        }
+        if (editImageFile) {
+          changes.serial_number_image = {
+            previous: "N/A",
+            updated: "N/A",
+          };
+        }
+  
+        // Log audit event
+        const auditData = {
+          user: user.name, // Replace with actual user context
+          action: 'Update',
+          module: 'Product Units',
+          event: `Updated unit in product ${productID}`,
+          previousValue: Object.keys(changes).reduce((acc, key) => {
+            acc[key] = { previous: changes[key].previous };
+            return acc;
+          }, {}),
+          updatedValue: Object.keys(changes).reduce((acc, key) => {
+            acc[key] = { updated: changes[key].updated };
+            return acc;
+          }, {}),
+        };
+  
+        await axios.post(`${baseURL}/audit`, auditData);
+  
+        // Update state with new unit data
         const updatedUnits = units.map((unit) => {
           if (unit._id === updatedUnit._id) {
-            return { 
-              ...unit, 
-              serial_number: updatedUnit.serial_number, 
+            return {
+              ...unit,
+              serial_number: updatedUnit.serial_number,
               serial_number_image: updatedUnit.serial_number_image,
-              status: updatedUnit.status
+              status: updatedUnit.status,
             };
           }
           return unit;
@@ -160,9 +226,11 @@ const UnitsTable = () => {
       console.error("Error updating unit:", error.response ? error.response.data : error.message);
       toast.error("Error updating unit.");
     } finally {
-      setLoading(false);  // Stop loading when the process ends
+      setLoading(false); // Stop loading when the process ends
     }
   };
+  
+  
   
 
   const handleImageClick = (imageSrc) => {
@@ -304,8 +372,8 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                             <video ref={videoRef} width="320" height="240" className="mt-4 border-2 border-dashed" />
                           )}
                           <div className="w-auto flex gap-2  items-center justify-between mt-2">
-                            <button onClick={captureImage} className="bg-green-500 text-white p-2 rounded-md w-[50%]">Capture Image</button>
-                            <button onClick={startCamera} className="bg-blue-500 text-white p-2 rounded-md w-[50%]">Open Camera</button>
+                            <button onClick={captureImage} className="bg-green-500 text-white p-2 rounded-md w-[50%] hover:scale-110 transition-transform duration-200">Capture Image</button>
+                            <button onClick={startCamera} className="bg-blue-500 text-white p-2 rounded-md w-[50%] hover:scale-110 transition-transform duration-200">Open Camera</button>
                           </div>
                         </div>
 

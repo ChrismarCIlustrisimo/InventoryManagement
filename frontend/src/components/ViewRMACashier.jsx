@@ -101,29 +101,6 @@ const ViewRMACashier = ({ onClose, rma }) => {
         return statusStyles;
     };
     
-    const getWarrantyStyles = (warranty_status) => {
-        let warrantyStyles = {
-            textClass: 'text-[#8E8E93]',
-            bgClass: 'bg-[#E5E5EA]',
-        };
-    
-        switch (warranty_status) {
-            case 'Valid':
-                warrantyStyles = {
-                    textClass: 'text-[#14AE5C]',
-                    bgClass: 'bg-[#CFF7D3]',
-                };
-                break;
-            case 'Expired':
-                warrantyStyles = {
-                    textClass: 'text-[#EC221F]',
-                    bgClass: 'bg-[#FEE9E7]',
-                };
-                break;
-        }
-    
-        return warrantyStyles;
-    };
     
     const getProcessStyles = (process) => {
         let processStyles = {
@@ -155,32 +132,6 @@ const ViewRMACashier = ({ onClose, rma }) => {
         return processStyles;
     };
 
-    const checkWarrantyStatus = (warranty, transactionDate) => {
-        const warrantyParts = warranty.split(' '); // Split the warranty string into its value and unit (e.g., "5 Months" becomes ["5", "Months"])
-        const warrantyValue = parseInt(warrantyParts[0]); // Extract the number of months or years
-        const warrantyUnit = warrantyParts[1].toLowerCase(); // Extract the unit (Months or Years)
-    
-        const transactionDateObj = new Date(transactionDate);
-        let expiryDate;
-    
-        if (warrantyUnit === 'Month' || warrantyUnit === 'Months') {
-            // Add months to the transaction date
-            expiryDate = new Date(transactionDateObj.setMonth(transactionDateObj.getMonth() + warrantyValue));
-        } else if (warrantyUnit === 'Year' || warrantyUnit === 'Years') {
-            // Add years to the transaction date
-            expiryDate = new Date(transactionDateObj.setFullYear(transactionDateObj.getFullYear() + warrantyValue));
-        } else if (warrantyUnit === 'Day' || warrantyUnit === 'Days') {
-            // Add days to the transaction date
-            expiryDate = new Date(transactionDateObj.setDate(transactionDateObj.getDate() + warrantyValue));
-        } else {
-
-        }
-    
-        const currentDate = new Date();
-        return currentDate <= expiryDate ? 'Valid' : 'Expired';
-    };
-    
-    const warrantyStatus = checkWarrantyStatus(rma.product_warranty, rma.transaction_date);
     
 
     return (

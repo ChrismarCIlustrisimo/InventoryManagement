@@ -25,6 +25,7 @@ const Transaction = () => {
   const [units, setUnits] = useState([]);
   const [referenceNumber, setReferenceNumber] = useState('');
 
+
   const handlePaymentMethodChange = (e) => {
     setPaymentMethod(e.target.value);
 };
@@ -41,7 +42,7 @@ useEffect(() => {
   } else {
     setPaymentAmount(0);
   }
-}, [paymentMethod, discountValue, transaction.total_price]);
+}, [paymentMethod, discountValue]);
 
 
 
@@ -136,7 +137,7 @@ const handlePayment = () => {
 
 const processPayment = async () => {
   try {
-    // Prepare the payload
+    // Prepare the payload for updating transaction details
     const payload = {
       payment_status: 'paid', 
       cashier: user.name, 
@@ -166,8 +167,22 @@ const processPayment = async () => {
       },
     });
 
-    // Log the response from the PUT request
-    console.log('Response from PUT:', response);
+
+    const paymentAuditData = {
+      user: user.name,
+      action: 'Create',
+      module: 'POS',
+      event: `Added new sale Transaction`,
+      previousValue: "N/A",  // No previous value
+      updatedValue: transaction.transaction_id,
+    };
+
+
+    await axios.post(`${baseURL}/audit`, paymentAuditData, {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    });
 
     // Fetch the updated transaction
     const updatedResponse = await axios.get(`${baseURL}/transaction/${id}`, {
@@ -179,6 +194,7 @@ const processPayment = async () => {
     const updatedTransaction = updatedResponse.data;
     toast.success('Payment processed successfully.');
 
+    // Redirect to the receipt page after a successful payment
     setTimeout(() => {
       navigate('/reservation-receipt', { 
         state: {
@@ -197,6 +213,7 @@ const processPayment = async () => {
     toast.error('Failed to process payment. Please try again.');
   }
 };
+
 
 
 

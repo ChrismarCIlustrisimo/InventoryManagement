@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useAuthContext } from '../hooks/useAuthContext';
 import { API_DOMAIN } from '../utils/constants';
 import SearchBar from '../components/adminSearchBar';
+import { BiEdit } from "react-icons/bi";
 
 const UnitsTable = () => {
   const { productId } = useParams();
@@ -437,18 +438,29 @@ const ConfirmationDialog = ({ title, message, onConfirm, onCancel, darkMode }) =
                       </div>
                     ) : (
                       <div className="items-center flex justify-center gap-4">
-                        <button
-                          className="text-blue-500 hover:underline"
-                          onClick={() => handleEditClick(index, unit.serial_number)}
-                        >
-                          Edit
-                        </button>
-                        <button
+
+
+                        <div className="relative inline-block group">
+                                <button
+                                  className={`mx-1 ${darkMode ? 'text-light-textPrimary hover:text-light-primary' : 'text-dark-textPrimary hover:text-dark-primary'}`}
+                                  onClick={() => handleEditClick(index, unit.serial_number)}
+                                  >
+                                  <BiEdit size={30} />
+                                </button> 
+                                <span
+                                  className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${
+                                    darkMode ?  'bg-gray-200 text-black' : 'bg-black text-white'
+                                  }`}
+                                >
+                                  Edit
+                                </span>
+                              </div>
+                        {/*<button
                           className="text-red-500 hover:underline"
                           onClick={() => handleDeleteUnit(unit._id)}
                         >
                           Delete
-                        </button>
+                        </button>*/}
                       </div>
                     )}
                   </td>}

@@ -240,49 +240,9 @@ const handleProductChange = (event) => {
         <div className="overflow-y-auto px-8" style={{ maxHeight: "calc(80% - 4rem)" }}>
           {/* Customer Information */}
           <div className="flex flex-col gap-12 w-full">
-            <div className="flex flex-col gap-4 w-full">
+          <div className="flex flex-col gap-4 w-full">
               <p className={`text-xl font-semibold mb-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                Transaction Detail
-              </p>
-              <div className="flex">
-                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>TRANSACTION ID</label>
-                <input
-                  type="text"
-                  name="transactionId"
-                  value={transactionId}
-
-                  className="border border-gray-300 rounded w-[40%] p-1"
-                  placeholder="Enter Transaction ID"
-                  disabled
-                />
-              </div>
-              <div className="flex">
-                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PURCHASE DATE</label>
-                <input
-                  type="text"
-                  name="SalesDate"
-                  value={SalesDate}
-
-                  className="border border-gray-300 rounded w-[40%] p-1"
-                  disabled
-                />
-              </div>
-              <div className="flex">
-                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CASHIER</label>
-                <input
-                  type="text"
-                  name="cashierName"
-                  value={cashierName}
-
-                  className="border border-gray-300 rounded w-[40%] p-1"
-                  disabled
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 w-full">
-              <p className={`text-xl font-semibold mb-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                Customer Detail
+                Customer Information
               </p>
               <div className="flex">
                 <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CUSTOMER</label>
@@ -323,6 +283,47 @@ const handleProductChange = (event) => {
                 />
               </div>
             </div>
+            <div className="flex flex-col gap-4 w-full">
+              <p className={`text-xl font-semibold mb-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
+                Transaction Details
+              </p>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>TRANSACTION ID</label>
+                <input
+                  type="text"
+                  name="transactionId"
+                  value={transactionId}
+
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  placeholder="Enter Transaction ID"
+                  disabled
+                />
+              </div>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>PURCHASE DATE</label>
+                <input
+                  type="text"
+                  name="SalesDate"
+                  value={SalesDate}
+
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  disabled
+                />
+              </div>
+              <div className="flex">
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>CASHIER</label>
+                <input
+                  type="text"
+                  name="cashierName"
+                  value={cashierName}
+
+                  className="border border-gray-300 rounded w-[40%] p-1"
+                  disabled
+                />
+              </div>
+            </div>
+
+
 
             <div className="flex flex-col gap-4 w-full">
               <p className={`text-xl font-semibold mb-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
@@ -361,7 +362,7 @@ const handleProductChange = (event) => {
 
             <div className="flex flex-col gap-4 w-full">
               <p className={`text-xl font-semibold mb-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                RMA Request Detail
+                RMA Request Details
               </p>
 
               <div className='flex'>
@@ -403,13 +404,13 @@ const handleProductChange = (event) => {
               </div>
 
               <div className="flex">
-                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>NOTES</label>
+                <label className={`font-medium w-[50%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>REMARKS</label>
                 <textarea
                   name="notes"
                   value={notes}
                   onChange={handleChange}  // Add onChange event handler
                   className="border border-gray-300 rounded w-[40%] p-1"
-                  placeholder="Enter any notes"
+                  placeholder="Enter any remarks"
                 />
 
               </div>

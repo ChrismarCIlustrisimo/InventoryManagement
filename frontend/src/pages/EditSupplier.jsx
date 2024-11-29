@@ -114,8 +114,12 @@ const EditSupplier = ({ supplier, onClose }) => {
                 </div>
                 <div className={`overflow-y-auto w-full`}>
                     <div className='flex flex-col gap-6 w-full p-4'>
-                        <div className='flex items-center justify-between'>
-                            <label htmlFor="supplierName" className={`text-md font-semibold ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER NAME</label>
+                    <div className='flex items-center justify-start'>
+                            <label htmlFor="id" className={`text-md font-semibold w-[36%]  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER ID</label>
+                            <p className="p-2 w-[50%]">{supplier.supplier_id}</p>
+                        </div>
+                        <div className='flex items-center justify-start'>
+                            <label htmlFor="supplierName" className={`text-md font-semibold w-[36%]  ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>SUPPLIER NAME</label>
                             <input
                                 id="supplierName"
                                 type="text"
@@ -125,8 +129,8 @@ const EditSupplier = ({ supplier, onClose }) => {
                                 className="input-field border-2 p-2 w-[50%]"
                             />
                         </div>
-                        <div className='flex items-center justify-between'>
-                            <label htmlFor="contactPerson" className={`text-md font-semibold ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Contact Person</label>
+                        <div className='flex items-center justify-start'>
+                            <label htmlFor="contactPerson" className={`text-md font-semibold w-[36%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Contact Person</label>
                             <input
                                 id="contactPerson"
                                 type="text"
@@ -136,8 +140,8 @@ const EditSupplier = ({ supplier, onClose }) => {
                                 className="input-field border-2 p-2 w-[50%]"
                             />
                         </div>
-                        <div className='flex items-center justify-between'>
-                            <label htmlFor="phoneNumber" className={`text-md font-semibold ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Phone Number</label>
+                        <div className='flex items-center justify-start'>
+                            <label htmlFor="phoneNumber" className={`text-md font-semibold w-[36%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Phone Number</label>
                             <input
                                 id="phoneNumber"
                                 type="text"
@@ -147,8 +151,8 @@ const EditSupplier = ({ supplier, onClose }) => {
                                 className="input-field border-2 p-2 w-[50%]"
                             />
                         </div>
-                        <div className='flex items-center justify-between'>
-                            <label htmlFor="email" className={`text-md font-semibold ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Email Address</label>
+                        <div className='flex items-center justify-start'>
+                            <label htmlFor="email" className={`text-md font-semibold w-[36%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Email Address</label>
                             <input
                                 id="email"
                                 type="email"
@@ -160,11 +164,13 @@ const EditSupplier = ({ supplier, onClose }) => {
                         </div>
 
                         {/* Category Section */}
-                        <div className='flex flex-col'>
+                        <div className='flex flex-col '>
                             <label className={`text-md font-semibold ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Categories</label>
-                            <div className='flex flex-col items-end justify-end w-ful gap-2 w-full'>
+                            <div className='flex items-center justify-start'>
+                                <div className='w-[36%]'></div>
+                                <div className='flex flex-col items-start justify-center w-ful gap-2 w-[64%]  '>
                                 {category.map((cat, index) => (
-                                    <div key={index} className="flex items-center gap-2 w-[50%]">
+                                    <div key={index} className="flex items-center gap-2 w-[80%]">
                                         <select
                                             value={cat}
                                             onChange={(e) => handleCategoryChange(index, e)}
@@ -189,21 +195,23 @@ const EditSupplier = ({ supplier, onClose }) => {
                                 <button
                                     type="button"
                                     onClick={addCategory}
-                                    className="py-2 text-white bg-blue-500 rounded-md mt-2 w-[50%] flex items-center px-2 gap-2"
+                                    className="py-2 text-white bg-blue-500 rounded-md mt-2 w-[80%] flex items-center px-2 gap-2"
                                 >
                                     <AiOutlinePlus size={25} />
                                     Add More Category
                                 </button>
                             </div>
+                            </div>
+
                         </div>
-                        <div className='flex flex-col items-center justify-between'>
-                            <label htmlFor="remarks" className={`text-md font-semibold text-left w-full py-2 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Remarks</label>
+                        <div className='flex items-start justify-start'>
+                            <label htmlFor="remarks" className={`text-md font-semibold text-left w-[36%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Remarks</label>
                             <textarea
                                 id="remarks"
                                 value={remarks}
                                 onChange={(e) => setRemarks(e.target.value)}
                                 placeholder="Enter remarks"
-                                className="input-field border-2 p-2 w-[100%] h-[86px]"
+                                className="input-field border-2 p-2 w-[64%] h-[86px]"
                             />
                         </div>
                     </div>

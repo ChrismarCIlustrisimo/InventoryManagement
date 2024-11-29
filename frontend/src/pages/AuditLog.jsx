@@ -24,87 +24,101 @@ const AuditLog = () => {
     const [selectedDate, setSelectedDate] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-
-  const fetchLogs = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${baseURL}/audit`);
-      setLogs(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to fetch logs');
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchLogs();
-  }, []);
-
-
-
+  
+    const fetchLogs = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${baseURL}/audit`);
+        setLogs(response.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch logs');
+        setLoading(false);
+      }
+    };
+  
+    useEffect(() => {
+      fetchLogs();
+    }, []);
+  
     const handleStartDateChange = (date) => {
-        setStartDate(date);
+      setStartDate(date);
     };
-    
+  
     const handleEndDateChange = (date) => {
-        setEndDate(date);
+      setEndDate(date);
     };
-    
   
     const formatDate = (date) => {
       const options = {
-          year: 'numeric',
-          month: 'short', // Abbreviated month names (e.g., Nov)
-          day: 'numeric',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
       };
-  
       const formattedDate = new Date(date).toLocaleDateString('en-US', options);
-  
       const formattedTime = new Date(date).toLocaleTimeString('en-US', {
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true // Ensures AM/PM format
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
       });
-  
       return `${formattedDate} ${formattedTime}`;
-  };
+    };
   
-  const handleResetFilters = () => {
-    setSearchQuery('');
-    setStartDate(null);
-    setEndDate(null);
-    setSelectedDate('');
-};
-
-
+    const handleResetFilters = () => {
+      setSearchQuery('');
+      setStartDate(null);
+      setEndDate(null);
+      setSelectedDate('');
+    };
+  
     const handleDateFilterChange = (filter) => {
-        setSelectedDate(filter); 
-        const today = new Date();
-        
-        switch (filter) {
-          case 'Today':
-              setStartDate(new Date(today.setHours(0, 0, 0, 0)));
-              setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-              break;
-          case 'This Week':
-              const currentDayOfWeek = today.getDay(); // 0 (Sunday) - 6 (Saturday)
-              const weekStartOffset = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1; // Adjust for Monday as the start
-              const startOfWeek = new Date(today.setDate(today.getDate() - weekStartOffset));
-              setStartDate(new Date(startOfWeek.setHours(0, 0, 0, 0)));
-              setEndDate(new Date(new Date().setHours(23, 59, 59, 999))); // End of today
-              break;
-          case 'This Month':
-              const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-              setStartDate(startOfMonth);
-              setEndDate(new Date(today.setHours(23, 59, 59, 999)));
-              break;
-          default:
-              setStartDate(null);
-              setEndDate(null);
+      setSelectedDate(filter);
+      const today = new Date();
+      switch (filter) {
+        case 'Today':
+          setStartDate(new Date(today.setHours(0, 0, 0, 0)));
+          setEndDate(new Date(today.setHours(23, 59, 59, 999)));
+          break;
+        case 'This Week': {
+          const dayOfWeek = today.getDay();
+          const startOfWeek = new Date(today);
+          startOfWeek.setDate(today.getDate() - (dayOfWeek || 7) + 1);
+          setStartDate(new Date(startOfWeek.setHours(0, 0, 0, 0)));
+  
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6);
+          setEndDate(new Date(endOfWeek.setHours(23, 59, 59, 999)));
+          break;
         }
-      };
+        case 'This Month':
+          setStartDate(new Date(today.getFullYear(), today.getMonth(), 1));
+          setEndDate(new Date(today.getFullYear(), today.getMonth() + 1, 0));
+          break;
+        default:
+          setStartDate(null);
+          setEndDate(null);
+      }
+    };
+  
+// Apply filters to the logs
+const filteredLogs = logs.filter((log) => {
+    const logDate = new Date(log.timestamp);
+    const matchesDateRange =
+      (!startDate || logDate >= startDate) && (!endDate || logDate <= endDate);
+  
+    const matchesSearchQuery =
+      searchQuery.trim() === '' ||
+      Object.values(log).some(
+        (value) =>
+          value &&
+          typeof value === 'string' &&
+          value.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+  
+    return matchesDateRange && matchesSearchQuery;
+  });
+  
+
 
     return (    
         <div className={`w-full h-full ${darkMode ? 'bg-light-bg' : 'bg-dark-bg'}`}>
@@ -113,12 +127,7 @@ const AuditLog = () => {
                 <div className='flex items-center justify-center py-5'>
                     <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>Audit Trail</h1>
                     <div className='w-[90%] flex justify-end gap-2'>
-                        <AdminSearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search product by contact person'} />
-                        <button
-                            className={`px-4 py-2 rounded-md font-semibold ${darkMode ? 'bg-light-primary' : 'bg-dark-primary'}`}
-                        >
-                            Add Supplier
-                        </button>
+                        <AdminSearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search....'} />
                     </div>
                 </div>
                 <div className='flex gap-6'>
@@ -141,9 +150,12 @@ const AuditLog = () => {
                                         : 'bg-light-activeLink text-dark-primary border-dark-primary')} 
                                     outline-none font-semibold`}
                             >
+                                <option value='' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>All</option>
                                 <option value='Today' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>Today</option>
                                 <option value='This Week' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Week</option>
                                 <option value='This Month' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>
+                                <option value='This Year' className={`${darkMode ? 'bg-light-container' : 'bg-dark-container'}`}>This Month</option>
+
                             </select>      
                             </div>
 
@@ -226,7 +238,7 @@ const AuditLog = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {logs.map((log) => (
+                                {filteredLogs.map((log) => (
                                     <tr
                                         key={log._id}
                                         className={`border-b cursor-pointer ${

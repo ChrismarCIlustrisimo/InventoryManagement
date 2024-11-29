@@ -50,12 +50,13 @@ const transporter = nodemailer.createTransport({
 });
 
 // Example function to send an email
-const sendEmail = (to, subject, text) => {
+const sendEmail = (to, subject, text, html) => {
   const mailOptions = {
       from: process.env.EMAIL_USER, // Sender address
       to: to,                        // Recipient address
       subject: subject,              // Subject line
-      text: text,                    // Plain text body
+      text: text,
+      html                    // Plain text body
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
@@ -92,6 +93,27 @@ router.post('/', async (req, res) => {
               message: 'Products, customer, total_price, transaction_date, and payment_status are required',
           });
       }
+
+      const formatDate = (date) => {
+        const options = {
+          year: 'numeric',
+          month: 'short', // Abbreviated month names (e.g., Nov)
+          day: 'numeric',
+        };
+  
+        const formattedDate = new Date(date).toLocaleDateString('en-US', options);
+  
+        const formattedTime = new Date(date).toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true, // Ensures AM/PM format
+        });
+  
+        return `${formattedDate} ${formattedTime}`;
+      };
+
+      const formattedTransactionDate = formatDate(transaction_date);
+
 
       // Retrieve the customer details
       const customer = await Customer.findById(customerId);
@@ -180,12 +202,59 @@ router.post('/', async (req, res) => {
 
       const transaction = await newTransaction.save();
 
+
       // Send a confirmation email after the transaction is successfully saved
-      const emailSubject = `Transaction Confirmation - ID: ${transaction_id}`;
-      const emailText = `Hello ${customer.name},\n\nThank you for your purchase. Here are your transaction details:\n\nTransaction ID: ${transaction_id}\nTotal Price: ₱${total_price.toFixed(2)}\nDate: ${transaction_date}\nThank you for shopping with us!`;
+      const emailSubject = `Transaction Confirmed!`;
 
-      sendEmail(customer.email, emailSubject, emailText);
-
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px;">
+          <h2 style="color: #E84C19; margin-bottom: 20px; font-size: 2rem;">Transaction Confirmed!</h2>
+          <p style="font-size: 1rem;">Dear ${customer.name},</p>
+          <p style="font-size: 1rem;">Thank you for your purchase! Below are your transaction details:</p>
+          <p><strong>Transaction ID:</strong> ${transaction_id}</p>
+          <p><strong>Transaction Date:</strong> ${formattedTransactionDate}</p>
+      
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+              <tr>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f9f9f9;">Product Name</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f9f9f9;">Serial Numbers</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: right; background-color: #f9f9f9;">Quantity</th>
+                <th style="border: 1px solid #ddd; padding: 8px; text-align: right; background-color: #f9f9f9;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productItems
+                .map(
+                  item => `
+                  <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${item.product_name}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">${item.serial_number.join(', ')}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${item.quantity}</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">₱ ${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  </tr>
+                `
+                )
+                .join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="border: 1px solid #ddd; padding: 8px; text-align: right; font-weight: bold;">Total Price</td>
+                <td style="border: 1px solid #ddd; padding: 8px; text-align: right; font-weight: bold;">₱ ${total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+              </tr>
+            </tfoot>
+          </table>
+      
+          <p style="font-size: 1rem; margin-bottom: 16px; border-top: 1px solid #ddd; padding-top: 16px; text-align: center;">
+            <span style="font-weight: bold; font-size: 1.125rem;">Thank you for your purchase!</span>
+            <br>
+            <span>We look forward to serving your tech needs.</span>
+          </p>
+        </div>
+      `;
+      
+      sendEmail(customer.email, emailSubject, null, emailHtml);
+      
       return res.status(201).send(transaction);
   } catch (error) {
       console.error(error);
@@ -337,34 +406,76 @@ router.post('/online-reservation', async (req, res) => {
       return res.status(404).json({ message: "Customer not found or email is missing." });
     }
 
+
     // Prepare email content with peso sign
-    const emailText = `
-      Dear ${customer.name},
-      
-      Thank you for your reservation! Here are your transaction details
+    const emailHtml = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px;">
+      <h2 style="color: #E84C19; margin-bottom: 20px; font-size: 2rem;">Confirmation of Reservation</h2>
+      <p style="font-size: 1rem;">Dear ${customer.name},</p>
+      <p style="font-size: 1rem;">Thank you for your reservation! Below are your transaction details:</p>
+          <p><strong>Order ID:</strong> ${transaction_id}</p>
+          <p><strong>Transaction Date:</strong> ${formattedTransactionDate}</p>
+          <p><strong>Expiry Date:</strong> ${formattedExpiryDate}</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          <thead>
+            <tr>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f9f9f9;">Product Name</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: left; background-color: #f9f9f9;">Serial Numbers</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: right; background-color: #f9f9f9;">Quantity</th>
+              <th style="border: 1px solid #ddd; padding: 8px; text-align: right; background-color: #f9f9f9;">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${productItems
+              .map(
+                item => `
+                <tr>
+                  <td style="border: 1px solid #ddd; padding: 8px;">${item.product}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px;">${item.serial_number.join(', ')}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${item.quantity}</td>
+                  <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">₱ ${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                </tr>
+              `
+              )
+              .join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="border: 1px solid #ddd; padding: 8px; text-align: right; font-weight: bold;">Total Price</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: right; font-weight: bold;">₱ ${total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            </tr>
+          </tfoot>
+        </table>
+      <section style="margin-bottom: 24px; border-bottom: 1px solid #ddd; padding-bottom: 24px;">
+        <h3 style="font-size: 1rem; font-weight: bold; margin-bottom: 8px;">Instructions</h3>
+        <ol style="padding-left: 20px; font-size: 1rem; line-height: 1.5;">
+          <li>Present this receipt at our store.</li>
+          <li>Bring one valid ID for verification.</li>
+          <li>Proceed to payment.</li>
+          <li>Ensure you collect your items before the expiry date.</li>
+        </ol>
+      </section>
+      <section style="margin-bottom: 24px; border-bottom: 1px solid #ddd; padding-bottom: 16px;">
+        <h3 style="font-size: 1rem; font-weight: bold; margin-bottom: 8px;">Store Location</h3>
+        <p style="font-size: 1rem;">23 Gen. Tinio St. Bgy 85, Caloocan, Philippines</p>
+      </section>
+      <section style="margin-bottom: 24px;">
+        <h3 style="font-size: 1rem; font-weight: bold; margin-bottom: 8px;">Need Assistance?</h3>
+        <p style="font-size: 1rem;">Call us at: 8-364-6039 / 0923-444-1030</p>
+        <p style="font-size: 1rem;">Email: irigcomputers@gmail.com</p>
+      </section>
+      <p style="font-size: 1rem; margin-bottom: 16px; border-top: 1px solid #ddd; padding-top: 16px; text-align: center;">
+        <span style="font-weight: bold; font-size: 1.125rem;">Thank you for your reservation!</span>
+        <br>
+        <span>We look forward to serving your tech needs.</span>
+      </p>
+    </div>
+  `;
+
   
-      ORDER ID: ${transaction_id}
-      TRANSACTION DATE: ${formattedTransactionDate}
-      EXPIRY DATE: ${formattedExpiryDate}
-
-      Products:
-      ${productItems
-        .map(item => {
-          const serialNumbers = item.serial_number.join(', ');
-          return `${item.product_name} - Serial Number: ${serialNumbers} - Price: ₱ ${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-        })
-        .join('\n')}
-
-      Total Price: ₱${total_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-
-      We look forward to serving you again soon!
-
-      Best regards,
-      iRIG Computers
-    `;
-
-    // Send the confirmation email
-    sendEmail(customer.email, 'Reservation Confirmed', emailText);
+  // Send the email with the HTML content
+  sendEmail(customer.email, 'Reservation Confirmed', null, emailHtml);
+  
 
     return res.status(201).json(transaction);
   } catch (error) {

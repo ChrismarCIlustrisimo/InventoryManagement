@@ -384,7 +384,7 @@ useEffect(() => {
 
                 <div className='w-full flex items-center  '>
                   <p className='w-[50%]'>Vatable Sales</p>
-                  <p className='w-[50%]'>₱ {(totalAmount / 1.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                  <p className='w-[50%]'>₱ {((totalAmount / 1.12)- discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                 </div>
 
                 <div className='w-full flex items-center  '>

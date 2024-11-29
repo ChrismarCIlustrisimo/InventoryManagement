@@ -363,7 +363,7 @@ const PosHome = () => {
                       />
                       <p className='w-full font-medium'>{item.product.name}</p>
                     </td>
-                    <td className="text-center">₱ {((item.product.selling_price).toLocaleString()) || 0}</td>
+                    <td className="text-center">₱ {(item.product.selling_price).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || 0}</td>
                     <td className='text-center'>{item.quantity}</td>
                     <td className='tracking-wide text-center'>₱ {((item.quantity * item.product.selling_price).toLocaleString())}</td>
                     <td>
@@ -380,9 +380,9 @@ const PosHome = () => {
         </div>
 
         <div className='flex flex-col gap-3 justify-center items-center pt-2 w-full'>
-          <div className='flex flex-col gap-2 tracking-wider items-center justify-center font-semibold'>
+          <div className='flex gap-2 tracking-wider items-center w-[80%] justify-between font-semibold py-4 '>
             <p className='text-gray-400'>Subtotal</p>
-            <p className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>₱ {calculateTotal().toLocaleString()}</p>
+            <p className={`${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>₱ {calculateTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           </div>
 
           <button

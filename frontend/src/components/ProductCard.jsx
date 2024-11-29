@@ -24,7 +24,7 @@ const ProductCard = ({ product, onClick }) => {
       </div>
       <div className={`w-full h-auto p-2 ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
         <div className='flex justify-between items-center tracking-wide'>
-          <p className='text-sm text-primary'>₱ {safeToFixed(product.price)}</p>
+          <p className='text-sm text-primary'>₱ {product.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
           <p className='text-xs text-gray-400'>{product.stock} in stock</p>
         </div>
       </div>

@@ -147,12 +147,10 @@ const processPayment = async () => {
       total_amount_paid: paymentAmount, 
       products: transaction.products, 
       transaction_date: new Date().toISOString(),
+      total_price: transaction.total_price - discountValue,
     };
 
-    // Log the payload for debugging
-    console.log('Payload:', payload);
 
-    // Add reference number only if the payment method is not 'Cash'
     if (paymentMethod !== 'Cash') {
       payload.reference_number = referenceNumber;
     }
@@ -361,7 +359,7 @@ const processPayment = async () => {
                       <div className='flex flex-col w-full justify-between items-center gap-4'>
                         <div className='w-full flex items-center'>
                           <p className='w-[50%]'>Vatable Sales</p>
-                          <p className='w-[50%]'>₱ {(transaction.total_price / 1.12).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                          <p className='w-[50%]'>₱ {((transaction.total_price / 1.12) - discountValue).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                         </div>
 
                         <div className='w-full flex items-center'>

@@ -643,7 +643,8 @@ router.put('/:transactionId', async (req, res) => {
       total_amount_paid, 
       products, 
       transaction_date,
-      reference_number
+      reference_number,
+      total_price
     } = req.body;
 
     // Validate payment_status input
@@ -666,6 +667,7 @@ router.put('/:transactionId', async (req, res) => {
     if (total_amount_paid !== undefined) updateFields.total_amount_paid = total_amount_paid; // Add total amount
     if (transaction_date) updateFields.transaction_date = transaction_date; // Add transaction_date
     if (reference_number) updateFields.reference_number = reference_number; // Add transaction_date
+    if (total_price) updateFields.total_price = total_price; // Add transaction_date
 
     // Update transaction
     const updatedTransaction = await Transaction.findOneAndUpdate(
@@ -711,11 +713,11 @@ router.put('/:transactionId', async (req, res) => {
 // Update Transaction
 router.put('/:id', async (req, res) => {
   try {
-    const { products, customer, total_amount_paid, source, cashier,transaction_date } = req.body;
+    const { products, customer, total_amount_paid, source, cashier,transaction_date} = req.body;
     const { id } = req.params;
 
     // Validate required fields
-    if (!products || !total_amount_paid_paid || !cashier) {
+    if (!products || !total_amount_paid || !cashier) {
       return res.status(400).send({ message: 'Products, total_amount_paid_paid, and cashier are required' });
     }
 

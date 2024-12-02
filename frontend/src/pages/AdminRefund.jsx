@@ -356,7 +356,7 @@ const formatDates = (dateString) => {
 
        <div className={`h-[78vh] w-[77%] overflow-auto roundead-2xl text-sm ${darkMode ? 'bg-light-container' : 'dark:bg-dark-container'}`}>
                 <table className={`w-full border-collapse p-2 ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>
-                    <thead className={`sticky top-0 z-5 ${darkMode ? 'border-light-primary bg-light-container' : 'border-dark-primary bg-dark-container'} border-b text-sm`}>
+                    <thead className={`sticky top-0 z-5 ${darkMode ? ' bg-light-container' : ' bg-dark-container'} border-b text-sm`}>
                       <tr>
                         <th className='p-4 text-left text-md'>Refund ID</th>
                         <th className='p-4 text-left text-xs'>Sales Date</th>
@@ -371,7 +371,7 @@ const formatDates = (dateString) => {
                     <tbody>
                       {filteredRefunds.length > 0 ? (
                         filteredRefunds.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(refund => (
-                            <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container border-light-primary' : 'bg-dark-container border-dark-primary'}`}>
+                            <tr key={refund.id} className={`border-b ${darkMode ? 'bg-light-container ' : 'bg-dark-container '}`}>
                               <td className='p-4 text-left'>{refund.refund_id}</td>
                               <td className='p-4 text-left'>{formatDate(refund.sales_date)}</td>
                               <td className='p-4 text-left'>{refund.customer_name}</td>

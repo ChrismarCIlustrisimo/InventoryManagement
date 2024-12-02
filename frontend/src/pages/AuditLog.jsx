@@ -262,13 +262,13 @@ const filteredLogs = logs.filter((log) => {
                                                     ([key, value]) => (
                                                         <div key={key}>
                                                             {value.previous && (
-                                                                <span>{value.previous}</span>
+                                                                <span>{value.previous || 'N/A'}</span>
                                                             )}
                                                         </div>
                                                     )
                                                 )
                                             ) : (
-                                                <span>{log.previousValue}</span>
+                                                <span>{log.previousValue || 'N/A'}</span>
                                             )}
                                         </td>
                                         <td className="py-3 px-4 truncate">
@@ -277,13 +277,13 @@ const filteredLogs = logs.filter((log) => {
                                                     ([key, value]) => (
                                                         <div key={key}>
                                                             {value.updated && (
-                                                                <span>{value.updated}</span>
+                                                                <span>{value.updated || 'N/A'}</span>
                                                             )}
                                                         </div>
                                                     )
                                                 )
                                             ) : (
-                                                <span>{log.updatedValue}</span>
+                                                <span>{log.updatedValue || 'N/A'}</span>
                                             )}
                                         </td>
                                     </tr>

@@ -135,22 +135,6 @@ const parseNumber = (value) => {
   
       const customerId = customerResponse.data._id;
   
-      // Log audit event for customer creation (without previousValue)
-      const customerAuditData = {
-        user: user.name,
-        action: 'Create',
-        module: 'Customer',
-        event: `Created customer with ID ${customerId}`,
-        previousValue: null,  // No previous value since it's a creation
-        updatedValue: {
-          name: customerName,
-          email: email,
-          phone: phoneNumber,
-          address: address,
-        }
-      };
-  
-      await axios.post(`${baseURL}/audit`, customerAuditData);
   
       // Check for serial numbers in the cart
       cart.forEach(item => {
@@ -178,17 +162,6 @@ const parseNumber = (value) => {
         reference_number: referenceNumber,
       };
   
-      // Log audit event for transaction creation (without previousValue)
-      const transactionAuditData = {
-        user: user.name,
-        action: 'Create',
-        module: 'Transaction',
-        event: `Created transaction with total amount ${finalAmount} for customer ID ${customerId}`,
-        previousValue: null,  // No previous value since it's a creation
-        updatedValue: transactionData,
-      };
-  
-      await axios.post(`${baseURL}/audit`, transactionAuditData);
   
       // Step 3: Create the Transaction
       const transactionResponse = await axios.post(`${baseURL}/transaction`, transactionData, {

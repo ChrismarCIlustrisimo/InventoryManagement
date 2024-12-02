@@ -351,9 +351,9 @@ const getStatusStyles = (status) => {
                 ) : (
                   <div className="w-[80%] h-[77vh]">
                     <div className="overflow-x-auto max-h-screen h-[78vh] rounded-2xl">
-                    <table className={`w-full table-auto ${darkMode ? 'bg-light-bg text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>
+                    <table className={`w-full table-auto ${darkMode ? 'bg-light-container text-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>
                       <thead className="sticky top-0 z-5">
-                        <tr className={`border-b-2 ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
+                        <tr className={`border-b `}>
                           <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Transaction ID</th>
                           <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Sales Date</th>
                           <th className={`text-left p-4 text-xs ${darkMode ? 'text-light-textPrimary bg-light-container' : 'dark:text-dark-textPrimary bg-dark-container'}`}>Customer Name</th>
@@ -368,7 +368,7 @@ const getStatusStyles = (status) => {
                       <tbody>
                         {salesOrder.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date)).flatMap((transaction) =>
                           transaction.products.map((item, idx) => (
-                            <tr key={`${transaction._id}-${idx}`} className={`border-b ${darkMode ? 'border-light-primary' : 'dark:border-dark-primary'}`}>
+                            <tr key={`${transaction._id}-${idx}`} className={`border-b`}>
                               <td className={`p-4 text-xs text-left ${darkMode ? 'text-light-textPrimary' : 'dark:text-dark-textPrimary'}`}>
                                 {transaction.transaction_id || 'N/A'}
                               </td>

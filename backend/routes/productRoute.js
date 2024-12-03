@@ -254,15 +254,24 @@ router.get('/:id', async (req, res) => {
 router.put('/:id', upload.single('file'), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, category, supplier, buying_price, selling_price, sub_category, warranty ,description } = req.body;
-    const file = req.file;
+    const { name, category, supplier, buying_price, selling_price, sub_category, warranty, description } = req.body;
+    console.log('Request Body:', req.body);
+    console.log('File:', req.file);
+    
+    // Only validate warranty if it's included in the update request
+    if (warranty !== undefined && (!warranty || warranty.trim() === "")) {
+      return res.status(400).json({ message: 'Warranty cannot be empty.' });
+    }
 
     const updates = { name, category, supplier, buying_price, selling_price, sub_category, warranty, description };
 
-    if (file) {
-      const uploadResult = await uploadImageToCloudinary(file.buffer);
+    if (req.file) {
+      const uploadResult = await uploadImageToCloudinary(req.file.buffer);
       updates.image = uploadResult.secure_url;
     }
+
+    // Remove undefined fields from updates to prevent accidental overwrites
+    Object.keys(updates).forEach(key => updates[key] === undefined && delete updates[key]);
 
     const updatedProduct = await Product.findByIdAndUpdate(id, updates, { new: true, runValidators: true });
 
@@ -276,6 +285,8 @@ router.put('/:id', upload.single('file'), async (req, res) => {
     return res.status(500).json({ message: 'Server Error' });
   }
 });
+
+
 
 
 

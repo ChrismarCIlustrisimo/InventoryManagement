@@ -35,9 +35,10 @@ const UpdateProduct = () => {
   const [rows, setRows] = useState(3); // Initial number of rows
   const [category, setCategory] = useState('');
   const [subCategory, setSubCategory] = useState('');
-  const [selectedValue, setSelectedValue] = useState('');
   const [selectedNumber, setSelectedNumber] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
+  const [selectedValue, setSelectedValue] = useState('N/A'); // Default to 'N/A'
+  
   const [currentProduct, setCurrentProduct] = useState(null);
   const [suppliers, setSuppliers] = useState([]);
   const [productid, setProductid] = useState(null);
@@ -54,24 +55,30 @@ const UpdateProduct = () => {
         setSuppliers(supplierNames);  // Set the state to the list of supplier names
       } catch (err) {
         setError('Error fetching suppliers.');
-      } finally {
-        setLoading(false);
       }
     };
   
     fetchSuppliers();
   }, []);
 
+  
+
   const handleChange = (number, unit) => {
-    if (!number || !unit) {
-      setSelectedValue("N/A"); // Use "N/A" if either field is not selected
-    } else {
-      // Pluralize unit if number > 1
-      const formattedWarranty = `${number} ${unit}${number > 1 ? 's' : ''}`.trim();
-      setSelectedValue(formattedWarranty);
-      console.log("SADAS",warranty)
-    }
+    const formattedWarranty = number && unit ? `${number} ${unit}${number > 1 ? 's' : ''}` : 'N/A';
+    setSelectedValue(formattedWarranty);
   };
+  
+  useEffect(() => {
+    if (currentProduct && currentProduct.warranty) {
+      const warrantyParts = currentProduct.warranty.split(' ');
+      setSelectedNumber(warrantyParts[0] || '');
+      setSelectedUnit(warrantyParts[1]?.replace(/s$/, '') || '');
+      setSelectedValue(currentProduct.warranty);
+    }
+  }, [currentProduct]);
+  
+  
+  
 
   const categories = [
     {

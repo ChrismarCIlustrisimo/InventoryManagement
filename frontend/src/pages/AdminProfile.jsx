@@ -439,7 +439,7 @@ const handleConfirmArchive = async () => {
                                             <th style={{ width: '30%' }} className="p-2 py-4 text-left">NAME</th>
                                             <th style={{ width: '25%' }} className="p-2 py-4 text-center">ROLE</th>
                                             <th style={{ width: '25%' }} className="p-2 py-4 text-center">CONTACT</th>
-                                            <th style={{ width: '20%' }} className="p-2 py-4 text-center">ACTION</th>
+                                            <th style={{ width: '20%' }} className="p-2 py-4 text-center">ACTIONS</th>
                                             </tr>
                                         </thead>
                                         <tbody>

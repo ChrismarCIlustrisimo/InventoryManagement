@@ -56,11 +56,12 @@ const ReplacementReceipt = ({ rma, newSerialNumber, oldSerialNumber, onClose }) 
                 </style>
 
                 <div className='flex items-center justify-between w-full h-[10%] top-0 py-4 fixed z-50 px-6 bg-white'>
-                    <button className={`flex gap-2 items-center rounded-md hover:underline`} onClick={onClose}>
+                    <button className={`flex gap-2 items-center rounded-md hover:underline`} onClick={onClose} id='backButton'>
                         <IoCaretBackOutline /> Back to RMA
                     </button>
                     <div className='flex gap-4 items-end justify-center'>
                         <ReactToPrint
+                            id='printButton'
                             trigger={() => (
                                 <button className={`py-2 px-4 rounded-md text-white ${darkMode ? 'bg-light-primary' : 'bg-light-primary'}`}>
                                     Print Receipt

@@ -244,13 +244,13 @@ const handleExportPdf = () => {
           </h1>
           <div className='h-full w-[40%] flex items-center justify-end gap-2'>
             <ReactToPrint
-                trigger={() => <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary'}`}>Print Report</button>}
+                trigger={() => <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-textSecondary' : 'bg-dark-textSecondary'}`} id='printButton' >Print Report</button>}
                 content={() => componentRef.current}
                 pageStyle="print"
                 
               /> 
             
-            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-primary'}`} onClick={handleExportPdf}>Export as PDF</button>
+            <button className={`text-white rounded-md w-[30%] h-[80%] ${darkMode ? 'bg-light-button' : 'bg-dark-primary'}`} onClick={handleExportPdf} id='exportPDFButton' >Export as PDF</button>
             </div>
         </div>
         <div className='flex gap-4 items-center justify-center'>
@@ -259,7 +259,8 @@ const handleExportPdf = () => {
               <div className="flex flex-col gap-4">
                 <div className='flex flex-col'>
                   <label htmlFor='date' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Date</label>
-                  <select 
+                  <select
+                   
                       id='date'
                       value={selectedDate}
                       onChange={(e) => handleDateFilterChange(e.target.value)}
@@ -313,7 +314,8 @@ const handleExportPdf = () => {
                   <span className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>Included Reports</span>
                   {Object.keys(reportIncluded).map((status) => (
                     <label key={status} className='custom-checkbox flex items-center'>
-                      <input 
+                      <input
+                        id='statusCheckbox'  
                         type='checkbox' 
                         checked={reportIncluded[status]} 
                         onChange={() => handleCheckboxChangeReports(status)} 
@@ -330,6 +332,7 @@ const handleExportPdf = () => {
 
             <div className='flex flex-col gap-2'>
                   <button
+                      id='resetFilterButton' 
                       className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
                       ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
                       onClick={handleResetFilters}>

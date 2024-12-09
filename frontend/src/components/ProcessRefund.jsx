@@ -166,6 +166,7 @@ const ProcessRefund = ({ rma, onClose }) => {
               <div className="flex">
                 <label className={`font-medium w-[40%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>TOTAL REFUND AMOUNT</label>
                 <input
+                  id='totalRefundAmount'
                   type="number"
                   name="totalRefundAmount"
                   value={totalRefundAmount}
@@ -195,6 +196,7 @@ const ProcessRefund = ({ rma, onClose }) => {
                 <div className="flex">
                   <label className={`font-medium w-[40%] ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>REFERENCE NUMBER</label>
                   <input
+                    id='referenceNumberID'
                     type="text"
                     name="referenceNumber"
                     value={referenceNumber}
@@ -230,8 +232,8 @@ const ProcessRefund = ({ rma, onClose }) => {
             <h3 className={`text-lg font-semibold mb-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Confirm Refund</h3>
             <p className={`mb-4 ${darkMode ? 'text-light-textSecondary' : 'text-dark-textSecondary'}`}>Are you sure you want to process this refund?</p>
             <div className="flex items-center justify-center gap-4 mt-12">
-               <button onClick={handleConfirm}className={`w-[50%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}>Yes</button>
-              <button onClick={handleCancel} className={`w-[50%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>No</button>
+               <button id='confirmButton' onClick={handleConfirm}className={`w-[50%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}>Yes</button>
+              <button id='cancelButton' onClick={handleCancel} className={`w-[50%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}>No</button>
             </div>
           </div>
         </div>

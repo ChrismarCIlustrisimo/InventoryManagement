@@ -201,6 +201,7 @@ const ProcessReplacement = ({ onClose, rma }) => {
                         {/* Action Buttons */}
                         <div className="flex items-center justify-start gap-5 mt-10 pb-6 pr-8 ">
                             <button
+                                id='submitReplacementButton'
                                 className={`w-[46%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
                                 onClick={handleReplacementSubmit}
                                 disabled={!availableProduct || productList.length === 0}
@@ -208,6 +209,7 @@ const ProcessReplacement = ({ onClose, rma }) => {
                                 Submit Replacement
                             </button>
                             <button
+                                id='CancelReplacementButton'
                                 onClick={onClose}
                                 className={`w-[46%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
                             >
@@ -230,12 +232,14 @@ const ProcessReplacement = ({ onClose, rma }) => {
                         </p>
                         <div className="flex items-center justify-center gap-4 mt-12">
                              <button
+                                id='confirmButton'
                                 onClick={handleConfirm}
                                 className={`w-[50%] py-3 rounded-md font-semibold transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'bg-light-primary text-dark-textPrimary hover:bg-light-primary' : 'bg-dark-primary text-light-textPrimary hover:bg-dark-primary'}`}
                                 >
                                 Yes
                             </button>
                             <button
+                                id='NoButton'
                                 onClick={handleCancel}
                                 className={`w-[50%] py-3 bg-transparent border rounded-md transition-transform duration-200 transform hover:scale-105 ${darkMode ? 'border-light-primary text-light-primary' : 'border-dark-primary text-dark-primary'}`}
                             >

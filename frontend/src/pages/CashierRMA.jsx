@@ -240,7 +240,7 @@ const CashierRMA = () => {
             <div className='flex items-center justify-center py-5'>
             <h1 className={`w-full text-3xl font-bold ${darkMode ? 'text-light-textPrimary' : 'text-dark-textPrimary'}`}>RMA Requests</h1>
                 <div className='w-full flex justify-end gap-2'>
-                    <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search by RMA ID'} />
+                    <SearchBar query={searchQuery} onQueryChange={setSearchQuery} placeholderMessage={'Search by RMA ID'}  id='searchRMAID'/>
                 </div>
             </div>
 
@@ -252,6 +252,7 @@ const CashierRMA = () => {
                     <div className='flex flex-col'>
                     <label htmlFor='customerName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CUSTOMER NAME</label>
                     <input
+                        id="customerNameID"
                         type='text'
                         placeholder='Enter Customer Name'
                         value={customerName}
@@ -266,6 +267,7 @@ const CashierRMA = () => {
                     <div className='flex flex-col gap-2'>
                     <label htmlFor='cashierName' className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>CASHIER NAME</label>
                     <input
+                        id="cashierNameID"
                         type='text'
                         placeholder='Enter Cashier Name'
                         value={cashierName}
@@ -279,6 +281,7 @@ const CashierRMA = () => {
                     <div className='flex flex-col gap-2'>
                             <label className={`text-md font-semibold ${darkMode ? 'text-dark-border' : 'dark:text-light-border'}`}>RMA Status</label>
                             <select
+                                id="statusFilterID"
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
                                 className={`border rounded p-2 my-1 
@@ -307,6 +310,7 @@ const CashierRMA = () => {
                       <div className='flex flex-col'>
                       <div className={`w-[130px] border rounded border-3 pl-1  ${startDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary' : 'dark:border-dark-textPrimary'}`}`}>
                       <DatePicker
+                            id='startDatePicker'
                             selected={startDate}
                             onChange={handleStartDateChange}
                             dateFormat='MM-dd-yyyy'
@@ -321,6 +325,7 @@ const CashierRMA = () => {
                       <div className='flex flex-col'>
                       <div className={`w-[130px] border rounded  border-3 pl-1 ${endDate ? ' text-light-primary border-light-primary' : `bg-transparent ${darkMode ? 'border-light-textPrimary bg-light-activeLink' : 'dark:border-dark-textPrimary bg-dark-activeLink'}`}`}>
                       <DatePicker
+                            id='endDatePicker'
                             selected={endDate}
                             onChange={handleEndDateChange}
                             dateFormat='MM-dd-yyyy'
@@ -337,6 +342,7 @@ const CashierRMA = () => {
                 {/* RESET FILTERS BUTTON */}
                 <div className='flex flex-col gap-2'>
                     <button
+                        id='resetFiltersButton'
                         className={`text-white py-2 px-4 rounded w-full h-[50px] flex items-center justify-center tracking-wide font-medium bg-gray-400 border-2 
                         ${darkMode ? 'hover:bg-dark-textSecondary hover:scale-105' : 'hover:bg-light-textSecondary hover:scale-105'} transition-all duration-300`}
                         onClick={handleResetFilters}
@@ -409,7 +415,9 @@ const CashierRMA = () => {
                                                         </p>
                                                     </td>*/}
                                                     <td className='text-center py-4 text-sm'>
-                                                        <button className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleViewRMACashier(rmaRequest)}>
+                                                        <button
+                                                            id='viewButton'
+                                                            className={`text-white px-4 py-2 rounded-md ${darkMode ? 'bg-light-button' : 'bg-light-button'}`} onClick={() => handleViewRMACashier(rmaRequest)}>
                                                             View
                                                         </button>
                                                     </td>
